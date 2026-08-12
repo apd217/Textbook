@@ -1,0 +1,231 @@
+---
+title: 'Independent Samples t-Test'
+geometry: margin=.5in
+fontsize: 11pt
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(fig.width=5)
+knitr::opts_chunk$set(fig.height=3.7)
+knitr::opts_chunk$set(fig.align='center') 
+```
+
+
+## The Research Question 
+
+What would happen if the CTA actually ran every 7 minutes?
+
+Would people like using it more?
+
+### Design
+
+Two independent groups:
+
+- **Control** = Regular CTA timing ("scheduled" is a flexible concept)
+- **Experimental** = Trains arrive every 7 minutes. Like clockwork. Almost suspiciously efficient.
+
+### Dependent Variable
+
+A **1-7 bipolar Likert scale** measuring how much participants like using the CTA to get around Chicago:
+
+- 1 = Absolutely hate using the CTA  
+- 4 = Neutral / It's fine  
+- 7 = Love it, I now defend the CTA on the internet
+
+We expect:
+
+- Control mean is approximately **3** (mild frustration, classic Chicago baseline)
+- Experimental mean is approximately **5** ("Wait... this works?")
+
+Now we walk through how to test this.
+
+
+## Step 1: State the Hypotheses
+
+$$
+H_0: \mu_1 = \mu_2 
+$$
+
+$$
+H_1: \mu_1 \neq \mu_2 
+$$
+
+Where:
+
+- $\mu_1$ = Experimental (7-minute trains)
+- $\mu_2$ = Control (regular timing)
+
+Under the null, $\mu_1 - \mu_2 = 0$.
+
+
+## Step 2: collect the Data
+
+```{r, echo=FALSE}
+set.seed(343)
+
+n = 30
+CTA.SD = 1
+
+# Control group (mean ~ 3)
+CTA.Control <- rnorm(n, 3, CTA.SD)
+
+# Experimental group (mean ~ 5)
+CTA.Experimental <- rnorm(n, 5, CTA.SD)
+
+hist(CTA.Control, xlab="CTA Liking (1-7)", main="Control: Regular Timing", xlim = c(0,8))
+hist(CTA.Experimental, xlab="CTA Liking (1-7)", main="Experimental: Every 7 Minutes", xlim = c(0,8))
+```
+
+Already you should see separation. But eyeballing histograms is not a statistical test (even if it feels persuasive).
+
+## Step 3: Compute the Standard Error
+
+For **Welch's t-test**, which R uses by default, the standard error is:
+
+$$
+S_{M_1-M_2}=\sqrt{\frac{S_1^2}{n_1}+\frac{S_2^2}{n_2}}
+$$
+
+Welch's test does not assume equal population variances. It uses a Welch--Satterthwaite approximation for the degrees of freedom, which R will calculate because we have suffered enough.
+
+If we instead use the classical pooled-variance version, the standard error is:
+
+$$
+S_{M_1-M_2}=\sqrt{S_p^2\left(\frac{1}{n_1}+\frac{1}{n_2}\right)}
+$$
+
+This represents how much variability we expect in the **difference between means** due to sampling error. The pooled version combines the two sample variances:
+
+$$
+S^2_p =  \frac{SS_1 + SS_2}{df_1 + df_2}
+$$
+
+
+## Step 4: Compute the t Statistic
+
+$$
+t = \frac{M_1 - M_2 - (\mu_1 - \mu_2)}{S_{M1 - M2}}
+$$
+For the pooled-variance test, the degrees of freedom are:
+
+$$
+df = (n_1 - 1) + (n_2 - 1)
+$$
+
+Now let R do the arithmetic. R uses **Welch's t-test** by default because it does not require the two populations to have equal variances. That is usually the safer choice. The pooled formula above is still useful because it makes the basic machinery visible, but we should not force equal variances merely because an ancient statistics ritual told us to.
+
+```{r, echo=TRUE}
+CTA.t.test <- t.test(x = CTA.Experimental,
+                     y = CTA.Control,
+                     alternative = "two.sided",
+                     conf.level = 0.95)
+
+CTA.t.test
+```
+
+If trains truly arrive every 7 minutes, we should see a statistically significant increase in liking.
+
+
+## Step 5: Visual Reporting - Means + 95% CI
+
+```{r}
+CTA.df <- data.frame(
+  Condition = c(rep("Control\n(regular timing)", n),
+            rep("Experimental\n(every 7 min)", n)),
+  Liking = c(CTA.Control, CTA.Experimental)
+)
+```
+
+
+```{r, echo=TRUE}
+library(ggpubr)
+
+ggbarplot(
+  CTA.df,
+  x = "Condition",
+  y = "Liking",
+  add = "mean_ci",        # mean + 95% CI
+  fill = "Condition",
+  palette = "grey",
+  ylim = c(1, 7),
+  xlab = NULL,
+  ylab = "Mean CTA liking (1-7)",
+  title = "CTA liking by timing condition"
+) +
+  theme_bw(base_size = 11) +
+  theme(legend.position = "none")
+
+```
+
+
+## Step 6: Extract the APA Values
+
+Formatting packages can be convenient, but some do not support Welch's t-test. We can extract the values directly and avoid letting a package bully us back into an equal-variance assumption.
+
+```{r, echo=TRUE}
+apa_values <- data.frame(
+  t = unname(CTA.t.test$statistic),
+  df = unname(CTA.t.test$parameter),
+  p = CTA.t.test$p.value,
+  CI_low = CTA.t.test$conf.int[1],
+  CI_high = CTA.t.test$conf.int[2]
+)
+
+round(apa_values, 3)
+```
+
+
+## Step 7: Cohen's d
+
+Statistical significance tells us whether the effect is likely non-zero.
+
+Effect size tells us **how big it is**.
+
+For independent samples with equal variances:
+
+$$
+d = \frac{M_1 - M_2}{S_p}
+$$
+
+Where:
+
+$$
+S_p = \sqrt{\frac{SS_1 + SS_2}{df_1 + df_2}}
+$$
+
+Let's calculate it manually so you see where it comes from.
+
+```{r, echo=TRUE}
+M1 <- mean(CTA.Experimental)
+M2 <- mean(CTA.Control)
+S1 <- sd(CTA.Experimental)
+S2 <- sd(CTA.Control)
+
+Sp <- sqrt(((n-1)*S1^2 + (n-1)*S2^2) / (2*n - 2))
+cohens_d <- (M1 - M2) / Sp
+
+c(M_experimental = M1, M_control = M2, Sp = Sp, d = cohens_d)
+```
+
+The value tells us how far apart the two means are in pooled standard-deviation units. Context still matters. A conventional adjective cannot tell us whether the change matters for actual riders, budgets, access, or the continued emotional survival of anyone waiting for a bus in February.
+
+Because let's be honest - trains every 7 minutes would change lives.
+
+
+## Step 8: APA Results Paragraph
+
+Participants in the every-7-minutes condition ($M =$ `r round(M1, 2)`, $SD =$ `r round(S1, 2)`) reported greater liking of the CTA than those in the regular-timing control condition ($M =$ `r round(M2, 2)`, $SD =$ `r round(S2, 2)`), Welch's $t(`r round(unname(CTA.t.test$parameter), 2)`) =$ `r round(unname(CTA.t.test$statistic), 2)`, $p$ `r ifelse(CTA.t.test$p.value < .001, "< .001", paste("=", round(CTA.t.test$p.value, 3)))`, 95% CI [`r round(CTA.t.test$conf.int[1], 2)`, `r round(CTA.t.test$conf.int[2], 2)`], $d =$ `r round(cohens_d, 2)`.
+
+In this simulated experiment, increasing train frequency produced a very large difference in reported attitudes. In real life, the CTA has declined our invitation to be manipulated with `set.seed(343)`.
+
+::: {.callout-important title="Welch by Default; Effect Size Beside It"}
+Welch's t-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The p-value cannot tell the reader how far apart the groups are.
+:::

@@ -1,0 +1,162 @@
+---
+title: "Advanced: Missing Data and Multiple Imputation"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## Missing Is Information
+
+Missing data are not empty spreadsheet cells waiting politely for deletion. They occurred through a process. Understanding that process matters more than discovering which button replaces `NA` with a number.
+
+Suppose participants complete a stress survey:
+
+- Some skip an item because the page failed to load.
+- Some exhausted participants abandon the survey halfway through.
+- Some refuse to report stress precisely because their stress is extreme.
+
+Those are different missing-data mechanisms and may produce different biases.
+
+## MCAR, MAR, and MNAR
+
+Let $R$ indicate whether a value is observed and let $Y_{mis}$ and $Y_{obs}$ denote missing and observed data.
+
+- **MCAR:** Missingness is unrelated to observed or missing values.
+
+$$
+P(R\mid Y_{obs},Y_{mis})=P(R).
+$$
+
+- **MAR:** After conditioning on observed variables, missingness no longer depends on the missing value.
+
+$$
+P(R\mid Y_{obs},Y_{mis})=P(R\mid Y_{obs}).
+$$
+
+- **MNAR:** Missingness still depends on the unobserved value after accounting for observed information.
+
+::: {.callout-warning title="MAR Does Not Mean Missingness Is Random Nonsense"}
+Under MAR, missingness may be strongly predictable from variables we observed. A participant may skip the pet-spider question because they already reported hating spiders. The missingness is systematic, but the observed spider-hatred variable can help model it.
+:::
+
+## Why Mean Imputation Is Not a Solution
+
+Mean imputation replaces every missing value with the same number. It preserves the mean mechanically while shrinking variability, weakening relationships, and pretending invented values were observed with certainty.
+
+```{r mean-imputation-demo}
+set.seed(343)
+n <- 300
+CompleteData <- data.frame(
+  Sleep = rnorm(n, 7, 1.4)
+)
+CompleteData$Stress <- 70 - 5 * CompleteData$Sleep + rnorm(n, 0, 6)
+
+MissingData <- CompleteData
+miss <- runif(n) < plogis((MissingData$Stress - 38) / 5)
+MissingData$Stress[miss] <- NA
+
+MeanImputed <- MissingData
+MeanImputed$Stress[is.na(MeanImputed$Stress)] <- mean(MeanImputed$Stress, na.rm = TRUE)
+
+rbind(
+  Complete = c(SD = sd(CompleteData$Stress),
+               Slope = coef(lm(Stress ~ Sleep, CompleteData))["Sleep"]),
+  CompleteCases = c(SD = sd(MissingData$Stress, na.rm = TRUE),
+                    Slope = coef(lm(Stress ~ Sleep, MissingData))["Sleep"]),
+  MeanImputed = c(SD = sd(MeanImputed$Stress),
+                  Slope = coef(lm(Stress ~ Sleep, MeanImputed))["Sleep"])
+)
+```
+
+Increasing the sample size does not make mean imputation principled. It can make the wrong answer more precise.
+
+::: {.callout-important title="Do Not Impute the Outcome Once and Pretend It Was Observed"}
+Single imputation ignores uncertainty about the missing values. Multiple imputation creates several plausible completed datasets, analyzes each one, and combines the results so imputation uncertainty enters the standard errors.
+:::
+
+## Multiple Imputation
+
+Multiple imputation proceeds in three stages:
+
+1. **Impute:** Create $m$ plausible completed datasets.
+2. **Analyze:** Fit the same analysis in every dataset.
+3. **Pool:** Combine coefficients and uncertainty using Rubin's rules [@rubin1987].
+
+If $\widehat{Q}_j$ is the estimate from imputation $j$, then:
+
+$$
+\bar{Q}=\frac{1}{m}\sum_{j=1}^{m}\widehat{Q}_j.
+$$
+
+The total variance combines average within-imputation variance $\bar{U}$ and between-imputation variance $B$:
+
+$$
+T=\bar{U}+\left(1+\frac{1}{m}\right)B.
+$$
+
+The second term acknowledges that we do not know which plausible replacements were correct. This is uncertainty doing its job instead of being locked in a closet.
+
+## A Modern `mice` Workflow
+
+```{r mice-workflow}
+library(mice)
+
+# Inspect missingness and choose methods/predictors deliberately.
+Imputations <- mice(
+  MissingData,
+  m = 20,
+  method = "pmm",
+  seed = 343,
+  printFlag = FALSE
+)
+
+# Fit the model in every imputed dataset.
+ImputedModels <- with(
+  Imputations,
+  lm(Stress ~ Sleep)
+)
+
+# Pool estimates and uncertainty across all 20 analyses.
+PooledResults <- pool(ImputedModels)
+summary(PooledResults, conf.int = TRUE)
+```
+
+The essential step is `pool()`. Calling `complete()` once and analyzing one completed dataset discards the entire reason for multiple imputation. The `mice` workflow implements chained-equation imputation and pooling in R [@vanbuuren2011].
+
+Predictive mean matching (`pmm`) replaces missing continuous values with observed values from cases having similar predicted means. It can preserve plausible ranges and some nonnormality, but no default method is correct for every variable.
+
+## What Goes Into the Imputation Model?
+
+Include:
+
+- Variables in the final analysis.
+- Variables that predict missingness.
+- Variables that predict the incomplete variable.
+- Design features such as interactions, nonlinear terms, clustering, or bounds when relevant.
+
+The imputation model should generally be at least as rich as the analysis model. Imputing each variable as if the interaction, repeated structure, or group membership does not exist may quietly erase the effect you planned to test.
+
+## Mixed Models and Missing Outcomes
+
+Likelihood-based mixed models can use participants with incomplete outcome records under assumptions related to MAR. This is a major advantage over classical repeated-measures ANOVA, which may discard an entire participant for one missing occasion.
+
+That does not mean mixed models solve every missing-data problem. Missing predictors still require attention, dropout can be informative, and MNAR mechanisms require sensitivity analyses or stronger models.
+
+::: {.callout-warning title="MNAR Cannot Be Diagnosed from the Observed Data Alone"}
+If missingness depends on values we never observed, the data cannot reveal the mechanism by themselves. State assumptions, use substantive knowledge, and examine how conclusions change under plausible alternatives.
+:::
+
+## A Practical Workflow
+
+1. Report the amount and pattern of missingness.
+2. Ask why each variable may be missing.
+3. Compare observed characteristics of complete and incomplete cases.
+4. Choose an analysis and imputation strategy together.
+5. Diagnose the imputation models and inspect completed values.
+6. Pool results across imputations.
+7. Conduct sensitivity analyses when conclusions depend on unverifiable assumptions.
+
+## The Short Story
+
+Missing data arise through a process. Mean imputation invents certainty and damages variation. Multiple imputation creates several plausible datasets, fits every one, and pools the results. No method rescues an unexamined missingness mechanism.

@@ -1,0 +1,325 @@
+---
+title: "P-Values and Multiple Comparisons"
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4.5
+)
+```
+
+::: {.callout-warning}
+## Advanced topic
+
+This chapter assumes that you already understand null hypotheses, Type I and Type II errors, power, effect sizes, and confidence intervals. Undergraduates may continue, but should bring snacks and a responsible graduate student. Graduate students should bring two snacks because they are expected to pretend this is easy.
+:::
+
+## First, Let Us Put a Dead Fish in an MRI
+
+Bennett and colleagues placed a mature Atlantic salmon in an fMRI scanner and showed it photographs of people in social situations. The salmon was asked to decide what emotion each person was experiencing. There was a slight methodological complication: **the salmon was dead** [@bennett2010].
+
+The researchers ran tens of thousands of voxel-by-voxel tests. With an uncorrected threshold of $p < .001$, they found apparently active voxels in the salmon's brain cavity and spinal column. After proper familywise-error and false-discovery-rate corrections, the salmon's social-cognitive abilities vanished. Even relaxed corrected thresholds found nothing, which is generally what we hope to discover about the thoughts of a dead fish.
+
+If Atlantic salmon become difficult to recruit, Alex can substitute for the fish because he is approximately as brain-dead before coffee. The major design problem is that Alex may twitch, complain, or ask whether the scan counts toward tenure.
+
+The study was deliberately absurd, but the statistical problem was real. If you conduct enough tests, fickle chance receives enough opportunities to manufacture something exciting. A tiny p-value attached to one selected result does not tell us how many other tests were run before that result crawled out of the computer wearing a crown.
+
+Before we control many p-values, however, we should establish what one p-value means. This seems obvious. It is not. Researchers have spent nearly a century proving that they can misunderstand a definition with remarkable consistency.
+
+## What a P-Value Actually Is
+
+A p-value answers this conditional question:
+
+> **Assuming the null hypothesis and the statistical model are correct, how probable are results at least as incompatible with the null hypothesis as the result we observed?**
+
+In shorthand:
+
+$$
+p = P(\text{data this extreme or more extreme} \mid H_0, \text{model})
+$$
+
+Small p-values say that the observed result does not sit comfortably inside the null model. They do not identify which assumption is wrong. Perhaps the null hypothesis is a poor description. Perhaps independence failed, the model was misspecified, the measurement was terrible, or one participant completed the experiment while being chased by a goose. Statistics can tell you that the whole package looks strained. It cannot interrogate the goose.
+
+**Statistical significance** is a decision rule. If the p-value is at or below a threshold chosen in advance, usually $\alpha = .05$, we call the result statistically significant. The threshold is a convention, not a cliff in nature. A result with $p = .049$ and one with $p = .051$ are not members of different species.
+
+### The Conditional-Probability Trap
+
+The most famous mistake is reversing the condition:
+
+$$
+P(D \mid H_0) \neq P(H_0 \mid D)
+$$
+
+The probability of screaming **given that** a foam-chainsaw-wielding research assistant is chasing you is probably high. The probability that a foam-chainsaw-wielding research assistant is chasing you **given that** you are screaming is not necessarily high. You may have seen your tuition bill.
+
+Cohen emphasized that a p-value gives $P(D \mid H_0)$, not the probability that the null is true after seeing the data [@cohen1994]. To calculate $P(H_0 \mid D)$, we would need additional information, including prior probabilities and an explicit alternative model. Quietly turning one conditional probability around does not make it Bayesian. It makes it wrong.
+
+### A P-Value Is Not Any of These Things
+
+A p-value is **not**:
+
+- The probability that the null hypothesis is true.
+- The probability that the research hypothesis is false.
+- The probability that the result happened "because of chance."
+- The Type I error rate for this particular result.
+- The probability that the study will replicate.
+- The size or practical importance of the effect.
+- A tiny certificate declaring the study free of confounds, bias, fraud, or nonsense.
+
+Lane-Getaz documented thirteen recurring p-value misconceptions in statistics students and experienced researchers [@lanegetaz2005]. Even graduate students who had survived multiple statistics courses often confused p-values with the probability of a hypothesis, replicability, effect size, or Type I error. Taking another statistics course helps, but apparently does not exorcise the demon automatically.
+
+## Cohen's Complaint: The Ritual Ate the Science
+
+Cohen's title, *The Earth Is Round ($p < .05$)*, mocked the habit of testing a nearly certain or scientifically uninteresting null and then acting impressed when it was rejected [@cohen1994]. In much of psychology, an exact **nil hypothesis**—a population difference or correlation of precisely zero—is implausible. With a large enough sample, a trivial departure from zero can become statistically significant.
+
+That produces two failures:
+
+1. Researchers mistake "detectable" for "important."
+2. Researchers treat rejection of one null model as confirmation of their favorite theory, even though confounds, measurement problems, alternative theories, and several Probability Gods remain available.
+
+Cohen did not offer a new sacred button. He recommended exploratory data analysis, graphs, effect sizes, confidence intervals, better measurement, power planning, and replication. In other words: look at what happened, estimate how much happened, admit the uncertainty, and see whether it happens again. Annoyingly, the solution is scientific judgment rather than purchasing a newer ritual.
+
+## Significant Here, Not Significant There
+
+Gelman and Stern identified another extremely common error: concluding that two effects differ because one is statistically significant and the other is not [@gelman2006].
+
+Suppose two independent studies estimate effects of:
+
+$$
+25 \pm 10 \qquad \text{and} \qquad 10 \pm 10
+$$
+
+The first estimate is statistically significant and the second is not. But their estimated **difference** is $15$, with a standard error of:
+
+$$
+SE_{difference} = \sqrt{10^2 + 10^2} = 14.14
+$$
+
+The two effects are only about 1.06 standard errors apart. That difference is not statistically significant. "Treatment A worked but Treatment B did not" is not evidence that Treatment A worked **better** than Treatment B. Test the comparison you want to claim.
+
+This matters for interactions, subgroups, replications, and breathless headlines. If an effect is significant for women but not men, younger adults but not older adults, or Tuesday but not Wednesday, you have not established a group difference until you test that difference directly.
+
+## One Test at a Time Creates a Family Problem
+
+Set $\alpha = .05$ for one true null hypothesis. In repeated use, that test falsely rejects the null about 5% of the time. Now run $m$ independent tests, all with true null hypotheses. The probability of **at least one** false positive is:
+
+$$
+FWER = 1 - (1 - \alpha)^m
+$$
+
+With 20 independent tests:
+
+$$
+1 - .95^{20} = .642
+$$
+
+There is about a 64% chance of at least one false positive. You did not change $\alpha$ for any individual test. You simply gave fickle chance twenty auditions and published whichever one could sing.
+
+```{r}
+#| label: fig-fwer-growth
+#| fig-cap: "The probability of at least one false positive grows rapidly as more independent true null hypotheses are tested at alpha = .05. Simulated points sit on the theoretical curve."
+set.seed(343)
+
+alpha <- .05
+m_grid <- 1:100
+theoretical_fwer <- 1 - (1 - alpha)^m_grid
+
+simulated_at <- c(1, 5, 10, 20, 50, 100)
+simulated_fwer <- vapply(simulated_at, function(m) {
+  p_values <- matrix(runif(20000 * m), ncol = m)
+  mean(rowSums(p_values <= alpha) > 0)
+}, numeric(1))
+
+plot(
+  m_grid, theoretical_fwer,
+  type = "l", lwd = 3, col = "#1F4E79",
+  ylim = c(0, 1),
+  xlab = "Number of tests in the family",
+  ylab = "Probability of one or more false positives"
+)
+points(simulated_at, simulated_fwer, pch = 19, col = "#D55E00")
+abline(h = .05, lty = 2, col = "gray50")
+legend(
+  "bottomright",
+  inset = c(.01, .10),
+  legend = c("Theoretical FWER", "Simulation"),
+  col = c("#1F4E79", "#D55E00"),
+  lty = c(1, NA), pch = c(NA, 19), bty = "n"
+)
+text(78, .075, "5% reference", col = "gray40", cex = .82)
+```
+
+The independence formula is not exact for correlated tests, such as neighboring fMRI voxels. Dependence changes the arithmetic but does not make the problem disappear. Specialized methods can exploit that dependence; pretending the other tests never happened cannot.
+
+### What Counts as a Family?
+
+A **family** is the set of tests over which you want a joint error guarantee. Defining it requires scientific judgment.
+
+- All pairwise comparisons following one omnibus test often form a family.
+- All outcomes used to support one broad claim may form a family.
+- Thousands of voxels in one brain contrast form a family.
+- Every analysis ever conducted by everyone named Alex does not form one useful family, although it may form a cry for help.
+
+The family should be defined by the claim and analysis plan, preferably before looking at results. Dividing twenty tests into twenty "families of one" after seeing the p-values is not a clever solution. It is p-hacking with office supplies.
+
+## Familywise Error Rate: Protect the Whole Family
+
+The **familywise error rate** (FWER) is the probability of making **one or more Type I errors anywhere in the family**:
+
+$$
+FWER = P(V \geq 1)
+$$
+
+Here, $V$ is the number of false rejections. FWER control is strict. It is appropriate when even one false positive would be costly or when a small, confirmatory set of claims is being tested.
+
+### Bonferroni
+
+For $m$ tests, Bonferroni compares each p-value with $\alpha/m$, or multiplies each p-value by $m$ and caps the result at 1:
+
+$$
+p_{Bonferroni} = \min(mp, 1)
+$$
+
+Bonferroni works under arbitrary dependence, which is useful, but it can sacrifice substantial power when there are many tests.
+
+### Holm's Sequential Method
+
+Holm's procedure orders the p-values and tests them sequentially [@holm1979]. It controls FWER under the same broad conditions as Bonferroni and is never less powerful. If your entire justification for plain Bonferroni is "that is the one I remember," R remembers Holm for you.
+
+```{r}
+raw_p <- c(.001, .012, .021, .046, .210, .730)
+
+data.frame(
+  test = paste("Hypothesis", 1:length(raw_p)),
+  raw = raw_p,
+  bonferroni = p.adjust(raw_p, method = "bonferroni"),
+  holm = p.adjust(raw_p, method = "holm")
+)
+```
+
+## False Discovery Rate: Permit Some Risk Among Discoveries
+
+In large exploratory analyses, strict FWER control may erase too many real signals. The **false discovery rate** (FDR) instead controls the expected proportion of false positives among the rejected hypotheses:
+
+$$
+FDR = E\left(\frac{V}{\max(R,1)}\right)
+$$
+
+$V$ is the number of false rejections and $R$ is the total number of rejections. The `max(R,1)` convention sets the proportion to zero when nothing is rejected.
+
+Benjamini and Hochberg's procedure controls FDR under independence and certain forms of positive dependence [@benjamini1995]. It is commonly available in R as `method = "BH"`.
+
+FDR of .05 does **not** guarantee that exactly 5% of one study's discoveries are false. Some studies will have none, some will have more, and some will reject nothing. The control applies to the expected false-discovery proportion over repeated uses of the procedure.
+
+```{r}
+data.frame(
+  test = paste("Hypothesis", 1:length(raw_p)),
+  raw = raw_p,
+  holm_fwer = p.adjust(raw_p, method = "holm"),
+  bh_fdr = p.adjust(raw_p, method = "BH")
+)
+```
+
+## What the Corrections Trade Away
+
+No method creates information. Tight false-positive control usually reduces the ability to detect real effects. The useful question is not "Which correction is best?" It is "Which error promise matches this research goal?"
+
+The simulation below contains 20 tests per study. Five hypotheses have real standardized signals and fifteen null hypotheses are true. We compare no adjustment, Bonferroni, Holm, and Benjamini--Hochberg over 5,000 simulated studies.
+
+```{r}
+#| label: multiple-testing-simulation
+set.seed(343)
+
+n_families <- 5000
+n_tests <- 20
+n_real <- 5
+
+z_values <- matrix(rnorm(n_families * n_tests), nrow = n_families)
+z_values[, 1:n_real] <- z_values[, 1:n_real] + 2.5
+p_matrix <- 2 * pnorm(-abs(z_values))
+
+adjust_rows <- function(method) {
+  t(apply(p_matrix, 1, function(p) p.adjust(p, method = method) <= .05))
+}
+
+rejections <- list(
+  Unadjusted = p_matrix <= .05,
+  Bonferroni = adjust_rows("bonferroni"),
+  Holm = adjust_rows("holm"),
+  BH_FDR = adjust_rows("BH")
+)
+
+summarize_method <- function(reject) {
+  true_discoveries <- rowSums(reject[, 1:n_real, drop = FALSE])
+  false_discoveries <- rowSums(reject[, (n_real + 1):n_tests, drop = FALSE])
+  total_discoveries <- true_discoveries + false_discoveries
+  false_discovery_proportion <- ifelse(
+    total_discoveries == 0,
+    0,
+    false_discoveries / total_discoveries
+  )
+
+  c(
+    average_true_discoveries = mean(true_discoveries),
+    probability_any_false_positive = mean(false_discoveries > 0),
+    average_false_discovery_proportion = mean(false_discovery_proportion)
+  )
+}
+
+round(t(vapply(rejections, summarize_method, numeric(3))), 3)
+```
+
+The unadjusted method finds more real signals but also produces at least one false positive far too often. Bonferroni and Holm protect strongly against any false positive, with Holm usually retaining a little more power. BH accepts a higher chance that a study contains some false positives in exchange for finding more real signals, while controlling their expected proportion among the discoveries.
+
+| Goal | Sensible default |
+|---|---|
+| A few planned, confirmatory tests where any false claim is costly | Holm FWER control |
+| A simple method that remains valid under broad dependence | Bonferroni, accepting lower power |
+| Many exploratory tests where some false leads can be tolerated and checked later | Benjamini--Hochberg FDR control |
+| A small number of clearly preregistered primary tests | Test those primary hypotheses as planned; correct the separate exploratory family |
+
+## Multiple Comparisons in Regression
+
+A regression with many coefficients is also a collection of tests. The correct family depends on the claim.
+
+If one coefficient was the preregistered primary hypothesis and the others were prespecified covariates, automatically correcting every coefficient together may not represent the design. If you added 84 predictors, 31 interactions, six subgroups, and the participant's astrological sign until something became significant, you have a multiple-testing problem plus a confession.
+
+Store the p-values you intend to treat as one family and adjust them directly:
+
+```{r}
+# Example after fitting a model called model:
+# coefficient_p <- coef(summary(model))[, "Pr(>|t|)"]
+# p.adjust(coefficient_p, method = "holm")
+# p.adjust(coefficient_p, method = "BH")
+```
+
+For planned contrasts, use software that can adjust the contrast family explicitly. Always report the method, the family of tests, and whether the analyses were confirmatory or exploratory.
+
+## The Point Is Not to Fear P-Values
+
+P-values are not evil. They are also not tiny judges who determine whether a theory is innocent or guilty. They describe how incompatible the data are with a specified null model, under a pile of assumptions that must remain attached.
+
+A defensible statistical argument uses:
+
+- The design and quality of the measurement.
+- The estimated effect and its confidence interval.
+- The p-value as one piece of evidence rather than a personality test for the hypothesis.
+- A correction that matches the family and scientific goal.
+- Transparency about how many analyses were attempted.
+- Replication, because one clever correction cannot make a single study carry an entire theory on its back.
+
+The dead salmon did not teach us that fMRI is fake. It taught us that if we give chance enough opportunities, eventually even dinner appears to think. Correct the tests, show the effects, admit the uncertainty, and please stop asking deceased seafood to perform social cognition without preregistration.

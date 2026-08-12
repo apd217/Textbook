@@ -1,0 +1,195 @@
+---
+title: "Advanced: Contrasts and ANOVA as Regression Wearing an Older Hat"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## Why This Chapter Exists
+
+Psychology reports many analyses as ANOVA even though the same questions can be expressed through regression. This chapter provides the translation and then returns you safely to regression.
+
+Suppose students are randomly assigned to three study conditions:
+
+- Silence
+- Instrumental music
+- A research assistant repeatedly whispering, “You are running out of time”
+
+The third condition has been rejected by the ethics board, but the simulated data have fewer legal protections.
+
+```{r contrast-data}
+set.seed(343)
+n_per_group <- 40
+ContrastData <- data.frame(
+  Condition = factor(
+    rep(c("Silence", "Music", "Whispering"), each = n_per_group),
+    levels = c("Silence", "Music", "Whispering")
+  )
+)
+
+ContrastData$Recall <- c(
+  rnorm(n_per_group, 72, 8),
+  rnorm(n_per_group, 78, 8),
+  rnorm(n_per_group, 60, 8)
+)
+```
+
+## Dummy Coding
+
+With Silence as the reference group:
+
+$$
+Y=\beta_0+\beta_1D_{Music}+\beta_2D_{Whispering}+\epsilon.
+$$
+
+```{r treatment-model}
+DummyModel <- lm(Recall ~ Condition, data = ContrastData)
+coef(DummyModel)
+aggregate(Recall ~ Condition, data = ContrastData, mean)
+```
+
+- $\beta_0$ is the Silence mean.
+- $\beta_1$ is Music minus Silence.
+- $\beta_2$ is Whispering minus Silence.
+
+Changing the reference group changes the coefficient labels, not fitted group means, residuals, $R^2$, or the scientific result.
+
+::: {.callout-note title="Coding Changes the Questions Printed in the Table"}
+The model predicts the same cell means under any full-rank contrast coding. Coding determines which comparisons appear directly as coefficients. It does not rearrange the participants or alter what happened to them.
+:::
+
+## The Omnibus F-Test
+
+The omnibus null is:
+
+$$
+H_0:\mu_{Silence}=\mu_{Music}=\mu_{Whispering}.
+$$
+
+```{r omnibus-test}
+anova(DummyModel)
+```
+
+The $F$ ratio compares explained variability per model degree of freedom with residual variability:
+
+$$
+F=\frac{MS_{Model}}{MS_{Error}}.
+$$
+
+A significant omnibus test says at least one estimable group difference exists. It does not identify which one. The omnibus test is the statistical equivalent of yelling “Something happened!” and leaving the room.
+
+## Why $F=t^2$—Sometimes
+
+When a hypothesis has exactly one numerator degree of freedom, its $F$ statistic equals the corresponding squared $t$ statistic:
+
+$$
+F_{1,df}=t_{df}^2.
+$$
+
+This applies to a two-group comparison or a single one-degree-of-freedom contrast. It does not mean every multi-group omnibus $F$ can be replaced by squaring one coefficient's $t$ value.
+
+::: {.callout-warning title="The Numerator Degrees of Freedom Matter"}
+If an effect uses more than one numerator degree of freedom, there is no single $t$ whose square reproduces the omnibus $F$. The slogan $F=t^2$ requires the quiet but essential phrase “when $df_1=1$.”
+:::
+
+## Planned Contrasts
+
+A contrast is a weighted comparison of means:
+
+$$
+L=\sum_{j=1}^{k}c_j\mu_j,
+$$
+
+where the weights usually sum to zero.
+
+Suppose our planned hypotheses are:
+
+1. Music differs from Silence: $(-1,1,0)$.
+2. Whispering differs from the average of the two reasonable conditions: $(.5,.5,-1)$.
+
+```{r planned-contrasts}
+EstimatedMeans <- emmeans::emmeans(DummyModel, ~ Condition)
+
+PlannedTests <- emmeans::contrast(
+  EstimatedMeans,
+  method = list(
+    "Music - Silence" = c(-1, 1, 0),
+    "Reasonable conditions - Whispering" = c(.5, .5, -1)
+  ),
+  adjust = "none"
+)
+
+PlannedTests
+```
+
+Planned contrasts should come from theory before inspecting every possible comparison. If you invented the contrast after seeing the means, it is exploratory. Calling it planned in the manuscript does not produce time travel.
+
+## Deviation or Effect Coding
+
+Deviation coding compares levels with the grand mean rather than one reference group.
+
+```{r effect-coding}
+EffectData <- ContrastData
+contrasts(EffectData$Condition) <- contr.sum(3)
+EffectModel <- lm(Recall ~ Condition, data = EffectData)
+coef(EffectModel)
+```
+
+In a balanced design, the intercept becomes the unweighted grand mean. In an unbalanced design, “the grand mean” requires more care because observed, equally weighted, and model-estimated marginal means may differ.
+
+## Eta-Squared and Regression R-Squared
+
+For a one-factor model,
+
+$$
+\eta^2=\frac{SS_{Effect}}{SS_{Total}}.
+$$
+
+That equals the model's $R^2$ in this simple design.
+
+```{r eta-squared}
+ANOVA.Table <- anova(DummyModel)
+EtaSquared <- ANOVA.Table$`Sum Sq`[1] / sum(ANOVA.Table$`Sum Sq`)
+c(EtaSquared = EtaSquared, RSquared = summary(DummyModel)$r.squared)
+```
+
+Partial eta-squared uses effect variance relative to that effect plus its error term:
+
+$$
+\eta_p^2=\frac{SS_{Effect}}{SS_{Effect}+SS_{Error}}.
+$$
+
+Partial eta-squared values from several effects do not generally add to one. They each receive their own private denominator and therefore cannot be stacked like pieces of one variance pie.
+
+::: {.callout-important title="Effect Sizes Need Names"}
+Report whether a value is $R^2$, $\eta^2$, partial $\eta_p^2$, generalized $\eta_G^2$, or Cohen's $d$. Writing “the effect size was .18” is like reporting that the trip was 18 without mentioning miles, minutes, or terrified undergraduates.
+:::
+
+## Contrast Weights Are a Hypothesis
+
+A planned contrast is a weighted comparison of cell means:
+
+$$
+L=\sum_{j=1}^{g}c_j\mu_j,
+\qquad
+\sum_{j=1}^{g}c_j=0.
+$$
+
+Weights summing to zero compare groups rather than estimating the grand level of the outcome. Multiplying every weight by the same constant changes the scale of $L$ but not the hypothesis test. For example, $(-1,-1,2)$ and $(-.5,-.5,1)$ ask the same scientific question.
+
+Two contrasts are orthogonal in a balanced design when
+
+$$
+\sum_j c_{1j}c_{2j}=0.
+$$
+
+Orthogonality means the comparisons partition independent pieces of between-group information. With unequal cell sizes, the definition and software details require more care. This is one reason to state the contrast weights instead of reporting that an unnamed dropdown menu was selected with confidence.
+
+## Estimability
+
+A contrast must be estimable from the design. Empty cells, perfect confounding, and redundant predictors can make some comparisons impossible no matter how strongly we believe in them. `emmeans` works from the fitted model's reference grid and will often warn when a requested comparison is not estimable. Believe the warning before inventing participants to fill the empty cell.
+
+## The Short Story
+
+ANOVA and regression can express the same group comparisons. Dummy coding compares groups with a reference, effect coding compares with a grand-mean structure, and planned contrasts test theory-driven combinations. The omnibus $F$ finds whether something differs; contrasts explain what.

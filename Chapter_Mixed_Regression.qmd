@@ -1,0 +1,368 @@
+---
+title: "Mixed Regression: Between People and Within People"
+geometry: margin=.5in
+fontsize: 11pt
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 5.5,
+  fig.height = 3.6,
+  fig.align = "center",
+  fig.pos = "H",
+  results = "hold"
+)
+```
+
+::: {.callout-warning title="Advanced Chapter: Several Things Are Happening at Once"}
+A mixed design combines a **between-subjects** variable with a **within-subjects** variable. That creates fixed effects, an interaction, repeated observations, and random effects. It is not impossible. It is merely statistics arriving with all its relatives and expecting you to provide chairs.
+
+Our strategy is to ask one question at a time: Where are the repeated observations? What does each fixed coefficient mean? How are people allowed to differ? What comparison answers the research question?
+:::
+
+The [paired-samples t-test chapter](Chapter_Paired_t_test.qmd) handled one clean comparison between two measurements from the same person. This chapter begins when the design grows up and acquires complications: more occasions, a between-person group, individual trajectories, missing observations, or several of these problems arriving together in a trench coat.
+
+## The Design
+
+Suppose researchers compare cognitive behavioral therapy (**CBT**) with a control condition for reducing depression symptoms. Participants are randomly assigned to CBT or control, then complete a depression inventory at baseline and after 2, 4, and 6 weeks.
+
+- **Group** is between subjects: each person is in CBT *or* control.
+- **Week** is within subjects: each person is measured four times.
+- **Depression score** is the quantitative outcome.
+
+The central question is not merely whether the groups differ or whether scores change. It is whether they change **differently**:
+
+> Does the slope of depression over time depend on treatment group?
+
+That is a Week × Group interaction.
+
+This is simulated data. Real treatment studies require clinical expertise, ethical oversight, careful monitoring, informed consent, and substantially more planning than “Alex found `rnorm()`.”
+
+```{r simulate-mixed-data}
+set.seed(3436)
+
+n_per_group <- 50
+people <- data.frame(
+  participant = factor(seq_len(2 * n_per_group)),
+  group = factor(
+    rep(c("Control", "CBT"), each = n_per_group),
+    levels = c("Control", "CBT")
+  ),
+  person_intercept = rnorm(2 * n_per_group, 0, 5.0),
+  person_slope = rnorm(2 * n_per_group, 0, 0.45)
+)
+
+mixed_data <- merge(
+  people,
+  data.frame(week = c(0, 2, 4, 6)),
+  by = NULL
+)
+
+mixed_data <- mixed_data[order(mixed_data$participant,
+                               mixed_data$week), ]
+
+mixed_data$depression <-
+  35 +
+  mixed_data$person_intercept +
+  (-0.20 * mixed_data$week) +
+  ifelse(mixed_data$group == "CBT",
+         -1.20 * mixed_data$week, 0) +
+  mixed_data$person_slope * mixed_data$week +
+  rnorm(nrow(mixed_data), 0, 2.0)
+
+mixed_data$occasion <- factor(
+  mixed_data$week,
+  levels = c(0, 2, 4, 6),
+  labels = c("Baseline", "Week 2", "Week 4", "Week 6")
+)
+```
+
+The data are **long**: one row per person per occasion. The participant identifier repeats because the person repeats. If your participant column disappears, stop. Do not proceed directly to the ritual sacrifice.
+
+## First Look: Means and People
+
+```{r mixed-design-plot}
+library(ggplot2)
+
+ggplot(
+  mixed_data,
+  aes(x = week, y = depression, group = participant, color = group)
+) +
+  geom_line(alpha = 0.13) +
+  stat_summary(
+    aes(group = group), fun = mean, geom = "line",
+    linewidth = 1.4
+  ) +
+  stat_summary(
+    aes(group = group), fun = mean, geom = "point",
+    size = 2.8
+  ) +
+  scale_x_continuous(breaks = c(0, 2, 4, 6)) +
+  labs(
+    x = "Week",
+    y = "Depression score",
+    color = "Group",
+    title = "Group averages sitting on top of actual humans"
+  ) +
+  theme_minimal(base_size = 11)
+```
+
+The bold lines show group means. The faint lines show individual trajectories. The CBT mean declines faster, but people do not all begin at the same score or change at the same rate. Some improve quickly, some slowly, and some appear to have received therapy from a motivational poster in a dentist's office.
+
+Never decide whether an effect is statistically significant by staring at whether confidence intervals overlap. CI overlap is not the direct test of a difference, and interaction tests are about **differences between differences**. Fit the model that asks the question.
+
+## Why Ordinary Regression Is Not Enough
+
+An ordinary regression such as this is incomplete:
+
+```{r ordinary-model-warning}
+ordinary_model <- lm(depression ~ week * group, data = mixed_data)
+```
+
+It treats all 400 rows as independent. They are not. Four rows belong to each participant, and observations from the same person tend to resemble one another.
+
+This structure is called **nesting**:
+
+$$
+\text{occasions nested within participants}
+$$
+
+The levels are:
+
+- Level 1: repeated occasions;
+- Level 2: participants.
+
+Group belongs to Level 2 because it does not change within a person. Week belongs to Level 1 because it does.
+
+## The Fixed Effects
+
+We begin with the part that resembles ordinary regression:
+
+$$
+Y_{ij}=b_0+b_1(\text{Week}_{ij})+b_2(\text{CBT}_i)
++b_3(\text{Week}_{ij}\times\text{CBT}_i)+\text{random part}+e_{ij}
+$$
+
+Because Week 0 is baseline and Control is the reference group:
+
+- $b_0$: estimated baseline score for Control;
+- $b_1$: expected change per week for Control;
+- $b_2$: CBT-minus-Control difference at baseline;
+- $b_3$: difference between the CBT and Control slopes.
+
+The CBT slope is $b_1+b_3$. The interaction $b_3$ is the main research target. If it is negative, CBT scores decline faster than Control scores.
+
+Notice why coding matters. A “main effect of Group” is not a universal average group difference here. It is the group difference when Week equals zero. We chose zero to mean baseline, so the coefficient has a useful interpretation instead of describing the difference during Week Zero Hundred and Twelve, a period known only to the Probability Gods.
+
+## The Random Effects
+
+The repeated observations require us to describe how people differ.
+
+### Random Intercepts
+
+A random-intercept model allows each participant to have their own starting level:
+
+$$
+Y_{ij}=b_0+b_1\text{Week}_{ij}+b_2\text{CBT}_i
++b_3(\text{Week}_{ij}\times\text{CBT}_i)+u_{0i}+e_{ij}
+$$
+
+```{r random-intercept-model}
+random_intercept_model <- glmmTMB::glmmTMB(
+  depression ~ week * group + (1 | participant),
+  data = mixed_data,
+  REML = TRUE
+)
+
+summary(random_intercept_model)
+```
+
+The expression `(1 | participant)` means “give participants different intercepts.” It does not estimate 100 unrelated participant coefficients. Instead, it estimates the variance of the participant intercepts.
+
+### Random Slopes
+
+People may also change at different rates. A random-slope model allows each person to have their own Week slope:
+
+```{r random-slope-model}
+random_slope_model <- glmmTMB::glmmTMB(
+  depression ~ week * group + (1 + week | participant),
+  data = mixed_data,
+  REML = TRUE
+)
+
+summary(random_slope_model)
+```
+
+The expression `(1 + week | participant)` estimates:
+
+- variance in participants' intercepts;
+- variance in participants' Week slopes;
+- correlation between participant intercepts and slopes.
+
+Random slopes are often substantively reasonable in longitudinal psychology. People do not all change identically merely because the spreadsheet has aligned their rows. They are humans, not synchronized microwave clocks.
+
+The random-effects structure should reflect the design and theory, while remaining supported by the data. If a model is singular or refuses to converge, do not repeatedly click Run while shouting encouragement. Inspect the data, scaling, model specification, number of clusters, and whether the random structure is estimable.
+
+## Read the Model Without Panic
+
+```{r fixed-effects-table}
+fixed_effects <- summary(random_slope_model)$coefficients$cond
+round(fixed_effects, 3)
+```
+
+Read the rows in order:
+
+1. `(Intercept)` estimates the Control group's baseline mean.
+2. `week` estimates weekly change in Control.
+3. `groupCBT` estimates the CBT-minus-Control baseline difference.
+4. `week:groupCBT` estimates how much the CBT slope differs from the Control slope.
+
+Suppose the interaction estimate is about $-1.2$. That means the CBT group's depression score declines roughly 1.2 points **more per week** than the Control group's score, on average. It does not mean CBT lowers every participant's score by exactly 1.2 points each week. Fixed effects describe an average pattern while the random effects document the inconvenient existence of individuals.
+
+`glmmTMB` reports Wald z statistics and p-values for the fixed effects. These rely on the fitted likelihood and a large-sample approximation; they do not create an infinite number of participants merely because the output prints a z. Report the method and inspect confidence intervals. If a field specifically requires ANOVA-style denominator degrees of freedom for a **Gaussian** mixed model, the later inference chapter shows the deliberate `lmerTest` detour. “R produced a number and I felt hopeful” is not an inferential method.
+
+## Test the Interaction Directly
+
+To test whether the interaction improves the model, compare two models with the same random-effects structure:
+
+- a reduced model without Week × Group;
+- a full model with Week × Group.
+
+When comparing **fixed effects**, refit both models with maximum likelihood (`REML = FALSE`).
+
+```{r compare-fixed-effects}
+reduced_ml <- glmmTMB::glmmTMB(
+  depression ~ week + group + (1 + week | participant),
+  data = mixed_data,
+  REML = FALSE
+)
+
+full_ml <- glmmTMB::glmmTMB(
+  depression ~ week * group + (1 + week | participant),
+  data = mixed_data,
+  REML = FALSE
+)
+
+anova(reduced_ml, full_ml)
+```
+
+This likelihood-ratio test asks whether allowing the groups to have different slopes improves model fit. It is not the only defensible test; coefficient tests and other approximations are also used. The important point is to match the test to the question and identify the method, not to collect p values like cursed trading cards.
+
+After model comparison, report estimates from the final model fit with REML when appropriate.
+
+## Follow Up the Interaction
+
+The interaction says the slopes differ. We still want the slope within each group.
+
+```{r follow-up-slopes}
+group_slopes <- emmeans::emtrends(
+  random_slope_model,
+  specs = ~ group,
+  var = "week"
+)
+
+group_slopes
+pairs(group_slopes)
+```
+
+`emtrends()` estimates the Week slope separately for Control and CBT. `pairs()` tests their difference, which corresponds to the interaction.
+
+We can also estimate model-implied group means at the observed weeks:
+
+```{r estimated-means}
+estimated_means <- emmeans::emmeans(
+  random_slope_model,
+  specs = ~ group | week,
+  at = list(week = c(0, 2, 4, 6))
+)
+
+estimated_means
+```
+
+Do not automatically test every possible pair at every possible week because the software makes it easy. That is how a sensible research question becomes 28 tests and a dead salmon. Choose comparisons that answer the theory, and adjust for multiplicity when you conduct a family of tests.
+
+## Should Time Be Continuous or Categorical?
+
+Treating Week as numeric assumes a straight-line average trajectory. That is a strong but efficient summary: one slope per group.
+
+If change may be nonlinear—perhaps treatment helps rapidly and then levels off—treat occasion as categorical:
+
+```{r categorical-time-model}
+categorical_time_model <- glmmTMB::glmmTMB(
+  depression ~ occasion * group + (1 + week | participant),
+  data = mixed_data,
+  REML = TRUE
+)
+
+summary(categorical_time_model)$coefficients$cond
+```
+
+Categorical time estimates separate deviations at Weeks 2, 4, and 6. It is flexible but uses more parameters. Numeric time is compact but imposes shape. Neither coding is morally superior. The choice depends on the research question, plausible change process, timing, and amount of data.
+
+Other options include polynomial terms, splines, or nonlinear models. Do not add a seventh-degree polynomial merely because R accepts it. R will also accept many bad ideas with the serene indifference of a vending machine.
+
+## Missing Repeated Observations
+
+Mixed models can use participants who are missing some occasions; they do not require deleting every person with one missing row. This is a major advantage over older complete-case repeated-measures procedures.
+
+However, “the model ran” does not mean missing data ceased to matter. Standard likelihood-based mixed-model inference commonly relies on a **missing at random** assumption conditional on variables in the model. If people with worsening symptoms leave the study for reasons the model does not capture, the missingness can bias results. Investigate dropout, include relevant predictors when justified, and conduct sensitivity analyses in serious work.
+
+## Check the Model
+
+At minimum, examine:
+
+- whether the mean trajectory is represented sensibly;
+- residual-versus-fitted patterns;
+- severe residual outliers;
+- the distribution and influence of clusters;
+- convergence and singular-fit warnings;
+- whether variance changes across time or groups;
+- whether enough participants—not merely enough rows—support the model.
+
+```{r mixed-diagnostics, fig.width=6, fig.height=3}
+diagnostic_data <- data.frame(
+  fitted = fitted(random_slope_model),
+  residual = resid(random_slope_model)
+)
+
+ggplot(diagnostic_data, aes(x = fitted, y = residual)) +
+  geom_point(alpha = 0.35, color = "steelblue4") +
+  geom_hline(yintercept = 0, linetype = 2, color = "firebrick") +
+  geom_smooth(method = "loess", se = FALSE, color = "black") +
+  labs(x = "Fitted value", y = "Residual") +
+  theme_minimal(base_size = 11)
+```
+
+Traditional repeated-measures ANOVA emphasizes **sphericity**. A mixed model does not require that single sphericity assumption, but it does require a defensible covariance/random-effects structure. We did not escape assumptions. We traded one rigid assumption for a model that must be specified thoughtfully.
+
+## Reporting the Result
+
+A compact results paragraph could read:
+
+> Depression scores were analyzed with a linear mixed-effects model containing fixed effects of Week, Group, and their interaction, plus correlated participant random intercepts and Week slopes. The Week × Group interaction was negative, $b =$ `r round(fixed_effects["week:groupCBT", "Estimate"], 2)`, $SE =$ `r round(fixed_effects["week:groupCBT", "Std. Error"], 2)`, $z =$ `r round(fixed_effects["week:groupCBT", "z value"], 2)`, $p$ `r ifelse(fixed_effects["week:groupCBT", "Pr(>|z|)"] < .001, "< .001", paste("=", round(fixed_effects["week:groupCBT", "Pr(>|z|)"], 3)))`, indicating that depression declined more rapidly in CBT than in the control condition. The p-value used the Wald z approximation reported by `glmmTMB`.
+
+A real report should also provide confidence intervals, descriptive/model-implied means, the exact random-effects structure, software, missing-data handling, and theoretically planned follow-ups. The paragraph above is the skeleton. Please give it organs before submitting it to Reviewer 2.
+
+## The Short Story
+
+- A mixed design contains at least one between-subjects predictor and one within-subjects predictor.
+- Repeated occasions are nested within people, so ordinary independent-error regression is incomplete.
+- Fixed effects describe average intercepts, slopes, group differences, and interactions.
+- Random intercepts allow people to start at different levels.
+- Random slopes allow people to change at different rates.
+- With baseline coded as Week 0, the Group coefficient is the baseline group difference.
+- The Week × Group coefficient is the difference between group slopes.
+- Compare fixed-effects structures using models fit with maximum likelihood, not REML.
+- Continuous time tests a compact trajectory; categorical time permits separate occasion patterns.
+- Mixed models can retain partially observed participants, but missingness can still bias the answer.
+- Never count rows and forget to count people. Four hundred observations from 100 people are not 400 independent humans, no matter how urgently the grant deadline approaches.
+
+The model is “mixed” because it combines fixed and random effects—not because we placed several statistical procedures into a blender and hoped the lid stayed on.

@@ -1,0 +1,132 @@
+project:
+  type: book
+
+execute:
+  cache: false
+  freeze: auto
+  fig-pos: H
+
+book:
+  chapters:
+    - index.qmd
+    - part: "The Necessary Slog"
+      chapters:
+        - Chapter_Introduction.qmd
+        - Chapter_R_Basics.qmd
+        - Chapter_Probability.qmd
+        - Chapter_Distro_Moments.qmd
+        - Chapter_Standard_Error.qmd
+        - Chapter_OneSample_t_test.qmd
+        - Chapter_Independent_t_test.qmd
+        - Chapter_Paired_t_test.qmd
+        - Chapter_Power_Effect_Size.qmd
+    - part: "Putting Lines Through Things"
+      chapters:
+        - Chapter_Covariance and Correlation.qmd
+        - Chapter_Intro_to_regression.qmd
+        - Chapter_Regression with Cat Variables.qmd
+        - Chapter_Multiple_Regression_Control.qmd
+        - Chapter_Control.qmd
+        - Chapter_Hierarchical_Regression.qmd
+        - Chapter_Interaction_1.qmd
+        - Chapter_CatXCat_Interaction.qmd
+        - Chapter_Mixed_Regression.qmd
+    - part: "Okay, But What If It’s Complicated?"
+      chapters:
+        - Chapter_Advanced_Regression_Diagnostics.qmd
+        - Chapter_Multiple_Comparisons.qmd
+        - Chapter_Advanced_Interactions.qmd
+        #- Chapter_Advanced_Contrasts_ANOVA.qmd
+       # - Chapter_Missing_Data.qmd
+      #  - Chapter_GLM.qmd
+      #  - Chapter_Mediation.qmd
+      #  - Chapter_Moderated_Mediation.qmd
+
+  #  - part: "Mixed Models: An Ultra Quick Tour of the Basics"
+  #    chapters:
+  #      - Chapter_Mixed_Foundations.qmd
+  #      - Chapter_Mixed_Slopes_Centering.qmd
+  #      - Chapter_Mixed_Designs.qmd
+  #      - Chapter_Mixed_Inference.qmd
+    - part: "Other Statistical Creatures"
+      chapters:  
+        - Chapter_ChiSquare.qmd
+        - Chapter_Nonparametric_Tests.qmd
+        - Chapter_Bootstrapping.qmd
+     #  - Chapter_EFA.qmd
+    - part: "When R Inevitably Betrays You"
+      chapters:
+        - Chapter_Reporting.qmd
+        - Chapter_Tidyverse_Review.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    toc: true
+    toc-depth: 1
+    number-sections: true
+    smooth-scroll: true
+    fontsize: 1.1rem
+    linestretch: 1.7
+
+  pdf:
+    pdf-engine: xelatex
+    documentclass: scrreprt
+    toc: true
+    toc-depth: 1
+    number-sections: true
+    include-before-body: cover.tex
+    fontsize: 10pt
+    include-in-header:
+      text: |
+        \usepackage{microtype}
+        \usepackage{setspace}
+        \usepackage{xcolor}
+        \usepackage{booktabs}
+        \usepackage{float}
+        \usepackage[section]{placeins}
+        \usepackage{needspace}
+        \usepackage{etoolbox}
+        \usepackage{tcolorbox}
+        \tcbuselibrary{skins,breakable}
+        \tcbset{breakable/.code={}}
+        \tcbset{
+          before upper={
+            \small
+            \setlength{\parskip}{0.65\baselineskip}
+            \setlength{\parindent}{0pt}
+          }
+        }
+        \setstretch{1.15}
+        \geometry{top=0.62in,bottom=0.82in,left=0.62in,right=0.62in,footskip=0.34in}
+        \AtBeginEnvironment{longtable}{\Needspace{10\baselineskip}}
+    
+        \definecolor{chapterblue}{HTML}{1F4E79}
+        \definecolor{lightgray}{HTML}{F5F5F5}
+    
+        \setmainfont[
+          Path = C:/Users/ademos/AppData/Roaming/TinyTeX/texmf-dist/fonts/opentype/public/cm-unicode/,
+          UprightFont = cmunrm.otf,
+          BoldFont = cmunbx.otf,
+          ItalicFont = cmunti.otf,
+          BoldItalicFont = cmunbi.otf
+        ]{CMU Serif}
+    
+        \setsansfont[
+          Path = C:/Users/ademos/AppData/Roaming/TinyTeX/texmf-dist/fonts/opentype/public/cm-unicode/,
+          UprightFont = cmunss.otf,
+          BoldFont = cmunsx.otf,
+          ItalicFont = cmunsi.otf,
+          BoldItalicFont = cmunso.otf
+        ]{CMU Sans Serif}
+    
+        \addtokomafont{chapter}{\sffamily\color{chapterblue}}
+        \addtokomafont{section}{\sffamily\color{chapterblue}}
+        \addtokomafont{subsection}{\sffamily\color{chapterblue}}
+    geometry:
+      - margin=0.5in

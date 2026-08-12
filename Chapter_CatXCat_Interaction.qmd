@@ -1,0 +1,595 @@
+---
+title: "Categorical-by-Categorical Interactions: The 2-by-2 Design"
+geometry: margin=.5in
+fontsize: 10pt
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+  html:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+    df-print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.width = 4.5)
+knitr::opts_chunk$set(fig.height = 3.5)
+knitr::opts_chunk$set(fig.align = 'center')
+knitr::opts_chunk$set(fig.show = "hold")
+```
+
+```{r load-libraries}
+library(tidyverse)
+library(ggplot2)
+library(emmeans)
+library(gridExtra)
+```
+
+
+## Where We Are and Where We Are Going
+
+In the prior chapter you learned how to detect, estimate, and interpret an interaction between a *continuous* predictor and a *categorical* one. In the friendship study, Being Nice (0–10 scale) was continuous and Going Out (Stay in vs. Go out) was categorical. The interaction told you that the **slope** of Being Nice on friendship closeness was different for students who went out compared to those who stayed in.
+
+That kind of interaction is very common in psychology research. But so is a second kind: interactions where **both predictors are categorical**. You have probably already encountered this design — it is the foundation of the **two-way factorial ANOVA**. A 2 × 2 design (two predictors, each with two levels) is the simplest and most common version.
+
+This chapter bridges the two frameworks. We will keep the same friendship study and the same hypothesis, but we will make one important change: instead of treating Being Nice as a full continuous variable, we will focus on **just the extremes** — students whose niceness scores are near 0 (the least agreeable people in the sample) and students whose scores are near 10 (the most agreeable). This turns our continuous variable into a two-level categorical variable: **Low Nice** vs. **High Nice**. Combined with Going Out (Stay in vs. Go out), we have a **2 × 2 design**.
+
+This chapter assumes you have already read the prior chapter material. You know what an interaction is, you know how to interpret the interaction model equation, and you know how to use `anova()` to compare a main effects model to an interaction model. What is new here is what changes — and what stays the same — when both predictors are categorical.
+
+### What Changes from prior chapter
+
+The biggest conceptual change is this: **there is no continuous variable to center.** In the prior chapter centering was necessary because the intercept needed a meaningful zero point on the continuous scale. When both predictors are categorical, every predictor already takes on a small set of discrete values, and the "zero point" is simply the reference category of each variable — a specific cell in the design, not an abstract mean.
+
+Everything else follows from that:
+
+- No centering is needed. Both variables just need dummy coding.
+- The interaction coefficient is no longer a "difference in slopes." There are no slopes here. Instead, $B_3$ is the **difference in group differences** — sometimes called the "difference of differences." We will unpack this carefully.
+- The follow-up to the interaction is **simple effects analysis**: testing, within each level of one variable, whether the levels of the other variable differ significantly. We use `pairs()` from the `emmeans` package instead of `emtrends()`.
+- Effect sizes for pairwise comparisons are expressed as **Cohen's *d***, not unstandardized slopes.
+
+What **stays the same**: the interaction is still about "it depends." The visual signature is still non-parallel lines (or unequal gaps in a bar chart). The model comparison is still done with `anova()` and $\Delta R^2$. The APA write-up still follows the same structure.
+
+### What the 2×2 Looks Like as a Table
+
+Before we touch any data, it helps to lay out the full design as a 2 × 2 table. Each cell represents a unique combination of the two categorical predictors, and we expect a separate (estimated) mean outcome in each cell.
+
+|  | **Stay in** | **Go out** |
+|---|---|---|
+| **Low Nice** | $\mu_{11}$: Low Nice × Stay in | $\mu_{12}$: Low Nice × Go out |
+| **High Nice** | $\mu_{21}$: High Nice × Stay in | $\mu_{22}$: High Nice × Go out |
+
+The interaction question is: **is the difference between High Nice and Low Nice the same in both columns (Going Out groups)?** Or equivalently: **is the difference between Go out and Stay in the same in both rows (Niceness groups)?**
+
+Both questions ask the same thing. The answer is the interaction.
+
+
+## The Core Concept: The "Difference of Differences"
+
+### What It Means When Both Predictors Are Categorical
+
+In the prior chapter, the interaction coefficient $B_3$ told you how much steeper the slope of Being Nice was for the "Go out" group compared to the "Stay in" group. Slopes are a continuous concept: the rate at which friendship closeness increases as niceness increases by one unit.
+
+When Being Nice is categorical (Low vs. High), there are no slopes. Instead, there is a **gap**: the difference in predicted friendship closeness between High Nice and Low Nice students. The interaction now asks whether that gap is the same size in both Going Out groups.
+
+Here is the idea in formula form. Define:
+
+- **Effect of Niceness for Stay-in students** = $\mu_{21} - \mu_{11}$ (High Nice – Low Nice, among those who stay in)
+- **Effect of Niceness for Go-out students** = $\mu_{22} - \mu_{12}$ (High Nice – Low Nice, among those who go out)
+
+The **interaction** is the difference between these two effects:
+
+$$B_3 = (\mu_{22} - \mu_{12}) - (\mu_{21} - \mu_{11})$$
+
+This is the "difference of differences." If there is no interaction, the effect of Niceness is the same size in both Going Out groups, and $B_3 = 0$. If there is an interaction, the effect of Niceness is larger in one group than the other, and $B_3 \neq 0$.
+
+Equivalently (and this is worth pausing on), you can write it the other way:
+
+$$B_3 = (\mu_{22} - \mu_{21}) - (\mu_{12} - \mu_{11})$$
+
+This version asks: is the effect of Going Out (Go out – Stay in) the same for High Nice and Low Nice students? The two formulations are mathematically identical and represent the same interaction. Which framing you use depends on which story you want to tell. In our study, we are primarily interested in whether the **benefit of being nice depends on whether you go out** — so we will usually use the first framing.
+
+### Visual Hypotheses: What We Expect to See
+
+As in the prior chapter, we can sketch out our two competing possibilities before running a single model.
+
+```{r hypothesis-plots, fig.width=7, fig.height=3.25, echo=FALSE}
+## Hypothesis A: No interaction (equal gaps)
+df_A <- data.frame(
+  NiceGroup = rep(c("Low Nice", "High Nice"), 2),
+  GoingOut  = rep(c("Stay in", "Go out"), each = 2),
+  Predicted = c(15, 20, 20, 25)
+)
+df_A$NiceGroup <- factor(df_A$NiceGroup, levels = c("Low Nice", "High Nice"))
+df_A$GoingOut  <- factor(df_A$GoingOut,  levels = c("Stay in", "Go out"))
+
+p_A <- ggplot(df_A, aes(x = NiceGroup, y = Predicted,
+                         color = GoingOut, group = GoingOut)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
+  scale_y_continuous(limits = c(0, 75)) +
+  labs(title = "Hypothesis A: No Interaction",
+       subtitle = "Parallel lines: same gap for both groups",
+       x = "Niceness Group", y = "Predicted New Friends",
+       color = NULL) +
+  theme_bw() +
+  theme(legend.position = "top",
+        plot.subtitle = element_text(size = 8, color = "grey40"))
+
+## Hypothesis B: Interaction (unequal gaps)
+df_B <- data.frame(
+  NiceGroup = rep(c("Low Nice", "High Nice"), 2),
+  GoingOut  = rep(c("Stay in", "Go out"), each = 2),
+  Predicted = c(15, 16, 15, 61)
+)
+df_B$NiceGroup <- factor(df_B$NiceGroup, levels = c("Low Nice", "High Nice"))
+df_B$GoingOut  <- factor(df_B$GoingOut,  levels = c("Stay in", "Go out"))
+
+p_B <- ggplot(df_B, aes(x = NiceGroup, y = Predicted,
+                         color = GoingOut, group = GoingOut)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
+  scale_y_continuous(limits = c(0, 75)) +
+  labs(title = "Hypothesis B: Interaction Present",
+       subtitle = "Non-parallel lines: unequal gaps",
+       x = "Niceness Group", y = "Predicted New Friends",
+       color = NULL) +
+  theme_bw() +
+  theme(legend.position = "top",
+        plot.subtitle = element_text(size = 8, color = "grey40"))
+
+gridExtra::grid.arrange(p_A, p_B, ncol = 2)
+```
+
+Notice the visualization has changed from the prior chapter. Instead of regression lines across a continuous X-axis, we now have two points connected by a line for each Going Out group. The key visual signature of an interaction is still **non-parallel lines** — but "non-parallel" now means the **gaps between the two groups are different sizes** across the niceness levels, rather than different slopes.
+
+- In **Hypothesis A**, the two lines are parallel: the gap between "Go out" and "Stay in" is the same for Low Nice and High Nice students. Being nice adds a fixed amount regardless of going out.
+- In **Hypothesis B**, the lines fan out: the gap between "Go out" and "Stay in" is tiny for Low Nice students but enormous for High Nice students. This is our interaction hypothesis: being nice only pays off substantially if you are also out there meeting people.
+
+
+## Before We Run the Models: Dummy Coding Both Variables
+
+### No Centering Required
+
+In the prior chapter, you had to center the continuous predictor (Being Nice) before building the interaction model. Centering shifted the scale so that zero represented the average person, making the intercept interpretable.
+
+When both predictors are categorical, there is nothing to center. Each predictor already takes on discrete values. The "zero point" for each predictor is simply its **reference category** — whichever group we designate as the baseline.
+
+This is actually simpler than the prior chapter. The only setup step is making sure both variables are properly factored in R, with the reference groups ordered first.
+
+### Dummy Coding Both Variables
+
+We have two categorical predictors, each with two levels:
+
+| Variable | Levels | Reference group (coded 0) | Comparison group (coded 1) |
+|---|---|---|---|
+| **NiceGroup** | Low Nice, High Nice | Low Nice | High Nice |
+| **GoingOut** | Stay in, Go out | Stay in | Go out |
+
+With this coding, the **four coefficients** in the interaction model have the following meanings:
+
+| Coefficient | What it represents |
+|---|---|
+| $B_0$ (Intercept) | Predicted friends for **Low Nice × Stay in** students — the baseline cell |
+| $B_1$ (NiceGroup: High Nice) | High Nice – Low Nice **among Stay-in students** (simple effect of niceness for stay-in group) |
+| $B_2$ (GoingOut: Go out) | Go out – Stay in **among Low Nice students** (simple effect of going out for low-nice group) |
+| $B_3$ (NiceGroup × GoingOut) | The "difference of differences": does the effect of niceness differ by going-out group? |
+
+Notice that $B_1$ and $B_2$ are no longer main effects in the traditional sense — they are **simple effects**, each representing the effect of one variable *holding the other variable at its reference level*. This is the same logic as in the prior chapter, where $B_1$ was the slope for the reference group only. Here, $B_1$ is the niceness gap for the reference going-out group only.
+
+### Recovering All Four Cell Means
+
+One of the useful features of the 2 × 2 interaction model is that you can reconstruct **every cell mean** directly from the coefficients. Here is the formula for each cell:
+
+| Cell | Formula | Plain meaning |
+|---|---|---|
+| Low Nice × Stay in | $B_0$ | Baseline |
+| High Nice × Stay in | $B_0 + B_1$ | Baseline + niceness effect (Stay in) |
+| Low Nice × Go out | $B_0 + B_2$ | Baseline + going-out effect (Low Nice) |
+| High Nice × Go out | $B_0 + B_1 + B_2 + B_3$ | All four terms |
+
+The final cell is the most important: for High Nice students who also go out, the prediction is the baseline plus the simple effect of niceness, plus the simple effect of going out, **plus the interaction term**. The interaction term $B_3$ adjusts the prediction for the cell where both variables are at their non-reference level. If there is no interaction ($B_3 = 0$), the effects of the two variables add up independently and the model is purely additive.
+
+
+## The Data
+
+We return to our 200 first-semester students. Recall that we measured friendship closeness (0–100 feelings thermometer), agreeableness (0–10), and whether they went out regularly.
+
+For this analysis, we focus on the **extremes of the niceness distribution**: students who scored below 2 on the agreeableness scale (near 0 = **Low Nice**) and students who scored above 8 (**High Nice**). The 120 or so students in the middle of the scale are not used in this analysis — we are focusing on the contrast between the most and least agreeable people in the sample.
+
+```{r simulate-data, include=FALSE}
+set.seed(42)
+n <- 200
+X <- runif(n, 0, 10)
+Z <- rbinom(n, 1, 0.5)
+Y <- 0.05 * X + 0 * Z + 5 * X * Z + 15 + rnorm(n, sd = 7)
+Friend.Data.Full <- data.frame(BeingNice = X, GoingOut = Z, NewFriends = Y)
+Friend.Data.Full$GoingOut_ <- factor(Friend.Data.Full$GoingOut,
+                                     levels = c(0, 1),
+                                     labels = c("Stay in", "Go out"))
+
+# Create niceness group for extremes
+Friend.Data.Full$NiceGroup_ <- ifelse(Friend.Data.Full$BeingNice < 2,  "Low Nice",
+                               ifelse(Friend.Data.Full$BeingNice > 8, "High Nice", NA))
+
+# Keep only extreme groups
+Friend.Data <- Friend.Data.Full %>%
+  filter(!is.na(NiceGroup_)) %>%
+  mutate(NiceGroup_ = factor(NiceGroup_, levels = c("Low Nice", "High Nice")))
+
+n_low_stayin  <- sum(Friend.Data$NiceGroup_ == "Low Nice"  & Friend.Data$GoingOut_ == "Stay in")
+n_low_goout   <- sum(Friend.Data$NiceGroup_ == "Low Nice"  & Friend.Data$GoingOut_ == "Go out")
+n_high_stayin <- sum(Friend.Data$NiceGroup_ == "High Nice" & Friend.Data$GoingOut_ == "Stay in")
+n_high_goout  <- sum(Friend.Data$NiceGroup_ == "High Nice" & Friend.Data$GoingOut_ == "Go out")
+```
+
+The resulting dataset has `r nrow(Friend.Data)` participants spread across four cells:
+
+```{r cell-counts, echo=TRUE}
+Friend.Data %>%
+  group_by(NiceGroup_, GoingOut_) %>%
+  summarise(n = n(),
+            M_Friends  = round(mean(NewFriends), 2),
+            SD_Friends = round(sd(NewFriends), 2),
+            .groups = "drop")
+```
+
+The cell counts are not equal — this is typical when you extract extremes from a continuous distribution rather than randomly assigning participants to conditions. In regression (unlike ANOVA), this unequal cell size is handled automatically. The estimates are still valid.
+
+The cell means already tell an interesting story: Low Nice students have similar friendship scores whether they go out or not (both around 15), while High Nice students who go out have dramatically higher scores than High Nice students who stay in. This pattern matches Hypothesis B.
+
+## A First Look at the Data
+
+Before running any models, let's visualize the four cells directly.
+
+```{r first-look, fig.width=5, fig.height=3.5, echo=FALSE}
+cell_means <- Friend.Data %>%
+  group_by(NiceGroup_, GoingOut_) %>%
+  summarise(M = mean(NewFriends), .groups = "drop")
+
+ggplot(Friend.Data, aes(x = NiceGroup_, y = NewFriends, color = GoingOut_)) +
+  geom_jitter(width = 0.15, alpha = 0.35, size = 1.2) +
+  geom_line(data = cell_means, aes(y = M, group = GoingOut_), linewidth = 1.2) +
+  geom_point(data = cell_means, aes(y = M), size = 3.5) +
+  scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(title = "Friendship Means by Group",
+       x = "Niceness Group", y = "Friendship Closeness (0-100)",
+       color = NULL) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+The pattern is striking. The "Stay in" line (blue) is almost flat: Low Nice and High Nice students who stay in have virtually the same friendship scores. The "Go out" line (orange) rises sharply: High Nice students who go out form far closer friendships than Low Nice students who go out. The two lines are clearly **non-parallel**, which is the visual signature of an interaction. This picture already suggests Hypothesis B.
+
+
+## Building the Models
+
+### Model 1: The Additive Model
+
+We begin with the main effects (additive) model. This model says the two variables each have an independent effect on friendship closeness, and those effects add up without interacting.
+
+$$\widehat{NewFriends} = B_0 + B_1 \cdot NiceGroup + B_2 \cdot GoingOut + \varepsilon$$
+
+```{r additive-model, echo=TRUE}
+Model.1 <- lm(NewFriends ~ NiceGroup_ + GoingOut_, data = Friend.Data)
+summary(Model.1)
+```
+
+```{r r2-store, include=FALSE}
+R2.1 <- summary(Model.1)$r.squared
+R2.2.temp <- summary(lm(NewFriends ~ NiceGroup_ * GoingOut_, data = Friend.Data))$r.squared
+```
+
+The additive model estimates a single effect of NiceGroup (averaged across both Going Out groups) and a single effect of GoingOut (averaged across both Niceness groups). These are conventional main effects.
+
+Notice that the R² here (`r round(R2.1, 3)`) is already reasonably high, driven primarily by the Going Out main effect. But as we will see, forcing the effects to be additive is a poor fit for the actual pattern in the data.
+
+### Visualizing the Additive Model
+
+```{r additive-plot, fig.width=4.5, fig.height=3.5}
+Add.Em <- emmeans(Model.1, ~ NiceGroup_ | GoingOut_)
+Add.Plot <- as.data.frame(Add.Em)
+
+ggplot(Add.Plot, aes(x = NiceGroup_, y = emmean,
+                     color = GoingOut_, group = GoingOut_)) +
+  geom_point(data = Friend.Data,
+             aes(x = NiceGroup_, y = NewFriends, color = GoingOut_),
+             alpha = 0.25, size = 1, position = position_jitter(width = 0.1)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3.5) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.1) +
+  scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(title = "Additive Model: Parallel Lines (forced)",
+       x = "Niceness Group", y = "Predicted New Friends",
+       color = NULL) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+The additive model forces the two lines to be parallel. The gap between "Go out" and "Stay in" is identical for Low Nice and High Nice students. But look at the raw data: the "Go out" students in the High Nice group (orange, right side) are far higher than what the parallel-line model predicts for them, and the "Stay in" students in the same group are not as high as the model suggests. The parallel assumption is clearly wrong.
+
+### Model 2: The Interaction Model
+
+Now we add the interaction term:
+
+$$\widehat{NewFriends} = B_0 + B_1 \cdot NiceGroup + B_2 \cdot GoingOut + B_3 \cdot NiceGroup \times GoingOut + \varepsilon$$
+
+```{r interaction-model, echo=TRUE}
+Model.2 <- lm(NewFriends ~ NiceGroup_ * GoingOut_, data = Friend.Data)
+summary(Model.2)
+```
+
+```{r r2-store2, include=FALSE}
+R2.1 <- summary(Model.1)$r.squared
+R2.2 <- summary(Model.2)$r.squared
+aov_comp  <- anova(Model.1, Model.2)
+delta_F   <- round(aov_comp$F[2], 2)
+delta_df1 <- aov_comp$Df[2]
+delta_df2 <- aov_comp$Res.Df[2]
+delta_p   <- aov_comp$`Pr(>F)`[2]
+```
+
+### Does the Interaction Model Explain More Variance?
+
+```{r model-comparison, echo=TRUE}
+knitr::kable(anova(Model.1, Model.2), digits = 3,
+             caption = "Model Comparison: Additive vs. Interaction")
+```
+
+```{r delta-r2, echo=FALSE}
+cat("Additive model R-squared:    ", round(R2.1, 3), "\n")
+cat("Interaction model R-squared: ", round(R2.2, 3), "\n")
+cat("Change in R-squared:         ", round(R2.2 - R2.1, 3), "\n")
+```
+
+The interaction model explains substantially more variance. The F-test ($\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`, $F(`r delta_df1`, `r delta_df2`) =$ `r delta_F`, $p < .001$) confirms that this improvement is far larger than would be expected by chance. Adding the interaction term was worth it.
+
+
+## Interpreting the Interaction Model
+
+### The Plot First
+
+```{r interaction-plot, fig.width=4.5, fig.height=3.5}
+Inter.Em <- emmeans(Model.2, ~ NiceGroup_ | GoingOut_)
+Inter.Plot <- as.data.frame(Inter.Em)
+
+ggplot(Inter.Plot, aes(x = NiceGroup_, y = emmean,
+                       color = GoingOut_, group = GoingOut_)) +
+  geom_point(data = Friend.Data,
+             aes(x = NiceGroup_, y = NewFriends, color = GoingOut_),
+             alpha = 0.25, size = 1, position = position_jitter(width = 0.1)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3.5) +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.1) +
+  scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
+  scale_y_continuous(limits = c(0, 100)) +
+  labs(title = "Interaction Model: Non-Parallel Lines",
+       x = "Niceness Group", y = "Predicted New Friends",
+       color = NULL) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+This is the interaction model's predicted means for each cell. Notice the non-parallel lines: the "Stay in" line is nearly flat (very small gap between Low Nice and High Nice), while the "Go out" line rises steeply (a large gap between Low Nice and High Nice). Compare this to the additive model's forced parallel lines — the story told by these two models is completely different.
+
+### Walking Through Each Coefficient
+
+```{r reprint-model}
+summary(Model.2)
+```
+
+```{r coef-store, include=FALSE}
+B0 <- round(coef(Model.2)["(Intercept)"], 2)
+B1 <- round(coef(Model.2)["NiceGroup_High Nice"], 2)
+B2 <- round(coef(Model.2)["GoingOut_Go out"], 2)
+B3 <- round(coef(Model.2)["NiceGroup_High Nice:GoingOut_Go out"], 2)
+SE3 <- round(summary(Model.2)$coefficients["NiceGroup_High Nice:GoingOut_Go out", "Std. Error"], 2)
+t3  <- round(summary(Model.2)$coefficients["NiceGroup_High Nice:GoingOut_Go out", "t value"], 2)
+p3  <- summary(Model.2)$coefficients["NiceGroup_High Nice:GoingOut_Go out", "Pr(>|t|)"]
+```
+
+### The Intercept ($B_0 =$ `r B0`)
+
+The intercept is the predicted friendship score for the **baseline cell**: Low Nice students who Stay in (both predictors at 0). This is a real, specific group of people in the dataset. A completely disagreeable person who never leaves home still forms about `r B0` points on the friendship thermometer — presumably because they live near someone and physical proximity does the work even for unsociable people.
+
+### $B_1$: Effect of High Niceness **Among Stay-in Students** ($B_1 =$ `r B1`)
+
+$B_1$ is the difference in predicted friendship between High Nice and Low Nice students **within the Stay-in group**. Looking at the "Stay in" line in the plot, this gap is very small — and indeed, $B_1 =$ `r B1`, which is essentially zero and non-significant.
+
+For students who stay home, being highly agreeable provides virtually no additional benefit for friendship formation compared to being low in agreeableness. Without social exposure, personality differences do not matter much.
+
+This is a **simple effect**: it is the effect of NiceGroup *within one specific level* of GoingOut (the reference level, Stay in). It is not a main effect.
+
+### $B_2$: Effect of Going Out **Among Low Nice Students** ($B_2 =$ `r B2`)
+
+$B_2$ is the difference in predicted friendship between Go-out and Stay-in students **within the Low Nice group**. Students low in agreeableness who go out have about `r B2` more friends than their equally disagreeable counterparts who stay in.
+
+This is also a **simple effect**: the effect of GoingOut *within one specific level* of NiceGroup (the reference level, Low Nice).
+
+### $B_3$: The Interaction Term ($B_3 =$ `r B3`)
+
+This is the heart of the analysis. $B_3$ tells you how much **larger** the effect of niceness is for the Go-out group compared to the Stay-in group.
+
+We can reconstruct the simple effect of Niceness for each Going Out group:
+
+| Group | Simple effect of Niceness | Formula |
+|---|---|---|
+| Stay in | `r B1` | $B_1$ |
+| Go out | `r round(B1 + B3, 2)` | $B_1 + B_3 =$ `r B1` $+$ `r B3` |
+
+The difference between these two simple effects is $B_3 =$ `r B3`. For Go-out students, being highly agreeable is associated with about `r round(B1 + B3, 2)` more friends than being low in agreeableness. For Stay-in students, the same comparison yields only `r B1` more friends. The interaction coefficient captures this dramatic difference.
+
+Here is the full cell mean summary:
+
+| Cell | Predicted mean | Derivation |
+|---|---|---|
+| Low Nice × Stay in | `r B0` | $B_0$ |
+| High Nice × Stay in | `r round(B0 + B1, 2)` | $B_0 + B_1$ |
+| Low Nice × Go out | `r round(B0 + B2, 2)` | $B_0 + B_2$ |
+| High Nice × Go out | `r round(B0 + B1 + B2 + B3, 2)` | $B_0 + B_1 + B_2 + B_3$ |
+
+
+## Following Up the Interaction: Simple Effects
+
+The interaction term tells us the two niceness gaps are significantly different between Going Out groups. But we also want to know: **within each Going Out group, is the difference between High Nice and Low Nice statistically significant?**
+
+We use `pairs()` from the `emmeans` package to test each pairwise comparison within each level of the other variable.
+
+### Simple Effects of Niceness within Each Going-Out Group
+
+```{r simple-effects, echo=TRUE}
+Fit.2 <- emmeans(Model.2, ~ NiceGroup_ | GoingOut_)
+pairs(Fit.2, adjust = "none") %>% summary(infer = TRUE)
+```
+
+```{r simple-effects-store, include=FALSE}
+se_out <- pairs(Fit.2, adjust = "none") %>% summary(infer = TRUE)
+se_df  <- as.data.frame(se_out)
+b_stayin <- round(se_df$estimate[se_df$GoingOut_ == "Stay in"], 2)
+b_goout  <- round(se_df$estimate[se_df$GoingOut_ == "Go out"],  2)
+p_stayin <- se_df$p.value[se_df$GoingOut_ == "Stay in"]
+p_goout  <- se_df$p.value[se_df$GoingOut_ == "Go out"]
+t_stayin <- round(se_df$t.ratio[se_df$GoingOut_ == "Stay in"], 2)
+t_goout  <- round(se_df$t.ratio[se_df$GoingOut_ == "Go out"],  2)
+se_stayin <- round(se_df$SE[se_df$GoingOut_ == "Stay in"], 2)
+se_goout  <- round(se_df$SE[se_df$GoingOut_ == "Go out"],  2)
+```
+
+- **Stay-in group:** The difference between High Nice and Low Nice students is `r b_stayin` points, which is **not** statistically significant ($p =$ `r round(p_stayin, 3)`). For students who stay in, agreeableness does not significantly predict friendship closeness.
+
+- **Go-out group:** The difference between High Nice and Low Nice students is `r b_goout` points, which is **highly** significant ($p <$ .001). Among students who go out, being highly agreeable is associated with substantially closer friendships than being low in agreeableness.
+
+### Effect Sizes: Cohen's *d*
+
+Pairwise comparisons in this framework can be accompanied by Cohen's *d* as an effect size measure. We use the model's residual standard deviation as the pooled standard deviation:
+
+```{r effect-sizes, echo=TRUE}
+eff_size(Fit.2,
+         sigma = sigma(Model.2),
+         edf   = df.residual(Model.2),
+         method = "pairwise")
+```
+
+```{r d-store, include=FALSE}
+d_out   <- eff_size(Fit.2, sigma = sigma(Model.2), edf = df.residual(Model.2))
+d_df    <- as.data.frame(d_out)
+d_stay  <- round(abs(d_df$effect.size[d_df$GoingOut_ == "Stay in"]), 2)
+d_go    <- round(abs(d_df$effect.size[d_df$GoingOut_ == "Go out"]),  2)
+```
+
+The Cohen's *d* values confirm the pattern:
+
+- **Stay in:** $d =$ `r d_stay` — a negligible effect. Being nice does not meaningfully distinguish friendships for students who stay home.
+- **Go out:** $d =$ `r d_go` — a large effect. Among students who go out, highly agreeable people form dramatically closer friendships than their less agreeable counterparts.
+
+
+## APA Write-Up
+
+Here is how you would report these results following APA style. The structure parallels the prior chapter: model comparison, interaction coefficient, then simple effects.
+
+
+```{r apa-vals, include=FALSE}
+sm2    <- summary(Model.2)$coefficients
+sm1_f  <- summary(Model.1)$fstatistic
+m1_F   <- round(sm1_f[1], 2)
+m1_df1 <- sm1_f[2]
+m1_df2 <- sm1_f[3]
+
+cell_desc <- Friend.Data %>%
+  group_by(NiceGroup_, GoingOut_) %>%
+  summarise(M = round(mean(NewFriends), 1),
+            SD = round(sd(NewFriends), 1), .groups = "drop")
+
+m_ln_si  <- cell_desc$M[cell_desc$NiceGroup_ == "Low Nice"  & cell_desc$GoingOut_ == "Stay in"]
+sd_ln_si <- cell_desc$SD[cell_desc$NiceGroup_ == "Low Nice"  & cell_desc$GoingOut_ == "Stay in"]
+m_ln_go  <- cell_desc$M[cell_desc$NiceGroup_ == "Low Nice"  & cell_desc$GoingOut_ == "Go out"]
+sd_ln_go <- cell_desc$SD[cell_desc$NiceGroup_ == "Low Nice"  & cell_desc$GoingOut_ == "Go out"]
+m_hn_si  <- cell_desc$M[cell_desc$NiceGroup_ == "High Nice" & cell_desc$GoingOut_ == "Stay in"]
+sd_hn_si <- cell_desc$SD[cell_desc$NiceGroup_ == "High Nice" & cell_desc$GoingOut_ == "Stay in"]
+m_hn_go  <- cell_desc$M[cell_desc$NiceGroup_ == "High Nice" & cell_desc$GoingOut_ == "Go out"]
+sd_hn_go <- cell_desc$SD[cell_desc$NiceGroup_ == "High Nice" & cell_desc$GoingOut_ == "Go out"]
+```
+
+Cell means and standard deviations are presented in Table 1. Among students who stayed in, friendship closeness was similar regardless of agreeableness group (Low Nice: *M* = `r m_ln_si`, *SD* = `r sd_ln_si`; High Nice: *M* = `r m_hn_si`, *SD* = `r sd_hn_si`). Among students who went out, High Nice students formed substantially closer friendships than Low Nice students (Low Nice: *M* = `r m_ln_go`, *SD* = `r sd_ln_go`; High Nice: *M* = `r m_hn_go`, *SD* = `r sd_hn_go`).
+
+A hierarchical multiple regression was conducted to examine whether social engagement (Going Out) moderated the relationship between agreeableness group (Low vs. High Nice) and friendship closeness. Niceness group and Going Out (both dummy coded with Low Nice and Stay in as reference groups) were entered in Step 1 as main effects; their product was entered in Step 2. The additive model (Step 1) was statistically significant, $F(`r m1_df1`, `r m1_df2`) =$ `r m1_F`, $p < .001$, $R^2 =$ `r round(R2.1, 3)`. Adding the interaction term (Step 2) produced a statistically significant improvement in model fit, $\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`, $F(`r delta_df1`, `r delta_df2`) =$ `r delta_F`, $p < .001$, indicating that the effect of agreeableness on friendship closeness differed significantly depending on whether students went out.
+
+In the full interaction model ($R^2 =$ `r round(R2.2, 3)`, adjusted $R^2 =$ `r round(summary(Model.2)$adj.r.squared, 3)`), the interaction between Niceness Group and Going Out was statistically significant, $b =$ `r B3`, $SE =$ `r SE3`, $t(`r delta_df2`) =$ `r t3`, $p < .001$. To interpret the interaction, simple effects of Niceness Group were examined separately within each level of Going Out. Among students who stayed in, agreeableness group did not significantly predict friendship closeness, $b =$ `r b_stayin`, $SE =$ `r se_stayin`, $t(`r delta_df2`) =$ `r t_stayin`, $p =$ `r round(p_stayin, 3)`, $d =$ `r d_stay`. Among students who went out, High Nice students formed significantly closer friendships than Low Nice students, $b =$ `r b_goout`, $SE =$ `r se_goout`, $t(`r delta_df2`) =$ `r t_goout`, $p < .001$, $d =$ `r d_go`. These results indicate that the benefit of high agreeableness for friendship formation is conditional on social engagement: being a warm and agreeable person leads to substantially closer friendships only among students who are regularly out meeting others.
+
+
+**Things to notice about this write-up:**
+
+- We report **Cohen's *d*** alongside the simple effects, since the comparisons are between two categorical groups. This is the appropriate effect size for a two-group mean difference.
+- The **model comparison** ($\Delta R^2$, F-test) is still the primary test of the interaction, exactly as in the prior chapter.
+- We describe the interaction in plain language: *"the benefit of high agreeableness ... is conditional on social engagement."*
+- The **main effects** from the interaction model are not heavily emphasized. In the presence of a significant interaction, they represent effects at the reference level of the other variable (simple effects), not population-level averages.
+
+
+## APA-Style Figure
+
+```{r apa-figure, fig.width=5, fig.height=4, echo=TRUE}
+# APA interaction plot: categorical × categorical
+Fig.Data <- as.data.frame(emmeans(Model.2, ~ NiceGroup_ | GoingOut_))
+
+ggplot(Fig.Data, aes(x = NiceGroup_, y = emmean,
+                     color = GoingOut_, group = GoingOut_)) +
+  # Raw data (faint)
+  geom_point(data = Friend.Data,
+             aes(x = NiceGroup_, y = NewFriends, color = GoingOut_),
+             alpha = 0.20, size = 1,
+             position = position_jitter(width = 0.12)) +
+  # Confidence intervals
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
+                width = 0.08, linewidth = 0.8) +
+  # Connecting lines
+  geom_line(linewidth = 1.2) +
+  # Cell mean points
+  geom_point(size = 3.5) +
+  scale_color_manual(values = c("Stay in" = "#5b8db8",
+                                "Go out"  = "#e07b54"),
+                     labels = c("Stay in", "Go out")) +
+  scale_y_continuous(limits = c(0, 100),
+                     breaks = seq(0, 100, 20)) +
+  labs(x     = "Agreeableness Group",
+       y     = "Predicted Friendship Closeness (0-100)",
+       color = "Social Engagement") +
+  theme_bw() +
+  theme(legend.position   = "top",
+        legend.title      = element_text(size = 9),
+        legend.text       = element_text(size = 9),
+        axis.title        = element_text(size = 10),
+        panel.grid.minor  = element_blank())
+```
+
+*Figure 1.* Predicted friendship closeness as a function of agreeableness group and social engagement. Points represent model-estimated cell means; error bars represent 95% confidence intervals; faint points represent raw data. Among students who went out (*Go out*; orange), highly agreeable students formed substantially closer friendships than less agreeable students (*d* = `r d_go`). Among students who stayed in (*Stay in*; blue), agreeableness group was not significantly associated with friendship closeness (*d* = `r d_stay`).
+
+
+## Comparison: Continuous × Categorical (the prior chapter) vs. Categorical × Categorical (This chapter)
+
+It is worth pausing to compare the two approaches we have now seen.
+
+| Feature | Prior chapter (Continuous × Categorical) | This chapter (Categorical × Categorical) |
+|---|---|---|
+| Being Nice | Continuous (0–10) | Categorical (Low vs. High) |
+| Centering | Required | Not needed |
+| Interaction coefficient | Difference in slopes | Difference of differences |
+| Follow-up | `emtrends()` — simple slopes | `pairs()` — simple effects |
+| Effect size | Unstandardized slope (*b*) | Cohen's *d* |
+| Sample used | All 200 participants | ~80 (extremes only) |
+
+The categorical version uses fewer participants (only the extremes of the niceness distribution), which means less statistical power. The continuous version squeezes more information out of the data because it uses every participant and models the full gradient of niceness effects.
+
+However, the categorical × categorical design is conceptually simpler and maps directly onto the two-way factorial ANOVA framework that many researchers in psychology use. Understanding both is essential.
+
+::: {.callout-important title="An Interaction Is a Difference of Differences"}
+First compare the groups inside one condition. Then compare them inside the other condition. The interaction asks whether those two differences are different. If you skip that last comparison, you have described two results but have not tested an interaction.
+:::

@@ -1,0 +1,198 @@
+---
+title: "Advanced Mixed Models III: Repeated, Nested, Crossed, and Longitudinal Designs"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## Start with the Sampling Structure
+
+Mixed-model formulas should follow how observations were generated.
+
+- **Nested:** Every lower-level unit belongs to one higher-level unit. Students are nested in classrooms.
+- **Crossed:** Units encounter multiple levels of another factor. Participants respond to many stimuli, and each stimulus is seen by many participants.
+- **Longitudinal:** Repeated observations are ordered in time within people or other units.
+
+::: {.callout-warning title="The Spreadsheet Does Not Reveal the Design"}
+One row per observation does not make rows independent. You must know which person, item, classroom, therapist, or time series produced each row. The design lives in the data-generating process, not the rectangular shape of the file.
+:::
+
+## Crossed Participants and Items
+
+In many psychology experiments, participants respond to stimuli sampled from a broader population: words, faces, scenarios, voices, or images of objects that researchers insist are emotionally neutral.
+
+A crossed model can include participant and item effects:
+
+$$
+Y_{si}=\beta_0+\beta_1X_{si}+
+u_{0s}+u_{1s}X_{si}+v_{0i}+v_{1i}X_{si}+e_{si}.
+$$
+
+- $u$ terms vary across subjects.
+- $v$ terms vary across items.
+
+```{r crossed-data}
+set.seed(345)
+n_subject <- 48
+n_item <- 24
+
+CrossedData <- expand.grid(
+  Subject = factor(seq_len(n_subject)),
+  Item = factor(seq_len(n_item))
+)
+
+CrossedData$ConditionNum <- ifelse(
+  (as.integer(CrossedData$Subject) + as.integer(CrossedData$Item)) %% 2 == 0,
+  -.5, .5
+)
+
+SubjectRE <- MASS::mvrnorm(
+  n_subject, c(0, 0), matrix(c(35, 2, 2, 2), 2, 2)
+)
+ItemRE <- MASS::mvrnorm(
+  n_item, c(0, 0), matrix(c(18, 1, 1, 1.2), 2, 2)
+)
+
+s <- as.integer(CrossedData$Subject)
+i <- as.integer(CrossedData$Item)
+
+CrossedData$Attention <-
+  70 + 5 * CrossedData$ConditionNum +
+  SubjectRE[s, 1] + SubjectRE[s, 2] * CrossedData$ConditionNum +
+  ItemRE[i, 1] + ItemRE[i, 2] * CrossedData$ConditionNum +
+  rnorm(nrow(CrossedData), 0, 5)
+```
+
+```{r crossed-model}
+library(glmmTMB)
+
+CrossedModel <- glmmTMB(
+  Attention ~ ConditionNum +
+    (1 + ConditionNum | Subject) +
+    (1 + ConditionNum | Item),
+  data = CrossedData,
+  family = gaussian(),
+  REML = TRUE
+)
+
+broom.mixed::tidy(CrossedModel, effects = "fixed", conf.int = TRUE)
+```
+
+Ignoring item variation treats the particular stimuli as fixed and perfectly representative. That may exaggerate generalization to new stimuli. Forty participants responding to the same twelve items do not provide forty independent samples of the item population.
+
+::: {.callout-important title="Participants and Items Can Both Be Random Factors"}
+If conclusions should generalize to new participants and new stimuli, model both sampling sources when the design supports it. “But the software output was shorter without items” is not a sampling argument.
+:::
+
+## Repeated Measures as a Mixed Model
+
+Repeated observations are nested in people. A random intercept accounts for stable individual differences. A random treatment slope allows people to respond differently to the manipulation.
+
+```{r repeated-syntax, eval=FALSE}
+RepeatedModel <- glmmTMB(
+  Outcome ~ Condition + (1 + Condition | Participant),
+  data = RepeatedData,
+  family = gaussian()
+)
+```
+
+If stimuli are also sampled, participant and item random effects can appear together. This is one reason mixed models scale beyond classical repeated-measures ANOVA.
+
+## Longitudinal Growth Models
+
+Longitudinal models treat time as a predictor. A random intercept allows different starting points; a random time slope allows different rates of change.
+
+```{r longitudinal-data}
+set.seed(346)
+n_person <- 90
+times <- 0:5
+
+LongData <- expand.grid(
+  Person = factor(seq_len(n_person)),
+  Time = times
+)
+LongData$Treatment <- factor(
+  rep(sample(c("Control", "Therapy"), n_person, replace = TRUE), each = length(times))
+)
+
+PersonRE <- MASS::mvrnorm(
+  n_person, c(0, 0), matrix(c(40, -2, -2, 1.5), 2, 2)
+)
+p <- as.integer(LongData$Person)
+
+LongData$Symptoms <-
+  55 - 1.0 * LongData$Time -
+  1.8 * LongData$Time * (LongData$Treatment == "Therapy") +
+  PersonRE[p, 1] + PersonRE[p, 2] * LongData$Time +
+  rnorm(nrow(LongData), 0, 4)
+
+# Mimic ordinary dropout without deleting entire people.
+LongData$Symptoms[LongData$Time > 3 & runif(nrow(LongData)) < .12] <- NA
+```
+
+```{r longitudinal-model}
+GrowthModel <- glmmTMB(
+  Symptoms ~ Time * Treatment + (1 + Time | Person),
+  data = LongData,
+  family = gaussian(),
+  REML = TRUE,
+  na.action = na.omit
+)
+
+summary(GrowthModel)
+```
+
+The time-by-treatment interaction asks whether the expected rate of change differs between groups. The random time slope allows individual trajectories to vary around their group's expected slope.
+
+## Center Time Where the Intercept Matters
+
+If Time = 0 represents baseline, the intercept is baseline symptoms. If time is centered at the final session, the intercept becomes expected final symptoms. Predictions remain the same; the coefficient questions change.
+
+::: {.callout-note title="Centering Time Is a Scientific Decision"}
+Choose zero to represent a meaningful occasion: baseline, treatment completion, a developmental milestone, or another theoretically important point. Centering at the mean is convenient but not automatically the most informative choice.
+:::
+
+## Time as Continuous or Categorical
+
+Treat time as continuous when a linear or specified nonlinear trajectory is meaningful. Treat it as categorical when change may be irregular and each occasion deserves its own estimate.
+
+```{r categorical-time, eval=FALSE}
+LongData$TimeFactor <- factor(LongData$Time)
+
+OccasionModel <- glmmTMB(
+  Symptoms ~ TimeFactor * Treatment + (1 | Person),
+  data = LongData,
+  family = gaussian()
+)
+```
+
+The continuous model tells a compact growth story. The categorical model tells an occasion-by-occasion story and spends more degrees of freedom doing it.
+
+## Residual Correlation Across Time
+
+Random intercepts and slopes may not absorb every temporal dependency. Nearby observations can remain more similar than distant ones. `glmmTMB` can represent structures such as autoregressive correlation:
+
+```{r ar1-syntax, eval=FALSE}
+LongData$TimeFactor <- factor(LongData$Time)
+
+AR1Model <- glmmTMB(
+  Symptoms ~ Time * Treatment +
+    (1 + Time | Person) +
+    ar1(TimeFactor + 0 | Person),
+  data = LongData,
+  family = gaussian()
+)
+```
+
+Structured covariance models require correctly ordered occasions and enough information. Do not add `ar1()` merely because the formula looks graduate-level.
+
+## Missing Repeated Observations
+
+Likelihood-based mixed models can retain people with incomplete outcomes under the model's missing-data assumptions. Classical repeated-measures ANOVA may discard an entire participant after one missed visit.
+
+This advantage is not permission to ignore dropout. Report missingness, consider why observations are missing, and conduct sensitivity analyses when dropout may depend on unobserved outcomes.
+
+## The Short Story
+
+Nested designs have one-way membership; crossed designs sample from multiple overlapping populations; longitudinal designs add ordered repeated observations. Build random effects from the sampling structure, model time deliberately, and do not mistake more rows for more independent units.

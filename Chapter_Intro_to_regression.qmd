@@ -1,0 +1,311 @@
+---
+title: "Linear Regression"
+geometry: margin=.5in
+fontsize: 10pt
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(fig.width=4.25)
+knitr::opts_chunk$set(fig.height=4.0)
+knitr::opts_chunk$set(fig.align='center')
+knitr::opts_chunk$set(fig.show = "hold")
+```
+
+```{r load libraries}
+library(ggplot2)
+```
+
+## Introduction to Regression
+
+Many psychological studies ask: how does X *predict* Y? How does ice cream (IV) predict happiness (DV)?
+
+Unlike the t-test (which compares group averages), regression looks at the relationship between **two continuous variables**. *Predicting* just means making an educated guess — if I know how much ice cream you ate, I can guess how happy you are. The guess won't be perfect, but it should be reasonably close.
+
+Regression tells us **how close those guesses tend to be**.
+
+Regression predicts. It does not automatically explain causes. If people who eat more ice cream report greater happiness, ice cream may help, happier people may seek ice cream, hot weather may increase both, or the entire pattern may be driven by one billionaire buying all the pistachio. Design and theory decide which causal stories remain plausible.
+
+**Note**: Regression assumes interval or ratio scale variables. In practice, psychologists use Likert scales all the time anyway.
+
+### The Experiment
+
+I bought several tubs of vanilla ice cream, scooped out different amounts, and handed them to students. After eating, they rated their happiness on a 0–10 "feelings thermometer." Nobody got zero scoops, but some got barely a teaspoon.
+
+```{r simulate}
+library(tidyverse)
+
+set.seed(343)
+
+n         <- 80
+icecream  <- runif(n, 0, 6)
+happiness <- 3 + .8*icecream + rnorm(n, 0, 1.76)
+
+dat <- data.frame(
+  Scoops    = icecream,
+  Happiness = happiness
+)
+
+ggplot(dat, aes(x = Scoops, y = Happiness)) +
+  geom_point(size = 3) +
+  ylim(0, 10) +
+  labs(x = "Scoops of Ice Cream", y = "Happiness", title = "Ice Cream and Happiness") +
+  theme_bw()
+```
+
+### Why not just use correlation?
+
+You can — and correlation is often the first step. But correlation only handles **two variables at a time**. Regression lets us add more predictors: ice cream *plus* hot fudge *plus* cookie dough. In other words, regression scales up in ways correlation can't.
+
+Here's the correlation:
+
+```{r, echo = TRUE}
+library(apa)
+apa(cor.test(dat$Scoops, dat$Happiness))
+```
+
+Strong positive correlation, as expected!
+
+## Regression Theory
+
+Correlation and regression describe the **same linear relationship** — just differently.
+
+- **Simple linear regression** = 1 DV and 1 IV. The relationship is a straight line representing the **expected mean of Y** for each value of X.
+- **Multiple regression** = 1 DV and 2+ IVs. (Coming later.)
+
+### The Regression Equation
+
+You probably remember from middle school: $y = Mx + b$
+
+The modern version:
+
+$$Y = B_0 + B_1X + e$$
+
+Where:
+
+- $Y$ = predicted value
+- $B_1$ = slope (effect of X)
+- $B_0$ = intercept
+- $e$ = residual (observed − predicted)
+
+## The Ice Cream Model
+
+We fit regression models with `lm()` (linear model). Formula structure: **DV ~ IV**.
+
+```{r first regression, echo=TRUE, warning=FALSE}
+Happy.Model.1 <- lm(Happiness ~ Scoops, data = dat)
+summary(Happy.Model.1)
+```
+
+### Intercept
+
+The intercept is the predicted happiness **when ice cream = 0**.
+
+```{r check range, echo=TRUE}
+range(dat$Scoops)
+```
+
+Nobody had zero scoops, so we can't actually interpret this directly. **Never predict outside the range of your data.** (We can fix this by centering X — more on that later.)
+
+### Slope
+
+The slope is `r Happy.Model.1$coefficients[2]`. For each additional scoop, happiness changes by that amount.
+
+### Making a prediction
+
+The equation: $Y = B_0 + B_1X$
+
+What's the predicted happiness for someone who eats **5 scoops**?
+
+- $Y = `r round(Happy.Model.1$coefficients[1], 3)` + (`r round(Happy.Model.1$coefficients[2], 3)` \times 5)$
+- $Y = `r round(Happy.Model.1$coefficients[2] * 5 + Happy.Model.1$coefficients[1], 3)`$
+
+## Predicted Values and Residuals
+
+The line gives one predicted happiness score for every amount of ice cream. Real people do not sit perfectly on that line because humans are noisy, stubborn, and occasionally having a terrible day for reasons unrelated to dessert.
+
+A **residual** is the distance between the observed score and the model's prediction:
+
+$$
+e_i=Y_i-\widehat{Y}_i.
+$$
+
+- A positive residual means the person was happier than the model predicted.
+- A negative residual means the person was less happy than the model predicted.
+- A residual of zero means the prediction was exactly right, which is suspiciously cooperative behavior from a human.
+
+R stores both pieces inside the fitted model:
+
+```{r regression-residual-table, echo=TRUE}
+dat$Predicted <- fitted(Happy.Model.1)
+dat$Residual <- residuals(Happy.Model.1)
+
+head(dat[c("Scoops", "Happiness", "Predicted", "Residual")])
+mean(dat$Residual)
+```
+
+The residuals have a mean of approximately zero because ordinary least squares balances the line through the data. Positive and negative mistakes cancel out.
+
+```{r regression-residual-picture, echo=TRUE, fig.width=7, fig.height=4.4}
+ggplot(dat, aes(x = Scoops, y = Happiness)) +
+  geom_smooth(method = "lm", se = FALSE, color = "gray45") +
+  geom_segment(
+    aes(xend = Scoops, yend = Predicted, color = Residual),
+    linewidth = 0.7
+  ) +
+  geom_point(aes(color = Residual), size = 2.5) +
+  geom_point(aes(y = Predicted), shape = 1, size = 2.5) +
+  scale_color_gradient2(low = "#0072B2", mid = "white", high = "#D55E00") +
+  labs(
+    title = "Residuals Are the Model's Vertical Mistakes",
+    x = "Scoops of Ice Cream",
+    y = "Happiness"
+  ) +
+  theme_bw()
+```
+
+The filled points are observed happiness. The hollow points are predicted happiness. Each vertical segment is one residual. This is the error the model did not explain.
+
+## The Assumptions: What Could Make the Line Lie?
+
+Regression assumptions are claims about the errors left after fitting the line. They are not personality tests that the raw variables must pass before R permits them into the building.
+
+For now, focus on five questions:
+
+1. **Linearity:** Is a straight line a reasonable summary of the average relationship?
+2. **Independence:** Are the residuals from different observations reasonably independent?
+3. **Constant variance:** Is the vertical spread of residuals roughly similar across fitted values?
+4. **Approximately normal residuals:** Are the residuals reasonably bell-shaped, especially for small-sample tests and intervals?
+5. **Influential observations:** Is one strange person steering the entire line while everyone else watches?
+
+### Residuals Versus Fitted Values
+
+```{r regression-residual-fitted, echo=TRUE, fig.width=6.5, fig.height=4}
+plot(
+  fitted(Happy.Model.1),
+  residuals(Happy.Model.1),
+  xlab = "Fitted happiness",
+  ylab = "Residual",
+  pch = 19,
+  col = grDevices::adjustcolor("#1F4E79", alpha.f = 0.55)
+)
+abline(h = 0, lty = 2, col = "#D55E00", lwd = 2)
+```
+
+We want a fairly boring cloud centered around zero. A curve suggests the straight-line model missed a nonlinear pattern. A funnel suggests **heterogeneity of variance**, also called **heteroscedasticity**: the model's errors are much more variable for some predicted values than for others.
+
+Why care? Ordinary regression calculates standard errors as if the residual variance is reasonably constant. Strong heteroscedasticity can make those standard errors and confidence intervals inaccurate. It can also reveal something psychologically interesting. Perhaps ice cream affects people similarly at low doses but produces wildly different reactions after the fourth scoop. Some people achieve joy. Others remember lactose intolerance.
+
+::: {.callout-warning title="Heterogeneity May Be a Clue, Not Merely a Violation"}
+Changing residual spread can mean the uncertainty differs across people or conditions. Do not immediately transform the outcome until the graph stops complaining. First ask what process could create the pattern.
+:::
+
+### The Q-Q Plot
+
+```{r regression-qq, echo=TRUE, fig.width=5.5, fig.height=4.2}
+qqnorm(residuals(Happy.Model.1), pch = 19, col = "#1F4E79")
+qqline(residuals(Happy.Model.1), col = "#D55E00", lwd = 2)
+```
+
+A **Q-Q plot** compares the ordered residuals with values expected from a normal distribution. Points reasonably near the line are fine. Severe curves, separated tail points, or one observation escaping toward Canada deserve investigation. Minor imperfection is normal because the data were collected from humans, not manufactured by a normal-distribution factory.
+
+R can produce four standard diagnostic plots at once:
+
+```{r regression-four-diagnostics, echo=TRUE, fig.width=7, fig.height=6.5}
+par(mfrow = c(2, 2))
+plot(Happy.Model.1)
+par(mfrow = c(1, 1))
+```
+
+The first two are the residual-versus-fitted and Q-Q plots we just learned. The other two help identify unequal spread and influential observations. You do not need to master them yet. The advanced diagnostics chapter returns with more detail and several additional ways for data to misbehave.
+
+## Residual Variance and $R^2$
+
+Before using ice cream to predict happiness, our best simple guess for everyone was the mean. The total variance describes how far scores spread around that mean. After fitting the model, residual variance describes how far scores spread around the regression line.
+
+```{r regression-variance-explained, echo=TRUE}
+TotalVariance <- var(dat$Happiness)
+ResidualVariance <- var(residuals(Happy.Model.1))
+
+c(TotalVariance = TotalVariance,
+  ResidualVariance = ResidualVariance,
+  R_squared_from_variance = 1 - ResidualVariance / TotalVariance,
+  R_squared_from_model = summary(Happy.Model.1)$r.squared)
+```
+
+$R^2$ describes the proportion of observed outcome variance explained by the fitted model. It is an effect-size measure for the model, not proof that the model is causal, correct, or ready to be tattooed onto your arm.
+
+## Relationship to Correlation
+
+Why did we start with correlation if regression is so great? To show they're the same thing, just scaled differently. Run a regression on **standardized** variables:
+
+```{r standardized regression, echo=TRUE}
+dat$Happiness.z <- scale(dat$Happiness)
+dat$Scoops.z    <- scale(dat$Scoops)
+
+std.reg <- lm(Happiness.z ~ Scoops.z, data = dat)
+summary(std.reg)
+```
+
+### What didn't change?
+
+The **t-statistic and p-value** for the slope. These don't change with any linear rescaling, so you can transform or rescale variables whenever you want without affecting statistical significance.
+
+### What changed?
+
+**The intercept** — it's now **zero**. When all variables are standardized (mean = 0), the regression line must pass through [0, 0]. And the slope changed numerically:
+
+```{r looking closer, echo=TRUE}
+print(summary(std.reg), digits = 6)
+```
+
+```{r, echo=TRUE}
+cor.test(dat$Happiness, dat$Scoops)
+```
+
+The standardized slope equals the correlation. Not a coincidence.
+
+When everything is standardized, one unit = one SD. So the correlation tells us: every time X increases by 1 SD, Y increases by $r$ SDs. Standardized regression slopes are called **beta weights ($\beta$)**.
+
+### Converting slope back to raw units
+
+$$B_1 = r \frac{sd_y}{sd_x} = \frac{Cov(x,y)}{Var(x)}$$
+
+Your slope is just the correlation times the ratio of SDs. Makes sense — slope is rise over run:
+
+- Double Y → twice as much rise → $B_1$ doubles
+- Double X → twice as much run → $B_1$ is cut in half
+
+### What about the intercept?
+
+Once you know $B_1$, you know the angle of the line. But the line must also pass through **[mean(X), mean(Y)]**:
+
+```{r get means, echo=TRUE}
+mean(dat$Scoops)
+mean(dat$Happiness)
+```
+
+$$Mean(Y) = B_0 + B_1 \times Mean(X)$$
+
+Solve for $B_0$ and you're done.
+
+## The Short Story
+
+- Simple linear regression predicts a quantitative outcome from one predictor.
+- The intercept is the predicted outcome when $X=0$.
+- The slope is the expected change in $Y$ for a one-unit increase in $X$.
+- Residuals are observed outcomes minus predicted outcomes: the model's leftovers.
+- $R^2$ is the proportion of observed outcome variance explained by the fitted linear model.
+- With one predictor, the standardized slope equals Pearson's $r$.
+- Prediction is not causation. A straight line cannot randomize participants, control confounds, or stop Reviewer 2 from asking whether heat explains the ice cream.
+
+::: {.callout-important title="A Slope Always Has Units"}
+The slope is the expected change in $Y$ for a one-unit increase in $X$. Before deciding that it is large, small, heroic, or pathetic, say what one unit of $X$ and one unit of $Y$ actually mean.
+:::

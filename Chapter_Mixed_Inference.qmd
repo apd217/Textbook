@@ -1,0 +1,243 @@
+---
+title: "Advanced Mixed Models IV: Inference, Diagnostics, and Effect Sizes"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## The Model Fitted. Now What?
+
+Mixed models contain fixed effects, random effects, variance components, and sometimes non-Gaussian distributions. There is no single p-value ritual that is best in every design.
+
+This chapter uses `glmmTMB` as the default engine. If a field requires ANOVA-style denominator degrees of freedom for a Gaussian model, we deliberately refit with `lmerTest`. That is a specialized detour, not the main road.
+
+## A Model for the Examples
+
+```{r inference-data}
+set.seed(347)
+n_group <- 32
+n_each <- 16
+
+InferenceData <- data.frame(
+  Clinic = factor(rep(seq_len(n_group), each = n_each)),
+  Sessions = runif(n_group * n_each, 0, 10)
+)
+
+ClinicRE <- MASS::mvrnorm(
+  n_group, c(0, 0), matrix(c(20, 1.5, 1.5, .8), 2, 2)
+)
+g <- as.integer(InferenceData$Clinic)
+
+InferenceData$Improvement <-
+  4 + 2.3 * InferenceData$Sessions +
+  ClinicRE[g, 1] + ClinicRE[g, 2] * InferenceData$Sessions +
+  rnorm(nrow(InferenceData), 0, 5)
+
+library(glmmTMB)
+
+InferenceModel <- glmmTMB(
+  Improvement ~ Sessions + (1 + Sessions | Clinic),
+  data = InferenceData,
+  family = gaussian(),
+  REML = FALSE
+)
+```
+
+## Wald z-Tests
+
+`glmmTMB` reports a Wald statistic:
+
+$$
+z=\frac{\widehat\beta}{SE(\widehat\beta)}.
+$$
+
+```{r inference-summary}
+summary(InferenceModel)
+broom.mixed::tidy(
+  InferenceModel,
+  effects = "fixed",
+  component = "cond",
+  conf.int = TRUE
+)
+```
+
+The p-value uses a large-sample standard-normal approximation. It does not estimate denominator degrees of freedom.
+
+Wald inference is convenient and often reasonable when the model is stable and information is adequate. It may be unreliable with few clusters, weakly identified parameters, extreme coefficients, boundary estimates, separation, or an unhealthy Hessian.
+
+::: {.callout-warning title="A z-Test Does Not Create a Large Sample"}
+If you have four clinics, the software can print six decimal places but cannot manufacture a rich population of clinic effects. Asymptotic inference deserves more caution when the number of independent clusters is small.
+:::
+
+## Likelihood-Ratio Tests
+
+Compare nested models fitted with maximum likelihood:
+
+$$
+LR=2\left(\ell_{Full}-\ell_{Reduced}\right).
+$$
+
+```{r inference-lrt}
+ReducedModel <- glmmTMB(
+  Improvement ~ 1 + (1 + Sessions | Clinic),
+  data = InferenceData,
+  family = gaussian(),
+  REML = FALSE
+)
+
+anova(ReducedModel, InferenceModel)
+```
+
+Use LRTs when a hypothesis concerns one or more terms and the models are nested, fitted to the same observations, and use compatible likelihoods.
+
+Do not compare fixed-effect structures under REML. The restricted likelihood changes with the fixed-effect design matrix, making the likelihoods unsuitable for that comparison.
+
+::: {.callout-note title="Boundary Problems Affect Random-Effect Tests"}
+A variance cannot be less than zero. Testing whether a random-effect variance equals zero puts the null hypothesis on the boundary of the parameter space, so the ordinary chi-square reference can be conservative. Treat random-structure decisions as a combination of design, estimates, diagnostics, and model comparison.
+:::
+
+## Confidence Intervals
+
+Wald intervals are fast:
+
+```{r wald-ci}
+confint(InferenceModel, method = "wald", parm = "beta_")
+```
+
+Profile intervals follow the likelihood and can behave better when it is asymmetric, but they require more computation:
+
+```{r profile-ci, eval=FALSE}
+confint(InferenceModel, method = "profile", parm = "beta_")
+```
+
+Important results deserve intervals, not only stars. If Wald and profile conclusions disagree substantially, investigate the model rather than selecting the friendlier one.
+
+## If You Need ANOVA-Style Degrees of Freedom
+
+For a **Gaussian linear mixed model**, `lmerTest` provides Satterthwaite and Kenward–Roger approximations [@kuznetsova2017].
+
+```{r lmertest-detour}
+LmerTestModel <- lmerTest::lmer(
+  Improvement ~ Sessions + (1 + Sessions | Clinic),
+  data = InferenceData,
+  REML = TRUE
+)
+
+summary(LmerTestModel, ddf = "Satterthwaite")
+anova(LmerTestModel, ddf = "Kenward-Roger")
+```
+
+These are estimated denominator degrees of freedom designed to provide t- and F-style inference. They are not available as a general solution for binomial, Poisson, negative-binomial, or zero-inflated `glmmTMB` models.
+
+::: {.callout-important title="Choose the Inferential Framework Before Reading the Result"}
+Do not run Wald, LRT, Satterthwaite, Kenward–Roger, and bootstrap tests, then report whichever one crosses .05. Choose a defensible primary method from the design, model family, field expectations, and sample structure.
+:::
+
+## Diagnostics Before Inference
+
+Check convergence and the Hessian before interpreting coefficients.
+
+```{r inference-diagnose}
+InferenceModel$sdr$pdHess
+glmmTMB::diagnose(InferenceModel)
+```
+
+A non-positive-definite Hessian means the likelihood surface is flat or poorly behaved in at least one direction. Common causes include:
+
+- An overcomplicated random-effects structure.
+- Variances approaching zero.
+- Correlations approaching $\pm1$.
+- Poorly scaled predictors.
+- Separation in binary models.
+- An inappropriate outcome family.
+
+Models with unresolved convergence or Hessian problems should not be treated as ordinary successful fits simply because `summary()` produced a table.
+
+## Maximal Versus Parsimonious Random Effects
+
+Random effects should reflect the sampling and manipulation structure. A maximal structure can protect against treating varying effects as fixed [@barr2013], but data may not support every possible variance and correlation.
+
+A practical sequence is:
+
+1. Specify scientifically necessary grouping factors.
+2. Include random slopes for within-unit manipulations when the design and data support them.
+3. Inspect variances, correlations, convergence, and Hessian behavior.
+4. Simplify unsupported correlations or slopes deliberately.
+5. Document what changed and whether fixed-effect conclusions are sensitive.
+
+`glmmTMB` can specify a diagonal random-effect covariance structure when correlations are unnecessary:
+
+```{r diagonal-random-syntax, eval=FALSE}
+DiagonalModel <- glmmTMB(
+  Improvement ~ Sessions + diag(1 + Sessions | Clinic),
+  data = InferenceData,
+  family = gaussian()
+)
+```
+
+## Effect Sizes
+
+### Marginal and Conditional R-Squared
+
+```{r inference-r2}
+performance::r2_nakagawa(InferenceModel)
+```
+
+- Marginal $R^2$ describes fixed-effect variation.
+- Conditional $R^2$ describes fixed plus random-effect variation.
+
+### Intraclass Correlation
+
+```{r inference-icc}
+performance::icc(InferenceModel)
+```
+
+In random-slope models, similarity within clusters can depend on predictor values, so one ICC may be an approximation to a changing covariance structure.
+
+### Effect Sizes for Specific Contrasts
+
+Report model-estimated differences and confidence intervals in meaningful units. Standardized mean differences can supplement those estimates when a defensible standardizer exists.
+
+For generalized models:
+
+- Logistic coefficients can be reported as odds ratios.
+- Count-model coefficients can be reported as rate ratios.
+- Predicted probabilities and expected counts are often most interpretable.
+
+::: {.callout-warning title="There Is No Universal Mixed-Model Effect Size"}
+Different effect sizes describe different targets: fixed-effect magnitude, variance explained, cluster similarity, standardized group differences, odds ratios, or predicted changes. Name the measure and explain what its denominator contains.
+:::
+
+## Same Engine, Non-Gaussian Outcome
+
+Suppose improvement is coded as success or failure:
+
+```{r mixed-binomial}
+set.seed(348)
+InferenceData$Success <- rbinom(
+  nrow(InferenceData), 1,
+  plogis(-2 + .35 * InferenceData$Sessions +
+           ClinicRE[g, 1] / 8)
+)
+
+BinaryMixedModel <- glmmTMB(
+  Success ~ Sessions + (1 | Clinic),
+  data = InferenceData,
+  family = binomial()
+)
+
+broom.mixed::tidy(
+  BinaryMixedModel,
+  effects = "fixed",
+  component = "cond",
+  conf.int = TRUE,
+  exponentiate = TRUE
+)
+```
+
+The exponentiated slope is an odds ratio. The mixed-model structure remains; the outcome distribution and link have changed.
+
+## The Short Story
+
+Use `glmmTMB` Wald z-tests and likelihood-based comparisons deliberately, examine confidence intervals, and diagnose the likelihood before trusting inference. Use `lmerTest` only when a Gaussian model requires ANOVA-style denominator degrees of freedom. Report effect sizes that match the scientific question and name them clearly.

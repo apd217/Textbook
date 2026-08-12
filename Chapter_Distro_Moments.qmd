@@ -1,0 +1,790 @@
+---
+title: 'Distributions and their Moments'
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+# This stuff applies across R windows
+knitr::opts_chunk$set(cache=FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(fig.width=5.0)
+knitr::opts_chunk$set(fig.height=3.5)
+knitr::opts_chunk$set(fig.align='center')
+```
+
+
+## What is a distribution?
+
+A **distribution** is a picture of how values spread out in a population:
+
+- Where do most observations land?
+- How much do they vary?
+- Is it symmetric, or does it have a long tail?
+
+The average alone cannot answer these questions. Two groups can have the same mean while one forms a tidy mound and the other consists of people at both extremes glaring across an empty middle. A mean without its distribution is a witness who has omitted several important details.
+
+### A real distribution
+
+Income in the US is a classic **positively-skewed** distribution: most households cluster around moderate incomes, with a few earning *very* large amounts.
+
+This plot uses binned Census data [@uscensus2024], so the mean and median are approximations. Also: the $200k+ bin is *everything* from $200k to infinity — so if it's the tallest bar, that doesn't mean $200k is the most common income. It just means rich people got lumped together.
+
+```{r, width = 6.5, height = 3, echo=FALSE}
+library(readxl)
+library(tidyverse)
+library(scales)
+
+# ---- Read table ----
+raw <- read_excel("hinc01.xlsx", sheet = "hinc01", col_names = FALSE)
+
+bin_names <- raw[8, 3:43] |> unlist(use.names = FALSE)
+counts_thousands <- raw[10, 3:43] |> unlist(use.names = FALSE)
+
+df <- tibble(
+  bin = bin_names,
+  households = as.numeric(counts_thousands) * 1000
+)
+
+# ---- Extract numeric bin bounds ----
+parse_bounds <- function(x) {
+  nums <- str_extract_all(x, "[0-9,]+")[[1]]
+  nums <- gsub(",", "", nums)
+  nums <- as.numeric(nums)
+
+  if (length(nums) == 2) return(c(nums[1], nums[2]))
+  if (length(nums) == 1) return(c(nums[1], NA))  # open-ended bin
+  c(NA, NA)
+}
+
+bounds <- map(df$bin, parse_bounds)
+df$lower <- map_dbl(bounds, 1)
+df$upper <- map_dbl(bounds, 2)
+
+df <- df %>%
+  mutate(midpoint = ifelse(is.na(upper), NA, (lower + upper) / 2))
+
+# ---- Approximate mean (exclude open-ended bin)
+mean_income <- weighted.mean(
+  df$upper,
+  df$households,
+  na.rm = TRUE
+)
+
+# ---- Approximate median
+df <- df %>%
+  arrange(lower) %>%
+  mutate(cum_households = cumsum(households))
+
+total_households <- sum(df$households)
+median_income <- df$lower[which(df$cum_households >= total_households/2)[1]]
+
+# ---- Plot
+plot_df <- df %>% filter(!is.na(upper))
+
+ggplot(plot_df, aes(x = lower, y = households / 1e6)) +
+  geom_col(fill = "lightblue", color = "black", width = 4000) +
+  geom_vline(xintercept = mean_income, linetype = "solid", linewidth = 1) +
+  geom_vline(xintercept = median_income, linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = 30000, linetype = "dashed", linewidth = 1) +
+  annotate("text", x = mean_income, y = Inf, label = "Mean (approx)", vjust = 2, size = 3) +
+  annotate("text", x = median_income, y = Inf, label = "Median (approx)", vjust = 4, size = 3) +
+  annotate("text", x = 30000, y = Inf, label = "Mode (approx)", vjust = 5, size = 3) +
+  scale_x_continuous(labels = dollar_format(), breaks = pretty_breaks(6)) +
+  scale_y_continuous(labels = label_number(suffix = "M")) +
+  labs(
+    title = "U.S. Household Income Distribution (All races; binned data)",
+    subtitle = "Mean, median, and Mode are approximations from binned data",
+    x = "Household income (USD)",
+    y = "Households (millions)",
+    caption = "WARNING: The $200,000+ bin is open-ended (200k to infinity). It cannot be the mode.\nMean and median are approximated using bin midpoints and cumulative counts."
+  ) +
+  theme_bw()
+```
+
+**Think about it:**
+
+1. Why is there a positive skew (the tail points right on the x-axis, toward the larger numbers)?
+2. Which number (mean = 123K, median = 80K, or mode = 32.5K) best represents the "average" American? Why?
+
+### Historical sidenote
+
+In the 1950s, the top marginal tax rate in the US was ~91%. Imagine that money went back into schools, housing, and infrastructure.
+
+Predict: how would the income distribution shift? What would happen to the mean, median, and mode? Be explicit about why each one would (or wouldn't) change.
+
+### Distributions have meaning
+
+Governments tend to use median income to decide who qualifies for financial aid, housing assistance, school lunch programs, tax credits, and healthcare subsidies.
+
+When a distribution is highly skewed, these numbers tell very different stories. A rising *mean* can make a country look richer even when **most** households see no change — the median may stay flat. Understanding the shape helps us see who's actually benefiting from policy decisions.
+
+::: {.callout-important title="The Mean Can Be Correct and Still Mislead You"}
+In a strongly skewed distribution, a small number of enormous values can drag the mean upward.
+
+That does not make the mean mathematically wrong. It may simply describe the money rather than the experience of a typical person.
+
+Always inspect the distribution before allowing the mean to speak for everyone.
+:::
+
+## Gaussian (Normal) Distribution
+
+Imagine a broad cognitive score influenced by many small factors: sleep, attention, schooling, mood, caffeine, random neural noise, and whether a chainsaw-wielding researcher was standing behind the participant. When many small influences add together, scores can form a smooth, symmetric hill. That hill is the **normal distribution**.
+
+The Gaussian distribution (named after Carl Friedrich Gauss, 1777–1855) is the foundation of classical parametric statistics because it describes a huge range of psychological phenomena.
+
+Two parameters fully define it:
+
+- $\mu$ (mean) — where the center is
+- $\sigma$ (standard deviation) — how spread out it is
+
+A normal distribution has skewness of zero and excess kurtosis of zero. However, those two values alone do **not** prove that a distribution is normal; very strange distributions can share the same moments. The mean, variance, skewness, and kurtosis are commonly described through the distribution's **moments**. They summarize important features, but they are not a magical distribution-identification scanner.
+
+::: {.callout-warning title="Normality Is a Model, Not a Moral Achievement"}
+"Normal" describes a mathematical distribution. It does not mean healthy, desirable, typical, or free from chainsaw-wielding researchers.
+
+A normal distribution has zero skewness and zero excess kurtosis, but matching those two values does not prove that your data are normal. Plot the distribution. Numbers are capable of lying by omission.
+:::
+
+### Simulating a Population in R
+
+We'll use the normal distribution as our population. R makes this easy with `rnorm()`.
+
+Let's create a population with:
+
+- $\mu = 100$ points (cognitive score)
+- $\sigma = 15$ points
+- $N = 1,000,000$
+
+```{r}
+set.seed(42) # the answer to the universe
+n  <- 1e6   # 1 million people
+Mu <- 100   # population mean
+S  <- 15    # population SD
+Normal.Sample.1 <- rnorm(n, mean = Mu, sd = S)
+```
+
+### Histogram (Base R)
+
+```{r}
+hist(Normal.Sample.1,
+  breaks = 30,
+  col    = "lightblue",
+  border = "black",
+  main   = "Raw Score Histogram",
+  xlab   = "Population Distribution",
+  ylab   = "Frequency")
+abline(v = Mu, col = "black")
+```
+
+Looks normal. Now let's describe its shape using the 4 moments.
+
+## Moments
+
+Four numbers capture the important features of a distribution: center, spread, symmetry, and peakiness.
+
+### Moment 1: Central Tendency
+
+The center of a distribution can be described three ways:
+
+**Mean** (the average):
+
+- Standard measure of central tendency
+- Heavily influenced by outliers
+- Most stable estimate from sample to sample
+
+**Median** (the middle number):
+
+- Not sensitive to outliers
+- Best measure when the distribution is skewed
+
+**Mode** (most common number):
+
+- Least stable from sample to sample
+
+### Mean
+
+$$M = \frac{\Sigma X}{N}$$
+
+```{r, echo=TRUE}
+SumX <- sum(Normal.Sample.1)
+N    <- length(Normal.Sample.1)
+M    <- SumX / N
+M
+
+# Or all at once:
+M <- sum(Normal.Sample.1) / length(Normal.Sample.1)
+```
+
+The mean was `r round(M,2)` — close to our target $\mu$ of 100. But just use the built-in:
+
+```{r, echo=TRUE}
+mean(Normal.Sample.1)
+```
+
+### Median
+
+```{r, echo=TRUE}
+median(Normal.Sample.1)
+```
+
+Want to do it by hand? Here's a custom function (mostly to show you why built-ins exist):
+
+```{r, echo=TRUE}
+calculate_median <- function(x) {
+  sorted_x <- sort(x)
+  n <- length(sorted_x)
+  if (n %% 2 == 1) {
+    sorted_x[(n + 1) / 2]
+  } else {
+    (sorted_x[n / 2] + sorted_x[(n / 2) + 1]) / 2
+  }
+}
+calculate_median(Normal.Sample.1)
+```
+
+Same answer. Lots of code. This is why R has built-in functions!
+
+### Mode
+
+No built-in mode function in R for continuous data — and it's almost never used for normal distributions. Note: `mode()` in R tells you the *type* of an object (numeric, factor, etc.), not the statistical mode.
+
+### Moment 2: Spread
+
+Variance describes how spread out a distribution is. In psychology we mostly use **variance** and **standard deviation** because they work well with normal distributions and parametric statistics.
+
+Variability comes from:
+
+- Individual differences (genetics, mood, experience)
+- Research/environment factors (testing conditions, context)
+- Measurement effects
+
+When estimating variance from a sample, we divide by $N - 1$ instead of $N$ to get an unbiased estimate. This is called **degrees of freedom**.
+
+### Variance and SD
+
+Population variance (when we have the entire population and know $\mu$):
+$$\sigma^2 = \frac{\Sigma (X-\mu)^2}{N}$$
+
+Sample variance, using $N-1$ to estimate population variance:
+$$S^2 = \frac{\Sigma (X-M)^2}{N-1}$$
+
+R vectorizes this for you, but watch your parentheses. The built-in `var()` uses $M$ and $N-1$:
+
+```{r, echo=TRUE}
+Variance.M <- var(Normal.Sample.1)
+```
+
+Sample variance = `r round(Variance.M,2)`
+
+$$S = \sqrt{S^2}$$
+
+```{r, echo=TRUE}
+SD.calc <- sd(Normal.Sample.1)
+```
+
+Sample SD = `r round(SD.calc,2)`
+
+::: {.callout-note title="Variance Has Weird Units; SD Comes Back Home"}
+Variance is measured in **squared units**.
+
+- If reaction time is measured in seconds, variance is measured in seconds squared.
+- If exam scores are measured in points, variance is measured in points squared.
+- If cookie-dough devotion is measured in questionable rating units, variance uses questionable rating units squared.
+
+Standard deviation takes the square root of variance, returning to the original units. That is one reason SD is easier to interpret.
+:::
+
+### A Dot Plot: Where Does One Standard Deviation Live?
+
+The standard deviation is a measure of the **typical distance of scores from the mean**. It is calculated from every score's distance from the mean. It is not defined by capturing a particular percentage of people.
+
+However, when a distribution is approximately normal, standard deviations divide the distribution in a very useful and predictable way:
+
+- About 34% of scores fall between the mean and one SD **below** the mean.
+- About 34% fall between the mean and one SD **above** the mean.
+- Put those pieces together, and about 68% fall within one SD of the mean.
+- About 95% fall within two SDs of the mean.
+
+Let us make that visible with a deeply important psychological construct: love of cookie-dough ice cream.
+
+We ask 240 people:
+
+> **How much do you like cookie-dough ice cream?**
+
+They answer on a 1--10 unipolar rating scale:
+
+- **1 = Not at all**
+- **10 = I would trade my mother for cookie-dough ice cream**
+
+The scale is **unipolar** because it begins with none of the feeling and moves in one direction toward more of it. The opposite endpoint is not “I hate cookie-dough ice cream with the fire of a thousand suns.” That would be a bipolar scale and possibly a cry for help.
+
+```{r cookie-dough-sd, fig.width=7, fig.height=4.4}
+#| echo: FALSE
+#| fig-cap: "Simulated cookie-dough ratings. The dots are people; the lines mark the mean and standard-deviation boundaries. The 34%, 68%, and 95% values describe an approximately normal distribution."
+set.seed(343)
+
+n_ice_cream <- 240
+CookieDough <- data.frame(
+  Rating = pmin(
+    10,
+    pmax(1, round(rnorm(n_ice_cream, mean = 6.1, sd = 1.45)))
+  )
+)
+
+IceCream.M <- mean(CookieDough$Rating)
+IceCream.S <- sd(CookieDough$Rating)
+
+Within.1.SD <- mean(
+  CookieDough$Rating >= IceCream.M - IceCream.S &
+    CookieDough$Rating <= IceCream.M + IceCream.S
+)
+
+Within.2.SD <- mean(
+  CookieDough$Rating >= IceCream.M - 2 * IceCream.S &
+    CookieDough$Rating <= IceCream.M + 2 * IceCream.S
+)
+
+ggplot(CookieDough, aes(x = Rating, y = 0)) +
+  annotate(
+    "rect",
+    xmin = IceCream.M - 2 * IceCream.S,
+    xmax = IceCream.M + 2 * IceCream.S,
+    ymin = -0.22, ymax = 0.78,
+    fill = "gray85", alpha = 0.45
+  ) +
+  annotate(
+    "rect",
+    xmin = IceCream.M - IceCream.S,
+    xmax = IceCream.M,
+    ymin = -0.22, ymax = 0.48,
+    fill = "#56B4E9", alpha = 0.30
+  ) +
+  annotate(
+    "rect",
+    xmin = IceCream.M,
+    xmax = IceCream.M + IceCream.S,
+    ymin = -0.22, ymax = 0.48,
+    fill = "#E69F00", alpha = 0.30
+  ) +
+  geom_jitter(
+    alpha = 0.55, size = 1.7, color = "black",
+    position = position_jitter(width = 0.10, height = 0.12, seed = 343)
+  ) +
+  geom_vline(xintercept = IceCream.M, linewidth = 1.1) +
+  geom_vline(
+    xintercept = c(IceCream.M - IceCream.S,
+                   IceCream.M + IceCream.S),
+    linetype = 2, linewidth = 0.9
+  ) +
+  geom_vline(
+    xintercept = c(IceCream.M - 2 * IceCream.S,
+                   IceCream.M + 2 * IceCream.S),
+    linetype = 3, linewidth = 0.8
+  ) +
+  annotate(
+    "text",
+    x = IceCream.M - IceCream.S / 2,
+    y = 0.34, label = "about 34%", fontface = "bold"
+  ) +
+  annotate(
+    "text",
+    x = IceCream.M + IceCream.S / 2,
+    y = 0.34, label = "about 34%", fontface = "bold"
+  ) +
+  annotate(
+    "label", x = IceCream.M, y = 0.57,
+    label = "about 68% within 1 SD", fontface = "bold",
+    fill = "white", label.size = 0
+  ) +
+  annotate(
+    "rect",
+    xmin = IceCream.M - 2 * IceCream.S,
+    xmax = IceCream.M + 2 * IceCream.S,
+    ymin = 0.66, ymax = 0.77,
+    fill = "white", color = "gray35"
+  ) +
+  annotate(
+    "text", x = IceCream.M, y = 0.715,
+    label = "about 95% within 2 SDs", fontface = "bold"
+  ) +
+  annotate(
+    "text",
+    x = c(IceCream.M - 2 * IceCream.S,
+          IceCream.M - IceCream.S,
+          IceCream.M,
+          IceCream.M + IceCream.S,
+          IceCream.M + 2 * IceCream.S),
+    y = -0.20,
+    label = c("-2 SD", "-1 SD", "Mean", "+1 SD", "+2 SD"),
+    size = 3.2, fontface = "bold"
+  ) +
+  scale_x_continuous(breaks = 1:10, limits = c(0.5, 10.5)) +
+  coord_cartesian(ylim = c(-0.30, 0.80), clip = "off") +
+  labs(
+    title = "Where the Standard Deviations Live",
+    subtitle = "Each jittered dot is one person's cookie-dough rating",
+    x = "Cookie-dough ice cream rating (1 to 10)",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+```
+
+In this particular simulated sample, `r round(Within.1.SD * 100, 1)`% of ratings fall within one SD of the mean and `r round(Within.2.SD * 100, 1)`% fall within two SDs. Those values will not equal exactly 68% and 95%. These are discrete ratings from one sample, not obedient dots hired to impersonate a perfect normal curve. Chance is fickle, and a 1--10 scale also has walls at both ends.
+
+The important visual intuition is this: **one SD takes us from the mean through the thick central part of a normal distribution. Two SDs cover nearly everybody.** A score farther than two SDs from the mean is unusual, although “unusual” does not automatically mean impossible, important, fraudulent, or possessed.
+
+### Relationship between $M$ and $S$
+
+The standard deviation is expressed in the same units as the scores, but it does not automatically grow just because the mean grows. For positive **ratio-scale** variables, the **coefficient of variation** can compare spread relative to the mean:
+
+$$CV = \frac{S}{|M|}$$
+
+```{r, echo=TRUE}
+CV <- SD.calc / abs(M)
+```
+
+$CV$ = `r round(CV, 2)`.
+
+::: {.callout-warning title="The CV Needs a Mean Worth Dividing By"}
+A problem occurs when the mean is close to zero. Dividing by a tiny mean can produce an enormous and unstable CV. If the mean is zero, the CV is undefined.
+
+Therefore, interpret the CV most confidently when zero has a meaningful interpretation, ratios are sensible, and the mean is not hovering near zero while laughing at you.
+:::
+
+### Moment 3: Skewness
+
+Skewness is how asymmetrical the hill is. Generally, the farther the value is from zero, the more skewed the distribution. Human data will almost always be somewhat asymmetrical, like most of our faces. When people's ears or eyes are slightly asymmetrical, we generally choose to ignore the problem for reasons---assumptions, really---that we hope are true. More on that later.
+
+The skewness formula is below for completeness. Almost nobody reports the formula itself.
+
+$$Skewness = \frac{\Sigma(X-M)^3 /N}{S^{3}}$$
+
+```{r, echo=TRUE}
+library(moments)
+SK.Calc <- skewness(Normal.Sample.1)
+```
+
+Skewness = `r round(SK.Calc,2)`
+
+### Moment 4: Kurtosis
+
+This is peakiness! You can have flattish, longish hills (**platykurtic**) or skinny, tall hills (**leptokurtic**). I would be remiss to my mother if I did not point out that these are Greek words. I would also like to point out that nobody has ever confused my body shape with leptokurtotic.
+
+The kurtosis formula is below for completeness. Not only does almost nobody report it, I do not think many people know how to make sense of the numbers it spews out.
+
+$$Kurtosis = \frac{\Sigma(X-M)^4 /N}{S^{4}} - 3$$
+
+```{r, echo=TRUE}
+K.Calc <- kurtosis(Normal.Sample.1) - 3
+```
+
+Kurtosis = `r round(K.Calc,2)`
+
+### All Four Moments via Tidyverse
+
+The tidyverse is a collection of R packages that makes data work readable and consistent. Think of it as data operations in near-plain English: take this data, group it, summarize it, done.
+
+We need three verbs for now:
+
+- `group_by()` — split data into groups
+- `summarise()` — compute statistics per group
+- `filter()` — keep only rows we want
+
+First, put our vector into a **data frame** (R's version of a spreadsheet — rows are observations, columns are variables):
+
+```{r, echo=TRUE}
+DF <- data.frame(X = Normal.Sample.1)
+```
+
+Now compute all four moments at once:
+
+```{r, echo=TRUE}
+library(tidyverse)
+library(moments)
+Desc.table <-
+  DF %>%
+  summarise(N    = n(),
+            M    = mean(X),
+            S    = sd(X),
+            CV   = S / abs(M),
+            Skew = skewness(X),
+            Kurt = kurtosis(X) - 3)
+round(Desc.table, 2)
+```
+
+## Distributions and Probability
+
+A distribution isn't just a picture of data — it lets us make **probability statements**.
+
+The height of the curve at any point tells us how likely values near that point are. This is the **Probability Density Function** (PDF).
+
+### Probability Density Function (PDF)
+
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x - \mu)^2}{2 \sigma^2}}$$
+
+Looks scary. The concept is simple:
+
+- Values near the mean → highest density
+- Values far from the mean → lower density
+- Shape is fully determined by $\mu$ and $\sigma$
+
+In practice, we convert to **z-scores** so that mean = 0 and SD = 1, which makes everything easier.
+
+### Z-scores
+
+A **z-score** tells you how far a value is from the mean in standard deviation units:
+
+- z = 0 → exactly at the mean
+- z = 1 → one SD above the mean
+- z = −1 → one SD below the mean
+
+Converting to z-scores does **not change the shape** of the distribution — it just re-labels the axis.
+
+$$Z = \frac{X - M}{S}$$
+
+::: {.callout-important title="A z-Score Is Not a Probability"}
+A z-score tells us how far a score is from the mean in standard-deviation units.
+
+It does **not** directly tell us the percentage of people below that score. To obtain a percentile, we must use the appropriate distribution—usually with `pnorm()` when normality is a reasonable model.
+
+A z-score of 1 means one SD above the mean. It does not mean 1%, 10%, or that the participant has won statistics.
+:::
+
+### Making Z-scores in R
+
+```{r, echo=TRUE}
+Normal.Sample.Z <- scale(Normal.Sample.1, center = TRUE, scale = TRUE)
+```
+
+```{r, echo=TRUE}
+DF.Z <- data.frame(X = Normal.Sample.Z)
+Desc.table.Z <-
+  DF.Z %>%
+  summarise(N = n(), M = mean(X), S = sd(X))
+round(Desc.table.Z, 2)
+```
+
+The shape doesn't change:
+
+```{r}
+hist(Normal.Sample.Z,
+  breaks = 30,
+  col    = "lightblue",
+  border = "black",
+  main   = "Z Score Histogram",
+  xlab   = "Population Distribution",
+  ylab   = "Frequency")
+abline(v = 0, col = "black")
+```
+
+### Finding Probability from Z-scores
+
+Two functions to know:
+
+- `dnorm()` → height of the curve (density) at a value
+- `pnorm()` → area under the curve to the left of a value (probability)
+
+The PDF `dnorm()` implements:
+
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x - \mu)^2}{2 \sigma^2}}$$
+
+```{r, echo=FALSE}
+hist(Normal.Sample.Z,
+     breaks      = 30,
+     probability = TRUE,
+     col         = "lightblue",
+     border      = "black",
+     main        = "Z-score Histogram with Density Curve",
+     xlab        = "z-score",
+     ylab        = "Density")
+lines(density(Normal.Sample.Z), lwd = 2)
+abline(v = 0, col = "black", lwd = 2)
+```
+
+### How much of the population is below the mean?
+
+Exactly 50% — the normal distribution is symmetric. Confirm it:
+
+```{r, echo=TRUE}
+pnorm(0)
+```
+
+What proportion falls between 1 and 2 SDs above the mean?
+
+```{r, echo=TRUE}
+pnorm(2) - pnorm(1)
+```
+
+No calculus. Just area under the curve.
+
+## Real-World Example: Mental Rotation Test
+
+We now know how to:
+
+- Describe distributions
+- Standardize scores with z-scores
+- Convert z-scores to probabilities
+
+Let's apply all of it to a real psychological measure.
+
+The **Mental Rotations Test (MRT)** measures spatial visualization ability. Peters et al. developed a redrawn version and examined factors affecting performance [@peters1995]. Here's a summary by field and gender:
+
+|     | Sciences |     |      |     | Social Sciences & Humanities |      |      |
+|-----|----------|-----|------|-----|------------------------------|------|------|
+|     | n        | M   | SD   |     | n                            | M    | SD   |
+| M   | 817      | 15.23 | 4.42 |   | 517                        | 12.74 | 4.87 |
+| F   | 392      | 11.18 | 4.37 |   | 1358                       | 8.75  | 4.18 |
+
+::: {.callout-warning title="Advanced Code Has Arrived Early"}
+The code below is more advanced; you do not need to understand it yet. Why am I showing you crazy code now? To make you feel bad about yourself and the terrible life choices you made when you took a statistics class!
+
+Actually, I want you to see what R can do. I can go from a table to simulation, graphs, and analysis without a lot of code. Simulating data is my favorite way to make graduate students cry when they propose dissertations because it is the fastest way to discover whether the theory and hypotheses they proposed make any sense. When they do not, the students cry and Dorkaos, our God of Statistics, gains more strength.
+:::
+
+### Step 1: Simulate the population distributions
+
+We only have summary stats, but because MRT scores are approximately normal we can **simulate each group** using `rnorm()`.
+
+```{r, echo=TRUE}
+library(tidyverse)
+set.seed(123)
+
+params <- tribble(
+  ~Field,            ~Group, ~n,    ~mean,  ~sd,
+  "Sciences",        "M",    817,   15.23,  4.42,
+  "Sciences",        "F",    392,   11.18,  4.37,
+  "Social Sciences", "M",    517,   12.74,  4.87,
+  "Social Sciences", "F",    1358,   8.75,  4.18
+)
+
+MRT.2 <- params %>%
+  mutate(data = map2(n, mean, ~rnorm(.x, mean = .y, sd = params$sd[params$n == .x]))) %>%
+  unnest(data) %>%
+  select(Field, Group, Value = data)
+```
+
+Check that our simulation matches published values:
+
+```{r, echo=TRUE}
+MRT.table <-
+  MRT.2 %>%
+  group_by(Field, Group) %>%
+  summarise(N = n(), M = mean(Value), S = sd(Value))
+MRT.table
+```
+
+### Step 2: Visualize the distributions
+
+```{r, echo=TRUE}
+ggplot(MRT.2, aes(x = Value, fill = Group, color = Group)) +
+  geom_histogram(aes(y = ..density..), position = "identity", alpha = 0.3, bins = 30) +
+  geom_density(alpha = 0.1) +
+  facet_wrap(~ Field) +
+  labs(title = "Overlaid Histograms & Density Plots", x = "Score", y = "Density") +
+  theme_bw()
+```
+
+### Step 3: Convert to z-scores (within groups)
+
+Standardize within each group — critical because each group has a different mean and SD.
+
+```{r}
+MRT.2 <- MRT.2 %>%
+  group_by(Field, Group) %>%
+  mutate(Z = scale(Value))
+MRT.2 %>% head()
+```
+
+```{r}
+ggplot(MRT.2, aes(x = Z, fill = Group, color = Group)) +
+  geom_histogram(aes(y = ..density..), position = "identity", alpha = 0.3, bins = 30) +
+  geom_density(alpha = 0.1) +
+  facet_wrap(~ Field) +
+  labs(title = "Overlaid Histograms & Density Plots", x = "Z-Score", y = "Density") +
+  theme_bw()
+```
+
+Why do the curves overlap now? Because standardizing compares *relative position within each group*, not raw scores.
+
+### Step 4: Z-score to probability
+
+Alex (male, social sciences) got a score of 10. How did he do relative to his peers? (Males, Social Sciences: $M$ = 12.74, $S$ = 4.87)
+
+```{r}
+Z.Alex <- (10 - 12.75) / 4.87
+Z.Alex
+```
+
+A little over half an SD below the mean. Visually:
+
+```{r}
+MRT.2.Males.Social.Sciences <- MRT.2 %>% filter(Group == "M" & Field == "Social Sciences")
+
+ggplot(MRT.2.Males.Social.Sciences, aes(x = Z)) +
+  geom_histogram(aes(y = ..density..), position = "identity", alpha = 0.3, bins = 30) +
+  geom_density(alpha = 0.1) +
+  labs(title = "Males in the Social Sciences", x = "Z-Score", y = "Density") +
+  theme_bw() +
+  geom_vline(xintercept = Z.Alex, color = 'red')
+```
+
+```{r}
+pnorm(Z.Alex)
+```
+
+Only better than 28.6% of peers. That's also called a **percentile**.
+
+### Step 5: Same raw score, different meaning
+
+Emma also scored a 10, but she's in a different group (Female, Social Sciences: $M$ = 8.75, $S$ = 4.18).
+
+```{r}
+Z.Emma <- (10 - 8.75) / 4.18
+Z.Emma
+```
+
+```{r}
+pnorm(Z.Emma)
+```
+
+Emma scored better than 61.75% of her peers.
+
+```{r}
+curve(pnorm, from = -10, to = 10,
+  main = "Cumulative Density Function",
+  xlab = "z-score", ylab = "Probability",
+  xlim = c(-3.25, 3.25))
+abline(v = Z.Emma, col = "red")
+abline(v = Z.Alex, col = "blue")
+```
+
+Same raw score. Emma is above average for her group; Alex is below average for his. Raw scores mean nothing without context.
+
+### Big idea
+
+- Raw scores mean nothing without context.
+- Distributions give scores meaning.
+
+## The Short Story
+
+- A distribution shows which values occur and how often.
+- The mean locates the center; variance and standard deviation describe spread.
+- Skewness describes asymmetry; kurtosis describes tail weight and peak shape relative to a reference distribution.
+- Zero skewness and zero excess kurtosis do not prove normality. Strange distributions are capable of wearing fake mustaches.
+- z-scores translate raw scores into standard-deviation units.
+- The same raw score can mean very different things in different reference groups.
+- Always inspect the distribution before asking one summary number to represent several hundred people without supervision.

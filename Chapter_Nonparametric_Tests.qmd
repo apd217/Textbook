@@ -1,0 +1,276 @@
+---
+title: "Nonparametric Tests: When the Data Refuse to Behave"
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+```
+
+## What Makes a Test Nonparametric?
+
+Many familiar tests describe data using parameters such as means and variances and make assumptions about how scores behave. **Nonparametric tests** make fewer or different assumptions, often by analyzing counts, signs, or ranks instead of the original scores.
+
+This does **not** mean they are assumption-free. No statistical test arrives free of assumptions, calories, or consequences. Nonparametric tests still care about the design, independence, what was measured, and what question the test actually answers.
+
+They are especially useful when:
+
+- The outcome is nominal or ordinal.
+- A few extreme scores are dragging the mean across the room by its ankles.
+- The sample is too small to trust an approximation that needs large samples.
+- Ranks or directions of change answer the research question better than raw-score differences.
+
+Do not select a nonparametric test merely because a normality test produced an asterisk. With large samples, normality tests detect tiny, harmless departures. With small samples, they may miss serious ones. Look at the data, consider the design, and decide what feature of the outcome you actually want to compare.
+
+## The Very Short Decision Guide
+
+| Research question | Design | Useful test |
+|---|---|---|
+| Is one category more common than a specified probability predicts? | One binary variable | Exact binomial test |
+| Are two binary variables associated in a small table? | Independent observations, usually $2 \times 2$ | Fisher's exact test |
+| Do two independent groups tend to have different scores? | Two separate groups | Wilcoxon rank-sum / Mann--Whitney test |
+| Did paired scores tend to change? | Two scores from each person | Sign test or Wilcoxon signed-rank test |
+| Do three or more independent groups differ? | Separate groups | Kruskal--Wallis test |
+| Do three or more repeated conditions differ? | Same people in every condition | Friedman test |
+
+The table is a map, not an oracle. A map can get you to the correct neighborhood. It cannot stop you from driving into a volcano because Google said the road continued.
+
+## Tests for Nominal Outcomes
+
+### Fisher's Exact Test
+
+Pearson's chi-square uses an approximation that works well when expected counts are reasonably large. When a $2 \times 2$ table is tiny or sparse, **Fisher's exact test** calculates an exact p-value under fixed margins.
+
+Suppose sixteen students volunteer for an escape-room study. Half receive calm-breathing instructions. Half are pursued by a research assistant holding a foam chainsaw and repeatedly yelling, "This was approved by the IRB!" The outcome is whether they escape before the timer expires.
+
+```{r}
+escape_table <- matrix(
+  c(1, 7,
+    6, 2),
+  nrow = 2,
+  byrow = TRUE,
+  dimnames = list(
+    Training = c("Calm breathing", "Foam chainsaw"),
+    Escaped = c("Yes", "No")
+  )
+)
+
+escape_table
+chisq.test(escape_table)$expected
+fisher.test(escape_table)
+```
+
+Fisher's test is not merely "chi-square for small samples," but that is its most common job in an introductory workflow. Unlike Pearson's large-sample approximation, it obtains the p-value from the possible tables with the same margins. It also returns an odds-ratio estimate and confidence interval.
+
+Do not automatically use Fisher's test for every table. For larger tables it can become computationally expensive, and the exact question depends on how the margins are treated. When expected counts are healthy, Pearson's chi-square is usually perfectly happy doing its job.
+
+### The Exact Binomial Test
+
+The **binomial test** handles a binary outcome when trials are independent and the probability under the null hypothesis is specified.
+
+Suppose 18 of 24 students report hearing colors after consuming a legally and ethically questionable quantity of caffeine. If "yes" and "no" were equally likely, the null probability would be $.50$.
+
+```{r}
+binom.test(
+  x = 18,
+  n = 24,
+  p = .50,
+  alternative = "two.sided"
+)
+```
+
+The p-value asks how unusual 18 or a result at least this far from the expected 12 would be if the true probability were .50. The confidence interval estimates the probability of hearing colors. Neither number establishes that caffeine **caused** chromatic audition. Perhaps these students already heard mauve every Thursday. Design still matters.
+
+### The Sign Test
+
+The **sign test** is a binomial test applied to paired differences. It ignores how large each change is and records only its direction:
+
+- `+` means the score moved in the predicted direction.
+- `-` means it moved in the opposite direction.
+- Ties are removed because they have no direction.
+
+Suppose students rate exam panic before and after receiving a one-page study guide. Lower scores are better.
+
+```{r}
+panic_before <- c(8, 7, 9, 6, 8, 7, 9, 5, 8, 6, 7, 9, 8, 6, 7, 8)
+panic_after  <- c(5, 6, 7, 6, 4, 5, 6, 4, 7, 5, 7, 5, 6, 7, 5, 6)
+
+change <- panic_before - panic_after
+non_ties <- change[change != 0]
+n_improved <- sum(non_ties > 0)
+
+binom.test(n_improved, length(non_ties), p = .50)
+```
+
+The sign test is wonderfully stubborn: a one-point improvement and a seven-point improvement both count as one plus. That makes it resistant to extreme magnitudes, but it also throws away useful information. This is the statistical equivalent of judging a chainsaw and a butter knife only by whether each object is pointy.
+
+## Tests Based on Ranks
+
+Ranking replaces the original scores with their ordered positions. The smallest score gets the lowest rank, the next score gets the next rank, and tied scores share ranks. Extreme raw values therefore lose much of their power to terrorize the analysis.
+
+However, a rank test does not automatically become "a test of medians." Under additional assumptions—especially similarly shaped distributions—it may be interpreted as a location or median comparison. Without those assumptions, the safer question is whether scores from one condition tend to be higher or lower than scores from the other.
+
+### Two Independent Groups: Wilcoxon Rank-Sum
+
+The **Wilcoxon rank-sum test**, also called the **Mann--Whitney U test**, compares two independent groups.
+
+```{r}
+fear_data <- data.frame(
+  training = factor(rep(c("Breathing", "Foam chainsaw"), each = 10)),
+  fear = c(
+    3, 4, 2, 5, 4, 3, 6, 2, 4, 5,
+    7, 8, 6, 9, 7, 10, 8, 6, 9, 7
+  )
+)
+
+aggregate(fear ~ training, data = fear_data, median)
+
+wilcox.test(
+  fear ~ training,
+  data = fear_data,
+  exact = FALSE,
+  conf.int = TRUE
+)
+```
+
+The groups are independent because each student appears in only one training condition. If Alex secretly reuses the same students because recruitment is annoying, the design becomes paired and the analysis must change. Laziness is not a covariance structure.
+
+### Two Paired Conditions: Wilcoxon Signed-Rank
+
+The **Wilcoxon signed-rank test** uses both the direction and rank of the absolute paired differences. It is more informative than the sign test, but it assumes the distribution of paired differences is reasonably symmetric.
+
+Use the two-vector interface in modern R:
+
+```{r}
+wilcox.test(
+  x = panic_before,
+  y = panic_after,
+  paired = TRUE,
+  exact = FALSE,
+  conf.int = TRUE
+)
+```
+
+Do **not** write `wilcox.test(score ~ condition, paired = TRUE)`. The formula method does not safely identify which observation should be paired with which. Giving the two aligned vectors makes the pairing explicit and prevents R from responding with the statistical equivalent of "I have no idea which student is which."
+
+## Three or More Conditions
+
+### Independent Groups: Kruskal--Wallis
+
+The **Kruskal--Wallis test** extends rank-based comparison to three or more independent groups. It is the common nonparametric relative of a one-way independent-groups ANOVA.
+
+```{r}
+coping_data <- data.frame(
+  strategy = factor(rep(c("Breathing", "Pep talk", "Statistics ritual"), each = 8)),
+  panic = c(
+    4, 5, 3, 6, 4, 5, 2, 5,
+    6, 7, 5, 8, 6, 7, 5, 6,
+    8, 9, 7, 10, 8, 9, 7, 9
+  )
+)
+
+kruskal.test(panic ~ strategy, data = coping_data)
+```
+
+A significant result says that the groups do not all behave alike. It does not say which pairs differ. Follow-up pairwise Wilcoxon tests need a multiple-comparison correction:
+
+```{r}
+pairwise.wilcox.test(
+  x = coping_data$panic,
+  g = coping_data$strategy,
+  p.adjust.method = "holm",
+  exact = FALSE
+)
+```
+
+Holm's method controls the familywise error rate and is generally preferable to applying the plain Bonferroni correction to every comparison with equal enthusiasm.
+
+### Repeated Conditions: Friedman
+
+The **Friedman test** compares three or more repeated conditions. Each row below is one student; each column is something the student was asked to confront.
+
+```{r}
+fear_matrix <- matrix(
+  c(
+    2, 6, 9,
+    3, 7, 8,
+    1, 5, 9,
+    4, 6, 10,
+    2, 7, 9,
+    3, 5, 8,
+    2, 6, 10,
+    4, 7, 9
+  ),
+  nrow = 8,
+  byrow = TRUE,
+  dimnames = list(
+    Student = paste0("S", 1:8),
+    Stimulus = c("Duck", "Reviewer 2", "Exam")
+  )
+)
+
+fear_matrix
+friedman.test(fear_matrix)
+```
+
+The blocking variable is the student: every student contributes one score to every condition. Follow-up paired Wilcoxon tests can compare condition pairs, again with corrected p-values.
+
+```{r}
+pair_names <- combn(colnames(fear_matrix), 2, simplify = FALSE)
+
+raw_p <- vapply(pair_names, function(pair) {
+  wilcox.test(
+    fear_matrix[, pair[1]],
+    fear_matrix[, pair[2]],
+    paired = TRUE,
+    exact = FALSE
+  )$p.value
+}, numeric(1))
+
+data.frame(
+  comparison = vapply(pair_names, paste, collapse = " vs. ", FUN.VALUE = character(1)),
+  raw_p = raw_p,
+  holm_p = p.adjust(raw_p, method = "holm")
+)
+```
+
+## What These Tests Do Not Fix
+
+Nonparametric tests cannot rescue:
+
+- Dependent observations analyzed as independent.
+- A confounded design.
+- A measure that does not represent the construct.
+- Selective deletion of inconvenient participants.
+- Twenty-seven unplanned analyses followed by a sudden claim that the only significant one was "the hypothesis all along."
+
+They can also have lower power than a well-chosen parametric model when that model's assumptions are reasonable. More importantly, rank tests change the question by discarding some information about raw distances. Sometimes that is exactly what you want. Sometimes it is like buying noise-canceling headphones and then complaining that you cannot hear the fire alarm.
+
+## Reporting Nonparametric Results
+
+Report enough information for a reader to understand both the result and the data:
+
+1. Name the test and the design.
+2. Report the test statistic, degrees of freedom when applicable, and p-value.
+3. Describe each condition with counts, proportions, medians, and interquartile ranges as appropriate.
+4. Include an effect size and confidence interval when a defensible one is available.
+5. State how ties, zero differences, exact p-values, and multiple comparisons were handled.
+
+The test is only one sentence in the argument. The data, design, effect size, uncertainty, and actual psychological question still have to show up for work.
+
+::: {.callout-warning title="Nonparametric Does Not Mean Assumption-Free"}
+Rank and exact tests make different assumptions and often answer different questions from their parametric cousins. Choose one because it fits the design, scale, and scientific question—not because the data offended a normality test at 2:00 a.m.
+:::

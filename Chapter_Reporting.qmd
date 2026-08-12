@@ -1,0 +1,148 @@
+---
+title: "Reporting Models Without Making the Reader Solve a Puzzle"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## The Analysis Is Not Finished When R Stops Printing
+
+A results section should let a reader reconstruct the statistical argument without opening your R session, reading your mind, or contacting the undergraduate who disappeared with the codebook.
+
+Report:
+
+- What was analyzed.
+- How variables were coded.
+- Which model was fitted and why.
+- Estimates in interpretable units.
+- Uncertainty.
+- Effect size or model fit.
+- Diagnostics and consequential deviations.
+- What the result supports and what it does not.
+
+::: {.callout-important title="Lead with the Scientific Result"}
+“A regression was significant” is about software output. “Each additional hour of sleep predicted about four more memory points” is about the research question. Start with the second sentence.
+:::
+
+## One Reproducible Example
+
+```{r reporting-data}
+set.seed(343)
+n <- 180
+ReportData <- data.frame(
+  Sleep = runif(n, 3, 9),
+  Caffeine = pmax(rnorm(n, 180, 85), 0),
+  Condition = factor(sample(c("Control", "Training"), n, replace = TRUE))
+)
+
+ReportData$Memory <-
+  38 + 3.8 * ReportData$Sleep -
+  .018 * ReportData$Caffeine +
+  5.5 * (ReportData$Condition == "Training") +
+  rnorm(n, 0, 7)
+
+ReportModel <- lm(Memory ~ Sleep + Caffeine + Condition, data = ReportData)
+```
+
+## Descriptives Before Models
+
+Describe the sample and variables needed to understand the model. Do not create a 47-column Table 1 containing every variable collected since the lab opened.
+
+```{r reporting-descriptives}
+Descriptives <- data.frame(
+  Variable = c("Memory", "Sleep", "Caffeine"),
+  Mean = c(mean(ReportData$Memory), mean(ReportData$Sleep), mean(ReportData$Caffeine)),
+  SD = c(sd(ReportData$Memory), sd(ReportData$Sleep), sd(ReportData$Caffeine)),
+  Minimum = c(min(ReportData$Memory), min(ReportData$Sleep), min(ReportData$Caffeine)),
+  Maximum = c(max(ReportData$Memory), max(ReportData$Sleep), max(ReportData$Caffeine))
+)
+
+knitr::kable(Descriptives, digits = 2, caption = "Descriptive statistics")
+```
+
+## Extract Results from the Model Object
+
+Never type changing results manually into a table when R can extract them. Manual transcription creates opportunities to report the coefficient from Model 4, the p-value from Model 6, and the confidence interval from a model no one remembers fitting.
+
+```{r reporting-table}
+CoefficientTable <- broom::tidy(ReportModel, conf.int = TRUE)
+knitr::kable(
+  CoefficientTable,
+  digits = 3,
+  caption = "Regression predicting memory performance"
+)
+```
+
+For mixed models, use `broom.mixed::tidy()` because fixed effects, random-effect parameters, and model components require more supervision.
+
+## What Belongs in a Regression Table?
+
+At minimum:
+
+- Predictor names readers understand.
+- Unstandardized estimates.
+- Standard errors or confidence intervals.
+- Test statistics and p-values when required.
+- Sample size.
+- Model $R^2$ and adjusted $R^2$ for ordinary regression.
+
+Standardized coefficients may supplement, not automatically replace, coefficients in meaningful original units.
+
+::: {.callout-warning title="Asterisks Are Not a Results Section"}
+Stars can help scan a table. They do not describe magnitude, uncertainty, practical importance, or whether the model made sense. Never make the reader infer the entire conclusion from celestial punctuation.
+:::
+
+## Plot Model-Based Predictions
+
+```{r reporting-figure, fig.width=7, fig.height=4.8}
+PredictionData <- expand.grid(
+  Sleep = seq(3, 9, length.out = 100),
+  Caffeine = mean(ReportData$Caffeine),
+  Condition = levels(ReportData$Condition)
+)
+
+PredictionData$Predicted <- predict(ReportModel, newdata = PredictionData)
+
+plot(
+  ReportData$Sleep, ReportData$Memory,
+  pch = 19, col = rgb(.2, .2, .2, .18),
+  xlab = "Hours of sleep", ylab = "Memory score",
+  main = "Model predictions at average caffeine use"
+)
+
+colors <- c("#0072B2", "#D55E00")
+for (i in seq_along(levels(ReportData$Condition))) {
+  group <- levels(ReportData$Condition)[i]
+  d <- PredictionData[PredictionData$Condition == group, ]
+  lines(d$Sleep, d$Predicted, lwd = 3, col = colors[i])
+}
+legend("topleft", legend = levels(ReportData$Condition),
+       col = colors, lwd = 3, bty = "n")
+```
+
+Figures should show the comparison the model actually tested. Label axes in meaningful units, show uncertainty when it matters, and do not use a bar chart to hide a continuous distribution.
+
+## Example Write-Up
+
+> A multiple regression examined whether sleep, caffeine consumption, and training condition predicted memory scores. Holding caffeine and condition constant, each additional hour of sleep predicted an estimated increase in memory performance. Training participants also had higher predicted scores than control participants at the same sleep and caffeine values. Caffeine showed a small negative adjusted association with memory. We report unstandardized coefficients and 95% confidence intervals in Table X. Diagnostic plots did not reveal a consequential violation of linearity or constant residual variance.
+
+Replace that language with the actual numerical estimates from the model. The paragraph should interpret the most important coefficients rather than reciting every cell in the table aloud.
+
+## Reproducibility Checklist
+
+- Use a script or Quarto document.
+- Set random seeds for simulations.
+- Record package versions when reproducibility is important.
+- Keep raw data unchanged.
+- Document exclusions and transformations.
+- Generate tables and figures from fitted objects.
+- Store enough code to reproduce every reported number.
+
+::: {.callout-note title="Future You Is an Unreliable Collaborator"}
+Future You will not remember why `Model.Final.2.REAL.useThisOne` excludes participants 14 and 88. Write the reason now. Future You is busy, confused, and probably blaming Past You with considerable justification.
+:::
+
+## The Short Story
+
+Report the scientific result, estimate, uncertainty, effect size, model fit, and limitations. Generate output from model objects, use figures to clarify relationships, and leave a reproducible trail for readers and Future You.

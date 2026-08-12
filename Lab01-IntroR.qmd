@@ -1,0 +1,816 @@
+---
+title: "Welcome to R"
+author: "Stolen from Ryne, who says he adapted it from Alex, but I don't remember making it "
+format:
+  html:
+    grid:
+      margin-width: 350px
+  pdf: default
+reference-location: margin
+citation-location: margin
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(fig.width=3.75)
+knitr::opts_chunk$set(fig.height=3.5)
+knitr::opts_chunk$set(fig.align='center') 
+```
+
+\pagebreak
+
+**Note: Ask questions, interrupt me, tell me when you are lost. Otherwise I will assume you are keeping and go faster.** 
+
+# R vs RGui vs RStudio vs RMarkdown
+
+Quickest possible summary:
+
+* R is the language we are using. You can run it multiple ways, including from the command line/terminal.
+
+* R GUI is the original user-friendly R interface. It still exists, but has generally been replaced by...
+
+* RStudio is one program (of many) that can run R code.
+
+* RMarkdown is a document type that allows you to mix R code into otherwise human readable documents.
+
+## R
+
+R is a statistical programming language that's been around since 1993. It's immediate predecessor is called S (R is 1 better) was a product of Bell Labs first created in 1976. 
+
+It is an interpreted language, which means that you type it a human readable way and some type of interpreter (which we call R) turns it into a format that computers can actually use whenever you hit ``enter.''
+
+You can learn more about R at the Comprehensive R Archive Network, or CRAN: 
+
+The current version of R is R 4.4.1 "Race for Your Life". What am I running?
+
+```{r R.Version}
+# what version of r are we running here?
+R.Version()
+```
+
+Oh no, I'm behind! It's probably ok. So what's changed from 4.4.0 to 4.4.1? Let's check:
+
+https://cran.r-project.org/doc/manuals/r-release/NEWS.html
+
+* The first number is the major version number. We're using R 4, which as several major improvements over R 3. Major versions will break old code, add significant features. For example, moving from the last version of R 3 to the first version of R 4 fundamentally changed how strings (aka text) were treated when data were loaded, added new support for integration with C++, and a million other things. Every R library needed some updates to work with R 4.
+
+* The second version is the minor version number. Minor versions are small improvements on the previous version, adding new features without breaking backwards compatability. If you wrote code that worked on 4.0.x, it should still work on 4.1.x.
+
+* The third number is the patch number. These are literally patches or bug fixes. They should almost entirely fixing small errors, but sometimes the fixes to small errors are basically new features.
+
+So we're using a version of R 4, we've had two minor updates since then, and I'm on the third patch to R 4.2. Other notes:
+
+* You don't have to "finish" one set of numbers before moving on. R 4 has had:
+
+   - 4.0.0 through 4.0.5 (five patches), then
+
+   - 4.1.0 through 4.1.3 (three patches), then
+
+   - 4.2.0 through 4.2.3 (three patches), then
+   
+   - 4.3.0 through 4.3.3 (three patches), then
+   
+   - 4.4.0 through 4.4.1 (one patch and counting)
+
+* Any of the numbers can be multiple digits. The last version of R 2 was 2.15.3
+
+* All of these versions of R are compiled and ready for you to use. Compiled means the source code was turned into an executable program that your computer can run. Without that, it would be a bunch of text files (like all the R code you've ever written). If you look at the source files, there's a *fourth* number which is a new edit the developers made.
+
+* Here's some quick R history:
+
+   - R 0.49 is the earliest pre-release version on CRAN, dating back to April 1997.
+
+   - R 1.0.0 came out in February 2000, up to 1.9.1 in June 2004.
+   
+   - R 2.0.0 came out in October 2004, up to 2.15.3 in March 2013.
+   
+   - R 3.0.0 came out in April 2013, up to 3.6.3 in February 2020.
+   
+   - R 4.0.0 came out in April 2020, with 4.4.1 released in June 2024. 
+
+## Running R
+
+What you need to run R:
+
+* Your brain (sometimes).
+
+* Any text editor to type up your code.
+
+* Any application that can send things to R.
+
+  - Wait! there's more than one?
+  
+  - From terminal/command prompt
+  
+  - R GUI
+  
+## R GUI
+
+The R graphical user interface (GUI) ships with most, if not all, versions of R. It consists of a console and a simple text editor that you can use to store code. I'll demo that on another screen now.
+
+## R from Command Line
+
+Another demo. It looks the same!
+  
+## RStudio
+
+RStudio is an IDE (interactive development environment) for R and other things. The main features of RStudio are as follows:
+
+* Support for R Markdown, which allows you to mix R code into more common document formats (pdf, doc, html) and intersperse text for lectures, reports, etc.
+
+* A clean user interface, with all common windows present at all times (i.e., help files and environment info to the right, console below).
+
+* Syntax highlighting, so your code changes colors/formats based on what it does.
+
+   - For example, comments (#) are greyed out, and assignment operators ($<-$) are highlighted.
+
+* Drop-down menus and other point-and-click options for common functions (see "Packages" on the right).
+
+* Lots of business and big data stuff we won't be using.
+
+We use RStudio in this class because you should learn it, and it makes creating lectures and reports easier. You can use whatever you want to start, but all ways of running R are valuable additions to your analytic toolbox.
+
+RStudio has changed their name to "posit" in pursuit of a long term aim to transition from an R-specific product to a general purpose data science IDE with Python support. 
+
+## R Versions
+
+Most of what I give you will be in the form of R markdown files, which end in .Rmd. That does NOT mean that you have to use them exclusively, or otherwise turn every analysis into a 800 line 50 page behemoth. It's just one way to turn analyses into documents, and you should find the workflow(s) that work for you, your current lab, and your future lab/job.
+
+\pagebreak
+
+# R File Types
+
+Another source of confusion is how files are saved/stored in R/RStudio. First, let's start simple.
+
+## File Extensions
+
+Every file that you make on a modern operating system ends in a dot, then one or more letters. Traditionally, we topped out at three letters. Those three(ish) letter codes let your computer know what program to open that file with. You've seen them! Pop quiz! What programs are most associated with the following file extensions?
+
+* .txt
+
+* .doc
+
+* .csv
+
+* .xls
+
+* .htm(l)
+
+* .gif
+
+That was silly, but got at least one of you mad about mispronouncing "gif". What file types are supported by R? I'm so glad you asked.
+
+## .R Files
+
+The oldest and simplest supported file. It supports R script, and that's about it. Any line that is typed will be interpreted as R code, and if it's not R code, you'll get errors.
+
+If you'd like to explain your code, you can create comments with this symbol: #. I will call it a pound sign, because I am old. Here's an example of what an R file would look like:
+
+```{r example of r in r}
+# here is my comment
+1+2+3+4+5
+
+# here is another comment
+1+2+3+4+5+6+7+8+9
+
+# fin
+```
+
+This example, while not terribly enlightening unless you're just now getting into sudoku-based puzzles, shows my general recommendation for writing code that humans can read:
+
+* one third comments
+
+* one third code
+
+* one third white space or blank space
+
+That is more of a guideline than a rule, and I'm sure I will break this rule multiple times every class.
+
+Unless told otherwise (like on a multi-page exam), you are fine to use .R files for homework and other assignments. You do not need to create an entire markdown project (more later) for every graph you want to make, and knit (later) that into pdfs and word docs for dissemination. Sometimes you just need code, and .R is just code.
+
+## R Markdown (and Quarto)
+
+This file, and basically everything I will share in class, is an R markdown file. It's file extension is .Rmd. It is a merger of R code and a typesetting language based on LaTeX. LaTeX was/is commonly used in mathematical and physical sciences as an alternative to Word-like files, as it can easily incorporate math, plots, code and other parts of scientific writing that are hard to type. You write whatever text or explanation you wish, then denote a code block with three tickmarks. You then clarify what language your code is in (r), and type up your code.
+
+While the markdown file type is fairly legible in class (and it better be, because you're going to see a lot of it), the magic of this file type occurs when you "knit" the text and code together.
+
+This will execute all code and combine your output with your text into the document of your choosing. Supported output:
+
+* pdf, which will be our default in class,
+
+* word, which exists, and 
+
+* html, for turning projects like this into webpages.
+
+
+Quarto (.qmd) files are newer version of rmarkdown that works with python as well and is very similar in style to Rmarkdown, but has more flexible formatting. 
+
+### Quick note on Rmarkdown and class format
+
+Ryne and I do the great majority of our teaching in markdown. It makes it easy for us to combine explanation with the methods we're teaching you and turn them into webpages for easier dissemination. However, you do not have to turn every project into a 40 page knit pdf.
+
+In fact, it is often *good* to split projects into smaller files for clarity. I generally recommend that the data cleaning/preparation and analysis files be separate:
+
+* The goal of the data prep file can be to get from one or more sources of raw data to a clean analysis-ready dataset for you and possibly collaborators.
+
+* The analysis file then starts with a singular clean dataset and runs all analyses for a given paper. If the figures are named 
+"Figure 1", etc, all the better.
+
+* Different papers, posters, or other presentations get different analysis files.
+
+I don't typically do this in class, because giving you four different .R files tends to be confusing. 
+
+## Other files
+
+* Before markdown knitted LaTeX with R, Sweave weaved S (before R) with LaTeX. It's old, and you don't need to worry about it.
+
+* R can also be used to make dynamic web applications or Shiny apps. The use case is allowing readers to subset data. For example, you might have national data on a given behavior, but allow people to filter down to their state, region, or county and remake the graphs for their locale.
+
+* RStudio is changing it's name to Posit in an effort to become an IDE for all data science languages, specifically Python. 
+
+# Objects and Functions
+
+R is an *object oriented language*. This means that everything that you create in R needs to be placed somewhere, that that location or object needs to be given a name. Here's the smallest example I can think of:
+
+```{r simple object}
+# make the object
+a <- 3
+
+# print what is in it
+a
+
+# Syntax highlighting! [global options review]
+```
+
+When I use the assignment operator ($<-$), the object $a$ is created and the number 3 is placed in that object. Last semester, you (hopefully) learned that objects can hold functions, datasets (data.frames), output from an analysis (and many other lists), and much much much much much much more.
+
+As a quick reminder, R passes values, not references. The best example I can think of is below:
+
+```{r pass by value}
+# b is equal to a
+b <- a
+
+# print
+a
+b
+
+# change a
+a <- 5
+
+# print a and b
+a
+b
+```
+
+The value that $a$ had when $b$ was created is what was passed, not the relationship between $a$ and $b$.
+
+## Functions
+
+Almost everything you've learned in R so far has been finding new functions and applying them to data. Functions in mathematics are operations that take a fixed input and return exactly one output. In R, they function (ha!) the same way: you provide input, and the function returns output. Here are a few example functions that you may remember:
+
+```{r example functions from base R}
+# first, make some data
+trevor <- c(9, 8, 7, 6, 5, 4, 3, 2, 1)
+
+# mean is a function. what's the mean of trevor?
+mean(trevor)
+
+# what's their range?
+range(trevor)
+
+# plots?
+boxplot(trevor)
+
+# one sample t.tests are about as far as I can go
+t.test(trevor)
+
+# and we can put that into an object to save for later
+trevorsHouse <- t.test(trevor)
+
+# what is it?
+trevorsHouse
+str(trevorsHouse)
+```
+
+\pagebreak
+
+# R Libraries
+
+Base R is a wonderful language, but part of the power of R is that anyone can submit libraries or packages of their own code to add on to R. One of the first things we do in pretty much every lab session is load the libraries required to do a particular analysis. The libraries 'base' and 'stat' are loaded every time you start R. The rest are up to you.
+
+Below, we load three libraries. Note that either `library()` or `require()` do the same job: the difference between them isn't for the first day of the class. Also note the `install.packages` is the command to install packages you don't already have: RStudio has similar point and click functionality to the right.
+
+Each library adds new functions to R, and tend to be a set of related functions that help you with a specific task or analysis. ggplot contains many functions for a specific plotting style, and psych contains tools for carrying out traditional psychometric analyses that aren't otherwise (well) supported by R.
+
+Libraries vary in lots of ways. Some are self-contained, including all of the code that they need to run on their own. Others have *dependencies*, which are other R packages that have to be loaded first for a particular package to work. For example, if you were writing a brand new package to make pretty regression tables and figures, you might require other packages that do regression or make plots as dependencies, then you'd build off of those.
+
+Below are three packages I want to talk about, as they encapsulate the range of libraries we'll use this semester. Note any dependencies that are mentioned as they load.
+
+```{r load}
+library(psych)
+library(beepr)
+
+# if you're missing any of these, install as shown below.
+# note the quotes
+#install.packages("beepr")
+```
+
+"ggplot2" is ubiquitous package for making a very specific style of graphics. It's very useful, and we'll use it a lot. It's part of the tidyverse, which is an "opinionated collection of R packages designed for data science." If you load the library ``tidyverse'', ggplot2 and several other libraries should be loaded as dependencies. It's huge, maintained by Posit/RStudio (and thus many people), and it's a central part of modern data science.
+
+Almost everything that the tidyverse does can also be done by functions that are core to R or "base R". You can make ggplots (tidy), or just use plot (base). You can combine datasets using reduce (tidy: the function name changes basically annually), or use merge (base R). Ryne was trained in base R, and generally codes in base R. Alex learned R with the tidyverse. We will both try to teach both base R and tidyverse.
+
+"psych" is an incredibly useful package that includes a variety of useful functions for applied psychologists like you all. It's created and maintained by Bill Revelle at Northwestern (Ryne knows him), and includes whatever functions Bill feels should be included. Much to my chagrin, Revelle uses whatever function names make the most sense for his goals regardless of any other usage of that name by any other package. It's not as big as the tidyverse, but it does its job well.
+
+"beepr" is a stupid package that contains one function. That one function beeps. That's it. That's all it does. Ryne loves it and it makes him happy. Whoever made this is our age, not yours. There are several other available sounds. Here are a few.
+
+```{r beepr}
+#beep()
+
+## did you want the second sound? here it is?
+#beep(2)
+
+# see a pattern?
+#beep(3)
+#beep(4)
+#beep(8)
+```
+
+
+
+
+# Loading data
+
+There's a file called "nuTrevor.csv" on blackboard. Download it. Put in a directory for this class. Something like `PSCH543/IntroR`. The most common thing people tell me in the future, *"I wish I kept all the class notes/examples organized cause I lost access blackboard class and saved everything to my MAC downloads directory. I am stuck cause I need to do mediation for my masters and I need your help"*. Alex's responses, *"Hold on let me get my foam bat to beat you with before I answer your questions"*. So make a directory NOW and also make sure that blackboard does not change the same of the file (it does that often). 
+
+## Start Rant
+You should save everything to UIC **Box** or some other cloud service. UIC Box is free, pretty much unlimited storage, and even if you computer dies all your files will live and stay organized. The box account will come with software for Windows and PC and you treat it like a directory on your computer (like dropbox). https://it.uic.edu/services/faculty-staff/file-storage/box/.  
+
+If you do what my student did and nearly lost his entire dissertation (stimulus, code and writing) before his defense cause you stored everything local I will have no pity for you. It was the only time I was mad. I was shocked he had no backups. But I learned its a generation thing. You *kids* have computers that do not break, crash, or glitch every few days and thus are surprised when something goes wrong.  **It will happen to you**.  You have been warned. It happened to me. My motherboard literally melted due the simulations I was running for my dissertation. Since everything was backed up, I lost half a days work, and I still have all my dissertation files 11 years and counting! **END RANT**
+
+
+## Goals 
+
+-   Features of every class!
+
+-   How to load data.
+
+-   How to save data.
+
+-   All the steps that I do when I'm prepping data prior to working with it.
+
+# Load required libraries
+
+The first thing we will do when starting an R session (other than stretch, ask Ryne why) is load any required libraries. As we discussed, we can use the `library()` function for this. The function require() does the exact same thing, but gives different types of error messages if a package isn't installed or compatible (you will see it online sometimes). 
+
+I recommend you identify all the packages you need and load them all at the start. If you fail to do that, then a function that works on line 574 might not work earlier. Make it so that your code works from start to finish (easier said than done). 
+
+I am going to push you to use a library called, "conflicted". If R sees to functions with the same name from two packages (THANKS PSYCH library for all the hell you have caused me) then it will normally pick whichever was loaded first (which can make your code fail or run and give your the wrong answers and you won't know). This is bad bad. So, with conflicted loaded, it  will see you "calling" for a function name, check to see if its in two or more loaded library and FORCE you to pick which one you want, so there is no ambiguity. 
+
+Ryne argues this will add complexity to your code and provides a tacit endorsement for loading too many packages. I agree except for the fact people ignore this advice. So I am going to require it. 
+
+*Note*: tidyverse library contains a lot of other libraries, like ggplot, so we will always load it. 
+
+```{r load libraries}
+# Always always always load me. Future you will take past you. 
+library(conflicted)
+
+# tidyverse stuff
+library(tidyverse) #has dplyr, forcats, lubridate, purr, readr, stringr, tibnle,  
+library(ggpubr) # Uses ggplot to make pretty graphs
+
+# read in excel and SPSS
+library(readxl)
+library(haven)
+# others
+library(beepr)
+
+# if you're missing any of these, install as shown below.
+# note the quotes or you can install them with the gui on the right.
+#install.packages("tidyverse")
+```
+
+## Too Many Libraries
+
+It will be tempting to load every library you've ever heard of at this stage. Try to avoid this for the following reasons:
+
+* Don't waste time loading hundreds of packages.
+    You will look silly.
+    
+* Conflicts (as explained above). This can really mess you up. 
+
+
+## Common Warning Message
+
+You may get a message like the one below:
+
+There is a binary version available but the source version is later:
+
+```         
+   binary source needs_compilation
+   
+```
+
+Do you want to install from sources the package which needs compilation?
+(Yes/no/cancel)
+
+Here's that that means. People write code they can read. Computers compile that code into an executable file that your CPU can read. That takes time and testing. So at the moment, there are two versions of every package: the compiled version that is older and works, and a newer version that may have more advanced features and bug fixes, but hasn't been compiled. R4.4.1 is the current compiled and verified version of R, but the current in-development code for the next version (4.5.0?) is sitting somewhere on CRAN.
+
+This warning message tells you that the developers of this particular package have in-development code ready and waiting to make a new version. All you have to do is compile it and you can make this "bleeding edge" version (programmers are weird).
+
+Unless you know you need an update, feature, or fix from the newer version, you're much less likely to get errors with the older version. Type *no* and hit enter. 
+
+### R Tools
+
+This is windows only issue when trying to compile libraries (if you say *yes*) or in some strange cases if library was written in C or FORTAN and it says it needs Rtools, you can download for the latest version of RTools (below is 4.4.X). Macs have a built in compiler (I think). 
+
+https://cran.r-project.org/bin/windows/Rtools/rtools44/rtools.html
+
+## Set Working directory
+
+A working directory is where you files live. Easiest thing to do is have this specific Rmarkdown file live in the same directory as where the CSV file (`nuTrevor.csv`). 
+
+You can get type the working directory by hand or cheat with a package called `here` (which never works for me), or simply use the Rstudio gui. Go to SESSION, SET WORKING DIRECTORY, than pick which option. The working directory will appear in the console below. Copy it up to script (usually I do this at the start of my Rscripts).
+
+Even though this is CSV file we are tying to read in, it was not saved as "comma" delineated It was "white space" delineated. But if did not know that we would have done this: 
+
+```{r load data wrong}
+setwd("C:/Users/apd21/Dropbox/AlexFiles/teaching/UIC/Graduate/543/543-Fall2024/Lectures/Intro to R")
+
+# this should have worked
+cheese <- read.csv("nuTrevor.csv") # This will work for all the file I give you
+
+# did it?
+head(cheese)
+view(cheese)
+```
+
+That looks totally wrong. It should look like an excel sheet. Instead lets try a different function.  
+
+```{r  read.table}
+# load data with read.table
+ds1 <- read.table("nuTrevor.csv")
+
+# did it work? note the comments and whitespace
+summary(ds1)
+
+# how big was it?
+dim(ds1)
+```
+
+# Overview of Data Load Methods
+
+There are a few ways of getting data in R. I'll summarize them as:
+
+* Non-answers. The datasets library, simulation, and scan(). You won't use these to get your own data in, but I want to talk about them.
+
+* read.xyz(). read.table, read.csv, etc. Your workhorses for simple data structures.
+
+-   RStudio options
+
+-   Methods for proprietary and more advanced file types.
+
+## The datasets library and offshoots
+
+The best way to load data into R is to not. There are tons of datasets already loaded into R. If you just need to make sure that your code works or that you understand a new method, you should feel free to load some of those.
+
+What's in `datasets`? Let's find out by checking the helpfile.
+
+```{r datasets helpfile}
+# check the helpfile
+?datasets
+
+# ok, a stub. let's read what it said and try this instead
+library(help = "datasets")
+
+# we could have also clicked the datasets tab at the bottom of the helpfile
+```
+
+You probably won't use this, but it's here for when you need to teach something and you don't want to deal with csv files not loading.
+
+## Other Libraries
+
+Most R libraries that fit more advanced statistical models have examples built into them, and those examples require data. As such, those libraries come with data, and you can see where it is in those helpfiles.
+
+FOR EXAMPLE, consider survival analysis, which Ryne might show you next semester. That is a version of regression for time-to-event data. Here are some examples:
+
+-   Predicting time to disease re-occurance/relapse after treatment. Not everyone relapses, but we have timing on those that do.
+
+-   Predicting time until a machine fails. Cars will run for X miles until the engine breaks...or until some other part of the car brakes first. We either know time until engine failure or that the engine worked for 58k miles until it was left outside during a hurricane.
+
+This would be just regular regression, but not every person/car/unit experiences the event, so their data is censored.
+
+Anyway, this type of regression isn't in base R. You have to load a package called "survival" and look at what datasets are available (Their example is cancer, which is common theme for this type of anaylsis).
+
+```{r didnt he say NOT to load packages in the middle?}
+# load extra library
+library(survival)
+
+# the data function loads data
+data(cancer, package="survival")
+summary(cancer)
+```
+
+### Quick Pause
+
+* R already has data in it.
+
+* If you just want an example, there's plenty around.
+
+* If you're learning a new package, check the help file for what data come with the package.
+
+* You probably have example code ready to go, which you can then adapt to your data after you understand the code.
+
+## Scan
+
+The oldest way to load data into R is scan(). You will never use it on purpose, but read.table and read.csv are based on it. Here's an example:
+
+```{r scan example}
+# don't do this
+scanTest <- scan(file="nuTrevor.csv", 
+                 what="character",
+                 sep=" ")
+
+# what is in it?
+scanTest
+```
+
+What happened?
+
+-   scan read nuTrevor.
+
+-   I told it that anytime it saw a " ", that was a separator between individual data elements.
+
+-   It saw 139 items. More accurately, it saw 138 " "s betwee items. We know that is right: we had 27 people on 4 variables (27\*4=108). Each of the 27 rows had a row name, and each of the 4 columns had a column name. 108+27+4=139.
+
+-   However, any other formatting was lost. We lost the row information, and trying to force it without a lot more information because the first row of the data has four column names, and every other row has five elements (four variables and the row name).
+
+-   You COULD spend time learning how scan works. But why do that when people have already written wrappers for scan that deal with the most common options?
+
+# read.table and Related Functions
+
+Read.table, and read.csv, and other things like it. All of these functions just take scan and populate all the options you need for common file types. Let's run through them.
+
+## read.table
+
+This function is your workhorse, and where you should start. It's defaults include:
+
+-   use any whitespace (spaces, tabs, line breaks, etc) as the deliminator between elements.
+
+-   use line breaks as the start of new rows
+
+-   if the first row has one fewer element than all other rows, treat that as a header.
+
+-   other fun options that we'll hold off on.
+
+This is what I use whenever I'm unsure, and if it works, I stop there.
+
+## read.csv
+
+This function has the same help file as read.table. The only difference is that we use commas instead of whitespace as the deliminator between elements. Given that a number of countries use the comma as a decimal point, it makes sense to ask before making assumptions.
+
+<https://en.wikipedia.org/wiki/Decimal_separator#Countries_using_decimal_comma>
+
+Other than this, read.csv and read.table work exactly the same, except when people dont call their files by the proper names. I called it the file .csv file, but it was actually a .txt file with a bad label. While this specific issue may not happen to you again, issues this dumb will definitely happen to you again. Start with read.table, see if it works, then work from there.
+
+## Other Functions and Symbols
+
+For countries that use commas for decimals, it's apparently common for the semicolon (dot over a comma) to be used between data elements. That's the default for `read.csv2()`
+
+Tabs between data elements? Use `read.delim()` for standard decimals, and `read.delim2()` for comma decimals.
+
+## Review
+
+* Use functions that start with `read.` to read data.
+
+* They're all wrappers for `scan()` with different defaults.
+
+* Use `table` as a first pass, `csv` if you *know* it's a basic csv file, and `delim` if you have something tab-separated.
+
+* Adding a 2 means that commas are for decimal points.
+
+# Reading Big Data
+
+If you happen to work with big data (like over 100K lines), read.table or read.csv can be very slow. Instead you can use a package called `data.table` as it uses multi-threaded processing (more in the data science class). Dont use this unless you have to as it complicated. 
+
+```{r}
+library(data.table)
+ds2 <- fread("nuTrevor.csv")
+```
+
+# Using RStudio's capabilities
+
+RStudio has several nice capabilities for importing data.
+Look to the `File` menu and scroll down to `Import Dataset`. This is also on a button under `Environment` in the top-right panel of RStudio.
+
+This is a delightful tool that you can use now, but will probably stop sooner rather than later. Not because I'm going to take it away, but because you're going to outgrow it and copy-pasting existing code with be faster and easier.
+
+Those tools use a point-and-click interface to write code for you. As an example, let's use the `From Text (base)` option now. Now look at what is in the console, which I've copy-pasted into the codeblock below:
+
+```{r copy and paste is your friend}
+# import
+
+nuTrevor <- read.csv("C:/Users/apd21/Dropbox/AlexFiles/teaching/UIC/Graduate/543/543-Fall2024/Lectures/Intro to R/nuTrevor.csv", sep="")
+
+View(nuTrevor)
+```
+
+We just did that! All it does is write code for you, then run it. Eventually, point-and-click will be slower than typing `read.csv("data.csv")` for you, or opening the last R file you made and copy-pasting your previous code.
+
+# data.frames, tibbles, and the tidyverse
+
+RStudio had several other automatic data import tools, all of which rely on tidyverse tools. That's fine, but we have to talk about how data is stored in R first.
+
+## data.frames
+
+The base R way of storing data is as a data.frame. A data.frame is a rectangular table (2 dim) of numbers, such that every data element is in a row and a column. Most often, rows are people and columns are variables.
+
+The defining feature of a data.frame is that each column is one type of data, with no restriction on the rows. Each column could be a number (height, age, etc), a binary logical variable (TRUE, FALSE), a categorical factor (Strong Agree, Agree, etc), or character string ("Yes", "No", "Maybe So"). Each person can have a mix of all of that, but each column is internally consistent.
+Virtually every function in R that requires data is fine with a data.frame.
+
+The tidyverse has their own version of a data.frame called a tibble. It looks, acts, and smells like a data.frame, and has a few other features that some people like. I'm not going to cover them all now, but any data import tool from the tidyverse will generally import data into a tibble.
+
+We've already loaded our csv data from base R's `read.csv()`. Tidy has a similar function called `read_csv()`. Here's the example.
+
+```{r tidy csv}
+# _ instead of .
+trevorTidy <- read_table("nuTrevor.csv",
+                         col_names = c("row.name", "id", "x", "y", "z"),
+                         skip=1)
+trevorTidy
+```
+
+Note that tidyverse/tibbles don't support row names, so anything based on that simply cannot fathom that row names exist. Hence, I added an extra column to avoid some error messages. You don't need to store row names (that's what ID does), but you will have to deal with them occasionally.
+
+# Importing Excel and SPSS Files
+
+The main data storage-relevant feature of excel-type files is that there are multiple sheets with manual entry. Each sheet could be treated as a csv or similar file, but we like storing and working with them as a set. Now we'll talk tools for importing excel and SPSS files.
+
+## Excel files
+
+The library `readxl` is the current standard. There are older versions, and there will be newer versions. It's what RStudio/tidy use, and we'll use it here.
+
+I made an excel file with three sheets: Sheet1, Sheet2, and CustomSheetName.
+
+```{r read excel file}
+# I'll go one sheet at a time
+# sheet1
+excel1 <-  read_excel("sampleExcelFile.xlsx", 
+     sheet = "Sheet1")
+
+# sheet 2
+excel2 <-  read_excel("sampleExcelFile.xlsx", 
+     sheet = "Sheet2")
+
+# sheet 3
+excel3 <-  read_excel("sampleExcelFile.xlsx", 
+     sheet = "CustomSheetName")
+
+# and if we want to force back to data.frame
+excel1df <- as.data.frame(excel1)
+```
+
+We can go look at those individually as needed.
+
+## SPSS Files
+
+There are a few libraries for this. The older base R one is called `foreign`, and covers standard files from multiple different packages. If you need this, it will be for older SPSS data, which we're not worrying about.
+
+The current best package for SPSS files is `haven`, another tidyverse tool.
+
+```{r haven}
+# read spss data (sav or zsav)
+spssds1 <- read_sav("trevor.sav")
+
+# look!
+head(spssds1)
+```
+
+## Other Options
+
+Stuff I didn't cover:
+
+* file types for other stat programs, including SAS, STATA, and EQS. You're unlikely to have those, and what you've learned so far will give you a jumping off point for those. Find the right library, read_whatever, clean errors, move on.
+
+* database structures, including SQL. Sometimes we store large amounts of data in more complicated ways. If you need it, we'll talk later. Meaning not today.
+
+* Old file formats. You might see a .dat. Treat is as .txt. 
+# Saving or Outputing Data
+
+Let's pretend that we created, cleaned, or otherwise modified what we saw in nuTrevor and want to save our work. What we want to avoid is having 100 lines of code every time we start our analysis, redoing the same data cleaning ever time. For the sake of argument, let's add a column to so we can verify that we've done something.
+
+```{r add a column}
+# copy homework
+thingToSave <- ds1
+
+# add up x and y
+thingToSave$newVariable <- thingToSave$x + thingToSave$y
+
+# check that it's there
+head(thingToSave)
+```
+Great. Moving on.
+
+## One Sentence Overview of Saving Files
+
+Every function that starts as `read.something` has a buddy called `write.something`: use that.
+
+## More Explanation
+
+The easiest way to save files is with `write.table` or `write.csv`. This has the added benefit that reading those files later with `read.table` tends to go very smoothly. Let's try that with our newly edited data `thingToSave`. You only really need two arguments: the object you're trying to save, and the file name you want to save it under.
+
+```{r first save}
+# let's try this
+write.table(thingToSave, file="firstSave.dat")
+
+# now open it with your text editor
+
+# try again with other file formats and functions
+write.table(thingToSave, 
+            file="firstSave.txt")
+write.csv(thingToSave, 
+          file="firstSave.csv")
+```
+
+Some notes:
+
+* I chose the .dat extension. .txt changed nothing. Changing to .csv changed the delimiter or separator to a comma.
+
+* As I just supplied a file name, this file was saved to my current working directory. I could have instead given an absolute path like this:
+
+"/Users/Alex/Documents/Teaching/Intro Sequence 543"
+
+Or a relative path that was a subfolder within my current working directory. However, I recommend that you set your working directory when creating your file (markdown files should save all created data to the same folder automatically) or at the beginning of a .R file.
+
+* If you need it, the functions to view or change your working directory are `getwd()` to view and `setwd()` to set or change. Those will give warnings when you change them on the fly, because RStudio wants all of the files required to knit a document to be in the same place.
+
+* We're still making row.names. You probably don't want or care about those. Let's add an argument and remove those!
+
+```{r second save}
+# notice the line breaks?
+write.table(thingToSave, 
+            file = "secondSave.dat",
+            row.names = FALSE)
+
+# now open it with your text editor
+```
+
+Other arguments you might want to play with (read the help file!):
+
+* `na=` will allow you to customize what symbol is used for missing data. This is way more useful for *reading* data than it is for writing it.
+
+* `append` allows you to add more data at the end of an existing file. I use that for simulation work where I do the same analysis 1000 times and want to keep track of the results. I just append each set of results to the last one.
+
+## Goal
+
+You should be able to write data to file. If you're just removing a few pieces of missing data or computing one variable, that's OK to do on the time and avoid the confusion of having multiple copies of the same data. If you have a flow chart of all of the data pre-processing steps you have to do, do those steps once, check them, then write your new data to a file.
+
+# Rdata and Saving Environments
+
+We've talked about saving code, and reading/writing data to simple file formats. R has a few other options for saving as well.
+
+## the save function
+
+R can save an object. This object does not have to be a data.frame, but could be any object or objects listed in your environment (top right). It can be a single object, or a list of objects connected with the function `list()`. The file extension is `.RData`. We can then load that object or objects with `load()`.
+
+```{r saving with save}
+# saving our thing to save
+save(thingToSave, file="SaveObject.RData")
+
+# loading it
+load("SaveObject.RData")
+```
+
+Note that I did not assign the output of load to an object: the object itself was loaded with the same name I gave it when I saved.
+
+I would **not recommend** this for simple datasets or anything that you have better options for. While it should transfer between people, versions of R, and operating systems fairly well, I would be a little weary of depending on that. What I use this for is (a) a teaching demo for my next topic, and (b) saving the results of very complicated analyses.
+
+Let's imagine a world where you ran a regression (lm) that took hours to run. Maybe you had n=10,000,000. You'd save your data the way we discussed, you'd create tables the way you've already learned, make graphs, etc. However, you would want to avoid clicking `run` on that lm object ever again, and you probably want to have access to residuals and any other optimization details that you might need to respond to reviewer 2. In that case, I'd use `save` and `load` to save those results.
+
+## Saving whole environments
+
+R also has the option to save every single object in your current environment. That is using a function called `save.image()`. While it does take a filename, it's default is to make up its own hidden filename in your current working directory.
+
+```{r save image}
+save.image()
+```
+
+You've probably never typed this function, but you have used it. When you attempt to close R, you often get this message:
+
+"Save workspace image to [working directory] ?"
+
+This is asking if you want R to use save.image() right now, and load all of your old objects back in the next time you reboot.
+
+This sounds like a good thing, right? Right now, it does. As you progress, you'll find this less useful. 
+
+* You won't want objects without the code that made them. 
+
+* You won't want objects that have output from an older version of an updated package. 
+
+* You won't want there to be an object called `treatment` from your last project when your new project has a very different variable called `treat`.
+
+So for now, click "no" when asked about saving your workspace as you don't want to get into this habit.  
+
+
+

@@ -1,0 +1,369 @@
+---
+title: "Advanced: Continuous and Higher-Order Interactions"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## Advanced Topic: It Depends, Again
+
+The earlier interaction chapters asked whether a slope differs across categories. Here both predictors can be continuous. This produces a model that is compact to write and remarkably easy to explain badly [@aiken1991].
+
+Suppose caffeine predicts concentration differently depending on sleep. Caffeine may help a rested student focus while merely allowing an exhausted student to hear colors at a higher frame rate.
+
+### Fast Review: Categorical-by-Continuous Interactions
+
+The previous interaction chapters used a categorical moderator. With a dummy variable $G$ coded 0 and 1,
+
+$$
+Y=\beta_0+\beta_1X+\beta_2G+\beta_3XG+\epsilon.
+$$
+
+For the reference group, $G=0$, so its regression line is
+
+$$
+\widehat Y=\beta_0+\beta_1X.
+$$
+
+For the comparison group, $G=1$, so its line is
+
+$$
+\widehat Y=(\beta_0+\beta_2)+(\beta_1+\beta_3)X.
+$$
+
+Therefore, $\beta_2$ is the group difference in intercepts when $X=0$, and $\beta_3$ is the group difference in slopes. A continuous-by-continuous interaction uses the same logic. The only difference is that the moderator can take many values instead of two. We therefore choose meaningful values at which to examine the conditional slope.
+
+## The Continuous-by-Continuous Model
+
+$$
+Y=\beta_0+\beta_1X+\beta_2Z+\beta_3XZ+\epsilon.
+$$
+
+The slope of $X$ is:
+
+$$
+\frac{\partial Y}{\partial X}=\beta_1+\beta_3Z.
+$$
+
+That derivative is the entire interaction in one line: the slope of $X$ changes as $Z$ changes.
+
+::: {.callout-important title="There Is No Single Main Effect of X"}
+When $XZ$ is in the model, $\beta_1$ is the slope of $X$ specifically when $Z=0$. If zero is meaningless or outside the data, the coefficient answers a question nobody asked.
+:::
+
+## Simulating Sleep, Caffeine, and Questionable Judgment
+
+```{r interaction-data}
+set.seed(343)
+n <- 240
+InterData <- data.frame(
+  Sleep = pmin(pmax(rnorm(n, 6.5, 1.3), 2.5), 10),
+  Caffeine = pmin(pmax(rnorm(n, 220, 100), 0), 500)
+)
+
+InterData$Concentration <-
+  40 +
+  3.5 * InterData$Sleep +
+  0.055 * InterData$Caffeine -
+  0.012 * InterData$Sleep * InterData$Caffeine +
+  rnorm(n, 0, 5)
+
+InterData$Sleep.C <- InterData$Sleep - mean(InterData$Sleep)
+InterData$Caffeine.C <- InterData$Caffeine - mean(InterData$Caffeine)
+
+AdditiveModel <- lm(Concentration ~ Sleep.C + Caffeine.C, data = InterData)
+InteractionModel <- lm(Concentration ~ Sleep.C * Caffeine.C, data = InterData)
+anova(AdditiveModel, InteractionModel)
+summary(InteractionModel)
+```
+
+Centering places zero at the sample mean. It changes the interpretation of the intercept and lower-order slopes. It does **not** change fitted values, residuals, $R^2$, or the interaction coefficient.
+
+Centering is usually helpful for three reasons:
+
+1. $\beta_1$ becomes the slope of $X$ when the moderator is at its mean instead of at an arbitrary zero.
+2. It can reduce **nonessential multicollinearity** created only by multiplying variables together.
+3. It keeps products from growing into unnecessarily enormous numbers.
+
+Centering does not solve **essential multicollinearity** caused by predictors containing genuinely overlapping information. If sleep and exhaustion measure nearly the same construct, subtracting their means will not make them strangers.
+
+Whatever coding you choose, use it consistently. Do not put centered variables in the product while leaving uncentered versions as the lower-order terms. You would be fitting a mathematical casserole that no longer represents the intended model.
+
+Leave a predictor uncentered when zero is scientifically meaningful and you want the lower-order coefficient evaluated there. For example, zero milligrams of caffeine is understandable. Zero hours of sleep is also understandable, but anyone reporting it should probably not be completing your study.
+
+::: {.callout-note title="Centering Is Translation, Not Exorcism"}
+Centering can make lower-order terms interpretable and reduce nonessential correlation between a product term and its components. It does not repair poor measurement, restricted range, or two predictors that are fundamentally redundant.
+:::
+
+## Plot the Model
+
+We will draw the caffeine slope at low sleep, average sleep, and high sleep. The common $\pm1SD$ convention is useful because it gives three recognizable values. It is not a law delivered by the Moderation Gods.
+
+```{r interaction-plot, fig.width=7, fig.height=5}
+sleep_values <- c(
+  Low = -sd(InterData$Sleep.C),
+  Average = 0,
+  High = sd(InterData$Sleep.C)
+)
+
+caffeine_grid <- seq(min(InterData$Caffeine.C), max(InterData$Caffeine.C), length.out = 100)
+plot(
+  InterData$Caffeine, InterData$Concentration,
+  pch = 19, col = rgb(0.3, 0.3, 0.3, 0.22),
+  xlab = "Caffeine (mg)", ylab = "Predicted concentration",
+  main = "Caffeine does not have one universal slope"
+)
+
+line_colors <- c("#D55E00", "#0072B2", "#009E73")
+for (i in seq_along(sleep_values)) {
+  newdata <- data.frame(
+    Sleep.C = sleep_values[i],
+    Caffeine.C = caffeine_grid
+  )
+  lines(
+    caffeine_grid + mean(InterData$Caffeine),
+    predict(InteractionModel, newdata = newdata),
+    col = line_colors[i], lwd = 3
+  )
+}
+legend("topright", legend = paste(names(sleep_values), "sleep"),
+       col = line_colors, lwd = 3, bty = "n")
+```
+
+## Simple Slopes
+
+For a chosen value $z^*$ of the moderator, the simple slope of caffeine is:
+
+$$
+b_{Caffeine\mid z^*}=b_1+b_3z^*.
+$$
+
+Its standard error also depends on the covariance between $b_1$ and $b_3$:
+
+$$
+SE(b_1+b_3z^*)=
+\sqrt{
+Var(b_1)+z^{*2}Var(b_3)+2z^*Cov(b_1,b_3)
+}.
+$$
+
+This is why we let software test simple slopes. Doing it by hand is possible, but so is churning butter.
+
+```{r simple-slopes}
+emmeans::emtrends(
+  InteractionModel,
+  specs = "Sleep.C",
+  var = "Caffeine.C",
+  at = list(Sleep.C = unname(sleep_values))
+)
+```
+
+Use theoretically meaningful moderator values when possible. Quantiles may be better than $\pm1SD$ for a skewed moderator. Never probe values outside the observed range merely because the resulting line looks exciting.
+
+### What Software Is Doing When It Tests a Simple Slope
+
+`emtrends()` is not creating a new kind of regression. It is combining coefficients from the fitted model. We can prove this by changing the value represented by zero.
+
+```{r simple-slopes-by-recentering}
+SleepSD <- sd(InterData$Sleep.C)
+
+InterData$Sleep.AtLow <- InterData$Sleep.C - (-SleepSD)
+InterData$Sleep.AtMean <- InterData$Sleep.C
+InterData$Sleep.AtHigh <- InterData$Sleep.C - SleepSD
+
+SlopeAtLow <- lm(
+  Concentration ~ Caffeine.C * Sleep.AtLow,
+  data = InterData
+)
+SlopeAtMean <- lm(
+  Concentration ~ Caffeine.C * Sleep.AtMean,
+  data = InterData
+)
+SlopeAtHigh <- lm(
+  Concentration ~ Caffeine.C * Sleep.AtHigh,
+  data = InterData
+)
+
+rbind(
+  LowSleep = coef(summary(SlopeAtLow))["Caffeine.C", ],
+  MeanSleep = coef(summary(SlopeAtMean))["Caffeine.C", ],
+  HighSleep = coef(summary(SlopeAtHigh))["Caffeine.C", ]
+)
+```
+
+In each model, the coefficient for caffeine is evaluated where the newly coded sleep variable equals zero. The fitted values and interaction remain the same. We only rotated the coefficient labels until the question we wanted was sitting in the convenient chair.
+
+You do not need to test slopes at every possible moderator value. That converts one interaction into a large family of tests and invites the multiple-comparisons demons. Test values required by theory. Plot enough of the observed range to show the shape.
+
+## Moderation Is a Theoretical Label
+
+When we say that $Z$ **moderates** the effect of $X$ on $Y$, we mean that the relationship between $X$ and $Y$ changes across values of $Z$. Statistically, this is an interaction. Calling one variable the moderator does not change the equation.
+
+Which predictor is the moderator depends on the theory. In the caffeine-and-sleep example, we can say sleep moderates the caffeine slope or caffeine moderates the sleep slope. The fitted surface is identical. The story determines which conditional relationship we emphasize.
+
+Moderation and mediation both involve three-variable systems, but they are not the same procedure. Moderation asks **when or for whom** a relationship changes. Mediation asks whether a relationship may operate **through** another variable. Sharing the letter *M* does not make them statistical cousins.
+
+## Common Theoretical Patterns
+
+Words such as *synergistic*, *antagonistic*, and *buffering* describe patterns in predicted values. They do not create different estimators. We still fit a product term, inspect the coding, calculate conditional slopes, and plot the model.
+
+### Synergistic Interaction
+
+A synergistic interaction occurs when the combined effect of two predictors is larger than their additive effects would suggest. Imagine that better sleep improves concentration, moderate caffeine improves concentration, and caffeine is especially helpful when a student is rested enough to remember where their mouth is.
+
+When both predictors have positive lower-order slopes, a positive product term often creates this pattern. However, the sign depends on coding. Inspect predictions before naming it.
+
+### Antagonistic or Interference Interaction
+
+An antagonistic interaction occurs when the combined effect is smaller than simple addition predicts. Perhaps using one study app improves performance and using a second app also improves performance, but using both produces 47 notifications and an emergency need to redesign the color theme. The second tool has diminishing returns as use of the first increases.
+
+When both lower-order slopes are positive, a negative product term often produces antagonism.
+
+### Buffering Interaction
+
+A buffering interaction usually combines a risk factor with a protective factor. Suppose academic stress predicts worse sleep, but social support weakens that relationship. As support rises, the negative stress slope approaches zero.
+
+The term *buffering* depends strongly on which variable is defined as the risk and which outcome direction is good. Reverse-score stress into serenity and several coefficient signs reverse even though every fitted value remains unchanged.
+
+```{r interaction-patterns, fig.width=8, fig.height=7}
+PatternX <- seq(-2, 2, length.out = 80)
+ModeratorValues <- c(Low = -1, High = 1)
+PatternColors <- c("#D55E00", "#0072B2")
+
+old_par <- par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+
+for (PatternName in c("Synergistic", "Antagonistic", "Buffering")) {
+  plot(
+    NA, xlim = range(PatternX), ylim = c(-5, 7),
+    xlab = "Predictor X", ylab = "Predicted Y",
+    main = PatternName
+  )
+
+  for (j in seq_along(ModeratorValues)) {
+    Z <- ModeratorValues[j]
+    if (PatternName == "Synergistic") {
+      Y <- 1 + PatternX + Z + .8 * PatternX * Z
+    } else if (PatternName == "Antagonistic") {
+      Y <- 1 + PatternX + Z - .8 * PatternX * Z
+    } else {
+      Y <- 1 - 1.2 * PatternX + 1.0 * Z + .7 * PatternX * Z
+    }
+    lines(PatternX, Y, lwd = 3, col = PatternColors[j])
+  }
+  legend("topleft", names(ModeratorValues), col = PatternColors, lwd = 3, bty = "n")
+}
+
+plot.new()
+text(.5, .62, "Same product-term machinery", cex = 1.15)
+text(.5, .48, "Different theoretical stories", cex = 1.15)
+text(.5, .32, "Check the coding before naming anything", cex = .95)
+par(old_par)
+```
+
+## Reverse-Scoring Changes the Signs, Not the Story
+
+If $Z^*=-Z$, the signs of its main effect and interactions reverse. Predictions remain identical after the coding is translated correctly. A negative interaction does not inherently mean antagonism, harm, or Reviewer 2. Its meaning depends on variable coding.
+
+::: {.callout-warning title="Interaction Labels Are Stories, Not New Statistics"}
+Terms such as *synergistic*, *antagonistic*, and *buffering* describe theoretical patterns. The model still estimates slopes and products. Decide which story applies only after inspecting coding, predictions, and the scientific context.
+:::
+
+## Three-Way Interactions
+
+A three-way interaction asks whether a two-way interaction changes across a third variable:
+
+$$
+Y=\beta_0+\beta_1X+\beta_2Z+\beta_3W+
+\beta_4XZ+\beta_5XW+\beta_6ZW+\beta_7XZW+\epsilon.
+$$
+
+If $\beta_7\neq0$, the $X$-by-$Z$ interaction depends on $W$.
+
+```{r three-way-example}
+set.seed(345)
+ThreeData <- InterData
+ThreeData$Deadline <- factor(
+  sample(c("Tomorrow", "Next week"), nrow(ThreeData), replace = TRUE),
+  levels = c("Next week", "Tomorrow")
+)
+Deadline01 <- as.numeric(ThreeData$Deadline == "Tomorrow")
+
+ThreeData$Concentration3 <-
+  60 +
+  2.0 * ThreeData$Sleep.C +
+  .035 * ThreeData$Caffeine.C -
+  3.0 * Deadline01 -
+  .008 * ThreeData$Sleep.C * ThreeData$Caffeine.C +
+  .010 * ThreeData$Sleep.C * ThreeData$Caffeine.C * Deadline01 +
+  rnorm(nrow(ThreeData), 0, 5)
+
+ThreeWayModel <- lm(
+  Concentration3 ~ Sleep.C * Caffeine.C * Deadline,
+  data = ThreeData
+)
+
+summary(ThreeWayModel)
+```
+
+The `*` operator includes all main effects, all two-way interactions, and the three-way interaction. Keep those lower-order terms. Removing them because they are nonsignificant changes the model's meaning and usually creates interpretive debris.
+
+To interpret a three-way interaction:
+
+1. Plot the predicted two-way relationship at meaningful values of the third variable.
+2. Test the two-way interaction within those values or groups.
+3. Probe simple slopes only where theory requires them.
+4. Report enough numbers that the reader does not have to reconstruct the model with candles and a Ouija board.
+
+### Unpack the Three-Way Interaction
+
+First test the sleep-by-caffeine interaction separately within each deadline condition. Then examine caffeine slopes at meaningful sleep values within each condition.
+
+```{r unpack-three-way}
+emmeans::joint_tests(
+  ThreeWayModel,
+  by = "Deadline"
+)
+
+ThreeWaySlopes <- emmeans::emtrends(
+  ThreeWayModel,
+  specs = c("Sleep.C", "Deadline"),
+  var = "Caffeine.C",
+  at = list(Sleep.C = unname(sleep_values))
+)
+
+ThreeWaySlopes
+```
+
+The three-way coefficient tells us whether the two-way interaction differs between deadline conditions. It does not tell us which simple slope is important, whether the pattern matches the theory, or whether the predicted values are remotely plausible. That requires unpacking.
+
+::: {.callout-warning title="A Three-Way Interaction Is Not a Personality Trait"}
+Do not predict one merely because you are an ambitious graduate student and your committee has not yet confiscated your keyboard. Three-way interactions demand more power, more careful measurement, and a theory precise enough to explain a changing two-way interaction.
+:::
+
+## The Johnson-Neyman Question
+
+Simple slopes at the mean and one standard deviation above and below the mean are convenient. They are not sacred locations handed down by Dorkaos. The **Johnson-Neyman** approach solves for the values of moderator $Z$ where the conditional slope of $X$ changes from statistically distinguishable from zero to not distinguishable from zero.
+
+The conditional slope is
+
+$$
+b_{X\mid Z}=b_1+b_3Z.
+$$
+
+Its standard error depends on the variances and covariance of $b_1$ and $b_3$:
+
+$$
+SE(b_{X\mid Z})=
+\sqrt{Var(b_1)+Z^2Var(b_3)+2ZCov(b_1,b_3)}.
+$$
+
+Johnson-Neyman regions can be useful when the moderator is truly continuous. Do not report a region far outside the observed values of $Z$. The equation is willing to extrapolate into space; your data did not go there.
+
+## Centering Cannot Remove the Interaction
+
+Mean-centering changes the value represented by zero and therefore changes the lower-order coefficient labels. It does not change fitted values, residuals, $R^2$, or the interaction coefficient in an ordinary two-way product model. If an interaction disappears merely because you centered correctly, something else in the analysis changed too.
+
+## The Short Story
+
+A continuous interaction means one slope changes with another variable. Center to make zero useful, plot predictions, test meaningful simple slopes, and remember that a three-way interaction is a changing two-way interaction—not merely a coefficient with extra punctuation.

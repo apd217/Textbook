@@ -1,0 +1,423 @@
+---
+title: "Advanced Mixed Models I: Clustering, Levels, and the Equation"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+library(ggplot2)
+```
+
+## This Is the Quick Tour
+
+This chapter begins a compact graduate-level overview of mixed-effects models. It will not replace a full mixed-models course. It will give you the conceptual structure, essential mathematics, a consistent `glmmTMB` workflow, and enough judgment to notice when your model has climbed onto the roof.
+
+::: {.callout-warning title="Advanced Means You Need the Earlier Regression Chapters"}
+Before starting, you should understand regression coefficients, interactions, residuals, likelihood-based model comparison, and categorical coding. Mixed models extend regression; they do not replace the need to understand it.
+:::
+
+## The Study That Nearly Ruined Math Education
+
+Suppose you want to test a computer-based active-learning method in mathematics classes. You measure:
+
+- each student's math score;
+- the proportion of class time each student spends using the active-learning program; and
+- the classroom each student belongs to.
+
+You expect more active-learning time to predict higher math scores. Unfortunately, each classroom contains only 20 students, which feels too small to publish. You therefore combine the classrooms and pretend all 80 students came from one enormous classroom taught by a many-headed math teacher.
+
+Let us collect the data using my favorite method: making them up in R.
+
+```{r classroom-story-data, echo=TRUE}
+set.seed(9)
+
+n_per_class <- 20
+ClassroomStory <- factor(rep(paste0("Classroom ", 1:4), each = n_per_class))
+
+ActiveTimeStory <- c(
+  runif(n_per_class, 0.00, 0.35),
+  runif(n_per_class, 0.30, 0.55),
+  runif(n_per_class, 0.50, 0.75),
+  runif(n_per_class, 0.70, 1.00)
+)
+
+ClassroomBaseline <- rep(c(80, 70, 60, 50), each = n_per_class)
+
+ClassroomStoryData <- data.frame(
+  Classroom = ClassroomStory,
+  ActiveTime = ActiveTimeStory
+)
+
+ClassroomStoryData$MathScore <-
+  ClassroomBaseline +
+  10 * ave(
+    ClassroomStoryData$ActiveTime,
+    ClassroomStoryData$Classroom,
+    FUN = function(x) x - mean(x)
+  ) +
+  rnorm(nrow(ClassroomStoryData), 0, 2.5)
+```
+
+The true within-classroom slope is positive: within any one class, students who use the program more tend to score higher. However, classrooms using the program more also happen to have lower baselines. Perhaps their teachers adopted the program because those classes were already struggling. The predictor is tangled up with classroom membership.
+
+### Ignore the Classrooms and Publish Disaster
+
+```{r classroom-story-pooled, echo=TRUE, fig.width=6.8, fig.height=4.5}
+PooledModel <- lm(MathScore ~ ActiveTime, data = ClassroomStoryData)
+summary(PooledModel)
+
+ggplot(
+  ClassroomStoryData,
+  aes(x = ActiveTime, y = MathScore)
+) +
+  geom_point(size = 2, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  labs(
+    title = "Ignore the Classrooms and Active Learning Looks Terrible",
+    x = "Proportion of Time Using Active Learning",
+    y = "Math Score"
+  ) +
+  theme_bw()
+```
+
+The pooled slope points in the wrong direction and looks impressively large. You rush to publish *Active Learning Is a Flop: Computers Have Betrayed the Children*. Math teachers across the country abandon the program. The next generation scores worse. You have ruined America's future. Good job!
+
+::: {.callout-warning title="A Huge R-Squared Can Describe the Wrong Relationship"}
+Statistical significance and impressive model fit cannot repair a model that misunderstood the design. The pooled model mostly compares **different classrooms**. Our scientific question concerned differences **among students within the same classroom**.
+:::
+
+### Put the Classrooms Back
+
+```{r classroom-story-clusters, echo=TRUE, fig.width=7, fig.height=4.8}
+ggplot(
+  ClassroomStoryData,
+  aes(x = ActiveTime, y = MathScore, color = Classroom)
+) +
+  geom_point(size = 2) +
+  geom_smooth(aes(group = Classroom), method = "lm", se = FALSE) +
+  labs(
+    title = "Within Every Classroom, the Slope Is Positive",
+    x = "Proportion of Time Using Active Learning",
+    y = "Math Score"
+  ) +
+  theme_bw() +
+  theme(legend.position = "top")
+```
+
+Now the story changes. Students are **nested** within classrooms. Students in the same classroom share a teacher, schedule, curriculum, room temperature, class clown, and whatever motivational speech occurred before the exam. They are not independent replications of classroom context. In one sense, the students are repeated observations of their classroom.
+
+This reversal between the pooled and within-classroom patterns is related to **Simpson's paradox**. The point is not that mixed models perform an exorcism. The point is that relationships can differ across levels, and a pooled regression can answer a completely different question from the one you thought you asked.
+
+## The Two Old-School Solutions
+
+Before mixed models became ordinary software, researchers had several creative ways to make this problem worse.
+
+### Old-School Approach 1: Analyze Every Classroom Separately
+
+```{r classroom-story-separate, echo=TRUE}
+SeparateSlopes <- lapply(
+  split(ClassroomStoryData, ClassroomStoryData$Classroom),
+  function(d) coef(lm(MathScore ~ ActiveTime, data = d))["ActiveTime"]
+)
+
+unlist(SeparateSlopes)
+mean(unlist(SeparateSlopes))
+```
+
+The slopes are positive, but each regression uses only 20 students. Individual p-values will stagger around because chance is fickle. Averaging the slopes also treats a noisy estimate and a precise estimate as equally trustworthy unless we carry their uncertainty forward correctly. With 40 classrooms, this becomes 40 regressions and an excellent reason to begin screaming into a desk drawer.
+
+### Old-School Approach 2: Center Everything Within Classroom
+
+```{r classroom-story-centering, echo=TRUE}
+ClassroomStoryData$MathWithin <- with(
+  ClassroomStoryData,
+  MathScore - ave(MathScore, Classroom, FUN = mean)
+)
+
+ClassroomStoryData$ActiveWithin <- with(
+  ClassroomStoryData,
+  ActiveTime - ave(ActiveTime, Classroom, FUN = mean)
+)
+
+CenteredModel <- lm(MathWithin ~ ActiveWithin, data = ClassroomStoryData)
+summary(CenteredModel)
+```
+
+This recovers the positive within-classroom slope, but the outcome's classroom means have been forced to zero. We threw away the between-classroom intercept differences instead of modeling them. The ordinary regression also still pretends the denominator degrees of freedom came from 80 fully independent students.
+
+The old approaches can work in narrow cases. They become awkward with unequal classroom sizes, multiple predictors, random slopes, three levels, missing observations, or basically any dataset that survived contact with reality.
+
+## Why Ordinary Regression Fails
+
+Suppose students are nested within classrooms. Students in the same classroom share a teacher, schedule, building, curriculum, and possibly one malfunctioning radiator. Their outcomes tend to be more similar than outcomes from students in different classrooms.
+
+Ordinary regression assumes independent residuals:
+
+$$
+Cov(\epsilon_i,\epsilon_j)=0\quad\text{for }i\neq j.
+$$
+
+Clustering violates that assumption. Treating 600 students from 30 classrooms as 600 completely independent pieces of information usually makes uncertainty too small because the classrooms are quietly repeating themselves.
+
+Mixed models keep the student-level observations while explicitly representing how classrooms vary. We do not have to erase the classroom means or run a separate model for every room.
+
+## Two-Level Notation
+
+Let student $i$ belong to classroom $j$.
+
+### Level 1: Students
+
+$$
+Y_{ij}=\beta_{0j}+\beta_{1j}X_{ij}+e_{ij}.
+$$
+
+Both the intercept and slope carry the classroom subscript $j$. That notation leaves open the possibility that classrooms differ in their starting points, their slopes, or both.
+
+### Level 2: Classrooms
+
+$$
+\beta_{0j}=\gamma_{00}+u_{0j}.
+$$
+
+The classroom slope can also vary:
+
+$$
+\beta_{1j}=\gamma_{10}+u_{1j}.
+$$
+
+- $\gamma_{00}$ is the population-average intercept.
+- $\gamma_{10}$ is the population-average slope.
+- $u_{0j}$ is classroom $j$'s intercept deviation.
+- $u_{1j}$ is classroom $j$'s slope deviation.
+
+Substituting the level-2 equation into level 1 gives:
+
+$$
+Y_{ij}=\gamma_{00}+\gamma_{10}X_{ij}+u_{0j}+u_{1j}X_{ij}+e_{ij}.
+$$
+
+Every classroom can receive its own intercept adjustment $u_{0j}$ and slope adjustment $u_{1j}$, drawn from a population of classroom effects. In this chapter we fit the simpler random-intercept model first. The next chapter lets the slopes escape too.
+
+$$
+u_{0j}\sim N(0,\tau_{00}),
+\qquad
+e_{ij}\sim N(0,\sigma^2).
+$$
+
+With random slopes, the additional variance and covariance components are:
+
+$$
+Var(u_{1j})=\tau_{11},
+\qquad
+Cov(u_{0j},u_{1j})=\tau_{01}.
+$$
+
+The covariance tells us whether classrooms with higher intercepts tend to have steeper or flatter slopes. Random effects are allowed to know one another.
+
+## The Matrix Version
+
+Mixed models are often written:
+
+$$
+\mathbf y=\mathbf X\boldsymbol\beta+
+\mathbf Z\mathbf b+\boldsymbol\epsilon.
+$$
+
+- $\mathbf X\boldsymbol\beta$ contains fixed effects shared across the population.
+- $\mathbf Z\mathbf b$ contains cluster-specific random effects.
+- $\boldsymbol\epsilon$ contains observation-level residuals.
+
+The random effects and residuals have covariance structures:
+
+$$
+\mathbf b\sim N(\mathbf0,\mathbf G),
+\qquad
+\boldsymbol\epsilon\sim N(\mathbf0,\mathbf R).
+$$
+
+::: {.callout-note title="Random Does Not Mean Unimportant or Chaotic"}
+A random effect represents variation across sampled levels of a grouping factor. We usually care about the variance of classroom effects, participant effects, or item effects rather than estimating a separate fixed coefficient for every possible classroom, person, or word stimulus in the population.
+:::
+
+## Simulating Students in Classrooms
+
+```{r mixed-foundation-data}
+set.seed(343)
+n_class <- 30
+n_student <- 20
+
+Classroom <- factor(rep(seq_len(n_class), each = n_student))
+ClassIntercept <- rnorm(n_class, 0, 6)
+StudyHours <- pmax(rnorm(n_class * n_student, 6, 2), 0)
+
+MixedData <- data.frame(Classroom, StudyHours)
+MixedData$Exam <-
+  55 + 3.2 * MixedData$StudyHours +
+  ClassIntercept[MixedData$Classroom] +
+  rnorm(nrow(MixedData), 0, 7)
+```
+
+```{r mixed-foundation-plot, fig.width=7, fig.height=4.8}
+plot(
+  MixedData$StudyHours, MixedData$Exam,
+  pch = 19,
+  col = grDevices::adjustcolor("#1F4E79", alpha.f = .25),
+  xlab = "Study hours", ylab = "Exam score",
+  main = "Students arrive in classrooms, not statistical isolation"
+)
+abline(lm(Exam ~ StudyHours, data = MixedData), lwd = 3, col = "black")
+```
+
+## Fit the Empty Model First
+
+The empty or unconditional model separates classroom and student-level variation:
+
+```{r mixed-null}
+library(glmmTMB)
+
+EmptyModel <- glmmTMB(
+  Exam ~ 1 + (1 | Classroom),
+  data = MixedData,
+  family = gaussian(),
+  REML = TRUE
+)
+
+summary(EmptyModel)
+```
+
+The formula `(1 | Classroom)` says each classroom receives a random intercept.
+
+## The Intraclass Correlation
+
+For a random-intercept Gaussian model:
+
+$$
+ICC=\frac{\tau_{00}}{\tau_{00}+\sigma^2}.
+$$
+
+The ICC is the expected correlation between two observations from the same cluster. It also describes the proportion of outcome variance attributable to between-cluster differences in this simple model.
+
+```{r mixed-icc}
+performance::icc(EmptyModel)
+```
+
+An ICC near zero means classrooms add little clustering. A larger ICC means students within classrooms resemble one another. No universal ICC is “small enough to ignore”; consequences also depend on cluster sizes and the analysis.
+
+::: {.callout-important title="Six Hundred Rows Are Not Always Six Hundred Independent Observations"}
+The effective information for a classroom-level predictor depends heavily on the number of classrooms, not merely the number of students. Adding 300 students to the same four classrooms does not magically create 304 classrooms.
+:::
+
+## Add a Fixed Effect
+
+```{r mixed-fixed}
+StudyModel <- glmmTMB(
+  Exam ~ StudyHours + (1 | Classroom),
+  data = MixedData,
+  family = gaussian(),
+  REML = TRUE
+)
+
+broom.mixed::tidy(
+  StudyModel,
+  effects = "fixed",
+  component = "cond",
+  conf.int = TRUE
+)
+```
+
+The fixed slope estimates the population-average relationship between study hours and exam scores while accounting for classroom-specific intercepts.
+
+## Conditional and Population-Level Predictions
+
+- A **conditional** prediction includes the estimated random effect for a known classroom.
+- A **population-level** prediction sets classroom random effects to zero.
+
+```{r mixed-predictions}
+MixedData$ConditionalPrediction <- predict(StudyModel)
+MixedData$PopulationPrediction <- predict(StudyModel, re.form = NA)
+head(MixedData)
+```
+
+Use conditional predictions when describing known clusters. Use population-level predictions when describing an average new classroom from the modeled population.
+
+## Centering Is About the Question, Not Tidying the Numbers
+
+The original active-learning disaster mixed two relationships together:
+
+1. **Within classrooms:** Do students who study more than their classmates score higher?
+2. **Between classrooms:** Do classrooms whose students study more on average have higher scores?
+
+Those are not automatically the same relationship. We can separate them by decomposing Study Hours into a classroom mean and each student's deviation from that mean:
+
+```{r mixed-centering, echo=TRUE}
+MixedData$ClassStudyMean <- with(
+  MixedData,
+  ave(StudyHours, Classroom, FUN = mean)
+)
+
+MixedData$StudyWithin <-
+  MixedData$StudyHours - MixedData$ClassStudyMean
+
+MixedData$ClassStudyMean.C <-
+  MixedData$ClassStudyMean - mean(MixedData$ClassStudyMean)
+
+WithinBetweenModel <- glmmTMB(
+  Exam ~ StudyWithin + ClassStudyMean.C + (1 | Classroom),
+  data = MixedData,
+  family = gaussian(),
+  REML = TRUE
+)
+
+broom.mixed::tidy(
+  WithinBetweenModel,
+  effects = "fixed",
+  component = "cond",
+  conf.int = TRUE
+)
+```
+
+`StudyWithin` answers the student-level question while holding the classroom average constant. `ClassStudyMean.C` answers the classroom-level question. **Grand-mean centering** merely moves zero and changes the intercept. **Group-mean centering** changes which source of variation a coefficient describes. Treating both procedures as cosmetic subtraction is how a very clean spreadsheet tells the wrong story.
+
+::: {.callout-important title="A Predictor Can Have Two Slopes Hiding Inside It"}
+Whenever a predictor varies both within and between clusters, the raw mixed-model coefficient can blend those relationships. Separate them when theory requires separate questions. The next chapter makes this distinction considerably more mathematical and therefore, according to tradition, more frightening.
+:::
+
+## Mixed-Model R-Squared
+
+Marginal and conditional $R^2$ separate fixed and total modeled variation:
+
+- **Marginal $R^2$:** variation explained by fixed effects.
+- **Conditional $R^2$:** variation explained by fixed plus random effects.
+
+For a Gaussian random-intercept model, the basic logic is:
+
+$$
+R^2_{marginal}=
+\frac{\sigma^2_{fixed}}
+{\sigma^2_{fixed}+\sigma^2_{random}+\sigma^2_{residual}},
+$$
+
+$$
+R^2_{conditional}=
+\frac{\sigma^2_{fixed}+\sigma^2_{random}}
+{\sigma^2_{fixed}+\sigma^2_{random}+\sigma^2_{residual}}.
+$$
+
+```{r mixed-r2}
+performance::r2_nakagawa(StudyModel)
+```
+
+::: {.callout-note title="Random Effects Can Explain Variation Without Being the Hypothesis"}
+A large difference between conditional and marginal $R^2$ means clusters account for substantial variation. It does not mean classroom identity is a causal treatment or that naming every classroom would explain why they differ.
+:::
+
+Someone may look at the population-level line over the raw data and announce that your fit is terrible. The fixed effect is not trying to reproduce every classroom's baseline. Conditional predictions add those classroom deviations and will hug the observed clusters more closely. That can make conditional $R^2$ enormous. You have not become the greatest modeler alive. You told the model which students shared a classroom.
+
+## Why `glmmTMB`?
+
+We use one engine throughout the advanced chapters. For Gaussian outcomes, `glmmTMB` fits linear mixed models. By changing `family`, the same framework handles binary, count, negative-binomial, beta, and zero-inflated outcomes [@brooks2017].
+
+That consistency lets us focus on modeling rather than spending half the chapter translating between packages that all print the intercept in a slightly different location.
+
+## The Short Story
+
+Mixed models account for dependence by combining fixed population effects with random cluster effects. Begin with the study's levels, fit an empty model to understand variance, calculate the ICC and mixed-model $R^2$ deliberately [@nakagawa2017], and remember that the number of clusters—not merely rows—limits cluster-level information.

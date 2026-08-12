@@ -1,0 +1,596 @@
+---
+title: "Covariance and Correlation"
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(fig.width=3.75)
+knitr::opts_chunk$set(fig.height=3.5)
+knitr::opts_chunk$set(fig.align='center') 
+```
+
+
+## A Visual Intuition: Variance, Covariance, and Correlation
+
+We’ll start with a very simple dataset and visualize three situations:
+
+- One variable by itself (variance)
+- Two variables moving together (positive covariance)
+- Two variables moving in opposite directions (negative covariance)
+
+```{r}
+set.seed(42)
+
+# Simple data
+X  <- c(1, 2, 3, 4, 5)
+Yp <- c(1, 2, 3, 4, 5)   # perfectly positive relationship
+Yn <- c(5, 4, 3, 2, 1)   # perfectly negative relationship
+
+df <- data.frame(X, Yp, Yn)
+```
+
+### Variance: Spread Around a Mean
+
+```{r}
+library(ggpubr)
+df$Index <- seq_along(df$X)
+
+ggscatter(df, x = "Index", y = "X") +
+  geom_hline(yintercept = mean(df$X), linetype = "dashed") +
+  labs(title = "Variance: Distance from the Mean",
+       x = "Observation",
+       y = "X")
+
+```
+
+- Each point deviates from the mean of X
+- Squaring those deviations and averaging them gives us variance
+- Variance does not care about relationships with other variables
+
+### Do Two Variables Move Together?
+
+Covariance answers a two-variable question:
+
+- When X is above its mean, is Y also above its mean (or below)?
+
+```{r}
+ggscatter(df, x = "X", y = "Yp",
+          add = "reg.line",
+          title = "Positive Covariance",
+          xlab = "X",
+          ylab = "Y")
+```
+
+- High X pairs with high Y
+- Low X pairs with low Y
+- Cross-products $(X-M_X)(Y-M_Y)$ are positive
+- "co-" variance is positive
+
+### Negative Covariance
+
+```{r}
+ggscatter(df, x = "X", y = "Yn",
+          add = "reg.line",
+          title = "Negative Covariance",
+          xlab = "X",
+          ylab = "Y")
+
+```
+
+- High X pairs with low Y
+- Low X pairs with high Y
+- Cross-products $(X-M_X)(Y-M_Y)$ are negative
+- "co-" variance is negative
+
+
+### What is Correlation?
+
+Covariance has one big problem: *Its size depends on the units of measurement.*
+
+Correlation fixes this by standardizing covariance:
+
+- Variance → standardized = 1
+- Covariance → standardized between −1 and +1
+
+Correlation ($r$) tells us:
+
+- Direction (positive vs negative)
+- Strength (how tightly the points cluster)
+- Scale-free comparison
+
+You’ll see shortly that:
+
+- Perfect positive covariance yields a $r$= +1
+- Perfect negative covariance yields a $r$= *-1 
+- No systematic covariance yields a $r$= *-0  
+
+### Big Picture (Preview)
+
+| Concept     | What it measures           | How many variables |
+|------------|----------------------------|--------------------|
+| Variance   | Spread around a mean       | 1                  |
+| Covariance | Shared movement            | 2                  |
+| Correlation| Scaled shared movement     | 2                  |
+
+- Variance tells us how much *one* variable moves.  
+- Covariance tells us whether *two* variables move together.  
+- Correlation rescales covariance so we can compare relationships across studies.
+
+Now that we have the picture, we can formalize each idea.
+
+
+## Variance
+
+- Variance is our primary measure of spread.
+- It is defined as the sum of squared variation around a mean.
+  - It is further very important for distributional theory.
+- Here are several equivalent definitions:
+  - we'll use $s$ for sample sd and $s^2$ for sample variances
+
+$$
+s^2 = Var(x) =  \frac{\sum SS_X}{n-1}  = \frac{\sum(X-M_X)^2}{n-1} = \frac{\sum(X-M_X)(X-M_X)}{n-1}
+$$
+
+## Covariance
+
+- Variance is a summary of univariate distance from a mean.
+- Covariance is summary of bivariate distance from a pair of means.
+- It describes association between pairs of variables:
+- What was a sum of squares is now a sum of products:
+
+
+$$
+Cov_{xy}  = \frac{\sum(X-M_X)(Y-M_Y)}{n-1} = \frac{SP_{xy}}{n-1}
+$$
+
+### Perfect Positive Relationship
+
+- Why would we do this? Let's start with an illustrative example.
+  - $X=1,2,3,4,5$
+- Imagine we took the variance of that variable:
+
+```{r, echo=TRUE}
+X = c(1,2,3,4,5)
+M_x<-mean(X)
+SS_x <- sum((X-M_x)^2)
+Var_X=SS_x/(length(X)-1) #or just do var(X) 
+Var_X
+```
+
+### Identical Variables
+
+- Now imagine two variables that are exact copies of one another:
+  - Imagine we're measuring a very stable variable twice.
+  - $X=1,2,3,4,5$
+  - $Y=1,2,3,4,5$
+  - What's Var(x)? What's Var(y)? 
+
+```{r, echo=TRUE}
+X = c(1,2,3,4,5)
+Y = c(1,2,3,4,5)
+var(X)
+var(Y)
+```
+
+What's Cov(xy)?
+
+```{r, echo=TRUE}
+cov(X,Y)
+```
+
+Why is it the same number? 
+
+### Perfect Negative Relationship
+
+- Now imagine two variables that are exact opposites:
+  - Like and hate for stats, etc.
+  - $X=1,2,3,4,5$
+  - $Z=5,4,3,2,1$
+  - Variances haven't changed? 
+
+
+```{r, echo=TRUE}
+X = c(1,2,3,4,5)
+Z = c(5,4,3,2,1)
+var(X)
+var(Z)
+```
+
+What's Cov(xz)?
+
+```{r, echo=TRUE}
+cov(X,Z)
+```
+
+- What does this mean?
+
+```{r, echo=TRUE}
+plot(X, Z)
+```
+
+### Why the Sign Flips
+
+- When there was a perfect positive relationship, every cross-product was positive.
+- Now, they're all negative:
+  - $-2*2, -1*1, 0, 0, 1*-1, 2*(-2)$ 
+- When we add them up, we get a negative number.
+- That negative sign indicates a negative relationship.
+
+### No Relationship
+
+- Now imagine two variables that aren't strongly related.
+  -Like for stats/like for Alex
+  -$X=1,2,3,4,5$ 
+  -$A=2,5,3,1,4$
+  -Variances haven't changed? 
+  
+```{r, echo=TRUE}
+X = c(1,2,3,4,5)
+A = c(2,5,3,1,4)
+var(X)
+var(Z)
+```
+  
+What's Cov(XA)?
+
+```{r, echo=TRUE}
+cov(X,A)
+```  
+  
+- What does this mean?
+
+```{r, echo=TRUE}
+plot(X, A)
+```
+
+### Why Zero?
+
+- Turn them into deviations from their means:
+  - Old: X=1,2,3,4,5, Y=2,5,3,1,4.
+  - Now: X=-2,-1,0,1,2, Y=-1,2,0,-2,1.
+- Get the sum of cross products.
+  - $(-2 * -1) + (-1 * 2) + (0 * 0) + (1 * -2) + (2 * 1)$
+  - $2 + (-2) + 0 + (-2) + 2 = 0$
+- The covariance is zero. There is no relationship between X and Y.
+
+
+### Covariance Review
+
+- Assume that Var(x)=Var(y) for now.
+- When there was a perfect relationship between x and y, $Cov(xy)=Var(x)=Var(y)$.
+  - When the variances of X and Y aren't equal, $Cov(xy)=\sqrt{Var(x) * Var(y)}$
+- When there was a perfect inverse relationship, $-Cov(xy)=\sqrt{Var(x) * Var(y)}$.
+- When there was no relationship, $Cov(XY)=0$.
+  - We added up a bunch of negative and positive products.
+  - The signs canceled out.
+
+
+## Correlations
+
+- Correlation is a broad term for a scaled measure of association.
+- Different correlations answer different questions about different kinds of variables.
+- Pearson's $r$ and Spearman's $r_s$ range from $-1$ to $+1$.
+- Zero means no **linear** association for Pearson and no **monotonic** association for Spearman. A strong U-shaped relationship can still produce zero, because correlation is very talented at missing questions it was never asked.
+- Universal small, medium, and large labels are rarely useful. Interpret magnitude in the research context.
+
+Everything correlates with everything, which Paul Meehl calls the "crud factor" (also called ambient correlational noise) [@meehl1990a; @meehl1990b]. Our goal is to determine how much, and we will deal with two variables at a time before exploring the problems created by three or more variables. 
+
+
+### Correlation Types
+
+A few popular correlations between two variables: 
+
+- Pearson's r (interval by interval) [for population = $\rho$, for sample = $r$]
+- Spearman's rho  (interval by ordinal) [for population = $\rho_{s}$, for sample = $r_s$]
+
+Other types we will not cover: 
+
+- Kendall's tau ($\tau$), a rank-based measure that handles pair concordance and ties differently from Spearman's correlation
+- Point-biserial correlation (quantitative by genuinely dichotomous)
+- Polychoric (ordinal vs ordinal) [used more in psychometrics or factor analysis of ordinal by ordinal]
+- Tetrachoric correlation (dichotomous vs. dichotomous, under a latent-continuous-variable model)
+
+These measures do **not** all share one assumption set. Classical inference for Pearson's correlation commonly assumes independent pairs and, for its exact small-sample test, bivariate normality. Bivariate normality describes the joint distribution of two variables; it does not mean they become normal when “added together,” and it certainly does not mean the two variables must be independent. If they were independent, their population correlation would be zero, which would make this a remarkably short chapter.
+
+
+### Pearson's Correlation
+Most common type you will encounter and is a parametric method. 
+
+$$r_{xy}=\frac{\sum{(X-M_X)(Y-M_Y)}}{\sqrt{\sum(X-M_X)^2\sum(Y-M_Y)^2}}$$
+remember $SS = (X-M)^2$, so thus,
+
+$$r_{xy}=\frac{SP}{\sqrt{SS_XSS_Y}}$$
+
+- Numerator = How much they vary together (covariance)
+- Denominator = The product of how much they vary alone (variance)
+- Values are bounded between -1 and 1
+
+or more simply (see Cohen's textbook for the derivation): 
+
+$$r_{xy}=\frac{\sum{xy}}{\sqrt{\sum{x^2}\sum{y^2}}}$$
+
+### Simulate Data
+
+We will use the `mvrnorm` function (multivariate normal distribution) from the *MASS* package, but to do this we need to make a **covariance** matrix with a $r = .60$ and set the mean values for each variable (which I will set to 5 for each)
+ 
+```{r, echo=FALSE}
+#Set params
+Means.XY<- c(5,5) #set the means of X and Y variables
+r=.6 #Correlation value
+CovMatrix.XY <- matrix(c(1,r,
+                         r,1),2,2) # creates the covariate matrix 
+
+# Build the correlated variables using mvrnorm. 
+# Note: empirical=TRUE means make the correlation EXACTLY r. 
+# empirical=FALSE, the correlation value would be normally distributed around r
+library(MASS) #create data
+CorrData<-mvrnorm(n=100, mu=Means.XY,Sigma=CovMatrix.XY, empirical=TRUE)
+
+#Convert them to a "Data.Frame", which is like SPSS data window
+CorrData<-as.data.frame(CorrData)
+#lets add our labels to the vectors we created
+colnames(CorrData) <- c("Happiness","IceCream")
+```
+
+### Plot the data
+
+```{r, echo=FALSE}
+#make the scatter plot
+library(ggpubr) #graph data
+ggscatter(CorrData, x = "IceCream", y = "Happiness",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = FALSE, # Add correlation coefficient. see ?stat_cor
+   )
+
+```
+
+### Run Pearson's r
+
+The `cor.test` function runs Pearson’s correlation. **Note:** You will notice that I have attached the data frame to each variable. 
+
+```{r, echo=TRUE}
+Corr.Result.1<-cor.test(CorrData$Happiness, CorrData$IceCream, 
+         method = c("pearson"))
+Corr.Result.1
+```
+
+You can also call the function via a formula command. 
+
+```{r, echo=TRUE}
+Corr.Result.1<-cor.test(~Happiness + IceCream, data= CorrData,  
+         method = c("pearson"))
+```
+
+### P-value for Pearson's Correlation
+The classical p-value for Pearson's correlation is adapted from the t-distribution. We will return to it when we cover linear regression.  
+
+
+### Report them in APA format
+
+The `cor_apa` function in the APA package will report it in APA format for you. Here, $r(df)$ gives Pearson's $r$ and its degrees of freedom. The degrees of freedom equal $N-2$ because two variables are involved. The function has several output-format options. 
+
+```{r, results="asis"}
+library(apa)
+cor_apa(Corr.Result.1,format ="rmarkdown")
+```
+
+### Pearson's correlation is scale-independent! 
+
+No matter the mean differences or range of scores, the Pearson's r will give the same results. We can also z-score the data and get the same result. However, if they are scaled non-linearly (sqrt, ^2, log,...) the correlation will change. 
+
+### Scale change: Add a constant (shift the mean)
+
+```{r}
+CorrData$Happiness.big<-CorrData$Happiness+1000
+
+ggscatter(CorrData, x = "IceCream", y = "Happiness.big",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   )
+
+cor_apa(cor.test(CorrData$Happiness.big, CorrData$IceCream, 
+         method = c("pearson")),format ="text")
+```
+
+### Scale change: Z-scored
+
+Remember that, $Z = \frac{X-M}{S}$
+
+```{r}
+CorrData$Happiness.z<-scale(CorrData$Happiness)
+CorrData$IceCream.z<-scale(CorrData$IceCream)
+
+ggscatter(CorrData, x = "IceCream.z", y = "Happiness.z",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   )
+
+
+cor_apa(cor.test(CorrData$Happiness.z, CorrData$IceCream.z, 
+         method = c("pearson")),format ="text")
+```
+
+### Scale change: Linear (mixed scales)
+
+```{r}
+ggscatter(CorrData, x = "IceCream.z", y = "Happiness.big",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   )
+
+cor_apa(cor.test(CorrData$Happiness.big, CorrData$IceCream.z, 
+         method = c("pearson")),format ="text")
+```
+
+### Scale change: Non-linear (breaks it)
+
+```{r}
+CorrData$Happiness<-CorrData$Happiness # orginal
+CorrData$IceCream.sq4<-(CorrData$IceCream)^4 #Non-linear
+
+ggscatter(CorrData, x = "IceCream.sq4", y = "Happiness",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   cor.coef = TRUE, # Add correlation coefficient. see ?stat_cor
+   )
+
+cor_apa(cor.test(CorrData$Happiness, CorrData$IceCream.sq4, 
+         method = c("pearson")),format ="text")
+```
+
+### Pearson's: Let visualize our result
+
+The overlap between the two variables is defined by $r^2$
+
+```{r, fig.width=5, fig.height=4}
+# A Ballantine-style picture without summoning another R package.
+overlap <- r^2
+plot.new()
+plot.window(xlim = c(0, 2.4), ylim = c(0, 1.4), asp = 1)
+symbols(
+  x = c(0.9, 1.5), y = c(0.7, 0.7), circles = c(0.55, 0.55),
+  inches = FALSE, add = TRUE,
+  bg = c(adjustcolor("skyblue", alpha.f = 0.45),
+         adjustcolor("tomato", alpha.f = 0.45)),
+  fg = c("steelblue4", "firebrick4")
+)
+text(0.62, 1.33, "Happiness")
+text(1.78, 1.33, "Ice cream")
+text(1.20, 0.70, paste0(round(overlap * 100), "%\nshared"), font = 2)
+box()
+```
+
+The picture is conceptual rather than drawn to exact area scale. Its job is to keep the shared piece visible, not to audition for an engineering degree.
+
+This means that `r r^2*100`% of the variance of happiness overlaps with ice cream consumption. Can we conclude ice cream causes happiness? No, because we did not design a study with a control group. We can not infer causation.  It seems to make sense to say “eating ice cream causes me to be happy”, but the opposite could be true as well “happiness causes me to eat ice cream”. How do I know which causes which? We cannot without an experiment.  
+
+### Non-Parametric Correlations
+
+Spearman and Kendall correlations are useful for ordinal data and for **monotonic** relationships: as one variable increases, the other generally keeps moving in one direction, even if the pattern bends. They do not rescue every nonlinear relationship. A U-shaped relationship can have a correlation near zero because the upward and downward pieces cancel each other while laughing at you.  
+
+### Spearman's Correlation
+Spearman is a Pearson Correlation on rank-ordered data.  Let's rank order our random correlated data.  You must rank each variable independently first (where ties are averaged).
+
+```{r, echo=TRUE, warning=FALSE}
+CorrData$Happiness.rank<-rank(CorrData$Happiness)
+CorrData$IceCream.rank<-rank(CorrData$IceCream)
+
+ggscatter(CorrData, x = "IceCream.rank", y = "Happiness.rank",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   )
+
+cor_apa(cor.test(CorrData$IceCream.rank, CorrData$Happiness.rank, method = c("pearson")))
+```
+
+Use the built-in Spearman correlation with `cor.test(..., method = "spearman")`. It ranks the raw data automatically and calculates the appropriate p-value. 
+
+```{r}
+# APA format (note the S should be subscript)
+cor_apa(cor.test(CorrData$IceCream, CorrData$Happiness, 
+         method = c("spearman")),format ="text")
+```
+
+
+### Pearson vs Spearman for Nonlinear Data 
+
+Let's say you get some data and clearly there is a slight nonlinearity in the relationship between the two variables. Pearson is designed for linear relationships and we can see the problem in our fitted line below. 
+
+```{r}
+CorrNL<-data.frame(Var1=c(0,1,3,5,7,9,12,15,18),
+                   Var2=c(0,3,12,18,19,20,21,22,23))
+
+ggscatter(CorrNL, x = "Var1", y = "Var2",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   )
+```
+
+```{r, echo=FALSE}
+cor_apa(cor.test(CorrNL$Var1, CorrNL$Var2, method = c("pearson")))
+```
+
+If we switch to a Spearman correlation the data are converted to ranks and the "bump" is now gone and our correlation gets stronger. 
+
+```{r}
+CorrNL$Var1.rank<-rank(CorrNL$Var1)
+CorrNL$Var2.rank<-rank(CorrNL$Var2)
+
+ggscatter(CorrNL, x = "Var1.rank", y = "Var2.rank",
+   add = "reg.line",  # Add regressin line
+   add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+   conf.int = TRUE, # Add confidence interval
+   )
+```
+
+
+```{r, echo=FALSE}
+cor_apa(cor.test(CorrNL$Var1, CorrNL$Var2, method = c("spearman"), exact =TRUE)) 
+# exact = exact p-value is calculated. Otherwise it uses an approximation (a t-dist). See the help for more details on the algorithm.   
+```
+
+### Correlation Matrices 
+
+When we have multiple variables we can compare them all to each other at once.  First we will simulate a 4 variables and all their bivariate correlations using the mvrnorm function again.  
+
+```{r, echo=FALSE}
+#Set params
+Means.XY<- c(5,5,5,5) #set the means of X and Y variables
+r12=.6;r13=.1;r14=.5;r23=.1;r24=.8;r34=0; #Correlation values
+CovMatrix.XY <- matrix(c(1,r12,r13,r14,
+                         r12,1,r23,r24,
+                         r13,r23,1,r34,
+                         r14,r24,r34,1),4,4) # creates the covariate matrix 
+
+# Build the correlated variables using mvrnorm. 
+# Note: empirical=TRUE means make the correlation EXACTLY r. 
+# empirical=FALSE, the correlation value would be normally distributed around r
+library(MASS) #create data
+CorrData2<-mvrnorm(n=100, mu=Means.XY,Sigma=CovMatrix.XY, empirical=TRUE)
+#Convert them to a "Data.Frame", which is like SPSS data window
+CorrData2<-as.data.frame(CorrData2)
+#lets add our labels to the vectors we created
+colnames(CorrData2) <- c("Happiness","IceCream", "Sprinkles","Oreos")
+```
+
+We can use the `GGally` package to plot Pearson correlations quickly in an easy to visualize format once the data are in a data frame.  
+
+```{r, echo=FALSE}
+library(GGally)
+CorrPlot <- ggpairs(CorrData2,  
+              lower = list(continuous = "smooth"))
+CorrPlot
+```
+
+## The Short Story
+
+- Covariance tells us whether two variables move together, but its size depends on their units.
+- Correlation standardizes that shared movement.
+- Pearson's $r$ summarizes a linear relationship; Spearman's $r_s$ summarizes a monotonic relationship using ranks.
+- $r^2$ is the proportion of variance shared in a simple two-variable linear setting.
+- Correlation does not establish causation. Ice cream may produce happiness, happiness may produce ice-cream consumption, or heat may produce both while quietly stealing credit.
+- Plot the data. A single coefficient can hide curves, outliers, separate groups, and other tiny statistical monsters.
+
+::: {.callout-warning title="Correlation Is Not a Tiny Causal Arrow"}
+An $r$ describes the direction and strength of a relationship. It does not tell us whether $X$ causes $Y$, $Y$ causes $X$, or a third variable is backstage operating both puppets. Design and theory must do that work.
+:::

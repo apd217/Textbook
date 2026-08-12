@@ -1,0 +1,495 @@
+---
+title: "Standard Error"
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(fig.width=4.5)
+knitr::opts_chunk$set(fig.height=3.5)
+knitr::opts_chunk$set(fig.align='center') 
+library(tidyverse)
+```
+
+
+## Sampling Error and the Limits of Samples
+
+Samples are guesses. Your sample mean will almost never equal the true population mean—and that is fine, as long as you know *how unstable the guess might be*.
+
+Probability is fickle. With a tiny sample, the Probability Gods may hand you ten unusually delighted commuters or ten people whose train just vanished from the tracker. A larger random sample gives chance fewer opportunities to build your entire conclusion out of one weird subway car.
+
+Suppose we randomly select 10 riders from a CTA subway car and ask:
+
+How much do you typically like traveling on the CTA?
+
+- 1 = Strongly dislike
+- 2 = Dislike
+- 3 = Neither dislike nor like
+- 4 = Like
+- 5 = Strongly like
+
+Who we grab matters — daily commuters, tourists, and people who just missed their train all give different answers. The gap between our sample estimate and the true population value is called **sampling error**. It's not a mistake — it's just an unavoidable consequence of observing only part of the population.
+
+The question is: *how bad is the error, and how can we estimate it from a single sample?*
+
+### Traveling on the CTA
+
+The CTA hires me to do a satisfaction survey on the subway. So I take my question, and I want to find out what the population attitude toward the CTA is.
+
+Well, the CTA handles about 1 million riders a day, but (a) they did not pay me enough to hire all the people I would need to ask all those people, and (b) I do not want to talk to random strangers on the Chicago subway about the CTA. They might punch me in the face as an answer to my question.
+
+So I am hoping that 10 people is enough to answer their question and also lets me run this study cheaply so I can pocket all the money. Have you seen how much groceries cost nowadays?
+
+### Randomly sample from the population
+
+I enter a random subway car, at a random time, and randomly select 10 people and ask them to answer the question.
+
+```{r, echo=FALSE}
+set.seed(42)
+
+Npop <- 1e6
+
+CTA.Population <- rnorm(Npop, mean = 3, sd = 1)
+# Round to Likert categories and clamp to [1,5]
+CTA.Population <- round(CTA.Population)
+CTA.Population[CTA.Population < 1] <- 1
+CTA.Population[CTA.Population > 5] <- 5
+```
+
+
+```{r, echo=FALSE}
+set.seed(1)
+SampleSize = 10
+sample.1<-sample(CTA.Population, SampleSize, replace = TRUE)
+
+M.1<-mean(sample.1)
+SD.1<-sd(sample.1)
+
+tibble(CTA.1 = sample.1) %>%
+  ggplot(aes(x = CTA.1)) +
+  geom_histogram(binwidth = 1, boundary = 0.5) +
+  labs(
+    title = "Sample Distribution 1",
+    x = "CTA Liking \n(1 = Strongly Dislike, 5 = Strongly Like)",
+    y = "Frequency"
+  ) + theme_bw()
+```
+
+The mean of this sample is $M =$ `r round(mean(sample.1),2)`. 
+
+Okay, so is that true population mean? Who knows. Ugh, I should probably double check. So I head out again to a new random subway car, at a random time, and randomly select 10 new people and ask them to answer the question. Let's hope no one punches me...
+
+```{r, echo=FALSE}
+set.seed(26)
+SampleSize = 10
+sample.2<-sample(CTA.Population, SampleSize, replace = TRUE)
+
+M.2<-mean(sample.2)
+SD.2<-sd(sample.2)
+
+tibble(CTA.2 = sample.2) %>%
+  ggplot(aes(x = CTA.2)) +
+  geom_histogram(binwidth = 1, boundary = 0.5) +
+  labs(
+    title = "Sample Distribution 2",
+    x = "CTA Liking \n(1 = Strongly Dislike, 5 = Strongly Like)",
+    y = "Frequency"
+  ) + theme_bw()
+```
+
+The new mean of this sample is $M =$ `r round(mean(sample.2),2)`. 
+
+The mean is higher now. Which sample (1 or 2) is correct? 
+
+### Brute force solution? 
+
+Hmm, I am not sure. So to solve my problem, I will do what all **good** professors do: use coerced undergraduate labor! So I send all undergraduates in this class out to each randomly sample 10 people on different days, at different times, and on different subway lines, and collect the data. We will call it homework...yeah homework...
+
+```{r, echo=FALSE}
+set.seed(616)
+NumberofSamples=80
+SampleSize=10
+Sample.Results<-replicate(NumberofSamples,sample(CTA.Population, size = SampleSize, replace=TRUE))
+Sample.Means<-apply(Sample.Results,2,mean)
+
+tibble(CTA.means = Sample.Means) %>%
+  ggplot(aes(x = CTA.means)) +
+  geom_histogram(binwidth = .1, boundary = 0.5) +
+  labs(
+    title = "Means of 80 samples",
+    x = "CTA Liking \n(1 = Strongly Dislike, 5 = Strongly Like)",
+    y = "Frequency"
+  ) + theme_bw()
+```
+
+You will notice the distribution of means is normal-ish and centered around
+3, and it was precisely: Mean of means = `r round(mean(Sample.Means),2)`
+
+### SD of Distribution of Means
+
+But you can also see that there is a wide range of sample means. So what does that mean?
+
+Can I trust any individual sample to tell me the true population value?
+
+Recall what a standard deviation (SD) represents: **the typical distance that observations fall from their mean.**
+
+For a single sample, SD tells us how much individual observations vary around the sample mean.
+
+But now we’re doing something slightly different.
+
+Just like we had a standard deviation (S) around a sample mean, we can also calculate the standard deviation of the sample means themselves, that is, how much the means vary from sample to sample.
+
+For a single sample, SD is:
+
+$$S = \sqrt{\frac{\Sigma (X-M)^2}{N-1}}$$
+
+For the distribution of means, we look at how each sample mean differs from the **grand mean**:
+
+$$S_M = \sqrt{\frac{\Sigma (M-M_{Grand})^2}{N-1}}$$
+
+This quantity is the standard error (SE). Conceptually, it tells us: **how much we expect a sample mean to vary simply due to random sampling**.
+
+::: {.callout-important title="SD and SE Describe Different Crowds"}
+The **standard deviation** describes how individual scores vary around their sample mean.
+
+The **standard error** describes how sample means would vary across repeated samples.
+
+- SD asks: *How different are the people?*
+- SE asks: *How unstable is our estimate?*
+
+Same units. Different crowd. Confusing them will anger Dorkaos.
+:::
+
+```{r, echo=FALSE}
+M.S<-mean(Sample.Means)
+SD.S<-sd(Sample.Means)
+```
+
+The grand mean $M_G$ = `r round(M.S,2)`
+
+Standard error (spread of the sample means) = `r round(SD.S,2)`
+
+Just like $\pm2$ SD captures about 95% of individual observations in a roughly normal distribution, $\pm2$ SE captures about 95% of the sample means in the sampling distribution.
+
+In other words, if we repeatedly sample from this population, about 95% of the sample means should fall within two standard errors of the grand mean.
+
+Thus, the population mean is probably between:`r round(M.S-2*SD.S,2)` and `r round(M.S+2*SD.S,2)`
+
+(*Assuming random sampling and a roughly normal sampling distribution—both of which we’re getting for free here.*)
+
+::: {.callout-warning title="Two Is a Shortcut, Not a Sacred Number"}
+Using $M \pm 2SE$ gives a rough 95% interval when the sampling distribution is approximately normal.
+
+For small samples, the proper confidence interval uses a value from the **t-distribution**:
+
+$$
+M \pm t^*SE
+$$
+
+For example, with $N=10$, the 95% multiplier is about 2.26—not exactly 2. We will learn where that number comes from in the t-test chapter. For now, $\pm2SE$ is a useful approximation.
+:::
+
+### The Standard Error of the Mean (SEM)
+ 
+The Dean found out about my use of forced student labor. Apparently it’s unethical or something and told me to solve my problem another way. 
+
+So… what if we just make some assumptions about the world and estimate our sampling error from one sample? Because, again, I am lazy and would like to keep all the money for myself.
+
+The strange thing was that the distribution of the means from all those samples looked normal-ish. After a little digging in some old, dusty textbooks, I learned that what I was seeing was not a fluke. In fact, it’s a well-known property of repeated sampling called the *Central Limit Theorem*.
+
+Central Limit Theorem (CLT): *If you repeatedly take random samples from a population, the distribution of the sample means will be approximately normal, centered on the population mean, even if the original population is not normal, as long as the sample size is reasonably large.*
+
+::: {.callout-tip title="The Raw Data Do Not Become Normal"}
+The Central Limit Theorem applies to the **distribution of sample means**. It does not promise that the individual scores—or the population they came from—will become normal.
+
+The commuters remain weird. Their means become better behaved.
+:::
+
+Because of this, we can assume that if I took repeated samples, the means would be normally distributed around the population mean, and that the amount of error depends on the sample size.
+
+That makes intuitive sense. If I sampled 100 people per sample, there would be less random error. If I only sampled 10 people, there’s a much better chance my estimate would be off.
+
+According to this dusty old textbook, we can approximate the standard error of the mean using:
+
+::: {.callout-note title="Two Different Counts Are Hiding in This Example"}
+Our simulation contains:
+
+- **10 people per sample**, which determines how stable each sample mean is.
+- **80 repeated samples**, which lets us see the sampling distribution.
+
+In a real study, we usually collect only one sample. We cannot directly observe its entire sampling distribution, so we estimate the standard error with $S/\sqrt{N}$.
+:::
+
+$$S_M = \frac{S}{\sqrt{N}}$$
+
+So, if our first sample has a standard deviation of $S$ = `r round(SD.1,2)` then our estimated standard error of the mean is:
+
+$S_M$ = `r round(sd(sample.1) / sqrt(10), 2)`
+
+This value is not too far off from the value I estimated earlier by sending out 80 undergraduates to repeatedly run the study: SE from the “actual” sampling distribution = `r round(SD.S, 2)`.
+
+In other words: the math mostly agrees with the coerced labor. 
+
+### Effect of Sample Size
+
+Okay, so what would have happened if I ran my coerced labor study with different sample sizes?
+
+Instead of sending out more undergrads (sadly), I can just use math.
+
+Recall:
+
+$$S_M = \frac{S}{\sqrt{N}}$$
+
+So as $N$ increases, the SEM must decrease and it does so nonlinearly.
+
+Let’s compute the SEM ($S_M$) for sample sizes from 10 to 10,000 people per sample and visualize it.
+
+```{r, echo=FALSE}
+library(tidyverse)
+
+# Population SD
+pop_sd <- sd(CTA.Population)
+
+# Sample sizes
+N_vals <- 10:10000
+
+# Compute SEM for each N
+sem_df <- tibble(
+  N = N_vals,
+  SEM = pop_sd / sqrt(N)
+)
+
+# Plot
+ggplot(sem_df, aes(x = N, y = SEM)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = "Standard Error of the \nMean as a Function of Sample Size",
+    x = "Sample Size (N)",
+    y = "Standard Error of the Mean (SEM)"
+  ) +
+  theme_bw()
+```
+
+So look at that, my error drops really close to zero pretty quickly. So how many people would I need for this study? 
+
+```{r, echo=FALSE}
+library(tidyverse)
+
+# Population SD
+pop_sd <- sd(CTA.Population)
+
+# Sample sizes
+N_vals <- 10:400
+
+# Compute SEM for each N
+sem_df <- tibble(
+  N = N_vals,
+  SEM = pop_sd / sqrt(N)
+)
+
+# Plot
+ggplot(sem_df, aes(x = N, y = SEM)) +
+  geom_line(linewidth = 1) +
+  coord_cartesian(ylim = c(0, .2), xlim=c(10, 400)) +
+  labs(
+    title = "Standard Error of the \nMean as a Function of Sample Size",
+    x = "Sample Size (N)",
+    y = "Standard Error of the Mean (SEM)"
+  ) +
+  theme_bw()
+```
+
+In short, there are diminishing returns.
+
+- When the sample size is small, the error is large and unstable.
+- As the sample size gets very large, the error continues to shrink—but only a little at a time.
+
+::: {.callout-warning title="A Larger Sample Can Produce Very Precise Nonsense"}
+Increasing $N$ reduces random sampling error. It does **not** repair:
+
+- biased sampling;
+- bad measurements;
+- confounds;
+- dishonest responses; or
+- collecting every participant from the same suspicious subway car.
+
+A large biased sample can estimate the wrong value with extraordinary precision.
+:::
+
+In short: A sample is just a guess about the population. How good that guess is depends on how variable the population is to begin with. If the distribution is tight, you can get away with a smaller sample. If it’s spread out, you need a lot more people to pin it down.
+
+You never actually know if your guess is right, which is why replication exists and why we all lose sleep. If you rerun the study and the first two moments (the mean and the variance) keep bouncing around, that’s your data politely telling you: get more people.
+
+**Statistics doesn’t give you truth, but you can make increasingly expensive guesses.**
+
+### What was the Truth? 
+
+So… you will never actually know the true population value unless you are either
+
+- (a) an all-knowing God, or
+- (b) good friends with a God.
+
+Luckily, if you properly appease *Dorkaos*, the Ancient Greek God of Statistics, knower of all true distributions, with sufficient sacrifices, you may briefly glimpse the truth. Below, all is revealed:
+
+```{r, echo = FALSE}
+set.seed(42)
+library(tidyverse)
+
+tibble(CTA = CTA.Population) %>%
+  ggplot(aes(x = CTA)) +
+  geom_histogram(binwidth = 1, boundary = 0.5) +
+  geom_vline(xintercept = 3) +
+  labs(
+    title = "Population Distribution of CTA Attitudes",
+    x = "CTA Liking \n(1 = Strongly Dislike, 5 = Strongly Like)",
+    y = "Frequency"
+  ) + theme_bw()
+```
+
+The true mean of this population distribution is $\mu =$ `r round(mean(CTA.Population),1)`. 
+
+Note: Most people are not on speaking terms with Dorkaos, so in real life you would never truly know this value.
+
+So the real question is: **How close did we come with our original samples?**
+
+```{r, echo=FALSE}
+M1<-mean(sample.1)
+SD1<-sd(sample.1) 
+SEM1<-sd(sample.1) / sqrt(10)
+M2<-mean(sample.2)
+SD2<-sd(sample.2)
+SEM2<-sd(sample.2) / sqrt(10)
+```
+
+
+From sample 1
+
+- $N = 10$, 
+- $M_{Sample 1} =$ `r round(M1,2)`,
+- $S_{Sample 1} =$ `r round(SD1,2)`,  
+- $S_M$ = `r round(SEM1, 2)`,
+- So our 95% confidence guess (i.e., $\pm2$ SE) would be: 
+  - `r round(M1-2*SEM1,2)` and `r round(M1+2*SEM1,2)` 
+
+From sample 2
+
+- $N = 10$, 
+- $M_{Sample 2} =$ `r round(M2,2)`,
+- $S_{Sample 2} =$ `r round(SD2,2)`,  
+- $S_M$ = `r round(SEM2, 2)`,
+- So our 95% confidence guess (i.e., $\pm2$ SE) would be: 
+  - `r round(M2-2*SEM2,2)` and `r round(M2+2*SEM2,2)` 
+  
+Importantly, both intervals include the true population mean. That doesn’t mean we were brilliant; it means the intervals were wide. How do we shrink them? 
+
+### What If We Sampled More People?
+
+What if we ran a third sample with 100 people?
+
+```{r, echo=FALSE}
+set.seed(26)
+SampleSize = 100
+sample.3<-sample(CTA.Population, SampleSize, replace = TRUE)
+M3<-mean(sample.3)
+SD3<-sd(sample.3)
+SEM3<-sd(sample.3) / sqrt(100)
+tibble(CTA.3 = sample.3) %>%
+  ggplot(aes(x = CTA.3)) +
+  geom_histogram(binwidth = 1, boundary = 0.5) +
+  labs(
+    title = "Sample Distribution 3",
+    x = "CTA Liking \n(1 = Strongly Dislike, 5 = Strongly Like)",
+    y = "Frequency"
+  ) + theme_bw()
+```
+
+Remember: $S_M = \frac{S}{\sqrt{N}}$
+
+Sample 3: 
+
+- $N = 100$,
+- $M_{Sample 3} =$ `r round(M3,2)`,  
+- $S_{Sample 3} =$ `r round(SD3,2)`,  
+- $S_M = \frac{.957}{\sqrt{100}}$ = `r round(SEM3,2)`. 
+
+Our 95% confidence guess is now: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)` 
+
+And now you can see the key difference:
+the interval is much narrower.
+
+### Final Report (to the CTA)
+
+So, at last, I can report that the average Chicagoan is roughly neutral toward the CTA, with a true rating that likely falls somewhere between: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)`. 
+
+Still just a guess, but now a much better one as you can see below: 
+
+```{r}
+# Create CI summary table
+ci_df <- tibble(
+  Sample = factor(c("Sample 1 (N=10)", "Sample 2 (N=10)", "Sample 3 (N=100)"),
+                  levels = c("Sample 1 (N=10)", "Sample 2 (N=10)", "Sample 3 (N=100)")),
+  Mean = c(M1, M2, M3),
+  Lower = c(M1 - 2*SEM1, M2 - 2*SEM2, M3 - 2*SEM3),
+  Upper = c(M1 + 2*SEM1, M2 + 2*SEM2, M3 + 2*SEM3)
+)
+
+true_mu <- mean(CTA.Population)
+
+# Plot
+ggplot(ci_df, aes(y = Sample, x = Mean)) +
+  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.25, linewidth = 1) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = true_mu, linetype = "dashed", linewidth = 1) +
+  labs(
+    title = "Confidence Intervals \nfrom Three Samples",
+    subtitle = "Smaller samples guess wildly; \nlarger samples guess more precisely",
+    x = "CTA Liking",
+    y = ""
+  ) +
+  theme_bw()
+
+```
+
+### What do we do with this? 
+
+Because samples are noisy guesses, and we still need to make decisions.
+
+All of this stuff (SDs, SEs, sampling distributions, confidence intervals) exists for one reason: *to let us draw inferences about a population using imperfect data.*
+
+We rarely get to see the truth. Instead, we:
+
+- take a sample,
+- quantify how uncertain that sample is, and
+- ask whether what we observed is plausibly just random noise or something more interesting.
+
+::: {.callout-important title="What a 95% Confidence Interval Means"}
+Across many repeated samples, a correctly constructed 95% confidence-interval procedure captures the true population value about 95% of the time, assuming the model is appropriate.
+
+After we calculate one interval, we do not say there is a 95% probability that the fixed population value is inside it. The procedure has 95% long-run coverage. The parameter is not wandering around trying to escape.
+:::
+
+::: {.callout-warning title="This Misinterpretation Is Extremely Common"}
+Hoekstra and colleagues gave six incorrect statements about confidence intervals to 442 first-year students, 34 master's students, and 118 researchers [@hoekstra2014]. Only 2% of the first-year students, none of the master's students, and 3% of the researchers correctly rejected all six statements.
+
+Training and research experience did not protect people very well. Therefore, stop and read the definition above again. A confidence interval describes the long-run performance of a procedure. It is not the probability that this one completed interval contains the fixed parameter, the probability that the null hypothesis is true, or the range that contains 95% of individual scores.
+:::
+
+But sometimes we want to ask a sharper question: *Is this sample consistent with a specific claim about the population?*
+
+That question is exactly what *t*-tests are designed to answer.
+
+### The Short Story 
+
+- The standard deviation describes variation among observations.
+- The standard error describes variation in an estimate across hypothetical samples.
+- Increasing sample size usually makes the standard error smaller at a rate of $1/\sqrt{n}$.
+- Larger samples make estimates more stable; they do not purify biased samples with statistical holy water.
+- Confidence intervals show uncertainty in the estimate, not a force field around truth.

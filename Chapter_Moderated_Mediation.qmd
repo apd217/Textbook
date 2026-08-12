@@ -1,0 +1,403 @@
+---
+title: "Advanced: Moderated Mediation"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## When the Indirect Effect Also Says “It Depends”
+
+Mediation asks whether $X$ may affect $Y$ through $M$. Moderation asks whether a relationship changes across levels of $W$. **Moderated mediation** asks whether the indirect effect through $M$ changes across levels of $W$ [@preacher2007modmed].
+
+That definition is short. The analysis is not. We now have at least two regression equations, one or more product terms, conditional effects, a product of coefficients, and causal assumptions hiding behind every arrow.
+
+::: {.callout-warning title="This Is an Advanced Topic"}
+You should already understand multiple regression, interactions, centering, simple slopes, mediation, and bootstrap intervals. If any of those topics currently look like cursed hieroglyphics, go backward before proceeding. The equations below are not improved by staring harder.
+:::
+
+## Moderation and Mediation Are Doing Different Jobs
+
+For an ordinary interaction,
+
+$$
+Y=\beta_0+\beta_1X+\beta_2W+\beta_3XW+\epsilon,
+$$
+
+the slope of $X$ depends on $W$:
+
+$$
+\frac{\partial Y}{\partial X}=\beta_1+\beta_3W.
+$$
+
+For simple mediation,
+
+$$
+M=i_M+aX+e_M,
+$$
+
+$$
+Y=i_Y+c'X+bM+e_Y,
+$$
+
+the indirect effect is $ab$.
+
+Moderated mediation combines them by allowing $a$, $b$, $c'$, or some combination of those paths to depend on $W$. The scientific theory should determine which path is moderated. Adding every possible interaction because PROCESS listed a model number is not a theory.
+
+## Where Can Moderation Occur?
+
+### First-Stage Moderation: Path $a$
+
+The moderator changes how $X$ predicts the mediator:
+
+$$
+M=i_M+a_1X+a_2W+a_3XW+e_M.
+$$
+
+The conditional $a$ path is
+
+$$
+a(W)=a_1+a_3W.
+$$
+
+This is often called first-stage moderated mediation or PROCESS Model 7.
+
+### Second-Stage Moderation: Path $b$
+
+The moderator changes how the mediator predicts the outcome:
+
+$$
+Y=i_Y+c'X+b_1M+b_2W+b_3MW+e_Y.
+$$
+
+The conditional $b$ path is
+
+$$
+b(W)=b_1+b_3W.
+$$
+
+This is often called second-stage moderated mediation or PROCESS Model 14.
+
+### Both Indirect Stages
+
+If both $a$ and $b$ depend on $W$, the conditional indirect effect is
+
+$$
+IE(W)=
+(a_1+a_3W)(b_1+b_3W).
+$$
+
+This corresponds to the logic of PROCESS Model 58. Notice that multiplying the two conditional paths creates a $W^2$ term. The indirect effect can curve across the moderator even though both component models contain only ordinary two-way interactions.
+
+### The Direct Path Can Also Be Moderated
+
+The direct path may depend on $W$:
+
+$$
+c'(W)=c'_1+c'_3W.
+$$
+
+Models that combine direct-path moderation with first-stage, second-stage, or both-stage moderation are commonly labeled PROCESS Models 8, 15, and 59. The labels are convenient shorthand, not laws of nature. Report the actual equations so the reader does not need a PROCESS-model decoder ring.
+
+## An Example with Workshop Practice and Available Time
+
+Suppose a study workshop increases deliberate practice, which improves exam performance. We suspect the workshop increases practice more strongly for students with available time. We also suspect that practice is more useful when students have time to sleep instead of practicing at 3:17 a.m. while bargaining with Dorkaos.
+
+- $X$: workshop assignment, coded 0 or 1.
+- $M$: deliberate practice hours.
+- $Y$: exam score.
+- $W$: available time, centered.
+
+We will simulate moderation on paths $a$, $b$, and $c'$ so the full machinery is visible.
+
+```{r modmed-data}
+set.seed(543)
+n <- 420
+
+ModMedData <- data.frame(
+  Workshop = rbinom(n, 1, .5),
+  AvailableTime = rnorm(n, 0, 1)
+)
+
+ModMedData$Practice <-
+  4 +
+  1.2 * ModMedData$Workshop +
+  .8 * ModMedData$AvailableTime +
+  .9 * ModMedData$Workshop * ModMedData$AvailableTime +
+  rnorm(n, 0, 1.5)
+
+ModMedData$Exam <-
+  68 +
+  1.8 * ModMedData$Workshop +
+  2.5 * ModMedData$Practice +
+  1.2 * ModMedData$AvailableTime +
+  .8 * ModMedData$Practice * ModMedData$AvailableTime +
+  1.0 * ModMedData$Workshop * ModMedData$AvailableTime +
+  rnorm(n, 0, 7)
+```
+
+The moderator is already centered at zero in the simulation. In real data, center a continuous moderator when its original zero is not the value at which you want every lower-order path interpreted.
+
+## Fit the Two Regression Equations
+
+The mediator model tests moderation of path $a$:
+
+```{r modmed-models}
+ModMedMediator <- lm(
+  Practice ~ Workshop * AvailableTime,
+  data = ModMedData
+)
+
+ModMedOutcome <- lm(
+  Exam ~
+    Workshop * AvailableTime +
+    Practice * AvailableTime,
+  data = ModMedData
+)
+
+summary(ModMedMediator)
+summary(ModMedOutcome)
+```
+
+Read the tables according to their outcomes. In the mediator model, the workshop-by-time product tests whether path $a$ changes with available time. In the outcome model, the practice-by-time product tests whether path $b$ changes, and the workshop-by-time product tests whether $c'$ changes.
+
+::: {.callout-important title="The Two Equations Have Different Outcomes"}
+It is easy to read the coefficient for `AvailableTime` in one table as though it came from the other. Label the mediator and outcome models clearly. A significant product term in the mediator equation does not prove moderation of path $b$ merely because all the variables attended the same analysis.
+:::
+
+## Plot Every Moderated Path
+
+We will plot predictions at low available time, its mean, and high available time. Here, low and high are one standard deviation below and above the mean.
+
+```{r modmed-plots, fig.width=9, fig.height=3.5}
+TimeValues <- c(
+  Low = -sd(ModMedData$AvailableTime),
+  Mean = 0,
+  High = sd(ModMedData$AvailableTime)
+)
+PlotColors <- c("#D55E00", "#666666", "#0072B2")
+old_par <- par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))
+
+# Path a
+plot(
+  NA, xlim = c(0, 1), ylim = range(ModMedData$Practice),
+  xlab = "Workshop assignment", ylab = "Predicted practice",
+  main = "Path a"
+)
+for (j in seq_along(TimeValues)) {
+  nd <- data.frame(Workshop = c(0, 1), AvailableTime = TimeValues[j])
+  lines(nd$Workshop, predict(ModMedMediator, nd), lwd = 3, col = PlotColors[j])
+  points(nd$Workshop, predict(ModMedMediator, nd), pch = 19, col = PlotColors[j])
+}
+
+# Path b
+PracticeGrid <- seq(quantile(ModMedData$Practice, .05),
+                    quantile(ModMedData$Practice, .95), length.out = 80)
+plot(
+  NA, xlim = range(PracticeGrid), ylim = range(ModMedData$Exam),
+  xlab = "Practice", ylab = "Predicted exam score",
+  main = "Path b"
+)
+for (j in seq_along(TimeValues)) {
+  nd <- data.frame(
+    Workshop = 0,
+    AvailableTime = TimeValues[j],
+    Practice = PracticeGrid
+  )
+  lines(PracticeGrid, predict(ModMedOutcome, nd), lwd = 3, col = PlotColors[j])
+}
+
+# Direct path c-prime
+plot(
+  NA, xlim = c(0, 1), ylim = range(ModMedData$Exam),
+  xlab = "Workshop assignment", ylab = "Predicted exam score",
+  main = "Direct path c'"
+)
+for (j in seq_along(TimeValues)) {
+  nd <- data.frame(
+    Workshop = c(0, 1),
+    AvailableTime = TimeValues[j],
+    Practice = mean(ModMedData$Practice)
+  )
+  lines(nd$Workshop, predict(ModMedOutcome, nd), lwd = 3, col = PlotColors[j])
+  points(nd$Workshop, predict(ModMedOutcome, nd), pch = 19, col = PlotColors[j])
+}
+legend("topleft", names(TimeValues), col = PlotColors, lwd = 3, bty = "n", cex = .8)
+par(old_par)
+```
+
+The plots do not test the conditional indirect effect. They show whether the component paths have the form we think they have. Always do this before multiplying coefficients. A beautifully significant indirect effect attached to a ridiculous component path remains ridiculous.
+
+## Calculate Conditional Direct and Indirect Effects
+
+Extract the component coefficients:
+
+```{r conditional-effects}
+a1 <- coef(ModMedMediator)["Workshop"]
+a3 <- coef(ModMedMediator)["Workshop:AvailableTime"]
+
+b1 <- coef(ModMedOutcome)["Practice"]
+b3 <- coef(ModMedOutcome)["AvailableTime:Practice"]
+
+c1 <- coef(ModMedOutcome)["Workshop"]
+c3 <- coef(ModMedOutcome)["Workshop:AvailableTime"]
+
+ConditionalEffects <- data.frame(
+  AvailableTime = unname(TimeValues)
+)
+
+ConditionalEffects$PathA <-
+  a1 + a3 * ConditionalEffects$AvailableTime
+ConditionalEffects$PathB <-
+  b1 + b3 * ConditionalEffects$AvailableTime
+ConditionalEffects$Indirect <-
+  ConditionalEffects$PathA * ConditionalEffects$PathB
+ConditionalEffects$Direct <-
+  c1 + c3 * ConditionalEffects$AvailableTime
+ConditionalEffects$Total <-
+  ConditionalEffects$Direct + ConditionalEffects$Indirect
+
+knitr::kable(ConditionalEffects, digits = 3)
+```
+
+These are point estimates. Comparing whether one conditional interval includes zero and another does not is **not** a test that the two indirect effects differ. We need the sampling distribution of their difference.
+
+::: {.callout-warning title="Significant Here and Nonsignificant There Is Not a Significant Difference"}
+An indirect effect can exclude zero at high $W$ and include zero at low $W$ even when the difference between those indirect effects is not statistically distinguishable from zero. Test the contrast directly. Two asterisks refusing to stand in the same column are not a moderation test.
+:::
+
+## Bootstrap the Conditional Effects and Their Difference
+
+We resample participants, refit both equations, and calculate each conditional effect inside every resample.
+
+```{r modmed-bootstrap}
+set.seed(544)
+B <- 3000
+
+ModMedBoot <- replicate(B, {
+  rows <- sample(seq_len(nrow(ModMedData)), replace = TRUE)
+  d <- ModMedData[rows, ]
+
+  m_fit <- lm(Practice ~ Workshop * AvailableTime, data = d)
+  y_fit <- lm(
+    Exam ~ Workshop * AvailableTime + Practice * AvailableTime,
+    data = d
+  )
+
+  a1_b <- coef(m_fit)["Workshop"]
+  a3_b <- coef(m_fit)["Workshop:AvailableTime"]
+  b1_b <- coef(y_fit)["Practice"]
+  b3_b <- coef(y_fit)["AvailableTime:Practice"]
+  c1_b <- coef(y_fit)["Workshop"]
+  c3_b <- coef(y_fit)["Workshop:AvailableTime"]
+
+  indirect <- (a1_b + a3_b * TimeValues) *
+    (b1_b + b3_b * TimeValues)
+  direct <- c1_b + c3_b * TimeValues
+
+  c(
+    setNames(indirect, paste0("Indirect_", names(TimeValues))),
+    setNames(direct, paste0("Direct_", names(TimeValues))),
+    IndirectDifference_HighMinusLow = unname(
+      indirect["High"] - indirect["Low"]
+    ),
+    DirectDifference_HighMinusLow = unname(
+      direct["High"] - direct["Low"]
+    )
+  )
+})
+
+BootstrapIntervals <- t(apply(ModMedBoot, 1, quantile, c(.025, .50, .975)))
+knitr::kable(BootstrapIntervals, digits = 3)
+```
+
+The high-minus-low indirect contrast directly tests whether the indirect effect changes across those two moderator values. In a real analysis, use enough replications for stable tail endpoints and consider BCa intervals when the method and software support them.
+
+## The Index of Moderated Mediation
+
+When only path $a$ is moderated and path $b$ is constant,
+
+$$
+IE(W)=(a_1+a_3W)b,
+$$
+
+so the rate at which the indirect effect changes with $W$ is
+
+$$
+\frac{\partial IE(W)}{\partial W}=a_3b.
+$$
+
+The product $a_3b$ is the **index of moderated mediation**. Bootstrap its interval. If the interval excludes zero, the indirect effect changes linearly across $W$ under that model.
+
+When both paths $a$ and $b$ are moderated,
+
+$$
+IE(W)=(a_1+a_3W)(b_1+b_3W),
+$$
+
+and the rate of change itself depends on $W$:
+
+$$
+\frac{\partial IE(W)}{\partial W}
+=a_3b_1+a_1b_3+2a_3b_3W.
+$$
+
+One constant index no longer describes the entire curve. Report conditional effects over the observed moderator range and explain the model you actually fit.
+
+## The `mediation` Package Approach
+
+The original lecture used `mediate()` at selected moderator values and `test.modmed()` to compare them. The same workflow remains useful when its causal estimand and assumptions fit the design:
+
+```{r mediation-package-modmed, eval=FALSE}
+library(mediation)
+
+ModMedFit <- mediate(
+  ModMedMediator,
+  ModMedOutcome,
+  treat = "Workshop",
+  mediator = "Practice",
+  boot = TRUE,
+  boot.ci.type = "bca",
+  sims = 5000
+)
+
+test.modmed(
+  ModMedFit,
+  covariates.1 = list(AvailableTime = TimeValues["Low"]),
+  covariates.2 = list(AvailableTime = TimeValues["High"]),
+  sims = 5000
+)
+```
+
+The variables and interaction terms included in the mediator and outcome models determine which paths are moderated. The function cannot decide that theory for you.
+
+## Causal Assumptions Multiply Too
+
+Moderated mediation inherits the assumptions of mediation and moderation:
+
+- Temporal order must be defensible.
+- Confounding of the $X\rightarrow M$, $M\rightarrow Y$, and $X\rightarrow Y$ paths must be addressed.
+- The moderator must be measured at a defensible time.
+- Functional forms and interactions must be correctly specified.
+- Measurement error can distort every component path.
+- The moderator range must contain enough observations to estimate conditional effects.
+
+If $W$ is observed rather than randomized, differences in indirect effects across $W$ may reflect other characteristics associated with $W$. Drawing a conditional arrow does not randomize anyone.
+
+## What to Report
+
+Report:
+
+1. The mediator and outcome equations, including every product term.
+2. Coding and centering decisions.
+3. Coefficients and intervals for component paths.
+4. Conditional direct and indirect effects at theoretically meaningful values.
+5. A direct test or bootstrap interval for how the indirect effect changes.
+6. The observed range of the moderator and a plot of the conditional effects.
+7. The causal assumptions and important alternative explanations.
+
+Do not report only the PROCESS model number, a screenshot, and the sentence “moderated mediation was found.” That sentence makes the reader perform an archaeological excavation of your analysis.
+
+## The Short Story
+
+Moderated mediation means the indirect effect depends on a moderator. Decide which path should change, fit the corresponding interactions, inspect every component path, calculate conditional effects, and bootstrap the difference or index that directly represents moderation of the indirect effect. More arrows do not reduce the need for theory. They merely give bad theory more places to hide.

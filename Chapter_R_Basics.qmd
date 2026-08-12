@@ -1,0 +1,202 @@
+---
+title: "R: The Extremely Short Survival Guide"
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4.2
+)
+```
+
+## Why R?
+
+R is a free, open-source programming language built for statistics, data analysis, and graphics. It was developed by people who enjoy statistics enough to create an entire language for it. We should probably be grateful and slightly concerned.
+
+Why are we using it?
+
+- **It is free.** You do not lose access when you graduate, change jobs, or anger the university licensing office.
+- **It is powerful.** R can run the analyses in this book, make publication-quality figures, simulate entire populations, and automate repetitive work.
+- **It is reproducible.** Your script records what you did. Six months later, you can rerun the analysis instead of trying to remember which mysterious buttons you clicked.
+- **It is extensible.** Researchers build packages that add new methods. This is wonderful, although packages sometimes change, break, or disappear into the forest.
+- **It is used by actual researchers.** Learning R gives you a skill that travels beyond your class.
+
+R changes more frequently than a pirate changes their underwear. Packages change too. This is the price of living in a flexible, community-driven ecosystem. When old code breaks, it does not mean you are stupid. It means you have joined the rest of us.
+
+## R Is Not RStudio
+
+**R** is the language and the statistical engine. **RStudio** is an integrated development environment, or IDE, that gives R a useful place to live. R does the calculations; RStudio provides the script editor, console, plots, files, help, and many little buttons you will ignore until the day they save you.
+
+Think of R as a temperamental but extremely capable chef. RStudio is the kitchen. Installing only RStudio is like building a lovely kitchen and forgetting the chef.
+
+## Install Them in This Order
+
+1. Download and install the current version of **R** from [CRAN](https://cran.r-project.org/).
+2. Download and install the free **RStudio Desktop** from [Posit](https://posit.co/download/rstudio-desktop/).
+3. Open RStudio. In the Console, run `R.version.string`. If R replies with a version, the creature is alive.
+
+Windows users can usually keep multiple versions of R. On any operating system, install a version that matches your computer. For example, Apple Silicon Macs use the ARM64 build. The download pages provide the current choices, which is safer than this textbook pretending the year will remain 2026 forever.
+
+Give yourself time to install software. Starting 30 minutes before class is not "giving yourself time." That is creating a small emergency and assigning it to Future You.
+
+::: {.callout-tip title="Imprecations to the Statistics Gods"}
+If RStudio behaves strangely after an update, close it completely and open it again. This solves an embarrassing number of problems. Sometimes it fails for you, you bring the computer to me, and it works in my mere presence. The explanation is simple: I am a very sophisticated android. If you do not have access to me, find someone you suspect is also a sophisticated android.
+:::
+
+## The Console Is for Experiments; Scripts Are for Work
+
+You can type directly into the **Console**, but console commands are easy to lose. Put work you care about in an R script: a plain-text file ending in `.R`.
+
+In RStudio, choose **File > New File > R Script**. Type the following into the script:
+
+```{r first-code}
+# This is a comment. R ignores it. Future You should not.
+2 + 2
+```
+
+Run a line with **Ctrl + Enter** on Windows or **Command + Enter** on a Mac. You may also highlight several lines and run them together.
+
+Comments begin with `#`. Write comments that explain *why* the code exists. `# calculate the mean` above `mean(scores)` is not a revelation. `# exclude the practice trial before calculating each person's mean` may prevent a future disaster.
+
+For this book, make an **RStudio Project** for your work. Projects keep scripts, data, and output together and reduce the need for `setwd()`, which is the command people use to make code work only on their own computer.
+
+## PEMDAS Has Returned
+
+I regret to report that middle-school mathematics has returned!
+
+R follows the usual order of operations:
+
+1. **P**arentheses: `()`
+2. **E**xponents: `^`
+3. **M**ultiplication and **D**ivision: `*` and `/`
+4. **A**ddition and **S**ubtraction: `+` and `-`
+
+Operations at the same level are generally handled in their defined order. The humane solution is to use parentheses whenever a tired person might have to stare at the expression.
+
+```{r pemdas}
+2 + 3 * 4
+(2 + 3) * 4
+
+10 / 2 * 5
+10 / (2 * 5)
+
+(5 + 3)^2 / 4
+```
+
+Those expressions are not equivalent. Parentheses are cheap.
+
+Suppose a stress score is 10, and our terrible theory predicts performance using
+
+$$
+\widehat{Y} = 80 - 2(\text{Stress}).
+$$
+
+In R:
+
+```{r formula-example}
+stress <- 10
+predicted_performance <- 80 - 2 * stress
+predicted_performance
+```
+
+R does not understand implied multiplication. Write `2 * stress`, not `2stress`. R is powerful, not psychic.
+
+## Objects: Put a Name on the Thing
+
+The assignment arrow `<-` stores a value inside an **object**.
+
+```{r objects}
+coffee_cups <- 4
+hours_of_sleep <- 3
+regret <- coffee_cups^2 / hours_of_sleep
+regret
+```
+
+Read `<-` as "gets." `coffee_cups <- 4` means *coffee_cups gets 4*. You may see `=` used for assignment. It often works, but this book will generally use `<-` because it makes assignment easier to recognize.
+
+Object names cannot contain spaces. Use names such as `exam_score`, `ExamScore`, or `exam.score`. Pick a system and try not to invent a new one every seven minutes.
+
+## Vectors and Functions
+
+A **vector** stores several values of the same basic type. The function `c()` combines values into a vector:
+
+```{r vectors}
+anxiety <- c(4, 7, 6, 9, 3)
+anxiety
+
+mean(anxiety)
+sd(anxiety)
+length(anxiety)
+```
+
+A **function** performs a job. Its arguments go inside parentheses. In `mean(anxiety)`, the function is `mean()` and the object we hand it is `anxiety`.
+
+Arguments can change what a function does:
+
+```{r arguments}
+anxiety_with_missing <- c(4, 7, NA, 9, 3)
+
+mean(anxiety_with_missing)
+mean(anxiety_with_missing, na.rm = TRUE)
+```
+
+`NA` means a value is missing. R refuses to quietly pretend it is not there. The argument `na.rm = TRUE` tells `mean()` to remove missing values for this calculation.
+
+## Data Frames: Where the Undergraduates Are Stored
+
+A **data frame** is a rectangular data set. Rows usually represent cases or observations; columns represent variables.
+
+```{r data-frame}
+study <- data.frame(
+  student = c("A", "B", "C", "D"),
+  therapy = c("CBT", "CBT", "Control", "Control"),
+  anxiety = c(4, 7, 8, 6)
+)
+
+study
+summary(study)
+```
+
+In a real ethical study, those rows represent participants who consented to research. They are not a convenient supply of organs, volcano offerings, or targets for a chainsaw-based manipulation of fear. The Institutional Review Board remains stubborn about this.
+
+## Packages: Install Once, Load Each Session
+
+Packages add functions to R. Install a package once:
+
+```{r install-example, eval=FALSE}
+install.packages("tidyverse")
+```
+
+Load it each time you start a new R session and need it:
+
+```{r load-example, eval=FALSE}
+library(tidyverse)
+```
+
+The quotation marks belong in `install.packages("tidyverse")`, but not in `library(tidyverse)`. This distinction exists because the Probability Gods were briefly allowed to help design software.
+
+## Errors Are Information, Delivered Rudely
+
+An **error** means R stopped. A **warning** means R finished but wants you to know something suspicious happened. A **message** is usually informational. Read the first error carefully, because the next 47 errors may merely be its panicked descendants.
+
+When code fails:
+
+1. Read the error.
+2. Check spelling, capitalization, commas, quotation marks, and parentheses.
+3. Run the code in smaller pieces.
+4. Confirm that the objects and packages it needs exist.
+5. Restart R and try again.
+6. Ask for help and show the code **plus the complete error**. "It hates me" is emotionally valid but diagnostically weak.
+
+That is enough R to begin. You do not need to memorize the language before doing statistics. You need to keep your work in scripts, run small pieces, inspect the result, and understand what you asked R to do. R will calculate nonsense with breathtaking speed. The thinking remains your job.

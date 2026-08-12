@@ -1,0 +1,63 @@
+/*-- scss:rules --*/
+
+/* ---------- GLOBAL TYPOGRAPHY ---------- */
+
+body {
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-size: 20px;
+  line-height: 1.75;
+  color: #222;
+}
+
+/* Headings */
+
+h1, h2, h3, h4 {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2.4rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: .4rem;
+}
+
+/* Paragraph spacing */
+
+p {
+  margin-bottom: 1.15rem;
+}
+
+/* Wider readable text block */
+
+.page-columns .content,
+main.content {
+  max-width: 850px;
+  margin: auto;
+}
+
+/* Code blocks */
+
+pre, code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: .95em;
+}
+
+/* Sidebar TOC */
+
+.sidebar nav[role="doc-toc"] {
+  font-size: .95rem;
+}
+
+/* Tables */
+
+table {
+  font-size: .95rem;
+}

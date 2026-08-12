@@ -1,0 +1,182 @@
+---
+title: "Advanced Measurement: Exploratory Factor Analysis"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+```
+
+## Why Factor Analysis Appears in a Regression Book
+
+Psychologists frequently average several questionnaire items and call the result “anxiety,” “belonging,” or “willingness to volunteer for another suspicious experiment.” Exploratory factor analysis asks whether the items behave as if fewer latent dimensions could explain their correlations [@fabrigar1999].
+
+This is measurement work. A perfectly fitted regression cannot rescue a scale whose items measure three unrelated constructs and one participant's desire to finish quickly.
+
+::: {.callout-warning title="Factors Are Models, Not Hidden Organs"}
+A factor is a statistical representation of shared variation. It is not a psychological substance discovered inside the covariance matrix. Theory and validation determine whether the factor deserves a construct name.
+:::
+
+## The Common-Factor Model
+
+For observed item vector $\mathbf x$,
+
+$$
+\mathbf x=\boldsymbol\Lambda\mathbf f+\boldsymbol\epsilon,
+$$
+
+where:
+
+- $\boldsymbol\Lambda$ contains factor loadings.
+- $\mathbf f$ contains latent factor scores.
+- $\boldsymbol\epsilon$ contains item-specific variation and measurement error.
+
+For item $j$,
+
+$$
+x_j=\lambda_{j1}f_1+\cdots+\lambda_{jm}f_m+\epsilon_j.
+$$
+
+A loading describes how strongly an item relates to a factor, conditional on the model and rotation.
+
+## Simulating Nine Questionnaire Items
+
+We will simulate three related dimensions: statistics anxiety, R confidence, and research enthusiasm. The final construct may be “graduate student emotional weather.”
+
+```{r efa-data}
+set.seed(343)
+n <- 450
+
+FactorCor <- matrix(
+  c(1, -.35, -.20,
+    -.35, 1, .30,
+    -.20, .30, 1),
+  nrow = 3
+)
+
+Latent <- MASS::mvrnorm(n, mu = c(0, 0, 0), Sigma = FactorCor)
+
+Loadings <- matrix(0, nrow = 9, ncol = 3)
+Loadings[1:3, 1] <- c(.82, .76, .70)
+Loadings[4:6, 2] <- c(.80, .74, .68)
+Loadings[7:9, 3] <- c(.78, .72, .66)
+
+Items <- Latent %*% t(Loadings) + matrix(rnorm(n * 9, 0, .65), nrow = n)
+Items <- as.data.frame(Items)
+names(Items) <- paste0("Item", 1:9)
+```
+
+## First Inspect the Correlations
+
+```{r efa-correlation-plot, fig.width=6.5, fig.height=5.5}
+ItemCor <- cor(Items)
+image(
+  1:9, 1:9, t(ItemCor[9:1, ]),
+  axes = FALSE, col = hcl.colors(30, "Blue-Red 3"),
+  xlab = "", ylab = "", main = "Item correlations should show structure"
+)
+axis(1, at = 1:9, labels = names(Items), las = 2)
+axis(2, at = 1:9, labels = rev(names(Items)), las = 2)
+```
+
+Factor analysis needs correlations worth explaining. Items with almost no shared variation will not become a coherent scale because we rotated them enthusiastically.
+
+## How Many Factors?
+
+Do not use eigenvalues greater than one as the sole decision rule. Combine:
+
+- Theory.
+- Scree plots.
+- Parallel analysis.
+- Interpretability.
+- Replication in new data.
+
+Parallel analysis compares observed eigenvalues with eigenvalues from random data of the same dimensions. Retain factors whose observed eigenvalues exceed the random-data benchmarks.
+
+```{r efa-parallel, fig.width=7, fig.height=4.5}
+psych::fa.parallel(Items, fa = "fa", fm = "minres", n.iter = 50,
+                   main = "Parallel analysis")
+```
+
+::: {.callout-note title="The Computer Suggests; the Theory Must Still Speak"}
+Parallel analysis is evidence about dimensionality, not a command. A factor solution should also make theoretical sense, contain adequately measured factors, and survive replication.
+:::
+
+## Extraction and Rotation
+
+```{r efa-fit}
+EFA.Model <- psych::fa(
+  Items,
+  nfactors = 3,
+  fm = "minres",
+  rotate = "oblimin"
+)
+print(EFA.Model$loadings, cutoff = .30)
+```
+
+**Extraction** estimates the factor model. Minimum residual (`minres`) and maximum likelihood are common choices.
+
+**Rotation** finds a simpler orientation of the loading pattern:
+
+- Orthogonal rotations force factors to be uncorrelated.
+- Oblique rotations allow factors to correlate.
+
+Psychological constructs commonly correlate, so oblique rotation is usually the more defensible starting point. Forcing anxiety and confidence to be independent because the graph looks tidier is an aesthetic decision masquerading as theory.
+
+## Pattern and Structure Matrices
+
+With oblique rotation:
+
+- The **pattern matrix** contains regression-like weights linking items to factors.
+- The **structure matrix** contains item–factor correlations.
+
+They differ when factors correlate. State which matrix you interpret and avoid selecting whichever one gives prettier loadings.
+
+## Communalities and Uniqueness
+
+An item's communality is the proportion of its variance explained by the common factors:
+
+$$
+h_j^2=\sum_{k=1}^{m}\lambda_{jk}^2
+$$
+
+for an orthogonal solution; correlated factors require the factor-correlation structure in the calculation.
+
+Uniqueness is:
+
+$$
+u_j^2=1-h_j^2.
+$$
+
+High uniqueness means the common factors explain little of that item. The item may be noisy, unusually specific, or measuring a construct that the other items neglected.
+
+## Factor Scores Are Estimates
+
+Factor scores can be useful predictors or outcomes, but they are estimated with uncertainty and depend on the fitted solution. A simple average may sometimes be more transparent when items form a clear unidimensional scale. Complexity is not automatically psychometric sophistication.
+
+::: {.callout-important title="EFA Explores; CFA Tests a Specified Structure"}
+EFA searches for a plausible loading structure. Confirmatory factor analysis tests a structure specified in advance. Ideally, explore in one sample and confirm in another. Confirming the structure in the same data used to discover it is statistical déjà vu, not independent evidence.
+:::
+
+## EFA Is Not PCA Wearing a Fake Mustache
+
+Principal components analysis decomposes **total observed variance** into weighted components. Common-factor analysis models the covariance shared among items while separating unique and error variance:
+
+$$
+\mathbf\Sigma=\mathbf\Lambda\mathbf\Phi\mathbf\Lambda'+\mathbf\Psi.
+$$
+
+- $\mathbf\Lambda$ contains factor loadings.
+- $\mathbf\Phi$ contains factor correlations.
+- $\mathbf\Psi$ contains unique variances.
+
+PCA can be useful for data reduction. EFA is generally better aligned with a latent-construct question. Similar-looking loading tables do not make the goals interchangeable.
+
+## Rotation Changes the View, Not the Reproduced Correlations
+
+Rotation seeks a simpler interpretation of the same factor space. **Orthogonal** rotations force factor correlations to zero. **Oblique** rotations permit correlations and produce both a pattern matrix and a structure matrix. Psychological constructs are often correlated, so forcing orthogonality needs a theoretical reason stronger than "the table looked cleaner."
+
+Factor retention should combine parallel analysis, scree plots, interpretability, theory, communalities, and replication. Kaiser's eigenvalue-greater-than-one rule is not a tiny oracle. A factor solution is a proposal about measurement that needs confirmation in new data.
+
+## The Short Story
+
+EFA models item correlations using fewer latent factors. Decide factor count with theory plus empirical evidence, usually allow psychological factors to correlate, inspect loadings and communalities, and validate the solution in new data before naming a factor after a human emotion.

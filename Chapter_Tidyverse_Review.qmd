@@ -1,0 +1,420 @@
+---
+title: "R Help and Review: Tidyverse Without Tears"
+fontsize: 11pt
+geometry: margin=.5in
+format:
+  pdf:
+    toc: true
+    toc-depth: 1
+    number-sections: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4.5
+)
+
+library(dplyr)
+library(ggplot2)
+```
+
+## Why Is This at the End of the Book?
+
+This is not a second statistics course hiding behind a fake mustache. It is a compact reference for the R operations you will repeatedly forget five minutes after learning them. That is normal. Professional R users also look things up constantly; they have merely developed more dignified facial expressions while doing it.
+
+The **tidyverse** is a collection of R packages designed around consistent ways of storing, transforming, summarizing, and plotting data. We will focus on two:
+
+- `dplyr` for manipulating data.
+- `ggplot2` for making graphs.
+
+Install them once on a computer:
+
+```{r}
+#| eval: false
+install.packages(c("dplyr", "ggplot2"))
+```
+
+Load them again whenever you begin a new R session:
+
+```{r}
+#| eval: false
+library(dplyr)
+library(ggplot2)
+```
+
+Installing is moving the furniture into your apartment. Loading is taking the furniture out of the closet so you can sit on it. Do not reinstall the sofa every morning.
+
+## Our Deeply Serious Caffeine Study
+
+The old lecture expected a file called `caffeine.csv` to materialize from a working directory last seen in 2019. We will simulate the data instead, which makes the example reproducible and removes the need to perform archaeological research inside Alex's Dropbox.
+
+In this completely fictional study, 160 students consume different amounts of caffeine. We record sleep, anxiety, hatred of group projects, and whether the student begins hearing colors. No students actually consumed these doses. The IRB has stopped returning our calls for unrelated reasons.
+
+```{r}
+set.seed(343)
+
+n_students <- 160
+
+lab_students <- data.frame(
+  student_id = seq_len(n_students),
+  caffeine_mg = sample(c(0, 100, 200, 400), n_students, replace = TRUE),
+  sleep_hours = round(pmin(10, pmax(2, rnorm(n_students, 6.2, 1.4))), 1),
+  group_project_hatred = sample(1:10, n_students, replace = TRUE)
+)
+
+color_probability <- plogis(
+  -4 + .010 * lab_students$caffeine_mg - .20 * (lab_students$sleep_hours - 6)
+)
+
+lab_students$hears_colors <- factor(
+  ifelse(rbinom(n_students, 1, color_probability) == 1, "Yes", "No"),
+  levels = c("No", "Yes")
+)
+
+lab_students$anxiety <- round(pmin(
+  10,
+  pmax(
+    0,
+    4 + .009 * lab_students$caffeine_mg -
+      .30 * lab_students$sleep_hours +
+      .12 * lab_students$group_project_hatred +
+      rnorm(n_students, 0, 1.2)
+  )
+), 1)
+
+head(lab_students)
+```
+
+Because `set.seed(343)` fixes the random-number sequence, everyone gets the same fictional students. The Probability Gods are still fickle, but for this example we temporarily confiscated their dice.
+
+## Data Frames
+
+A data frame is a rectangular collection of variables:
+
+- Each **row** is one observational unit, here one student.
+- Each **column** is one variable.
+- Each **cell** is one student's value on one variable.
+
+This structure is often called **tidy data** when each variable has its own column, each observation has its own row, and each value has its own cell.
+
+Useful first inspections include:
+
+```{r}
+dim(lab_students)
+names(lab_students)
+str(lab_students)
+summary(lab_students)
+```
+
+`str()` is especially useful. It reveals whether R thinks a variable is numeric, character, or a factor before you spend 45 minutes accusing the regression model of personal betrayal.
+
+## The Native Pipe
+
+Modern R uses `|>` to pass the result of one step into the next step:
+
+```{r}
+lab_students |>
+  head(3)
+```
+
+Read it as **"and then."**
+
+> Start with `lab_students`, **and then** keep highly caffeinated students, **and then** select the variables we want.
+
+```{r}
+lab_students |>
+  filter(caffeine_mg >= 200) |>
+  select(student_id, caffeine_mg, anxiety, hears_colors) |>
+  head()
+```
+
+Older R code often uses `%>%`, the pipe from `magrittr` and `dplyr`. It is still valid and appears throughout older lectures, published code, and the ancient inscriptions found beneath BSB. We will use the native `|>` in new code and eventually update the rest of the book.
+
+## The Five Verbs You Will Use Constantly
+
+### `select()`: Keep Columns
+
+```{r}
+small_data <- lab_students |>
+  select(student_id, caffeine_mg, sleep_hours, anxiety)
+
+head(small_data)
+```
+
+Remove columns with a minus sign:
+
+```{r}
+lab_students |>
+  select(-student_id) |>
+  head()
+```
+
+### `filter()`: Keep Rows
+
+```{r}
+chromatic_students <- lab_students |>
+  filter(hears_colors == "Yes")
+
+nrow(chromatic_students)
+```
+
+Combine conditions with `&` for **and** and `|` for **or**:
+
+```{r}
+lab_students |>
+  filter(caffeine_mg >= 200 & sleep_hours < 6) |>
+  head()
+```
+
+Use `==` to test equality. One `=` assigns an argument; two `==` ask whether values are equal. This tiny distinction has destroyed entire afternoons.
+
+### `mutate()`: Create or Change Columns
+
+```{r}
+lab_students <- lab_students |>
+  mutate(
+    caffeine_per_hour_sleep = caffeine_mg / sleep_hours,
+    extremely_caffeinated = caffeine_mg >= 400
+  )
+
+head(lab_students)
+```
+
+`mutate()` keeps the existing variables and adds or replaces columns. The expression is calculated once per row.
+
+### `arrange()`: Sort Rows
+
+```{r}
+lab_students |>
+  arrange(desc(anxiety)) |>
+  select(student_id, caffeine_mg, sleep_hours, anxiety) |>
+  head(10)
+```
+
+These are the students most likely to email at 2:13 a.m. with the subject line `QUICK QUESTION!!!!!`.
+
+### `summarise()`: Collapse Many Rows into Answers
+
+```{r}
+lab_students |>
+  summarise(
+    n = n(),
+    mean_anxiety = mean(anxiety),
+    sd_anxiety = sd(anxiety),
+    median_sleep = median(sleep_hours),
+    proportion_hearing_colors = mean(hears_colors == "Yes")
+  )
+```
+
+Unlike `mutate()`, `summarise()` reduces many rows to a smaller summary. `n()` counts rows. A logical statement such as `hears_colors == "Yes"` becomes `TRUE` or `FALSE`; its mean is therefore the proportion that is `TRUE`.
+
+## Group, Then Summarize
+
+`group_by()` tells later verbs to operate separately within categories.
+
+```{r}
+caffeine_summary <- lab_students |>
+  group_by(caffeine_mg) |>
+  summarise(
+    n = n(),
+    mean_anxiety = mean(anxiety),
+    sd_anxiety = sd(anxiety),
+    mean_sleep = mean(sleep_hours),
+    proportion_hearing_colors = mean(hears_colors == "Yes"),
+    .groups = "drop"
+  )
+
+caffeine_summary
+```
+
+`.groups = "drop"` removes the grouping after the summary. This prevents the invisible ghost of a previous grouping decision from possessing later analyses.
+
+For simple frequency tables, `count()` is faster:
+
+```{r}
+lab_students |>
+  count(caffeine_mg, hears_colors)
+```
+
+For the same summaries across several columns, use `across()`:
+
+```{r}
+lab_students |>
+  group_by(caffeine_mg) |>
+  summarise(
+    across(
+      c(sleep_hours, anxiety, group_project_hatred),
+      list(mean = mean, sd = sd),
+      .names = "{.col}_{.fn}"
+    ),
+    .groups = "drop"
+  )
+```
+
+## Reading a Real Data File
+
+Quarto renders the book from the project directory. Use a project-relative path instead of `setwd()`:
+
+```{r}
+#| eval: false
+caffeine_data <- read.csv("data/caffeine.csv")
+```
+
+This says the file lives in a folder named `data` inside the project. Hard-coding a path to one person's Dropbox guarantees that the code will fail on another computer, next semester, or immediately after Alex reorganizes his folders during an avoidable burst of optimism.
+
+## `ggplot2`: Build a Graph in Layers
+
+A `ggplot` usually has three core ingredients:
+
+1. **Data**: the data frame.
+2. **Aesthetics**: variables mapped to position, color, shape, or size with `aes()`.
+3. **Geometries**: the marks placed on the graph, such as points, bars, or boxes.
+
+```{r}
+ggplot(
+  data = lab_students,
+  mapping = aes(x = caffeine_mg, y = anxiety)
+) +
+  geom_point()
+```
+
+The `+` adds layers to a ggplot. It is not interchangeable with the pipe. The pipe moves data through operations; the plus sign adds components to a graph. R is very committed to making punctuation carry emotional weight.
+
+### Scatterplot with a Model Line
+
+```{r}
+#| fig-cap: "Anxiety across caffeine doses. Jitter separates students who otherwise occupy the same caffeine value."
+ggplot(lab_students, aes(x = caffeine_mg, y = anxiety, color = hears_colors)) +
+  geom_jitter(width = 12, height = 0, alpha = .65, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  scale_color_manual(values = c("No" = "#1F4E79", "Yes" = "#D55E00")) +
+  labs(
+    x = "Caffeine (mg)",
+    y = "Anxiety rating",
+    color = "Hears colors",
+    title = "At some point the espresso begins explaining the wallpaper"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+`geom_jitter()` moves overlapping points by a tiny random amount horizontally so we can see them. It does not change the caffeine condition stored in the data.
+
+### Boxplots, Correctly Explained
+
+```{r}
+#| fig-cap: "Anxiety distributions at each caffeine dose."
+ggplot(lab_students, aes(x = factor(caffeine_mg), y = anxiety)) +
+  geom_boxplot(fill = "#9ECAE1", color = "#1F4E79", outlier.color = "#D55E00") +
+  labs(
+    x = "Caffeine (mg)",
+    y = "Anxiety rating",
+    title = "Boxes: useful, compact, and frequently lied about"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+The line inside each box is the **median**. The bottom and top of the box are the first and third quartiles, so the box contains the middle **50%** of scores. Its height is the interquartile range (IQR). The whiskers ordinarily extend to the most extreme observed values within 1.5 IQRs of the box; points beyond them are plotted separately.
+
+Those separate points are not automatically errors, criminals, or volunteers for deletion. They are observations that deserve inspection and an explanation.
+
+### Plotting a Summary
+
+```{r}
+#| fig-cap: "Simulated proportion of students reporting chromatic audition by caffeine dose."
+ggplot(caffeine_summary, aes(x = factor(caffeine_mg), y = proportion_hearing_colors)) +
+  geom_col(fill = "#CC79A7", width = .70) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(
+    x = "Caffeine (mg)",
+    y = "Proportion hearing colors",
+    title = "Eventually teal starts whispering"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+`geom_col()` uses the y-values already calculated in `caffeine_summary`. `geom_bar()` would count raw rows instead. This difference is small, annoying, and worth remembering.
+
+## A Compact Workflow
+
+Most routine work follows this sequence:
+
+```{r}
+analysis_data <- lab_students |>
+  filter(!is.na(anxiety)) |>
+  mutate(caffeine_group = factor(caffeine_mg)) |>
+  select(student_id, caffeine_group, sleep_hours, anxiety, hears_colors)
+
+analysis_summary <- analysis_data |>
+  group_by(caffeine_group) |>
+  summarise(
+    n = n(),
+    mean = mean(anxiety),
+    sd = sd(anxiety),
+    .groups = "drop"
+  )
+
+analysis_summary
+```
+
+1. Start with the original data.
+2. Filter only with a defensible rule.
+3. Create or recode needed variables.
+4. Select the variables used in the analysis.
+5. Check and summarize the result.
+6. Graph the data before asking a model to explain them.
+
+Keep the original data unchanged and create a new analysis object. Overwriting the only copy of a variable is how `Final_Data_REAL_v7_USE_THIS_ONE.csv` enters the world.
+
+## Practice: Make the Caffeine Data Confess
+
+Try these before looking at the solutions:
+
+1. Keep students who slept fewer than six hours and consumed at least 200 mg of caffeine.
+2. For each caffeine dose, calculate sample size, median anxiety, IQR of anxiety, and the proportion hearing colors.
+3. Create a scatterplot of sleep and anxiety, coloring points by whether the student hears colors.
+4. Find the ten students with the highest caffeine-per-hour-of-sleep values.
+
+::: {.callout-tip collapse="true"}
+## Solutions, because suffering has limits
+
+```{r}
+sleep_deprived_and_caffeinated <- lab_students |>
+  filter(sleep_hours < 6, caffeine_mg >= 200)
+
+practice_summary <- lab_students |>
+  group_by(caffeine_mg) |>
+  summarise(
+    n = n(),
+    median_anxiety = median(anxiety),
+    iqr_anxiety = IQR(anxiety),
+    proportion_hearing_colors = mean(hears_colors == "Yes"),
+    .groups = "drop"
+  )
+
+ggplot(lab_students, aes(x = sleep_hours, y = anxiety, color = hears_colors)) +
+  geom_point(alpha = .70) +
+  geom_smooth(method = "lm", se = TRUE) +
+  theme_minimal()
+
+most_concerning_students <- lab_students |>
+  arrange(desc(caffeine_per_hour_sleep)) |>
+  select(student_id, caffeine_mg, sleep_hours, caffeine_per_hour_sleep) |>
+  head(10)
+
+practice_summary
+most_concerning_students
+```
+:::
+
+## Final Advice
+
+Write code as a sequence of small, named decisions. Inspect the result after each important transformation. Make graphs before interpreting models. When something fails, read the error message from the bottom up and identify the first object or argument R says it cannot find.
+
+Most importantly, do not confuse code that runs with an analysis that makes sense. R will cheerfully calculate the mean of participant ID numbers, regress anxiety on alphabetical order, and draw a confidence interval around almost any mistake you can encode. The software is obedient. You still have to be the adult in the room, which seems unfair but is apparently how science works.
