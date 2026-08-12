@@ -12,6 +12,15 @@ format (`[x]`, `[X ]`, `[ x]` all mean approved). An empty `[ ]` is NOT authoriz
 implement unapproved items, do not "improve" nearby text while you are in the file, and do
 not fix things you happen to notice unless Alex asks.
 
+## Branch
+
+All implementation work happens on the `review-implementation` branch. Never commit
+directly to `main` — `main` is what GitHub Pages will eventually deploy from, so it stays
+in a known-good, fully-rendered state while this branch absorbs edits. If you find yourself
+on `main`, run `git checkout review-implementation` (or `git switch review-implementation`)
+before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
+the diff and merges into `main` themselves — do not merge or push to `main`.
+
 ## Hard rules
 
 0. **Read `VOICE_GUIDE.md` in this folder before writing a single sentence of prose.**
