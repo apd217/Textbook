@@ -5,11 +5,15 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.2, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1
+> Status: v1.3, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1
 > folded in real exam/worksheet material and lecture bits; **v1.2 is the first version
 > calibrated against Alex rewriting the model's own output** — he revised Chapter 1 by hand
 > and the differences are recorded in §0 and §4. Two rules from v1.1 were flatly wrong and
 > are now corrected (bold-for-punchlines, and current idiom at the joke position).
+> v1.3 adds three findings from Alex's edit pass on the preface: hedge-stripping (with the
+> statistical exception), self-deprecation preferred over the cleverer joke, and the
+> inverted dyslexia frame ("weirdo neurotypicals") that editing models will otherwise
+> sand off.
 > Alex: edit anything here; your edits outrank everything below. See "How this guide gets
 > better" at the end.
 
@@ -37,6 +41,33 @@ Note what each replacement does: it gets shorter, it gets more concrete, it drop
 literary symmetry, and where possible it puts a human (Alex, or "we," or "you") into the
 sentence instead of an abstraction. **When in doubt, cut the second half of your best
 sentence.**
+
+### Strip rhetorical hedges. Keep statistical ones.
+
+Alex deletes softening words that protect the writer rather than inform the reader:
+
+| Written | Alex's version |
+|---|---|
+| "every **reasonable** tool at my disposal" | "every tool at my disposal" |
+| "Probability **remains** fickle" | "Probability **is always** fickle" |
+| "would have been **helpful**" | "would have been **amazing**" |
+
+This is a hard rule with a hard exception. **Statistical hedges are load-bearing and must
+survive**: "does not *automatically* bias the slopes," "under suitable conditions," "tends
+to," "approximately normal." Those words are doing precise technical work. The test: if
+removing the qualifier would make the sentence *statistically wrong*, keep it. If removing
+it only makes the sentence bolder, remove it.
+
+### Prefer the joke at Alex's expense over the cleverer joke
+
+Given a choice between a witty image and self-deprecation, he picks self-deprecation:
+
+| The model wrote | Alex replaced it with |
+|---|---|
+| "please tell me before it reproduces" [errors breeding] | "please tell me before I confuse people more than I usually do" |
+| "This book serves two groups that have very different reasons for being tired." | "This book serves two groups cause I am lazy and tired." |
+
+The cleverer line is not wrong; it just puts the author above the material. Alex stays below it.
 
 ## 1. The one-sentence spec
 
@@ -107,6 +138,22 @@ cheerfully calculate the mean of participant ID numbers" and "the software is ob
 still have to be the adult in the room." When a passage needs a reason *why* blind trust in
 output (statistical or otherwise) is dangerous, this is the register: not fear of technology,
 specifically fear of *unverified* technology.
+
+**The dyslexia frame is inverted, and that inversion is deliberate.** Alex writes from the
+dyslexic perspective as the *default*. Neurotypical readers are the ones who need
+translating, not the other way around:
+
+> "...suggest reworded explanations so they make sense to people who are not dyslexic and
+> cannot automatically translate Alex into English."
+> "...I might not notice it changed my meaning when I asked it to help translate me to
+> **weirdo neurotypicals**."
+
+Never flip this back. An editing model's reflex is to neutralize "weirdo neurotypicals" into
+something inclusive-sounding, which destroys the joke *and* the stance. The stance is warm,
+not bitter — Alex is not complaining about being dyslexic, he is treating his own wiring as
+the baseline and everyone else as the dialect that needs subtitles. Related established
+facts: he learns by doing and seeing, dense text makes his brain "go on vacation," and the
+whole book's design (minimal words, maximum visuals, runnable code) follows from this.
 
 **Alex's autobiography is closed-source.** Established facts you may reuse: dyslexic,
 doesn't like reading, memory of a goldfish, below-average MRT score, brain-dead before
