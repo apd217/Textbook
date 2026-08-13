@@ -58,13 +58,13 @@ switch <- replicate(10000, play_monty(switch_doors = TRUE))
 c(stay = mean(stay), switch = mean(switch))
 ```
 
-Two-thirds. The Probability Gods are not consulted, and neither is your intuition.
+Two-thirds. R has no intuition to override, which is exactly why it got this right and we did not.
 
 This answer depends on the rules: Monty knows where the car is, always opens a goat door, and always offers the switch. If the host sometimes opens the car, chooses doors randomly, or offers a switch only when he is bored, the probability changes. A probability depends on the rules that produce the outcomes. Change the rules, and you may change the probability. Keeping the old probability after quietly changing the rules is how nonsense enters wearing a lab coat.
 
 The Monty Hall problem feels wrong because people often treat all visible options as equally likely. They are not. Two possible outcomes do not automatically mean 50/50 [@ang2014]. A hypothesis test can also end with two possible decisions. That does not mean each decision had a 50% probability.
 
-## What Probability Means
+## What Probability Means, and What It Will Never Promise You
 
 A probability is a number from 0 to 1 describing how likely an event is under stated assumptions.
 
@@ -98,7 +98,7 @@ $$
 P(\text{not }A)=1-P(A).
 $$
 
-Let event $A$ mean that a participant notices clues that reveal what the researcher expects them---the participant---to do or feel. Suppose:
+Let event $A$ mean a participant figures out what your study is really about. Suppose:
 
 $$
 P(A)=.20
@@ -244,7 +244,7 @@ $$
 E(X)=\sum xP(x).
 $$
 
-Suppose a deeply legitimate carnival game charges $\$2$. You win $\$10$ with probability $.10$ and $\$0$ otherwise. Your expected winnings are
+Suppose a legitimate carnival game charges $\$2$. You win $\$10$ with probability $.10$ and $\$0$ otherwise. Your expected winnings are
 
 $$
 E(X)=\$10(.10)+\$0(.90)=\$1.
@@ -257,7 +257,7 @@ An expected value does not have to be an outcome that can actually occur.
 
 The expected number of children in a family might be 1.7. Nobody has to produce seven-tenths of a child. The value describes the long-run average across many families.
 
-Expected value is an average, not a prophecy or a recommendation from the Probability Gods.
+Expected value is an average, not a prophecy or a declaration from the Probability Gods.
 :::
 
 ## Advanced Section: Bayes, Base Rates, and a Scary Positive Test
@@ -317,7 +317,7 @@ $$
 A total of 590 people test positive. However, only 95 of them actually have the condition.
 
 ```{r bayes-tree}
-#| fig-cap: "Ten thousand imaginary people, none of whom will email my chair. The two shaded boxes are everyone who tested positive. Most of them are fine."
+#| fig-cap: "Ten thousand imaginary people, none of whom will email my department head. The two shaded boxes are everyone who tested positive. Most of them are fine."
 #| fig-alt: "A tree diagram starting from a box of 10,000 people. It splits into 100 who have the condition and 9,900 who do not. The 100 split into 95 true positives and 5 false negatives. The 9,900 split into 495 false positives and 9,405 true negatives. The 95 true positives and 495 false positives are shaded to show that together they make up the 590 people who tested positive."
 #| fig-width: 8.5
 #| fig-height: 5.2
@@ -389,7 +389,15 @@ Those are different probabilities. Test performance, false-positive rates, and t
 :::
 
 
-The **base rate** describes how common the condition is before we consider the new evidence. When the condition is rare, even a fairly accurate test can produce many false alarms. This is why probability questions are easier when we turn percentages into counts of actual imaginary people. The imaginary people are easier to organize and much less likely to contact my department chair to complain about being turned into goats.
+The **base rate** describes how common the condition is before we consider the new evidence. When the condition is rare, even a fairly accurate test can produce many false alarms. This is why probability questions are easier when we turn percentages into counts of actual imaginary people. The imaginary people are easier to organize and much less likely to contact my department head to complain about being turned into goats.
+
+::: {.callout-warning title="Now Let the Test Pass Sentence"}
+Screening someone is one thing. Acting on the result is another.
+
+Suppose we fired all the doctors and let the test decide, Judge Dredd style: the machine is judge, jury, and executioner, and there is no appeal. Of the 590 people it convicts, 495 are innocent. That is an 84% wrongful-conviction rate from a test that is 95% accurate.
+
+The accuracy was never the problem. The base rate was.
+:::
 
 Bayes' theorem formalizes the update:
 
@@ -403,7 +411,7 @@ $P(H)$ is the **prior probability** or base rate. $P(E\mid H)$ tells us how expe
 
 You do not need to become a Bayesian statistician today. You do need to remember that evidence does not arrive in an empty universe. Base rates matter, and $P(E\mid H)$ is not interchangeable with $P(H\mid E)$.
 
-## What This Has to Do with Statistics
+## What This Has to Do with Statistics (Everything, Unfortunately)
 
 Every study will produce a pattern. One group will have a higher mean. One correlation will be farther from zero. One brain image will contain a bright blob, possibly inside a dead salmon if you run enough tests [@bennett2010]. That is a real study, and we will meet the salmon again in the multiple comparisons chapter.
 
