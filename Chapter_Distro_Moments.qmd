@@ -1,12 +1,5 @@
 ---
 title: 'Distributions and their Moments'
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -37,12 +30,24 @@ Income in the US is a classic **positively-skewed** distribution: most household
 
 This plot uses binned Census data [@uscensus2024], so the mean and median are approximations. Also: the $200k+ bin is *everything* from $200k to infinity — so if it's the tallest bar, that doesn't mean $200k is the most common income. It just means rich people got lumped together.
 
-```{r, width = 6.5, height = 3, echo=FALSE}
+That open-ended bin also means our mean below is too *low*. We estimate each bin by its midpoint, and "$200,000 to infinity" has no midpoint, so those households get dropped. Census reports a higher mean than we compute here for exactly that reason. The richest households are the ones you cannot put a midpoint on, and they are precisely the ones dragging the real mean upward.
+
+```{r income-distribution}
+#| echo: false
+#| fig.width: 6.5
+#| fig.height: 3
+#| fig-cap: "U.S. household income. The mean sits well to the right of the median, which is what skew does to an average."
+#| fig-alt: "Histogram of U.S. household income by bin, with a long right tail. Vertical lines mark the approximate mode near thirty thousand dollars, the median near eighty thousand, and the mean well to the right of both, past one hundred thousand."
 library(readxl)
 library(tidyverse)
 library(scales)
 
 # ---- Read table ----
+# Source: U.S. Census Bureau, HINC-01 (Selected Characteristics of Households
+# by Total Money Income), downloaded as hinc01.xlsx and kept in the project
+# root. For this vintage of the file, row 8 holds the income-bin labels and
+# row 10 holds household counts in thousands, across columns 3:43. If Census
+# reshapes the sheet, those row numbers are the first thing to check.
 raw <- read_excel("hinc01.xlsx", sheet = "hinc01", col_names = FALSE)
 
 bin_names <- raw[8, 3:43] |> unlist(use.names = FALSE)
@@ -71,12 +76,23 @@ df$upper <- map_dbl(bounds, 2)
 df <- df %>%
   mutate(midpoint = ifelse(is.na(upper), NA, (lower + upper) / 2))
 
-# ---- Approximate mean (exclude open-ended bin)
+# ---- Approximate mean, using bin midpoints (the open-ended $200k+ bin has
+# no midpoint, so na.rm drops it -- which means this mean is, if anything,
+# an underestimate).
 mean_income <- weighted.mean(
-  df$upper,
+  df$midpoint,
   df$households,
   na.rm = TRUE
 )
+
+# ---- Approximate mode. Census bins are NOT equally wide, so the bin with the
+# largest raw count is not the mode -- a $50,000-wide bin will out-count a
+# $2,500-wide one no matter what. Use households per dollar of bin width
+# (density) instead, and ignore the open-ended top bin.
+df <- df %>%
+  mutate(density = households / (upper - lower))
+
+mode_income <- df$midpoint[which.max(ifelse(is.na(df$density), -Inf, df$density))]
 
 # ---- Approximate median
 df <- df %>%
@@ -93,10 +109,10 @@ ggplot(plot_df, aes(x = lower, y = households / 1e6)) +
   geom_col(fill = "lightblue", color = "black", width = 4000) +
   geom_vline(xintercept = mean_income, linetype = "solid", linewidth = 1) +
   geom_vline(xintercept = median_income, linetype = "dashed", linewidth = 1) +
-  geom_vline(xintercept = 30000, linetype = "dashed", linewidth = 1) +
+  geom_vline(xintercept = mode_income, linetype = "dashed", linewidth = 1) +
   annotate("text", x = mean_income, y = Inf, label = "Mean (approx)", vjust = 2, size = 3) +
   annotate("text", x = median_income, y = Inf, label = "Median (approx)", vjust = 4, size = 3) +
-  annotate("text", x = 30000, y = Inf, label = "Mode (approx)", vjust = 5, size = 3) +
+  annotate("text", x = mode_income, y = Inf, label = "Mode (approx)", vjust = 5, size = 3) +
   scale_x_continuous(labels = dollar_format(), breaks = pretty_breaks(6)) +
   scale_y_continuous(labels = label_number(suffix = "M")) +
   labs(
@@ -112,13 +128,14 @@ ggplot(plot_df, aes(x = lower, y = households / 1e6)) +
 **Think about it:**
 
 1. Why is there a positive skew (the tail points right on the x-axis, toward the larger numbers)?
-2. Which number (mean = 123K, median = 80K, or mode = 32.5K) best represents the "average" American? Why?
+2. Which number---mean = $`r round(mean_income/1000)`K, median = $`r round(median_income/1000)`K, or mode = $`r round(mode_income/1000)`K---best represents the "average" American? Why?
+3. Notice the three numbers are not close to each other. If a politician wanted to claim Americans are doing great, which one would they quote? If they wanted to claim the opposite?
 
-### Historical sidenote
+### A sidenote for the curious
 
-In the 1950s, the top marginal tax rate in the US was ~91%. Imagine that money went back into schools, housing, and infrastructure.
+Suppose a policy substantially reduced the highest incomes and moved that money into schools, housing, and infrastructure.
 
-Predict: how would the income distribution shift? What would happen to the mean, median, and mode? Be explicit about why each one would (or wouldn't) change.
+Predict: how would the income distribution shift? What would happen to the mean, median, and mode? Be explicit about why each one would (or would not) change. This is a distribution question, not a political one---the same reasoning works if you run the policy backward.
 
 ### Distributions have meaning
 
@@ -189,6 +206,10 @@ Looks normal. Now let's describe its shape using the 4 moments.
 ## Moments
 
 Four numbers capture the important features of a distribution: center, spread, symmetry, and peakiness.
+
+::: {.callout-note collapse="true" title="Pedantic Fine Print for Graduate Students"}
+Calling all four of these "the moments" is teaching shorthand. Strictly, the mean is the first *raw* moment, the variance is the second *central* moment, and skewness and kurtosis are the third and fourth *standardized* moments. Nobody at a party cares. A comprehensive exam might.
+:::
 
 ### Moment 1: Central Tendency
 
@@ -268,6 +289,47 @@ Variability comes from:
 
 When estimating variance from a sample, we divide by $N - 1$ instead of $N$ to get an unbiased estimate. This is called **degrees of freedom**.
 
+That sentence is true and completely unsatisfying, so let us do better. There are two questions hiding in it, and students ask both of them every single year.
+
+### Why Square the Deviations?
+
+Start with the obvious idea: to measure spread, average how far each score sits from the mean. Try it.
+
+```{r deviations-sum-to-zero, echo=TRUE}
+x <- c(2, 4, 4, 4, 5, 5, 7, 9)
+x - mean(x)        # each score's distance from the mean
+sum(x - mean(x))   # add them all up
+```
+
+Zero. Not close to zero---zero. It will be zero for every data set you will ever collect, because that is what a mean *is*: the balance point where the negatives and positives cancel exactly.
+
+So the honest average distance is useless as a measure of spread. Squaring fixes it: every squared deviation is positive, nothing cancels, and bigger deviations count for disproportionately more.
+
+### Why Divide by $N-1$ and Not $N$?
+
+Here is the intuition. Once you know the mean and all but one of the deviations, the last deviation is not free---it is forced to be whatever makes the sum come out to zero. Eight numbers, but only seven of them can vary independently once the mean is fixed. You have $N-1$ independent pieces of information, so you divide by $N-1$.
+
+That is the explanation. Here is the proof, because this book does not ask you to take things on faith:
+
+```{r n-minus-one-simulation, echo=TRUE}
+set.seed(343)
+
+# The truth: a population with variance of exactly 25.
+truth <- 25
+
+# Take 10,000 small samples and estimate the variance both ways.
+estimates <- replicate(10000, {
+  s <- rnorm(8, mean = 100, sd = 5)
+  deviations <- (s - mean(s))^2
+  c(divide_by_N   = sum(deviations) / 8,
+    divide_by_N_1 = sum(deviations) / 7)
+})
+
+round(rowMeans(estimates), 2)
+```
+
+Dividing by $N$ gives an answer that is systematically too small. Dividing by $N-1$ lands on the truth. Ten thousand samples do not lie, and now you never have to wonder whether that $-1$ is a typo.
+
 ### Variance and SD
 
 Population variance (when we have the entire population and know $\mu$):
@@ -329,6 +391,7 @@ The scale is **unipolar** because it begins with none of the feeling and moves i
 ```{r cookie-dough-sd, fig.width=7, fig.height=4.4}
 #| echo: FALSE
 #| fig-cap: "Simulated cookie-dough ratings. The dots are people; the lines mark the mean and standard-deviation boundaries. The 34%, 68%, and 95% values describe an approximately normal distribution."
+#| fig-alt: "A jittered dot plot of 240 cookie-dough ratings on a 1 to 10 scale. A solid vertical line marks the mean, dashed lines mark one standard deviation on each side, and dotted lines mark two. Shaded bands label about 34 percent between the mean and each one-SD boundary, about 68 percent within one SD, and about 95 percent within two SDs."
 set.seed(343)
 
 n_ice_cream <- 240
@@ -631,6 +694,30 @@ pnorm(2) - pnorm(1)
 
 No calculus. Just area under the curve.
 
+### Going the Other Way
+
+`pnorm()` takes a score and hands back a proportion. Half the questions you will actually be asked run the other direction: *what score do you need to be in the top 10%?* That is `qnorm()`.
+
+```{r qnorm-demo, echo=TRUE}
+qnorm(.90)   # the z-score that cuts off the top 10%
+```
+
+A z of 1.28. Convert back to raw cognitive-score units with $M + zS$:
+
+```{r qnorm-raw, echo=TRUE}
+100 + qnorm(.90) * 15
+```
+
+So you need about 119 points to crack the top 10%. Cutoffs for gifted programs, clinical screening thresholds, and "we only interview the top 5% of applicants" are all this calculation wearing different hats.
+
+You can also ask the data directly instead of the theoretical curve. `quantile()` finds the actual score at a given percentile in your sample:
+
+```{r quantile-demo, echo=TRUE}
+quantile(Normal.Sample.1, .90)
+```
+
+Nearly identical, because we built this population to be normal. On real data the two can disagree, and when they do, the data is right and the curve was an assumption.
+
 ## Real-World Example: Mental Rotation Test
 
 We now know how to:
@@ -672,7 +759,7 @@ params <- tribble(
 )
 
 MRT.2 <- params %>%
-  mutate(data = map2(n, mean, ~rnorm(.x, mean = .y, sd = params$sd[params$n == .x]))) %>%
+  mutate(data = pmap(list(n, mean, sd), rnorm)) %>%
   unnest(data) %>%
   select(Field, Group, Value = data)
 ```
@@ -691,7 +778,7 @@ MRT.table
 
 ```{r, echo=TRUE}
 ggplot(MRT.2, aes(x = Value, fill = Group, color = Group)) +
-  geom_histogram(aes(y = ..density..), position = "identity", alpha = 0.3, bins = 30) +
+  geom_histogram(aes(y = after_stat(density)), position = "identity", alpha = 0.3, bins = 30) +
   geom_density(alpha = 0.1) +
   facet_wrap(~ Field) +
   labs(title = "Overlaid Histograms & Density Plots", x = "Score", y = "Density") +
@@ -711,7 +798,7 @@ MRT.2 %>% head()
 
 ```{r}
 ggplot(MRT.2, aes(x = Z, fill = Group, color = Group)) +
-  geom_histogram(aes(y = ..density..), position = "identity", alpha = 0.3, bins = 30) +
+  geom_histogram(aes(y = after_stat(density)), position = "identity", alpha = 0.3, bins = 30) +
   geom_density(alpha = 0.1) +
   facet_wrap(~ Field) +
   labs(title = "Overlaid Histograms & Density Plots", x = "Z-Score", y = "Density") +
@@ -725,7 +812,7 @@ Why do the curves overlap now? Because standardizing compares *relative position
 Alex (male, social sciences) got a score of 10. How did he do relative to his peers? (Males, Social Sciences: $M$ = 12.74, $S$ = 4.87)
 
 ```{r}
-Z.Alex <- (10 - 12.75) / 4.87
+Z.Alex <- (10 - 12.74) / 4.87
 Z.Alex
 ```
 
@@ -735,7 +822,7 @@ A little over half an SD below the mean. Visually:
 MRT.2.Males.Social.Sciences <- MRT.2 %>% filter(Group == "M" & Field == "Social Sciences")
 
 ggplot(MRT.2.Males.Social.Sciences, aes(x = Z)) +
-  geom_histogram(aes(y = ..density..), position = "identity", alpha = 0.3, bins = 30) +
+  geom_histogram(aes(y = after_stat(density)), position = "identity", alpha = 0.3, bins = 30) +
   geom_density(alpha = 0.1) +
   labs(title = "Males in the Social Sciences", x = "Z-Score", y = "Density") +
   theme_bw() +
@@ -746,7 +833,7 @@ ggplot(MRT.2.Males.Social.Sciences, aes(x = Z)) +
 pnorm(Z.Alex)
 ```
 
-Only better than 28.6% of peers. That's also called a **percentile**.
+Only better than `r round(pnorm(Z.Alex) * 100, 1)`% of peers. That's also called a **percentile**.
 
 ### Step 5: Same raw score, different meaning
 
@@ -761,7 +848,7 @@ Z.Emma
 pnorm(Z.Emma)
 ```
 
-Emma scored better than 61.75% of her peers.
+Emma scored better than `r round(pnorm(Z.Emma) * 100, 1)`% of her peers.
 
 ```{r}
 curve(pnorm, from = -10, to = 10,
