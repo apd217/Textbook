@@ -5,13 +5,38 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.1, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1 folds
-> in real exam/worksheet material (mad-scientist premises, the grandma/scientific paired
-> explanation format, Judge Dredd justice, the Chicago/NY food wars) plus lecture-voice bits
-> pasted directly by Alex. Alex: edit anything here; your edits outrank everything below.
-> See "How this guide gets better" at the end.
+> Status: v1.2, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1
+> folded in real exam/worksheet material and lecture bits; **v1.2 is the first version
+> calibrated against Alex rewriting the model's own output** — he revised Chapter 1 by hand
+> and the differences are recorded in §0 and §4. Two rules from v1.1 were flatly wrong and
+> are now corrected (bold-for-punchlines, and current idiom at the joke position).
+> Alex: edit anything here; your edits outrank everything below. See "How this guide gets
+> better" at the end.
 
 ---
+
+## 0. The overriding rule: simpler and more direct wins
+
+**Alex's own instruction, 2026-08-12: "I tend to like simpler more direct text when
+possible."** This outranks every stylistic preference below it. When you can say a thing in
+eight blunt words, do not say it in eighteen balanced ones.
+
+The tell that you have gotten this wrong is the **balanced literary sentence** — the
+"not X, but Y" / "less A, but considerably more B" construction that sounds like good
+writing and delivers no additional information. Alex cuts these on sight. A real example
+from his own edit pass on Chapter 1:
+
+| The reviewing model wrote | Alex replaced it with |
+|---|---|
+| "That is less comforting than a magic truth machine, but considerably more useful." | "*The important truth is you will always be wrong. Your job is to be less wrong.*" |
+| "This book serves two groups that have very different reasons for being tired." | "This book serves two groups cause I am lazy and tired." |
+| "The point of this graph is that collecting more people makes our estimate more stable." | "We can see from the graph that collecting more people makes our estimate more stable." |
+| "The lesson is that science is a repair process." | "The lesson is that science can repair itself." |
+
+Note what each replacement does: it gets shorter, it gets more concrete, it drops the
+literary symmetry, and where possible it puts a human (Alex, or "we," or "you") into the
+sentence instead of an abstraction. **When in doubt, cut the second half of your best
+sentence.**
 
 ## 1. The one-sentence spec
 
@@ -126,6 +151,48 @@ admitting what's contested.
 > "an ancient statistics ritual told us to" / "the solution is scientific judgment rather
 > than purchasing a newer ritual" / "celestial punctuation"
 
+**The heading with a joke stapled on.** Section headings are not neutral labels. Alex
+extends them with a comic tag, often one that undercuts the seriousness of the heading
+itself.
+> "How to Read This Book Without Reading All of It**, Cause Yuck**"
+> "Do Not Just Apply Statistics **Like a Monkey Hoping to Type Hamlet Perfectly by Chance**"
+
+Mechanics: the informative part comes first and survives alone; the tag is appended. Do not
+invent a heading that is *only* a joke — the TOC still has to work as navigation.
+
+**The italic aphorism.** A short, blunt maxim in italics, standing alone as its own
+paragraph, usually closing a section. This is what Alex reaches for instead of a graceful
+concluding sentence.
+> "*The important truth is you will always be wrong. Your job is to be less wrong.*"
+
+Mechanics: two short sentences maximum, no subordinate clauses, italics for the whole
+thing. It is the register of something said aloud at the end of a lecture.
+
+**The "go look it up" aside.** A dangling factual provocation, thrown in and not resolved,
+usually as a bolded question or a dash-attached instruction.
+> "**Also, did you know there are no such things as fish?**"
+> "forgetting is one of the brain's most important skills---look up the people who never
+> forget; they are sad, sad people."
+
+Mechanics: it must be true (both of those are), and it must be genuinely optional — the
+paragraph works if the reader ignores it. This is Alex's substitute for a footnote.
+
+**The direct question to the reader, mid-sentence.** Breaking the fourth wall without
+stopping.
+> "Read those chapters mostly in order, unless I change my mind---you can read my mind,
+> right?"
+
+**The field-level jab.** Where the earlier guide said colleagues are off-limits, *fields*
+and *subdisciplines* are fair game, and Alex names the ones that have not reckoned with
+replication.
+> "...but we will love them for caring, as some other areas of psychology and neuroscience
+> still think this is not a me problem."
+> "...it is not confined to social-psychology trivia, as some psychologists still sadly
+> believe."
+
+Mechanics: aimed at a research culture, never at a named person. Note "a me problem" —
+current idiom deployed as the punchline (see §5).
+
 **The kind hand on the shoulder.** Directed at the anxious reader, played straight.
 > "If this chapter requires two readings, that does not mean you are bad at statistics." /
 > "forgetting is one of the brain's most dependable skills."
@@ -135,17 +202,27 @@ move where the voice drops the bit entirely.
 
 ## 5. Register rules
 
-- **Complete sentences, mostly formal.** The rewritten chapters prefer "do not" / "cannot"
-  over contractions in the deadpan lines — full forms make the absurdity funnier. Follow
-  the local chapter's existing pattern; when in doubt, use full forms in punchlines.
+- **Complete sentences, mostly formal — but the register drops on purpose.** The deadpan
+  explanatory lines prefer "do not" / "cannot" over contractions. But when Alex is talking
+  *about himself or to the reader*, he drops into casual speech and even non-standard
+  usage: "This book serves two groups cause I am lazy and tired." Do not "correct" that
+  kind of line into formality. The formal register is for the statistics; the casual
+  register is for Alex.
 - **Second person for the reader, first person plural for doing analysis** ("we fit the
   model"), first person singular for Alex's asides and crimes.
-- **Bold** for a term's first definition. *Italics* for asides and emphasis. Never bold
-  for emphasis-shouting.
+- **Bold** for a term's first definition — **and also for punchlines.** (v1.1 of this guide
+  said "never bold for emphasis"; that was wrong. Alex bolds jokes he wants you to actually
+  stop and read: "**Also, did you know there are no such things as fish?**") *Italics* for
+  asides, for the honest-aside voice, and for standalone aphorisms.
 - **Callout titles carry both jobs**: description + twist. "Variance Has Weird Units; SD
   Comes Back Home." "Post-Hoc Power Is a Ghost." A title that is only a joke, or only a
-  label, is wrong.
-- **No emoji. No internet slang. No memes.** No "let's dive in," no "pro tip."
+  label, is wrong. Section headings work the same way (see the heading move in §4).
+- **No emoji. No memes.** But **current idiom is allowed when it is the punchline** — "this
+  is not a me problem" is Alex's own, and it lands precisely because everything around it
+  is formal. The rule is not "never be contemporary"; it is "never sound like you are
+  performing youth." One such phrase per section, maximum, and only at the joke position.
+  Still banned outright: "let's dive in," "pro tip," "game changer," anything from a
+  LinkedIn post.
 - **Exclamation points are rationed** — early chapters use a few; the mature voice almost
   never does. One per chapter is plenty; zero is fine.
 - **Profanity: none.** The strongest language in the book is "nonsense," "garbage," and
@@ -160,6 +237,7 @@ move where the voice drops the bit entirely.
   examples — the prose around these is warm or wry at most, never flippant. Fictional
   chainsaw studies are funny *because* the frame is "the IRB would never"; real ones aren't.
 - **Colleagues and real people** (except Reviewer 2, who is a job title, and Alex).
+  *Subfields and research cultures are fair game* — see the field-level jab in §4.
 - **The reader's future mistakes** are predicted with sympathy, not contempt ("This tiny
   distinction has destroyed entire afternoons" — note: the afternoon is the victim).
 
@@ -214,6 +292,7 @@ one opinion in five coats), consequence stated precisely, punchline last, deleta
 
 ## 9. Pre-flight checklist for any prose you write or edit
 
+0. **Can this be shorter and blunter?** Cut the balanced literary sentence. (§0)
 1. Is the statistical claim exactly correct, hedges and all?
 2. Does the paragraph survive with the joke deleted?
 3. Is the punchline at the end?
@@ -299,6 +378,23 @@ into a felt consequence]:
 **The physical threat, deployed as a complexity guardrail:**
 > "Don't do 4 way interactions or I will beat you with a stick."
 > "Don't make me get the bat." [Nerf bat, threatened, never used]
+
+**The italic aphorism, closing a section** [Alex's own replacement for a balanced literary
+sentence, Chapter 1]:
+> "*The important truth is you will always be wrong. Your job is to be less wrong.*"
+
+**Self-deprecation as structural justification** [why the book is organized this way]:
+> "This book serves two groups cause I am lazy and tired."
+
+**The heading tag:**
+> "How to Read This Book Without Reading All of It, Cause Yuck"
+> "Do Not Just Apply Statistics Like a Monkey Hoping to Type Hamlet Perfectly by Chance"
+
+**The dangling factual provocation:**
+> "Fish probably spend very little time defining water. **Also, did you know there are no
+> such things as fish?**"
+> "...forgetting is one of the brain's most important skills---look up the people who never
+> forget; they are sad, sad people."
 
 ## 12. Banned by Alex
 

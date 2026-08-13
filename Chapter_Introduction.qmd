@@ -75,7 +75,7 @@ Abelson argued that doing this well requires the combined skills of an honest la
 
 A **replication** repeats a study to see whether the result appears again. If a finding is "real," we should be able to find it more than once. Not every single time---chance is fickle---but often enough that the result becomes more trustworthy.
 
-In 2015, the Open Science Collaboration repeated 100 published psychology studies. Ninety-seven of the original studies reported statistically significant results. Only 36 replications did, and the replication effects were, on average, about half the original size [@open2015]. Psychology---well, mostly social psychology---responded with the scientific equivalent of waking up to find the house on fire. *They are still sort of overcorrecting and have totally lost the forest for the trees, but we will love them for caring.*
+In 2015, the Open Science Collaboration repeated 100 published psychology studies. Ninety-seven of the original studies reported statistically significant results. Only 36 replications did, and the replication effects were, on average, about half the original effect size [@open2015]. Psychology---well, mostly social psychology---responded with the scientific equivalent of waking up to find the house on fire and tried to do something about it. *They are still sort of overcorrecting and have totally lost the forest for the trees, but we will love them for caring, as some other areas of psychology and neuroscience still think this is not a me problem.*
 
 This was not proof that 64% of psychology is fake. Replication is not a divine courtroom where one failed study gets to bang a tiny gavel from the Statistics Gods and declare a theory dead. The projects differed in methods, samples, measures, and statistical power. Still, the result was far worse than psychologists expected.
 
@@ -92,25 +92,9 @@ The problem is partly misunderstanding statistics:
 
 The problem is also systemic. Journals want novelty. Universities want publications. Funders want breakthroughs. Nobody gets a parade for carefully discovering that the exciting effect is probably 0.08 instead of 0.80. Those incentives create publication bias and reward researchers for finding asterisks rather than finding the truth [@ioannidis2012]. You cannot personally repair every journal, university, and funding agency this semester. I checked, and maybe wrote, your syllabus. We do not have time.
 
-But you *can* stop contributing avoidable statistical nonsense.
+But you *can* stop contributing avoidable statistical nonsense by learning to understand how probability can drive the stability of results.
 
-### This Still Affects Your Life in a Serious Way
-
-The crisis did not end in 2015, and it is not confined to social-psychology trivia.
-
-| Field | What they redid | What happened |
-|---|---|---|
-| **Preclinical cancer biology** [@errington2021] | 50 experiments from 23 influential papers | Replicated effects were typically much smaller, with a median effect size **85% below** the originals. |
-| **Brain-behavior imaging** [@marek2022] | Brain-wide association studies | Below 500 people, replication rates ran around **5%**. Stable associations often required **thousands** of participants. |
-| **COVID-era social claims** [@marcoci2025] | 29 sufficiently powered replications | **19 succeeded (about 65%)** — better than 2015, but different claims tested in different ways. |
-
-Cancer studies help determine which treatments deserve more research. This is not an argument about whether people unconsciously prefer the color blue on Tuesdays. And when a headline announces that scientists found "the brain region for procrastination" after scanning 23 sophomores, perhaps continue procrastinating before sharing it.
-
-There has also been real progress. Researchers preregister hypotheses and analysis plans, share data and code, conduct large multi-lab studies, and use **Registered Reports**, in which journals judge the question and method before knowing whether the result is exciting. More than 300 journals had adopted Registered Reports by 2024 [@natureneuroscience2024]. A large preregistered national study of growth-mindset training, for example, found a small benefit for lower-achieving students and showed that the effect depended on the school context [@yeager2019]. That is a much more useful conclusion than either "growth mindset fixes education" or "growth mindset is fake."
-
-The lesson is not that science is broken beyond repair. The lesson is that science is a repair process.
-
-Suppose you put 20 people in therapy. The Probability Gods might hand you 20 unusually cooperative people who respond beautifully. Or they might give you 20 people who hate your face, refuse to listen to anything you say, and make the treatment look useless. With 200 people, it becomes much harder for the Probability Gods to find enough people who all hate your face. The oddballs begin to balance one another out, so the estimated effects tend to cluster closer to the true effect. Probability remains fickle; it just has less room to wreck the study.
+For example, suppose you put 20 people in therapy. The Probability Gods might hand you 20 unusually cooperative people who respond beautifully. Or they might give you 20 people who hate your face, refuse to listen to anything you say, and make the treatment look useless. With 200 people, it becomes much harder for the Probability Gods to find enough people who all hate your face. The oddballs begin to balance one another out, so the estimated effects tend to cluster closer to the true effect. Probability is always fickle; it just has less room to wreck the study.
 
 ```{r replication-simulation}
 #| fig-cap: "A real effect can produce wildly different estimates in small studies. Each point is one simulated replication; the orange line is the true effect."
@@ -149,13 +133,29 @@ abline(h = 0.30, col = "#D55E00", lwd = 3)
 abline(h = 0, lty = 2)
 ```
 
-The point of this graph is that collecting more people makes our estimate more stable. Small samples can produce wildly inaccurate and unstable guesses because probability is fickle. What does *probability is fickle* mean? It means the Gods who govern probability decide whether to do helpful or unhelpful things because they feel like it.
+We can see from the graph that collecting more people makes our estimate more stable. Small samples can produce wildly inaccurate and unstable guesses because probability is fickle. What does *probability is fickle* mean? It means the Gods who govern probability decide whether to do helpful or unhelpful things because they feel like it or maybe they also don't like your face. 
 
-## Do Not Just Apply Statistics
+### This Still Affects Your Life in a Serious Way
+
+The crisis did not end in 2015, and it is not confined to social-psychology trivia, as some psychologists still sadly believe.
+
+| Field | What they redid | What happened |
+|---|---|---|
+| **Preclinical cancer biology** [@errington2021] | 50 experiments from 23 influential papers | Replicated effects were typically much smaller, with a median effect size **85% below** the originals. |
+| **Brain-behavior imaging** [@marek2022] | Brain-wide association studies | Below 500 people, replication rates ran around **5%**. Stable associations often required **thousands** of participants. |
+| **COVID-era social claims** [@marcoci2025] | 29 sufficiently powered replications | **19 succeeded (about 65%)** — better than 2015, but different claims tested in different ways. |
+
+Cancer studies help determine which treatments deserve more research. This is not an argument about whether people unconsciously prefer the color blue on Tuesdays. And when a headline announces that scientists found "the brain region for procrastination" after scanning 23 sophomores, perhaps continue procrastinating before sharing it.
+
+There has also been real progress. Researchers preregister hypotheses and analysis plans, share data and code, conduct large multi-lab studies, and use **Registered Reports**, in which journals judge the question and method before knowing whether the result is exciting. More than 300 journals had adopted Registered Reports by 2024 [@natureneuroscience2024]. A large preregistered national study of growth-mindset training, for example, found a small benefit for lower-achieving students and showed that the effect depended on the school context [@yeager2019]. That is a much more useful conclusion than either "growth mindset fixes education" or "growth mindset is fake."
+
+The lesson is not that science is broken beyond repair. The lesson is that science can repair itself. 
+
+## Do Not Just Apply Statistics Like a Monkey Hoping to Type Hamlet Perfectly by Chance
 
 You could memorize a decision tree:
 
-> Two groups? Push the *t*-test button. Three groups? Push the ANOVA button. More variables? Panic, then push buttons until Reviewer 2 stops emailing.
+> Two groups? Push the *t*-test button. Three groups? Push the ANOVA button. More variables? Panic, then push buttons until Reviewer 2 stops rejecting your paper.
 
 That approach can generate output. It cannot tell you whether the output answers your question.
 
@@ -163,7 +163,7 @@ To use statistics responsibly, you need to understand **why** a method works, wh
 
 ## Paradigms and the Stories We Tell About Causes
 
-Thomas Kuhn used **paradigm** to describe the shared assumptions that tell scientists what counts as a sensible question, acceptable evidence, and a reasonable explanation [@kuhn1962]. Most of the time, scientists work inside a paradigm without discussing it. Fish probably spend very little time defining water. Also, did you know there are no such things as fish? [@miller2020]
+Thomas Kuhn used **paradigm** to describe the shared assumptions that tell scientists what counts as a sensible question, acceptable evidence, and a reasonable explanation [@kuhn1962]. Most of the time, scientists work inside a paradigm without discussing it. Fish probably spend very little time defining water. **Also, did you know there are no such things as fish?** [@miller2020]
 
 Psychology usually relies on **one-way causal logic**:
 
@@ -365,20 +365,20 @@ Graduate students: read the actual Meehl paper [@meehl1978]. It is nearly fifty 
 
 That is why this book will not only show you **how** to run statistics. You will learn what the statistics are doing, why they behave that way, and how to notice when your analysis is answering a question no sensible person asked.
 
-Statistics does not manufacture truth. It helps us make increasingly defensible guesses while being honest about how wrong we could be.
+Statistics does not manufacture truth. It helps us make increasingly defensible guesses while being honest about how wrong we could be. 
 
-That is less comforting than a magic truth machine, but considerably more useful.
+*The important truth is you will always be wrong. Your job is to be less wrong.*
 
-## How to Read This Book Without Reading All of It
+## How to Read This Book Without Reading All of It, Cause Yuck
 
-This book serves two groups that have very different reasons for being tired.
+This book serves two groups cause I am lazy and tired.
 
-The main chapters are written for PSCH 242/343 undergraduates with little or no statistics background. Read those chapters in order. Each chapter assumes you survived the chapters before it, although it may occasionally provide a short recap because forgetting is one of the brain's most dependable skills.
+The main chapters are written for PSCH 242/343 undergraduates with little or no statistics background. Read those chapters mostly in order, unless I change my mind---you can read my mind, right? Each chapter assumes you survived the chapters before it, although it may occasionally provide a short recap because forgetting is one of the brain's most important skills---look up the people who never forget; they are sad, sad people.
 
 The book also contains material labeled **Advanced**. Those sections and chapters are intended for:
 
 - Graduate students who need a compact statistics and regression reference.
-- Advanced undergraduates who want to understand what is hiding behind the friendly introductory explanation.
+- Advanced undergraduates who want to understand what is hiding in the closet and what is about to come out of it.
 - Researchers who remember learning the topic but cannot remember where, when, or why someone decided there should be three different kinds of residuals.
 
 You may skip advanced material during the undergraduate course unless your instructor assigns it or curiosity has defeated your instinct for self-preservation. Skipping an advanced chapter will not prevent you from understanding the next undergraduate chapter. Graduate students should treat the advanced material as a rapid overview, not a replacement for a full course or a detailed reference such as Cohen, Cohen, West, and Aiken [@cohen2003].
