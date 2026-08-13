@@ -1,12 +1,5 @@
 ---
 title: "R: The Extremely Short Survival Guide"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -40,6 +33,12 @@ R changes more frequently than a pirate changes their underwear. Packages change
 
 Think of R as a temperamental but extremely capable chef. RStudio is the kitchen. Installing only RStudio is like building a lovely kitchen and forgetting the chef.
 
+Here is the kitchen. You will spend a semester in it, so it is worth thirty seconds of looking.
+
+![The four panes. **Top left** is the script: the work you keep. **Bottom left** is the Console, where R talks back. **Top right** is the Environment, which lists every object you have made---empty here, because nothing has happened yet. **Bottom right** holds Files, Plots, Packages, and Help.](RstudioScreenShot.png){#fig-rstudio fig-alt="Screenshot of the RStudio window in a dark theme, divided into four panes. Top left is an empty script editor tab named Untitled1. Bottom left is the Console, showing the R 4.6.0 startup message and a waiting prompt. Top right is the Environment pane, reading 'Environment is empty.' Bottom right shows the Packages tab listing installed packages, next to tabs for Files, Plots, Help, and Viewer."}
+
+You will ignore most of the buttons. That is fine. The four panes are the whole map. The name in the far top-right corner is the Project that is open, which will matter in a moment.
+
 ## Install Them in This Order
 
 1. Download and install the current version of **R** from [CRAN](https://cran.r-project.org/).
@@ -49,6 +48,8 @@ Think of R as a temperamental but extremely capable chef. RStudio is the kitchen
 Windows users can usually keep multiple versions of R. On any operating system, install a version that matches your computer. For example, Apple Silicon Macs use the ARM64 build. The download pages provide the current choices, which is safer than this textbook pretending the year will remain 2026 forever.
 
 Give yourself time to install software. Starting 30 minutes before class is not "giving yourself time." That is creating a small emergency and assigning it to Future You.
+
+If the install fails, or your laptop is old enough to remember the Obama administration, use [Posit Cloud](https://posit.cloud/) instead. It runs RStudio in a browser, the free tier is enough for this course, and you can install locally later when you have an afternoon and a better mood.
 
 ::: {.callout-tip title="Imprecations to the Statistics Gods"}
 If RStudio behaves strangely after an update, close it completely and open it again. This solves an embarrassing number of problems. Sometimes it fails for you, you bring the computer to me, and it works in my mere presence. The explanation is simple: I am a very sophisticated android. If you do not have access to me, find someone you suspect is also a sophisticated android.
@@ -92,9 +93,14 @@ Operations at the same level are generally handled in their defined order. The h
 10 / (2 * 5)
 
 (5 + 3)^2 / 4
+
+-2^2      # surprise: the exponent goes first, so this is -(2^2)
+(-2)^2    # write it this way if you meant "negative two, squared"
 ```
 
 Those expressions are not equivalent. Parentheses are cheap.
+
+That last pair matters sooner than you think. In a few chapters we start squaring how far each person sits from the mean, and half of those distances are negative. Write the parentheses.
 
 Suppose a stress score is 10, and our terrible theory predicts performance using
 
@@ -170,6 +176,50 @@ summary(study)
 
 In a real ethical study, those rows represent participants who consented to research. They are not a convenient supply of organs, volcano offerings, or targets for a chainsaw-based manipulation of fear. The Institutional Review Board remains stubborn about this.
 
+## Getting Data Into R
+
+Typing a data frame by hand was fine for four students. Real data arrives as a spreadsheet, usually a **CSV** file---comma-separated values, which is a spreadsheet with the formatting boiled off.
+
+Reading one in takes a single line:
+
+```{r read-csv, eval=FALSE}
+study <- read.csv("anxiety_study.csv")
+```
+
+R looks for that file in your **working directory**. This is why we made a Project: open the Project first, keep the CSV in the Project folder, and R already knows where to look. Skip the Project and you end up typing paths like `C:/Users/you/Desktop/stuff/final_FINAL/data.csv`, which works perfectly on exactly one computer in the world.
+
+### Look at What Arrived
+
+Never trust a file you have not looked at.
+
+```{r inspect-data}
+head(study)
+str(study)
+```
+
+`head()` prints the first few rows. `str()` prints the structure: how many rows, how many columns, and what R thinks each column *is*. `num` means numbers. `chr` means text.
+
+### Tell R Which Columns Are Categories
+
+R read `therapy` as plain text. It does not know those words are conditions. A **factor** is R's word for a categorical variable---a fixed set of groups.
+
+```{r make-factor}
+study$therapy <- factor(study$therapy)
+str(study)
+```
+
+The `$` pulls one column out of a data frame. Now `therapy` is a factor with two levels instead of loose text.
+
+Do this every time. When you run a t-test or a regression later, R has to know that CBT and Control are two groups being compared, not two words it happened to find lying around.
+
+### Count Them
+
+```{r count-categories}
+table(study$therapy)
+```
+
+`table()` counts how many cases fall into each category. Run it on every categorical variable before you analyze anything. It is the fastest way to discover that you have 47 people in one condition and 3 in the other, or that somebody typed "Contol."
+
 ## Packages: Install Once, Load Each Session
 
 Packages add functions to R. Install a package once:
@@ -186,6 +236,21 @@ library(tidyverse)
 
 The quotation marks belong in `install.packages("tidyverse")`, but not in `library(tidyverse)`. This distinction exists because the Probability Gods were briefly allowed to help design software.
 
+## Asking R for Help
+
+R ships with a manual for every function. Put a `?` in front of the name:
+
+```{r help-example, eval=FALSE}
+?mean
+```
+
+The help page opens in the Help pane. Most of it is written for people who already know the answer, so do not read it top to bottom. Read two parts:
+
+- **Arguments** tells you what you can hand the function and what each thing does. This is where you would have found `na.rm`.
+- **Examples**, at the very bottom, is code you can copy and run right now. It is the only part of the page guaranteed to work.
+
+There is also a search box in the Help pane for when you know what you want but not what it is called. Asking R beats guessing, and it beats trusting whatever a chatbot confidently invented about a function that does not exist.
+
 ## Errors Are Information, Delivered Rudely
 
 An **error** means R stopped. A **warning** means R finished but wants you to know something suspicious happened. A **message** is usually informational. Read the first error carefully, because the next 47 errors may merely be its panicked descendants.
@@ -199,4 +264,16 @@ When code fails:
 5. Restart R and try again.
 6. Ask for help and show the code **plus the complete error**. "It hates me" is emotionally valid but diagnostically weak.
 
-That is enough R to begin. You do not need to memorize the language before doing statistics. You need to keep your work in scripts, run small pieces, inspect the result, and understand what you asked R to do. R will calculate nonsense with breathtaking speed. The thinking remains your job.
+That is enough R to begin. You do not need to memorize the language before doing statistics. You need to keep your work in scripts, run small pieces, inspect the result, and understand what you asked R to do.
+
+## The Short Story
+
+- Keep your work in a script. The Console is for things you do not mind losing.
+- `<-` makes an object. `c()` makes a vector out of several values.
+- Functions take arguments, and the arguments change the answer: `mean(x, na.rm = TRUE)`.
+- `read.csv()` brings data in. `str()` and `head()` tell you what actually showed up.
+- Make your categorical variables factors, then `table()` them before you trust anything.
+- Install a package once. Load it with `library()` every session, forever.
+- When it breaks: read the *first* error, check your commas and capitals, then `?` the function.
+
+R will calculate nonsense with breathtaking speed. The thinking remains your job.
