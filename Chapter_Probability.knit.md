@@ -2,16 +2,8 @@
 title: "Probability: The Gods Are Fickle"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = FALSE,
-  message = FALSE,
-  warning = FALSE,
-  fig.align = "center",
-  fig.width = 7,
-  fig.height = 4.2
-)
-```
+
+
 
 ## A Car, Two Goats, and a Terrible Decision
 
@@ -35,8 +27,10 @@ Why? Your original choice had a $1/3$ chance of being correct and a $2/3$ chance
 
 Do not believe me. Believing me is not the point of this class. Make R play the game ten thousand times and check:
 
-```{r monty-hall}
-#| echo: true
+
+::: {.cell layout-align="center"}
+
+```{.r .cell-code}
 set.seed(343)
 
 play_monty <- function(switch_doors) {
@@ -57,6 +51,15 @@ switch <- replicate(10000, play_monty(switch_doors = TRUE))
 
 c(stay = mean(stay), switch = mean(switch))
 ```
+
+::: {.cell-output .cell-output-stdout}
+```
+  stay switch 
+0.3382 0.6616 
+```
+:::
+:::
+
 
 Two-thirds. The Probability Gods are not consulted, and neither is your intuition.
 
@@ -210,10 +213,10 @@ The chance of getting exactly 10 heads in 20 fair flips is only about 17.6%. Get
 **Availability.** Vivid events feel more probable than they are. Plane crashes make the news; car crashes make the traffic report. Guess which one kills more people.
 :::
 
-```{r fig-fickle-probability}
-#| echo: true
-#| fig-cap: "The running proportion of heads in eight fair-coin experiments. Early estimates stagger around; with more flips, they become more stable around .50."
-#| fig-alt: "Eight colored lines showing the running proportion of heads across 500 coin flips. All eight swing wildly in the first fifty flips, some as far as 0.2 or 0.8, then gradually converge toward the dashed reference line at 0.50."
+
+::: {.cell layout-align="center"}
+
+```{.r .cell-code}
 set.seed(242343)
 
 flips <- 500
@@ -231,6 +234,12 @@ matplot(
 )
 abline(h = .5, lty = 2, lwd = 2, col = "black")
 ```
+
+::: {.cell-output-display}
+![The running proportion of heads in eight fair-coin experiments. Early estimates stagger around; with more flips, they become more stable around .50.](Chapter_Probability_files/figure-html/fig-fickle-probability-1.png){#fig-fickle-probability fig-align='center' fig-alt='Eight colored lines showing the running proportion of heads across 500 coin flips. All eight swing wildly in the first fifty flips, some as far as 0.2 or 0.8, then gradually converge toward the dashed reference line at 0.50.' width=672}
+:::
+:::
+
 
 Larger samples do not force the estimate to be correct. They make wildly inaccurate estimates less common. With 20 therapy clients, the Probability Gods might hand you 20 people who adore the treatment, or 20 people who hate your face. With 200 clients, finding enough unusually delighted or face-hating people to hijack the entire result becomes much harder.
 
@@ -316,47 +325,13 @@ $$
 
 A total of 590 people test positive. However, only 95 of them actually have the condition.
 
-```{r bayes-tree}
-#| fig-cap: "Ten thousand imaginary people, none of whom will email my chair. The two shaded boxes are everyone who tested positive. Most of them are fine."
-#| fig-alt: "A tree diagram starting from a box of 10,000 people. It splits into 100 who have the condition and 9,900 who do not. The 100 split into 95 true positives and 5 false negatives. The 9,900 split into 495 false positives and 9,405 true negatives. The 95 true positives and 495 false positives are shaded to show that together they make up the 590 people who tested positive."
-#| fig-width: 8.5
-#| fig-height: 5.2
-par(mar = c(0, 0, 0, 0))
-plot.new()
-plot.window(xlim = c(0, 10), ylim = c(0, 6.2))
 
-box <- function(x, y, label, fill = "white", w = 1.5, h = 0.62, cex = 0.80) {
-  rect(x - w, y - h, x + w, y + h, col = fill, border = "#1F4E79", lwd = 2)
-  text(x, y, label, cex = cex)
-}
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![Ten thousand imaginary people, none of whom will email my chair. The two shaded boxes are everyone who tested positive. Most of them are fine.](Chapter_Probability_files/figure-html/bayes-tree-1.png){fig-align='center' fig-alt='A tree diagram starting from a box of 10,000 people. It splits into 100 who have the condition and 9,900 who do not. The 100 split into 95 true positives and 5 false negatives. The 9,900 split into 495 false positives and 9,405 true negatives. The 95 true positives and 495 false positives are shaded to show that together they make up the 590 people who tested positive.' width=816}
+:::
+:::
 
-positive_fill <- adjustcolor("#D55E00", alpha.f = 0.30)
-plain_fill <- "#EAF4FA"
-
-# Level 1
-box(5, 5.4, "10,000 people", fill = "white", w = 1.9)
-
-# Level 2
-box(2.6, 3.4, "100 have it\n(1%)", fill = plain_fill)
-box(7.4, 3.4, "9,900 do not\n(99%)", fill = plain_fill)
-
-# Level 3
-box(1.25, 1.0, "95\ntrue positives", fill = positive_fill, w = 1.15)
-box(3.75, 1.0, "5\nfalse negatives", fill = plain_fill, w = 1.15)
-box(6.25, 1.0, "495\nfalse positives", fill = positive_fill, w = 1.15)
-box(8.75, 1.0, "9,405\ntrue negatives", fill = plain_fill, w = 1.15)
-
-arrows(4.4, 4.75, 3.1, 4.05, length = 0.10, lwd = 2, col = "#1F4E79")
-arrows(5.6, 4.75, 6.9, 4.05, length = 0.10, lwd = 2, col = "#1F4E79")
-arrows(2.2, 2.75, 1.45, 1.68, length = 0.10, lwd = 2, col = "#1F4E79")
-arrows(3.1, 2.75, 3.6, 1.68, length = 0.10, lwd = 2, col = "#1F4E79")
-arrows(6.9, 2.75, 6.4, 1.68, length = 0.10, lwd = 2, col = "#1F4E79")
-arrows(7.8, 2.75, 8.55, 1.68, length = 0.10, lwd = 2, col = "#1F4E79")
-
-text(5, 0.12,
-     "Everyone who tested positive: 95 + 495 = 590.  Only 95 are sick.",
-     cex = 0.92, font = 2, col = "#8A3D00")
-```
 
 ### Step 5: Find the Probability of Having the Condition After Testing Positive
 
@@ -427,3 +402,4 @@ Statistics asks whether the pattern is larger than we would reasonably expect fr
 - Larger samples give chance fewer chances. That is the whole reason the rest of this book exists.
 
 Probability is not a promise about what must happen next. It is a language for uncertainty. The Probability Gods remain fickle, but they are not completely lawless. Our job is to learn the laws well enough that we stop blaming divine intervention for bad design.
+
