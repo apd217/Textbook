@@ -21,8 +21,8 @@ Maybe you woke up as a child, looked at the ceiling, and thought, *One day I hop
 
 Before we go any farther, here are three phrases researchers use constantly and explain approximately never:
 
-- **Statistically significant** means something like, "This result probably, maybe did not happen just because chance was being weird." That definition is deliberately incomplete. We will give it a real one in the [one-sample t-test chapter](Chapter_OneSample_t_test.qmd), after you have learned some probability theory and are emotionally prepared for it.
-- An **asterisk** is the little star researchers sometimes put after a number to show that it was statistically significant: for example, `r=.32*`. More stars may indicate smaller p-values, depending on the researchers' chosen rules, but more does not mean better or "more better," as people often hear me say. Asterisks do not mean the effect is large, important, true, or blessed by the Statistics Gods.
+- **Statistically significant** means something like, "This result probably, maybe did not happen just because chance was being weird." That definition is deliberately incomplete. We will give it a real one in the [one-sample t-test chapter](Chapter_OneSample_t_test.qmd), after you learn some probability theory and are emotionally prepared for it.
+- An **asterisk** is the little star researchers sometimes put after a number to show that it was statistically significant: for example, `r=.32*`. More stars may indicate smaller p-values, depending on the researchers' chosen rules, but more does not mean better or "more better," as I say constantly. Asterisks do not mean the effect is large, important, true, or blessed by the Statistics Gods.
 - An **effect size** asks how strong or large an effect is. Think of a small effect as being hit over the head with a coffee stirrer, a medium effect as a Nerf bat, a large effect as a wooden bat, and a huge effect as a metal bat. A **gargantuan effect**---a made-up but extremely technical term---is your mother hitting you over the head with her slipper or the hanger she happens to be holding. The effect is so devastating that you would have preferred to have taken the metal bat.
 
 ```{r effect-size-scale}
@@ -92,7 +92,7 @@ The problem is partly misunderstanding statistics:
 
 The problem is also systemic. Journals want novelty. Universities want publications. Funders want breakthroughs. Nobody gets a parade for carefully discovering that the exciting effect is probably 0.08 instead of 0.80. Those incentives create publication bias and reward researchers for finding asterisks rather than finding the truth [@ioannidis2012]. You cannot personally repair every journal, university, and funding agency this semester. I checked, and maybe wrote, your syllabus. We do not have time.
 
-But you *can* stop contributing avoidable statistical nonsense by learning to understand how probability can drive the stability of results.
+But you *can* stop contributing avoidable statistical nonsense by learning how probability drives the stability of results.
 
 For example, suppose you put 20 people in therapy. The Probability Gods might hand you 20 unusually cooperative people who respond beautifully. Or they might give you 20 people who hate your face, refuse to listen to anything you say, and make the treatment look useless. With 200 people, it becomes much harder for the Probability Gods to find enough people who all hate your face. The oddballs begin to balance one another out, so the estimated effects tend to cluster closer to the true effect. Probability is always fickle; it just has less room to wreck the study.
 
@@ -365,7 +365,7 @@ Graduate students: read the actual Meehl paper [@meehl1978]. It is nearly fifty 
 
 That is why this book will not only show you **how** to run statistics. You will learn what the statistics are doing, why they behave that way, and how to notice when your analysis is answering a question no sensible person asked.
 
-Statistics does not manufacture truth. It helps us make increasingly defensible guesses while being honest about how wrong we could be. 
+Statistics does not manufacture truth. It just makes your guesses defensible.
 
 *The important truth is you will always be wrong. Your job is to be less wrong.*
 
@@ -381,7 +381,7 @@ The book also contains material labeled **Advanced**. Those sections and chapter
 - Advanced undergraduates who want to understand what is hiding in the closet and what is about to come out of it.
 - Researchers who remember learning the topic but cannot remember where, when, or why someone decided there should be three different kinds of residuals.
 
-You may skip advanced material during the undergraduate course unless your instructor assigns it or curiosity has defeated your instinct for self-preservation. Skipping an advanced chapter will not prevent you from understanding the next undergraduate chapter. Graduate students should treat the advanced material as a rapid overview, not a replacement for a full course or a detailed reference such as Cohen, Cohen, West, and Aiken [@cohen2003].
+Skip the advanced material unless your instructor assigns it, or unless curiosity has defeated your instinct for self-preservation. Skipping an advanced chapter will not prevent you from understanding the next undergraduate chapter. Graduate students should treat the advanced material as a rapid overview, not a replacement for a full course or a detailed reference such as Cohen, Cohen, West, and Aiken [@cohen2003].
 
 ::: {.callout-tip title="A Sensible Way to Use Each Chapter"}
 1. Read the explanation and inspect the figures before running code.
@@ -398,8 +398,8 @@ An advanced model does not rescue a weak design, a bad measure, or a causal clai
 ## The Short Story
 
 - Statistics is not decorative math bolted onto the end of a study. It is the logic connecting the design, the measurement, the analysis, and the claim you are allowed to make.
-- The replication crisis is what happens when that logic is ignored at scale. You cannot repair the journals, the universities, and the funding agencies this semester, but you can avoid adding to the pile.
+- The replication crisis is what happens when that logic is ignored at scale. You cannot fix the whole system this semester. You can stop adding to it.
 - Numbers mean only what the measurement lets them mean. Assigning a number to an attribute does not prove the attribute is quantitative; sometimes it merely gives the vagueness decimal places.
 - Design decides what you are permitted to claim. Random sampling helps you generalize, random assignment helps you argue about causes, and a confound undoes both without asking your permission.
 - The vocabulary table in this chapter is the grammar of every chapter that follows. Bookmark it rather than memorizing it. You will be back.
-- Next, we teach R to do the arithmetic. R is fast, tireless, and completely unable to notice when the question was not worth asking.
+- Next, we teach R to do the arithmetic. R is fast, tireless, and completely unable to notice when the question was not worth asking. That part stays your job---along with being less wrong.
