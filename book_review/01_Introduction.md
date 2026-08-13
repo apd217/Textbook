@@ -14,7 +14,7 @@ mid-chapter stretch with no visuals. Verdict: keep the soul, trim the seminar.
 - **Location:** Chapter_Introduction.qmd → end of file (search anchor: "More complicated software merely allows you to be wrong with additional parameters.")
 - **Problem:** Later chapters (e.g., Intro to Regression) end with a "The Short Story" recap. Chapter 1 ends on a callout with no summary, no "here's what you now know," no bridge to Chapter 2. The target reader closes the chapter with no compressed version to hold onto — and this is the chapter that sets the pattern for how they'll read all the others.
 - **Fix:** Add a final `## The Short Story` section (match the heading text used in Chapter_Intro_to_regression.qmd) with 5–6 one-line bullets: (1) statistics is the logic of the whole study, not math sprinkled at the end; (2) psychology got burned by ignoring this (replication crisis) and you can avoid contributing to the pile; (3) numbers only mean what the measurement lets them mean; (4) know the IV/DV/design vocabulary — it's the grammar of every later chapter; (5) next chapter: we make R do the arithmetic so you never have to. Keep bullets in Alex's voice.
-- **Approved:** [X ]
+- **Approved:** [X ] — IMPLEMENTED 2026-08-12 (6 bullets, added as §1.8 at end of chapter; renders clean)
 
 ### [CH01-U02] Michell's instrumental-vs-scientific-task argument is grad-level and stalls the flow
 - **Priority:** MED

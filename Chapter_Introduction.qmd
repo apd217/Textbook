@@ -323,3 +323,12 @@ You may skip advanced material during the undergraduate course unless your instr
 ::: {.callout-warning title="Advanced Does Not Mean Optional Assumptions"}
 An advanced model does not rescue a weak design, a bad measure, or a causal claim assembled from wishful thinking. More complicated software merely allows you to be wrong with additional parameters.
 :::
+
+## The Short Story
+
+- Statistics is not decorative math bolted onto the end of a study. It is the logic connecting the design, the measurement, the analysis, and the claim you are allowed to make.
+- The replication crisis is what happens when that logic is ignored at scale. You cannot repair the journals, the universities, and the funding agencies this semester, but you can avoid adding to the pile.
+- Numbers mean only what the measurement lets them mean. Assigning a number to an attribute does not prove the attribute is quantitative; sometimes it merely gives the vagueness decimal places.
+- Design decides what you are permitted to claim. Random sampling helps you generalize, random assignment helps you argue about causes, and a confound undoes both without asking your permission.
+- The vocabulary table in this chapter is the grammar of every chapter that follows. Bookmark it rather than memorizing it. You will be back.
+- Next, we teach R to do the arithmetic. R is fast, tireless, and completely unable to notice when the question was not worth asking.
