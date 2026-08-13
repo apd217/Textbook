@@ -5,7 +5,7 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.3, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1
+> Status: v1.4, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1
 > folded in real exam/worksheet material and lecture bits; **v1.2 is the first version
 > calibrated against Alex rewriting the model's own output** — he revised Chapter 1 by hand
 > and the differences are recorded in §0 and §4. Two rules from v1.1 were flatly wrong and
@@ -13,7 +13,9 @@
 > v1.3 adds three findings from Alex's edit pass on the preface: hedge-stripping (with the
 > statistical exception), self-deprecation preferred over the cleverer joke, and the
 > inverted dyslexia frame ("weirdo neurotypicals") that editing models will otherwise
-> sand off.
+> sand off. v1.4 adds his pass on Chapter 2: the failed-slang move, "trim adjectives but
+> add specificity," the refinement that he *adds* hedges to factual claims he cannot
+> guarantee, and the first entry in the Banned list.
 > Alex: edit anything here; your edits outrank everything below. See "How this guide gets
 > better" at the end.
 
@@ -57,6 +59,24 @@ survive**: "does not *automatically* bias the slopes," "under suitable condition
 to," "approximately normal." Those words are doing precise technical work. The test: if
 removing the qualifier would make the sentence *statistically wrong*, keep it. If removing
 it only makes the sentence bolder, remove it.
+
+**And he will *add* a hedge to a factual claim he cannot personally guarantee.** In the same
+pass where he cut "reasonable," he changed "the free tier **is** enough for this course" to
+"the free tier **might be** enough" — because he does not control Posit's pricing. So the
+real rule is not "fewer words always." It is: hedges that protect *the writer's ego* get
+cut; hedges that protect *the reader from a claim that might be false* get added.
+
+**Trim adjectives; add specificity.** The same pass shows both moves working together:
+
+| Written | Alex's version |
+|---|---|
+| "which **mysterious** buttons you clicked" | "which buttons you clicked" |
+| "In a real **ethical** study" | "In a real study" |
+| "a temperamental but **extremely capable** chef" | "a temperamental but **Michelin-starred** chef" |
+| "creating a **small** emergency" | "creating a **hair-on-fire** emergency" |
+
+Vague intensifiers ("extremely capable," "mysterious," "small") get deleted or replaced by
+something specific enough to picture. Do not read "cut adjectives" as "make it grey."
 
 ### Prefer the joke at Alex's expense over the cleverer joke
 
@@ -157,8 +177,8 @@ whole book's design (minimal words, maximum visuals, runnable code) follows from
 
 **Alex's autobiography is closed-source.** Established facts you may reuse: dyslexic,
 doesn't like reading, memory of a goldfish, below-average MRT score, brain-dead before
-coffee, studies dynamical systems, suspiciously android-like ability to fix computers by
-proximity. **Never invent new biographical claims, opinions, or anecdotes for Alex.** If a
+coffee, bald ("a bald ogre like me"), teaching since 2008 and at UIC for ten years, studies
+dynamical systems, suspiciously android-like ability to fix computers by proximity. **Never invent new biographical claims, opinions, or anecdotes for Alex.** If a
 passage needs a personal aside and none exists, leave a `<!-- ALEX: personal aside here? -->`
 comment instead of fabricating one.
 
@@ -223,6 +243,18 @@ usually as a bolded question or a dash-attached instruction.
 
 Mechanics: it must be true (both of those are), and it must be genuinely optional — the
 paragraph works if the reader ignores it. This is Alex's substitute for a footnote.
+
+**The failed slang attempt.** Alex reaches for current teen slang *and simultaneously
+announces that he does not understand it*. The joke is the gap between the professor and
+the vocabulary, not the vocabulary.
+> "...you have joined the rest of us in the never-ending struggle to be hip with what the
+> kids are doing today---like skibidi or whatever nonsense you all say now."
+
+Mechanics: this is the **opposite** of the "a me problem" usage in §5. There the idiom is
+deployed fluently and lands straight. Here it is deployed badly on purpose, with an explicit
+"or whatever nonsense you all say" tag. Both are allowed; the failure mode is using slang
+fluently *and* pretending to be young. Pick a lane: either use it correctly and move on, or
+flag that you are an old person visiting.
 
 **The direct question to the reader, mid-sentence.** Breaking the fourth wall without
 stopping.
@@ -445,4 +477,11 @@ sentence, Chapter 1]:
 
 ## 12. Banned by Alex
 
-_(empty — accumulates from implementation reviews)_
+Things Alex cut from a draft. Do not reintroduce them without asking.
+
+- **The chatbot warning in the R help section** (Chapter 2, cut 2026-08-12). The model had
+  written: "Asking R beats guessing, and it beats trusting whatever a chatbot confidently
+  invented about a function that does not exist." Alex deleted it along with the Help-pane
+  search-box sentence. Reason not stated — most likely length, possibly preachiness. The
+  broader "distrust unverified automation" throughline is still live elsewhere in the book
+  (§3), so this is a ban on *that sentence in that spot*, not on the idea.

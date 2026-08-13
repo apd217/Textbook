@@ -19,19 +19,19 @@ R is a free, open-source programming language built for statistics, data analysi
 
 Why are we using it?
 
-- **It is free.** You do not lose access when you graduate, change jobs, or anger the university licensing office.
+- **It is free.** You do not lose access when you graduate, change jobs, or cause the university licensing office to hunt you down.
 - **It is powerful.** R can run the analyses in this book, make publication-quality figures, simulate entire populations, and automate repetitive work.
-- **It is reproducible.** Your script records what you did. Six months later, you can rerun the analysis instead of trying to remember which mysterious buttons you clicked.
-- **It is extensible.** Researchers build packages that add new methods. This is wonderful, although packages sometimes change, break, or disappear into the forest.
-- **It is used by actual researchers.** Learning R gives you a skill that travels beyond your class.
+- **It is reproducible.** Your script records what you did. Six months later, you can rerun the analysis instead of trying to remember which buttons you clicked.
+- **It is extensible.** Researchers build packages that add new methods. This is wonderful, although packages sometimes change, break, or disappear into the ether.
+- **It is used by actual researchers.** Learning R gives you a skill that goes beyond your class.
 
-R changes more frequently than a pirate changes their underwear. Packages change too. This is the price of living in a flexible, community-driven ecosystem. When old code breaks, it does not mean you are stupid. It means you have joined the rest of us.
+R changes more frequently than a pirate changes their underwear. Packages change too. This is the price of living in a flexible, community-driven ecosystem. When old code breaks, it does not mean you are stupid. It means you have joined the rest of us in the never-ending struggle to be hip with what the kids are doing today---like skibidi or whatever nonsense you all say now.
 
 ## R Is Not RStudio
 
 **R** is the language and the statistical engine. **RStudio** is an integrated development environment, or IDE, that gives R a useful place to live. R does the calculations; RStudio provides the script editor, console, plots, files, help, and many little buttons you will ignore until the day they save you.
 
-Think of R as a temperamental but extremely capable chef. RStudio is the kitchen. Installing only RStudio is like building a lovely kitchen and forgetting the chef.
+Think of R as a temperamental but Michelin-starred chef. RStudio is their kitchen. Installing only RStudio is like building a professional kitchen and forgetting the chef.
 
 Here is the kitchen. You will spend a semester in it, so it is worth thirty seconds of looking.
 
@@ -47,12 +47,12 @@ You will ignore most of the buttons. That is fine. The four panes are the whole 
 
 Windows users can usually keep multiple versions of R. On any operating system, install a version that matches your computer. For example, Apple Silicon Macs use the ARM64 build. The download pages provide the current choices, which is safer than this textbook pretending the year will remain 2026 forever.
 
-Give yourself time to install software. Starting 30 minutes before class is not "giving yourself time." That is creating a small emergency and assigning it to Future You.
+Give yourself time to install software. Starting 30 minutes before class is not "giving yourself time." That is creating a hair-on-fire emergency and assigning it to Future You. *Don't burn all your hair off, or you will end up a bald ogre like me.*
 
-If the install fails, or your laptop is old enough to remember the Obama administration, use [Posit Cloud](https://posit.cloud/) instead. It runs RStudio in a browser, the free tier is enough for this course, and you can install locally later when you have an afternoon and a better mood.
+If the install fails, or your laptop is old enough to remember the Obama administration, use [Posit Cloud](https://posit.cloud/) instead. It runs RStudio in a browser, the free tier might be enough for this course, and you can install locally later when you have an afternoon and a better mood.
 
 ::: {.callout-tip title="Imprecations to the Statistics Gods"}
-If RStudio behaves strangely after an update, close it completely and open it again. This solves an embarrassing number of problems. Sometimes it fails for you, you bring the computer to me, and it works in my mere presence. The explanation is simple: I am a very sophisticated android. If you do not have access to me, find someone you suspect is also a sophisticated android.
+If RStudio behaves strangely after an update, close it completely and open it again. This solves most problems. Sometimes it fails for you, you bring the computer to me, and it works in my mere presence. The explanation is simple: I am a very sophisticated android. If you do not have access to me, find someone you suspect is also a sophisticated android.
 :::
 
 ## The Console Is for Experiments; Scripts Are for Work
@@ -100,7 +100,7 @@ Operations at the same level are generally handled in their defined order. The h
 
 Those expressions are not equivalent. Parentheses are cheap.
 
-That last pair matters sooner than you think. In a few chapters we start squaring how far each person sits from the mean, and half of those distances are negative. Write the parentheses.
+That last example matters sooner than you think. In a few chapters we start squaring how far each person sits from the mean, and half of those distances are negative. Write the parentheses. Asking your instructor or TA to hunt down that bug will make them question their life choices.
 
 Suppose a stress score is 10, and our terrible theory predicts performance using
 
@@ -159,7 +159,7 @@ mean(anxiety_with_missing, na.rm = TRUE)
 
 `NA` means a value is missing. R refuses to quietly pretend it is not there. The argument `na.rm = TRUE` tells `mean()` to remove missing values for this calculation.
 
-## Data Frames: Where the Undergraduates Are Stored
+## Data Frames: Where the Undergraduates Are Stored for Later Consumption
 
 A **data frame** is a rectangular data set. Rows usually represent cases or observations; columns represent variables.
 
@@ -174,7 +174,7 @@ study
 summary(study)
 ```
 
-In a real ethical study, those rows represent participants who consented to research. They are not a convenient supply of organs, volcano offerings, or targets for a chainsaw-based manipulation of fear. The Institutional Review Board remains stubborn about this.
+In a real study, those rows represent participants who consented to research. They are not a convenient supply of organs, volcano offerings, or targets for a chainsaw-based manipulation of fear. The Institutional Review Board remains stubborn about this.
 
 ## Getting Data Into R
 
@@ -248,8 +248,6 @@ The help page opens in the Help pane. Most of it is written for people who alrea
 
 - **Arguments** tells you what you can hand the function and what each thing does. This is where you would have found `na.rm`.
 - **Examples**, at the very bottom, is code you can copy and run right now. It is the only part of the page guaranteed to work.
-
-There is also a search box in the Help pane for when you know what you want but not what it is called. Asking R beats guessing, and it beats trusting whatever a chatbot confidently invented about a function that does not exist.
 
 ## Errors Are Information, Delivered Rudely
 
