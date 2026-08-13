@@ -1,12 +1,5 @@
 ---
 title: "Why You Have to Learn Statistics (Sorry not sorry)"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -28,9 +21,36 @@ Maybe you woke up as a child, looked at the ceiling, and thought, *One day I hop
 
 Before we go any farther, here are three phrases researchers use constantly and explain approximately never:
 
-- **Statistically significant** means something like, "This result probably, maybe did not happen just because chance was being weird." That definition is deliberately incomplete. We will give it a real definition after you learn some probability theory and are emotionally prepared for it.
+- **Statistically significant** means something like, "This result probably, maybe did not happen just because chance was being weird." That definition is deliberately incomplete. We will give it a real one in the [one-sample t-test chapter](Chapter_OneSample_t_test.qmd), after you have learned some probability theory and are emotionally prepared for it.
 - An **asterisk** is the little star researchers sometimes put after a number to show that it was statistically significant: for example, `r=.32*`. More stars may indicate smaller p-values, depending on the researchers' chosen rules, but more does not mean better or "more better," as people often hear me say. Asterisks do not mean the effect is large, important, true, or blessed by the Statistics Gods.
 - An **effect size** asks how strong or large an effect is. Think of a small effect as being hit over the head with a coffee stirrer, a medium effect as a Nerf bat, a large effect as a wooden bat, and a huge effect as a metal bat. A **gargantuan effect**---a made-up but extremely technical term---is your mother hitting you over the head with her slipper or the hanger she happens to be holding. The effect is so devastating that you would have preferred to have taken the metal bat.
+
+```{r effect-size-scale}
+#| fig-cap: "The official effect-size scale, ordered by regret."
+#| fig-alt: "A horizontal arrow running left to right beneath five labeled boxes in increasing order of severity: coffee stirrer (small), Nerf bat (medium), wooden bat (large), metal bat (huge), and mother's slipper (gargantuan)."
+#| fig-width: 8
+#| fig-height: 2.1
+par(mar = c(0, 0, 0, 0))
+plot.new()
+plot.window(xlim = c(0, 10), ylim = c(0, 3))
+
+weapons <- c("Coffee\nstirrer", "Nerf bat", "Wooden bat", "Metal bat", "Mother's\nslipper")
+sizes <- c("Small", "Medium", "Large", "Huge", "Gargantuan")
+shades <- c("#EAF4FA", "#C7E2F0", "#8FC7E4", "#4F97C4", "#1F4E79")
+text_col <- c("black", "black", "black", "white", "white")
+x <- seq(1.1, 8.9, length.out = 5)
+
+arrows(0.5, 0.7, 9.5, 0.7, length = 0.14, lwd = 3, col = "gray55")
+
+for (i in seq_along(x)) {
+  rect(x[i] - 0.68, 1.25, x[i] + 0.68, 2.45,
+       col = shades[i], border = "#1F4E79", lwd = 2)
+  text(x[i], 1.85, weapons[i], cex = 0.82, col = text_col[i])
+  text(x[i], 0.95, sizes[i], cex = 0.88, font = 2)
+}
+
+text(5, 0.25, "Increasingly difficult to ignore", cex = 0.9, col = "gray35")
+```
 
 Statistics does four jobs for us:
 
@@ -78,9 +98,13 @@ But you *can* stop contributing avoidable statistical nonsense.
 
 The crisis did not end in 2015, and it is not confined to social-psychology trivia.
 
-- In preclinical cancer biology, researchers repeated 50 experiments from 23 influential papers. Across several definitions of success, the replications produced weaker evidence; replicated positive effects were typically much smaller, with a median effect size 85% below the originals [@errington2021]. Those studies help determine which treatments deserve more research. This is not an argument about whether people unconsciously prefer the color blue on Tuesdays.
-- A 2022 analysis of brain-wide association studies found that common samples below 500 people produced replication rates around 5% for links between brain features and behavior. Stable brain-behavior associations often required **thousands** of people [@marek2022]. So when a headline announces that scientists found "the brain region for procrastination" after scanning 23 sophomores, perhaps continue procrastinating before sharing it.
-- In a large project examining urgent COVID-era social and behavioral claims, 19 of 29 sufficiently powered replications succeeded, or about 65% [@marcoci2025]. That is better than the 2015 wake-up call, but these were different claims selected and tested in different ways. It is not a national replication scoreboard.
+| Field | What they redid | What happened |
+|---|---|---|
+| **Preclinical cancer biology** [@errington2021] | 50 experiments from 23 influential papers | Replicated effects were typically much smaller, with a median effect size **85% below** the originals. |
+| **Brain-behavior imaging** [@marek2022] | Brain-wide association studies | Below 500 people, replication rates ran around **5%**. Stable associations often required **thousands** of participants. |
+| **COVID-era social claims** [@marcoci2025] | 29 sufficiently powered replications | **19 succeeded (about 65%)** — better than 2015, but different claims tested in different ways. |
+
+Cancer studies help determine which treatments deserve more research. This is not an argument about whether people unconsciously prefer the color blue on Tuesdays. And when a headline announces that scientists found "the brain region for procrastination" after scanning 23 sophomores, perhaps continue procrastinating before sharing it.
 
 There has also been real progress. Researchers preregister hypotheses and analysis plans, share data and code, conduct large multi-lab studies, and use **Registered Reports**, in which journals judge the question and method before knowing whether the result is exciting. More than 300 journals had adopted Registered Reports by 2024 [@natureneuroscience2024]. A large preregistered national study of growth-mindset training, for example, found a small benefit for lower-achieving students and showed that the effect depended on the school context [@yeager2019]. That is a much more useful conclusion than either "growth mindset fixes education" or "growth mindset is fake."
 
@@ -90,6 +114,7 @@ Suppose you put 20 people in therapy. The Probability Gods might hand you 20 unu
 
 ```{r replication-simulation}
 #| fig-cap: "A real effect can produce wildly different estimates in small studies. Each point is one simulated replication; the orange line is the true effect."
+#| fig-alt: "Two strip charts of 50 simulated study results each. With 20 people per group, the estimated effects scatter widely from below zero to above one. With 200 people per group, the estimates cluster tightly around the true effect of 0.30, marked by a horizontal line on both panels."
 set.seed(343)
 
 simulate_differences <- function(n_per_group, repetitions = 50, true_effect = 0.30) {
@@ -140,7 +165,7 @@ To use statistics responsibly, you need to understand **why** a method works, wh
 
 Thomas Kuhn used **paradigm** to describe the shared assumptions that tell scientists what counts as a sensible question, acceptable evidence, and a reasonable explanation [@kuhn1962]. Most of the time, scientists work inside a paradigm without discussing it. Fish probably spend very little time defining water. Also, did you know there are no such things as fish? [@miller2020]
 
-Psychology usually relies on **linear causal logic**:
+Psychology usually relies on **one-way causal logic**:
 
 $$X \longrightarrow Y$$
 
@@ -149,7 +174,8 @@ Sleep affects memory. Stress affects grades. A treatment affects symptoms. This 
 But human behavior also contains feedback. Stress disrupts sleep, poor sleep increases stress, both encourage caffeine, and caffeine returns at 2:00 a.m. to finish the job. In a dynamical-systems perspective, causes can be circular, reciprocal, and dependent on what the system was doing a moment ago. Asking "Which came first?" can be a stupid question when each variable keeps causing the other one.
 
 ```{r causal-logic}
-#| fig-cap: "Linear causal logic gives us a direction. Feedback logic gives us a small committee of variables making one another worse."
+#| fig-cap: "One-way causal logic gives us a direction. Feedback logic gives us a small committee of variables making one another worse."
+#| fig-alt: "Two box-and-arrow diagrams side by side. On the left, a single arrow points down from a box labeled Stress to a box labeled Exam performance. On the right, three boxes labeled Stress, Poor sleep, and More caffeine are joined by arrows running in both directions, so every variable both causes and is caused by the others."
 #| fig-width: 8.5
 #| fig-height: 4.5
 draw_box <- function(x, y, label, width = 0.28, height = 0.14, color = "#D9EEF7") {
@@ -162,7 +188,7 @@ par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
 
 plot.new()
 plot.window(xlim = c(0, 1), ylim = c(0, 1))
-title("Linear logic: X causes Y", cex.main = 0.95)
+title("One-way logic: X causes Y", cex.main = 0.95)
 draw_box(0.50, 0.72, "Stress")
 draw_box(0.50, 0.28, "Exam performance", width = 0.40)
 arrows(0.50, 0.63, 0.50, 0.39, length = 0.12, lwd = 2)
@@ -179,7 +205,7 @@ arrows(0.38, 0.27, 0.62, 0.27, length = 0.10, lwd = 2)
 arrows(0.62, 0.34, 0.38, 0.34, length = 0.10, lwd = 2)
 ```
 
-I study systems like the second picture. Most statistics in this book will use the cleaner X-predicts-Y structure because that is how classical statistical models and most psychological research questions are organized. The nonlinear perspective does not make those statistics useless. It changes the questions I ask, the boundaries I place around an answer, and how suspicious I become when someone claims to have found the one true cause of a human behavior.
+I study systems like the second picture. Most statistics in this book will use the cleaner X-predicts-Y structure because that is how classical statistical models and most psychological research questions are organized. The dynamical-systems perspective does not make those statistics useless. It changes the questions I ask, the boundaries I place around an answer, and how suspicious I become when someone claims to have found the one true cause of a human behavior.
 
 ## Measurement: Numbers Are Not Magic
 
@@ -196,6 +222,7 @@ Stevens defined measurement broadly as assigning numbers to objects or events ac
 
 ```{r measurement-scales}
 #| fig-cap: "Four scales of measurement. The pictures are simple; the assumptions hiding underneath them are not."
+#| fig-alt: "Four small panels. Nominal shows three unordered colored dots labeled CBT, Exposure, and Waitlist. Ordinal shows four dots in increasing order from Calm to Emailing professor, with an arrow indicating direction. Interval shows four equally spaced points at 60, 70, 80, and 90 degrees Fahrenheit, each gap marked plus ten. Ratio shows three heart-rate points on an axis that starts at a meaningful zero."
 par(mfrow = c(2, 2), mar = c(4.5, 2, 3, 1), las = 1)
 
 # Nominal
@@ -239,9 +266,11 @@ text(heart_rate, c(0.82, 1.18, 0.82),
 
 That classification is useful, but Joel Michell points out a rather large problem: assigning a number does not prove that the attribute itself is quantitative [@michell1997]. I can assign you a student ID number. That does not mean a student with ID 800000 is twice as much student as someone with ID 400000.
 
+::: {.callout-note collapse="true" title="Advanced: Do Our Numbers Even Measure Anything? (Michell's Complaint)"}
 Michell distinguishes two jobs. The **instrumental task** creates a procedure that produces numbers. The **scientific task** asks whether the attribute actually has the structure those numbers assume. Psychologists are often excellent at the first job and quietly assume the second one has been handled by someone else. Possibly an undergrad. Probably for extra credit.
 
 This matters because psychological constructs are abstractions. Anxiety is not sitting inside the skull like a kidney waiting to be weighed. We infer it from behavior, self-report, physiology, and context. Those measurements may be useful without being perfect, but their meaning depends on the theory and the measurement process. Numbers do not rescue a vague construct. Sometimes they merely give the vagueness decimal places.
+:::
 
 ::: {.callout-warning title="The Institutional Review Board has entered the chat"}
 Undergraduates may volunteer for ordinary research or earn reasonable extra credit. We cannot dissect their brains, drop them into volcanoes to appease Dorkaos (Ancient Greek God of Statistics), or chase them with chainsaws to increase the relationship between fear and exercise. "The effect size would be enormous" is not an ethical argument, or so I am told.
@@ -251,7 +280,7 @@ Undergraduates may volunteer for ordinary research or earn reasonable extra cred
 
 ## Research Design: The Extremely Short Version
 
-Here are the terms you need before the rest of the book starts moving:
+Here are the terms the rest of the book will use constantly. Do not memorize this table. Bookmark it. You will be back, and the forgetting is normal---I planned for it.
 
 | Term | Meaning |
 |---|---|
@@ -272,17 +301,57 @@ Here are the terms you need before the rest of the book starts moving:
 | **Internal validity** | How confidently we can say the IV, rather than a confound, caused the DV. |
 | **External validity** | How confidently the result can generalize beyond this study to other people, settings, situations, or times. |
 
-The basic research sequence is:
+The basic research sequence is not a list with an end. It is a loop, and the last step feeds the first one.
 
-1. Start with a problem or question.
-2. Use **strong**, not soft, theory to make a hypothesis.
-3. Define and measure the variables.
-4. Choose a design and a sample.
-5. Collect the data.
-6. Analyze the data and quantify uncertainty.
-7. Decide what the result does, and does not, support.
-8. Communicate it clearly.
-9. Replicate, revise, and try again.
+```{r research-cycle}
+#| fig-cap: "The research cycle. Step 9 is an arrow back to step 1, which is why science is a repair process rather than a finish line."
+#| fig-alt: "Nine steps arranged in a circle with arrows running clockwise from each step to the next: question, hypothesis, define and measure variables, design and sample, collect data, analyze and quantify uncertainty, decide what is supported, communicate, and replicate and revise. A final arrow runs from replicate and revise back to question, closing the loop."
+#| fig-width: 7.5
+#| fig-height: 6.4
+steps <- c(
+  "1. Problem or\nquestion",
+  "2. Strong theory,\nthen hypothesis",
+  "3. Define and\nmeasure variables",
+  "4. Choose design\nand sample",
+  "5. Collect\nthe data",
+  "6. Analyze and\nquantify uncertainty",
+  "7. Decide what it\ndoes and does not\nsupport",
+  "8. Communicate\nit clearly",
+  "9. Replicate,\nrevise, try again"
+)
+
+n <- length(steps)
+angles <- pi / 2 - 2 * pi * (seq_len(n) - 1) / n
+x <- cos(angles)
+y <- sin(angles)
+
+par(mar = c(0, 0, 0, 0))
+plot.new()
+plot.window(xlim = c(-1.42, 1.42), ylim = c(-1.42, 1.42), asp = 1)
+
+gap <- 0.30
+for (i in seq_len(n)) {
+  j <- if (i == n) 1 else i + 1
+  dx <- x[j] - x[i]
+  dy <- y[j] - y[i]
+  len <- sqrt(dx^2 + dy^2)
+  ux <- dx / len
+  uy <- dy / len
+  arrows(
+    x[i] + ux * gap, y[i] + uy * gap,
+    x[j] - ux * gap, y[j] - uy * gap,
+    length = 0.10, lwd = 2,
+    col = if (i == n) "#D55E00" else "#1F4E79"
+  )
+}
+
+for (i in seq_len(n)) {
+  text(x[i], y[i], steps[i], cex = 0.70)
+}
+
+text(0, 0.10, "The research cycle", cex = 1.05, font = 2, col = "#1F4E79")
+text(0, -0.12, "(there is no final step)", cex = 0.80, col = "gray40")
+```
 
 If the hypothesis fails, the theory may be wrong. The operational definition may be bad. The manipulation may have failed. The sample may be weird. Or the data may simply have had a day. Statistics cannot automatically tell us which explanation is correct. It gives us disciplined ways to narrow the possibilities.
 
@@ -290,6 +359,8 @@ If the hypothesis fails, the theory may be wrong. The operational definition may
 Meehl argued that theories in "soft" psychology often do not win, lose, or improve. They become fashionable, collect a mixture of significant and nonsignificant results, acquire emergency auxiliary explanations, and eventually fade away when everyone gets bored [@meehl1978]. The theory is not killed. It is placed in an attic with several dissertations and a box of unidentified power cords.
 
 His deeper complaint was that a significant result is usually a weak test of a theory. Predicting "the groups will differ" is easy because groups almost always differ a little. A stronger theory predicts **how much**, **in which direction**, **under what conditions**, and **what result would make us abandon or revise it**. Good science takes theoretical risks. Collecting asterisks is not the same as understanding behavior.
+
+Graduate students: read the actual Meehl paper [@meehl1978]. It is nearly fifty years old and still describes your literature review with uncomfortable precision.
 :::
 
 That is why this book will not only show you **how** to run statistics. You will learn what the statistics are doing, why they behave that way, and how to notice when your analysis is answering a question no sensible person asked.
