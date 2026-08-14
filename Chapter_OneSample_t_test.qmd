@@ -1,21 +1,16 @@
 ---
 title: 'One Sample t-Test'
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning =  FALSE)
-knitr::opts_chunk$set(fig.width=4.5)
-knitr::opts_chunk$set(fig.height=3.5)
-knitr::opts_chunk$set(fig.align='center') 
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.5,
+  fig.height = 3.5
+)
 ```
 
 
@@ -43,7 +38,7 @@ Each man was convinced he was right, believing his own perspective represented t
 
 This story is a useful reminder when trying to understand the world, and especially when building theories from data. Our perspectives are almost always limited, shaped by where we stand, what we’ve experienced, and what we want to believe. Just as each blind man grasped only one part of the elephant, our samples and hypotheses capture only small pieces of a much larger reality.
 
-Statistical testing exists precisely because of this limitation: *it gives us a disciplined way to ask whether our small, noisy glimpses are consistent with the bigger picture—or whether we might just be arguing over trunks, legs, and ears.*
+Statistical testing exists precisely because of this limitation: *it gives us a disciplined way to ask whether our small, noisy glimpses are consistent with the bigger picture, or whether we might just be arguing over trunks, legs, and ears.*
 
 ### Experimental Example
 
@@ -61,6 +56,12 @@ When Step 4 fails, meaning the data don’t match the prediction, we face a clas
 
 This problem is well known in psychology and has been discussed extensively [@meehl1978].
 
+<!-- ALEX: these three headings ("Theory:", "Hypothesis:", "Important Note:") end in colons
+     and read like slide titles, and the whole stretch from here down to "Logic of Hypothesis
+     Test" is the driest run in the chapter. It is also where the cookie study gets
+     introduced, which should be the fun part. I did not add jokes because CH06-B01 was
+     scoped to structure only, but this is the stretch that most wants your voice. -->
+
 ### Theory:
 
 Reinforcing good behavior in children makes them happy because it signals that they have pleased the adults around them. However, rewarding children with something they perceive as a forbidden treat, such as cookies, may have unintended consequences. Children know that cookies are usually off-limits and therefore associate them with rule-breaking. Receiving such a reward may overexcite them, pushing their self-control beyond its limits and leading to hyperactive behavior as they struggle to regulate their impulses.
@@ -75,7 +76,7 @@ To test this hypothesis, we design a simple study in which children are rewarded
 
 Regardless of the study’s outcome, it would not rule out other plausible explanations. For example, one alternative account is that sugar in cookies is rapidly metabolized, producing a temporary spike in blood glucose that leads to increased activity levels.
 
-This is the core difficulty of experimental inference: a single result rarely tells us which explanation is correct—it only tells us which explanations are still plausible.
+This is the core difficulty of experimental inference: a single result rarely tells us which explanation is correct. It only tells us which explanations are still plausible.
 
 ### Logic of Hypothesis Test
 
@@ -111,8 +112,6 @@ In hypothesis testing, **falsification** plays a central role. Supporting eviden
 -   Collect Data and Compute Sample Statistics
 -   Make a Decision
 
-### State the Hypothesis
-
 ### The Null Hypothesis ($H_0$)
 
 - The null hypothesis ($H_0$) asserts that in the general population, there is no change, no difference, or no relationship.
@@ -124,17 +123,30 @@ In hypothesis testing, **falsification** plays a central role. Supporting eviden
 - The alternative hypothesis ($H_1$) suggests that there is a change or a relationship in the general population.
     - In an experiment, $H_1$ predicts that the independent variable (e.g., treatment) will influence the dependent variable for the population.
 
-### Sample Experiment
-
 ### Directional Hypothesis
 
 - **$H_0$**: Chocolate chip cookies do not make children hyper.
 - **$H_1$**: Chocolate chip cookies do make children hyper.
 
+Written symbolically, where $\mu$ is the population mean hyperactivity score and 50 is the value we expect without cookies:
+
+- $H_0: \mu \le 50$
+- $H_1: \mu > 50$
+
 ### Non-directional Hypothesis
 
 - **$H_0$**: Chocolate chip cookies do not change children's level of hyperactivity.
 - **$H_1$**: Chocolate chip cookies do change children's level of hyperactivity.
+
+Written symbolically:
+
+- $H_0: \mu = 50$
+- $H_1: \mu \neq 50$
+
+<!-- ALEX: the symbolic lines are new (CH06-U01). They are deliberately plain, since the
+     exam writes them this way and this is the one spot where the book should look like the
+     exam. If you want a joke, the space just under the non-directional pair is where it
+     goes, not inside the notation. -->
 
 *Note: The default in psychology is to choose the non-directional test, so we will only talk about that version for the rest of below*
 
@@ -147,7 +159,7 @@ In hypothesis testing, **falsification** plays a central role. Supporting eviden
   - Where does the tail begin, and the body of the distribution end?
 - To address this, we set a cut-off point, known as the Alpha level ($\alpha$).
   - Common Alpha levels are: $\alpha = .05$, $\alpha = .01$, $\alpha = .005$, $\alpha = .001$, $\alpha = .0001$.
-- The Alpha level represents the threshold for what we consider "abnormal"—specifically, the area under the curve beyond this cut-off.
+- The Alpha level represents the threshold for what we consider "abnormal," meaning the area under the curve beyond this cut-off.
 
 ### Accounting for Sample Size: The Transition to the $t$-Distribution
 
@@ -161,16 +173,17 @@ In other words, one of the most famous tools in statistics exists because a brew
 
 ### Why the $t$-Distribution?
 
-- Estimation of Variance:  we will never know the population standard deviation ($\sigma$). so we must estimate it using the sample standard deviation ($S$).
+- Estimation of Variance: we will never know the population standard deviation ($\sigma$), so we must estimate it using the sample standard deviation ($S$).
 - The Penalty for Small Samples: Small samples are more prone to extreme fluctuations. Because our estimate of the population variance is less reliable when $n$ is small, the $t$-distribution is "heavier" in the tails than the normal distribution.
-Degrees of Freedom ($df$): The shape of the $t$-distribution is determined by the degrees of freedom, calculated as $df = n - 1$.
+- Degrees of Freedom ($df$): The shape of the $t$-distribution is determined by the degrees of freedom, calculated as $df = n - 1$.
   - As $n$ (and thus $df$) increases, the $t$-distribution approaches the shape of the standard normal distribution.
   - As $n$ decreases, the tails become "fatter," requiring a larger critical value to reach the same alpha level ($\alpha$).
 
 ### Adjusting the Critical Region
 
 Because the $t$-distribution has more area in its tails, the "cut-off" points for our Alpha level move further away from the mean. This means:
-- It is harder to reject the null hypothesis with a small sample. 
+
+- It is harder to reject the null hypothesis with a small sample.
 - We are being mathematically conservative to account for the increased risk of error when we don't have a large amount of data.
 
 The $t$-distribution acts as a "safety buffer." It ensures that we only label a result as "statistically significant" if the effect is strong enough to overcome the inherent noise of a small sample size.
@@ -179,11 +192,12 @@ The $t$-distribution acts as a "safety buffer." It ensures that we only label a 
 
 For a two-tailed test with Alpha = 0.05, the cut-offs depend on sample size. For our study with 36 kids that would look like this: 
 
-```{r}
+```{r t-critical-regions}
 #| echo: false
 #| message: false
 #| warning: false
 #| fig-cap: "The t-distribution for df = 35. The shaded red areas represent the critical regions where we reject the null hypothesis."
+#| fig-alt: "A symmetric bell-shaped t-distribution curve centered on zero. The two tails beyond about negative and positive two are shaded red, and dashed vertical lines mark those cut-offs."
 
 library(ggplot2)
 
@@ -241,10 +255,12 @@ If we were to increase our sample size from $n = 36$ to $n = 100$, our degrees o
 
 As $n$ increases, our confidence in our estimate of the population standard deviation also increases. Mathematically, the $t$-distribution begins to pull its "fat tails" inward, looking more and more like the standard Normal ($z$) distribution.
 
-```{r}
+```{r t-dist-sample-size}
 #| echo: false
 #| message: false
 #| warning: false
+#| fig-cap: "Two t-distributions overlaid. The larger sample has thinner tails, so its cut-offs sit closer to the middle."
+#| fig-alt: "Two overlapping bell-shaped curves centered on zero. The red curve for 36 people has slightly fatter tails than the blue curve for 100 people, and dotted vertical lines show the blue cut-offs sitting just inside the red ones."
 
 # Define parameters for n = 100
 n_large <- 100
@@ -269,9 +285,9 @@ New Cut-Off ($t_{critical}$) Points ($n = 100$):
 - $t_{lower}$ < `r round(-t_crit_large, 3)`
 - $t_{upper}$ > `r round(t_crit_large, 3)`
 
-Why the boundaries are smaller: Reduced Uncertainty: With 100 children instead of 36, our sample mean is a much more reliable "anchor" for the population mean. We don't need as much of a "safety buffer.
+Why the boundaries are smaller: with 100 children instead of 36, our sample mean is a much more reliable "anchor" for the population mean. We don't need as much of a "safety buffer."
 
-Here is  an example of our the boundaries shift with different sample sizes: 
+Here is how the boundaries shift with different sample sizes:
 
 ```{r}
 #| echo: false
@@ -295,29 +311,38 @@ comparison_data <- data.frame(
 # Render the table
 kable(comparison_data, 
       col.names = c("Sample Size (n)", "Degrees of Freedom (df)", "Absolute Critical Value"),
-      caption = "How Sample Size Changes the Threshold for Significance") %>%
+      caption = "How Sample Size Changes the Threshold for Significance") |>
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 ### Collect Data and Compute Sample Statistics
 
-- Get a sample of children, $n = 36$, and feed them a bunch of cookies! We collected that data and in R created their means in a object called `kids.1`
-- **Dependent Variable (DV):** We will measure the children's hyperactivity, which we expect to have a random but generally positive effect on them.
+- Get a sample of children, $n = 36$, and feed them a bunch of cookies! We collected that data and in R stored their hyperactivity scores in an object called `kids.1`
+- **Dependent Variable (DV):** We will measure the children's hyperactivity, which we expect the cookies to raise.
 
-Here is plot for kids.1:
+Here is a plot of kids.1:
 
-```{r, echo=FALSE}
+```{r kids-data}
+#| echo: false
 set.seed(123)
-N<-1e6
-Population<-rnorm(N, mean=50,sd=5)
-n=36
-set.seed(42)
-sample<-sample(Population, n, replace = TRUE)
-kids.1<-sample+rnorm(n,mean=2,sd=0)
+N <- 1e6
+Population <- rnorm(N, mean = 50, sd = 5)
+n <- 36
 
-hist(kids.1,  
-     main="Histogram", 
-  xlab="Hyperactivity Score", ylab="Frequency")
+set.seed(42)
+kids.sample <- sample(Population, n, replace = TRUE)
+
+# every kid gets a 2-point cookie boost (the true effect)
+kids.1 <- kids.sample + 2
+```
+
+```{r kids-histogram}
+#| echo: false
+#| fig-cap: "Hyperactivity scores for our 36 cookie-fed children."
+#| fig-alt: "Histogram of 36 hyperactivity scores, roughly mound-shaped and centered in the low fifties, with values spanning from the mid forties to the low sixties."
+hist(kids.1,
+     main = "Histogram",
+     xlab = "Hyperactivity Score", ylab = "Frequency")
 ```
 
 ### Sample Results
@@ -355,11 +380,10 @@ t.kids
 one sample t-test in R:
 
 ```{r}
-Kids.t.test<-t.test(x = kids.1, 
-       alternative = c("two.sided"),
-       mu = 50, 
-       var.equal = FALSE,
-       conf.level = 0.95)
+Kids.t.test <- t.test(x = kids.1,
+                      alternative = "two.sided",
+                      mu = 50,
+                      conf.level = 0.95)  # .95 is the default; shown here so you can see it
 ```
 
 
@@ -376,13 +400,30 @@ Our $t_{critical}$ values for $df = 35$ would be:
 
 This t-test value is greater than our upper value. 
 
-Further from the R t-test function, we can see our exact p-value which is well below $p < .05$. 
+Further from the R t-test function, we can see our exact p-value which is well below $p < .05$.
 
-We can also see 95 percent confidence interval from our R t-test function and that range does NOT include $\mu = 50$, which is another way of telling our results is greater than chance. 
+::: {.callout-important title="The p-Value, Actually Defined (That IOU from Chapter 1)"}
+Back in Chapter 1 I promised you a real definition of statistical significance once you had some probability theory. Here it is, at the first moment you actually need it.
+
+**The p-value is the probability of getting a test statistic at least this far from the null value, *if* the null hypothesis and the model's assumptions were true.**
+
+Look back at the shaded red tails in the figure above. Your observed $t$ lands somewhere on that curve, and the p-value is the area past it in both directions. Small p means your data sit far out in a region the null model rarely produces.
+
+Note what the definition does not say. It is a statement about the data given an assumption, not a statement about the assumption given the data. It is not the probability that the null hypothesis is true, not the probability that you are wrong, and not the probability that the result will replicate.
+:::
+
+We can also see the 95 percent confidence interval from our R t-test function, and that range does NOT include $\mu = 50$, which is another way of seeing that our result is bigger than chance alone would produce.
 
 ### Make a Decision
 
 There are two possible outcomes:
+
+<!-- ALEX: CH06-P03 is the one item in this chapter you left unchecked, so I did not touch
+     the two lines below. Flagging it anyway because it is the item I would most want a
+     second look at: "the treatment has likely caused a difference" is a causal claim, and
+     this design has no control group and no random assignment. Your own "Important Note"
+     section above says exactly that. Also "(See Bayesian Statistics)" points at a chapter
+     that does not exist in the active book. Both are one-line fixes if you want them. -->
 
 - **Reject the null hypothesis:** This decision is reached when the data fall within the critical region.
     - This indicates that the treatment has *likely* caused a difference between the population and the sample.
@@ -399,20 +440,30 @@ There are two possible outcomes:
 
 ### One-sample t-test in APA format
 
-We can use the APA package to report it in APA format
+<!-- ALEX: this used to be library(apa) with #apa(Kids.t.test) commented out, and the
+     "what is the d thing" line pointed at output nobody could see (CH06-P01). I found out
+     why you commented it: the apa package refuses one-sample tests when mu is not 0
+     ("cohens_d does currently not support t-tests with mu != 0"). So option (a) in the
+     review was never going to work without subtracting 50 first, which would wreck the
+     mu = 50 teaching point. I took option (b): built the line by hand, dropped the
+     dependency, kept your hook. -->
 
-```{r}
-library(apa)
-#apa(Kids.t.test)
-```
+Written the way it would appear in a paper, our result looks like this:
 
-Wait what is the d thing at the end? The problem with significance testing is it does not tell you how "big" the effect is. It just tells you that is not probably not due the chance. 
+> $t(35) =$ `r round(unname(Kids.t.test$statistic), 2)`, $p$ `r ifelse(Kids.t.test$p.value < .001, "< .001", paste("=", round(Kids.t.test$p.value, 3)))`, 95% CI [`r round(Kids.t.test$conf.int[1], 2)`, `r round(Kids.t.test$conf.int[2], 2)`], $d =$ `r format(round((mean(kids.1) - 50) / sd(kids.1), 2), nsmall = 2)`
+
+Wait, what is the $d$ thing at the end? The problem with significance testing is it does not tell you how "big" the effect is. It just tells you the result is probably not due to chance.
 
 ## Effect Sizes
 
-I need a way to see how "big" an effect might be. Cohen borrowed a useful idea at the time, signal detection theory, which was created during the invention of the radio and radar.  The idea was that you want to know how strong a signal needed to be for you to detect it over the noise. The noise for us is the control group and the signal the effect of your treatment.  
+I need a way to see how "big" an effect might be. Cohen borrowed a useful idea at the time, signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The idea was that you want to know how strong a signal needed to be for you to detect it over the noise. The noise for us is the control group and the signal the effect of your treatment.
 
-```{r, echo=FALSE, fig.width=6.25,fig.height=3.0}
+```{r signal-detection}
+#| echo: false
+#| fig-width: 6.25
+#| fig-height: 3.0
+#| fig-cap: "Signal detection. The distance between the noise curve and the signal-plus-noise curve, measured in standard deviations, is d."
+#| fig-alt: "Two overlapping bell curves. The left curve is labeled N for noise and the right curve is labeled N plus S for signal plus noise. A double-headed blue arrow between their peaks is labeled d."
 # modifed from http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics
 library(ggplot2)
 library(grid) # for arrow()
@@ -495,6 +546,9 @@ Note this implicit assumption: $$\sigma_{(Noise)} = \sigma_{(Noise+Signal)}$$
 Cohen surmised that we could apply the same logic to experiments to determine how big the effect would be (in other words how easy it is to distinguish the signal from the noise). 
 
 $$d = \frac{M_{H1}-\mu_{H0}}{S_{H1}} $$
+
+Notice the denominator changed. The signal detection version divides by $\sigma_{(Noise)}$; here we divide by the sample's own SD. We do that because it is the only SD we have, and under the equal-spread assumption above it is also our best guess at the noise.
+
 So Cohen's $d$ is in standard deviation units:
 
 Size   | $d$
@@ -508,11 +562,15 @@ Huge   | 1.2
 
 
 
-```{r, echo=FALSE, fig.width=4.25,fig.height=2.0}
+```{r effect-small}
+#| echo: false
+#| fig-width: 4.25
+#| fig-height: 2.0
+#| fig-cap: "A small effect, d = .2. The two curves are nearly on top of each other."
+#| fig-alt: "Two bell curves that overlap almost completely, with their peaks barely separated."
 # modified from http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics
 library(ggplot2)
 library(grid) # for arrow()
-library(ggplot2)
 
 plot_signal <- function(
   m2,
@@ -578,19 +636,34 @@ plot_signal(0.2, "Small Effect")
 
 ### Medium Visualized
 
-```{r, echo=FALSE, fig.width=4.25,fig.height=2.0}
+```{r effect-medium}
+#| echo: false
+#| fig-width: 4.25
+#| fig-height: 2.0
+#| fig-cap: "A medium effect, d = .5."
+#| fig-alt: "Two bell curves with clearly separated peaks but still a large shared area in the middle."
 plot_signal(0.5, "Medium Effect")
 ```
 
 ### Large Visualized
 
-```{r, echo=FALSE, fig.width=4.25,fig.height=2.0}
+```{r effect-large}
+#| echo: false
+#| fig-width: 4.25
+#| fig-height: 2.0
+#| fig-cap: "A large effect, d = .8."
+#| fig-alt: "Two bell curves whose peaks are well apart, though the curves still overlap substantially through the middle."
 plot_signal(0.8, "Large Effect")
 ```
 
 ### Huge Visualized
 
-```{r, echo=FALSE, fig.width=4.25,fig.height=2.0}
+```{r effect-huge}
+#| echo: false
+#| fig-width: 4.25
+#| fig-height: 2.0
+#| fig-cap: "A huge effect, d = 1.2. Even here the curves share a lot of ground."
+#| fig-alt: "Two bell curves separated by more than one standard deviation, yet a visible region in the middle still belongs to both."
 plot_signal(1.2, "Huge Effect")
 ```
 
@@ -598,7 +671,7 @@ You notice that even in a huge effect there is a lot of overlap between the curv
 
 ##  APA Style Report
 
-Children who received cookies showed higher hyperactivity scores ($M =$ `r round(mean(kids.1), 2)`, $SD =$ `r round(sd(kids.1), 2)`) than the hypothesized population value ($\mu = 50$), $t(35) =$ `r round(unname(Kids.t.test$statistic), 2)`, $p$ `r ifelse(Kids.t.test$p.value < .001, "< .001", paste("=", round(Kids.t.test$p.value, 3)))`, 95% CI [`r round(Kids.t.test$conf.int[1], 2)`, `r round(Kids.t.test$conf.int[2], 2)`], $d =$ `r round((mean(kids.1) - 50) / sd(kids.1), 2)`. The standardized difference describes magnitude; whether the effect is practically meaningful requires context and better evidence than our imaginary cookie operation.
+Children who received cookies showed higher hyperactivity scores ($M =$ `r round(mean(kids.1), 2)`, $SD =$ `r round(sd(kids.1), 2)`) than the hypothesized population value ($\mu = 50$), $t(35) =$ `r round(unname(Kids.t.test$statistic), 2)`, $p$ `r ifelse(Kids.t.test$p.value < .001, "< .001", paste("=", round(Kids.t.test$p.value, 3)))`, 95% CI [`r round(Kids.t.test$conf.int[1], 2)`, `r round(Kids.t.test$conf.int[2], 2)`], $d =$ `r format(round((mean(kids.1) - 50) / sd(kids.1), 2), nsmall = 2)`. The standardized difference describes magnitude; whether the effect is practically meaningful requires context and better evidence than our imaginary cookie operation.
 
 ## Uncertainty and Error in Hypothesis Testing
 
@@ -609,7 +682,7 @@ Children who received cookies showed higher hyperactivity scores ($M =$ `r round
 
 - Also called a "false alarm" or "alpha error."
 - This occurs when a researcher rejects a null hypothesis that is actually **true**. In other words, we reject the null even though the treatment does **nothing**.
-- **Example:** Testing zinc or ColdEase on colds using self-report as a measure of improvement.
+- **Example:** Testing zinc or ColdEase on colds using self-report as a measure of improvement. Colds get better on their own, and people who paid for zinc lozenges want to believe they helped. So the study can happily "detect" an improvement that is really just the cold ending on schedule plus some hopeful self-report. The null was true and we rejected it anyway.
 - Before observing the data, the $\alpha$ level sets the long-run Type I error rate for the testing procedure when the null hypothesis and its assumptions hold.
 - Choosing $\alpha=.05$ does not mean there is a 5% probability that this particular rejected null hypothesis is true. The p-value cannot read the hidden state of the universe.
 
@@ -618,8 +691,19 @@ Children who received cookies showed higher hyperactivity scores ($M =$ `r round
 - Also called a "miss" or "beta error."
 - A Type II error occurs when a researcher fails to reject the null hypothesis that is actually **false**.
 - In other words, a Type II error occurs when the treatment has an effect, but it seems like the treatment has had no effect because the hypothesis test fails to detect it.
-- This can occur when the treatment has an effect but the study has too little power to detect it—for example, because the effect is modest, the measurement is noisy, or the sample is small.
-- **Example:** Taking kava tea to reduce stress.
+- This can occur when the treatment has an effect but the study has too little power to detect it. That happens when the effect is modest, the measurement is noisy, or the sample is small.
+- **Example:** Taking kava tea to reduce stress. Kava may genuinely calm people down a little. But give it to ten stressed undergraduates, measure them with a mood scale they fill out between classes, and the effect is too quiet to hear over the noise. The null was false and we failed to reject it.
+
+::: {.callout-note title="The Courtroom Version, Which Your TA Will Use"}
+A defendant is presumed innocent, which is the null hypothesis. The jury either convicts or fails to convict.
+
+- **Type I error:** convicting an innocent person. You rejected a true null.
+- **Type II error:** acquitting a guilty person. You failed to reject a false null.
+
+Notice that "not guilty" is not the same verdict as "innocent." The jury is saying the evidence was not strong enough, which is exactly what "fail to reject" means. This is also why raising the standard of proof trades one error for the other. Make conviction harder and fewer innocent people go to prison, while more guilty ones walk.
+
+You met the extreme version of this in the [Probability chapter](Chapter_Probability.qmd), where we fired the doctors and let a 95% accurate test convict people Judge Dredd style. It got 84% of them wrong.
+:::
 
 | Your decision | Treatment does not work ($H_0$=TRUE) | Treatment does work ($H_0$=FALSE) |
 |-----------------|-----------------------------|---------------------------|
@@ -627,6 +711,12 @@ Children who received cookies showed higher hyperactivity scores ($M =$ `r round
 | Fail to reject $H_0$  | Correct Decision                     | Type II                           |
 
 ### Does our Alpha Set the Error/Miss Level?
+
+<!-- ALEX: this section is one bullet answering its own heading with "it depends," which is
+     the last thing a reader wants the night before Exam 1. Either it earns two sentences
+     (alpha fixes the Type I rate by decree; beta is whatever the design, effect size, and
+     n leave you with, which is why you cannot just set it) or it folds into the Power
+     chapter pointer. Your call. -->
 
 - The answer is: it depends. We will revisit this issue when we discuss *statistical power*.
 
@@ -639,7 +729,7 @@ Children who received cookies showed higher hyperactivity scores ($M =$ `r round
 - Report the estimate, confidence interval, p-value, and effect size. The asterisk cannot do all the talking.
 
 ::: {.callout-important title="The t Statistic Is Signal Divided by Noise"}
-The numerator is how far the sample mean sits from the null value. The denominator is the standard error of that mean. A large t statistic can come from a large difference, a precise estimate, or both—so report the effect and its uncertainty, not merely the ceremonial p-value.
+The numerator is how far the sample mean sits from the null value. The denominator is the standard error of that mean. A large t statistic can come from a large difference, a precise estimate, or both, so report the effect and its uncertainty, not merely the ceremonial p-value.
 :::
 
 ::: {.callout-note title="Which t-Test Comes Next?"}
