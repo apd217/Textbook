@@ -217,14 +217,7 @@ Just like $\pm2$ SD captures about 95% of individual observations in a roughly n
 
 In other words, if we repeatedly sample from this population, about 95% of the sample means should fall within two standard errors of the grand mean.
 
-<!-- ALEX: read this next line against your own CI callout at the end of the chapter.
-     "95% of sample means fall within 2 SE of the grand mean, THEREFORE the population mean
-     is probably in here" is the slide you spend two callouts warning against later. It is
-     the standard intro move and I did not touch it (not my call to change a claim), but
-     you may want a half-sentence here saying you are being loose on purpose and will come
-     back for it. -->
-
-Thus, the population mean is hopefully between: `r round(M.S-2*SD.S,2)` and `r round(M.S+2*SD.S,2)`
+Thus, the population mean is hopefully between: `r round(M.S-2*SD.S,2)` and `r round(M.S+2*SD.S,2)`. *Note I am being loose here and we will come back to this.*
 
 (*Assuming random sampling and a roughly normal sampling distribution---both of which we’re getting for free here.*)
 
