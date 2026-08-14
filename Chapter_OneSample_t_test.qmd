@@ -418,16 +418,9 @@ We can also see the 95 percent confidence interval from our R t-test function, a
 
 There are two possible outcomes:
 
-<!-- ALEX: CH06-P03 is the one item in this chapter you left unchecked, so I did not touch
-     the two lines below. Flagging it anyway because it is the item I would most want a
-     second look at: "the treatment has likely caused a difference" is a causal claim, and
-     this design has no control group and no random assignment. Your own "Important Note"
-     section above says exactly that. Also "(See Bayesian Statistics)" points at a chapter
-     that does not exist in the active book. Both are one-line fixes if you want them. -->
-
 - **Reject the null hypothesis:** This decision is reached when the data fall within the critical region.
-    - This indicates that the treatment has *likely* caused a difference between the population and the sample.
-    - **We reject the null** because it is generally easier to demonstrate that something is false than to prove it true (See Bayesian Statistics).
+    - This indicates the sample mean is farther from the hypothesized value than random sampling error can comfortably explain. Whether the *cookies* did it is a design question, not a statistics question. See the Important Note above.
+    - **We reject the null** because it is generally easier to demonstrate that something is false than to prove it true. (For the other way of weighing evidence, see the Bayes section of the [Probability chapter](Chapter_Probability.qmd).)
 
 - **Fail to reject the null hypothesis:** If the data do not provide strong evidence (i.e., they do not fall within the critical region), then the treatment is *assumed* to have no effect.
 
