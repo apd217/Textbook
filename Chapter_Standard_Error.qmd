@@ -17,7 +17,7 @@ library(tidyverse)
 
 ## Sampling Error and the Limits of Samples
 
-Samples are guesses. Your sample mean will almost never equal the true population mean—and that is fine, as long as you know *how unstable the guess might be*.
+Samples are guesses. Your sample mean will almost never equal the true population mean---and that is fine, as long as you know *how unstable the guess might be*.
 
 Probability is fickle. With a tiny sample, the Probability Gods may hand you ten unusually delighted commuters or ten people whose train just vanished from the tracker. A larger random sample gives chance fewer opportunities to build your entire conclusion out of one weird subway car.
 
@@ -31,30 +31,21 @@ How much do you typically like traveling on the CTA?
 - 4 = Like
 - 5 = Strongly like
 
-Who we grab matters — daily commuters, tourists, and people who just missed their train all give different answers. The gap between our sample estimate and the true population value is called **sampling error**. It's not a mistake — it's just an unavoidable consequence of observing only part of the population.
+Who we grab matters---daily commuters, tourists, and people who just missed their train all give different answers. The gap between our sample estimate and the true population value is called **sampling error**. It's not a mistake, it's just an unavoidable consequence of observing only part of the population.
 
 The question is: *how bad is the error, and how can we estimate it from a single sample?*
 
-### Traveling on the CTA
+### Traveling on the CTA in the Lap of Luxury 
 
 The CTA hires me to do a satisfaction survey on the subway. So I take my question, and I want to find out what the population attitude toward the CTA is.
 
 Well, the CTA handles about 1 million riders a day, but (a) they did not pay me enough to hire all the people I would need to ask all those people, and (b) I do not want to talk to random strangers on the Chicago subway about the CTA. They might punch me in the face as an answer to my question.
 
-So I am hoping that 10 people is enough to answer their question and also lets me run this study cheaply so I can pocket all the money. Have you seen how much groceries cost nowadays?
+So I am hoping that 10 people is enough to answer their question and also lets me run this study cheaply so I can pocket all the money. *Have you seen how much groceries cost nowadays?*
 
-### Randomly sample from the population
+### Randomly Sample from the Population, Which Is Harder Than It Sounds
 
-<!-- ALEX: heading is a plain label. Voice guide §4 says headings get a tag stapled on
-     ("Randomly Sample from the Population, Which Is Harder Than It Sounds"?). Your call --
-     I did not want to invent a heading joke for you. Same note on "Effect of Sample Size"
-     and "What do we do with this?" below. -->
-
-<!-- ALEX: the next two sentences are new (they exist because the code below is now
-     visible and a million fake commuters appearing without warning is confusing).
-     Punch them up or cut them. -->
-
-First, R builds me a city. Here are all million riders and their opinions, rounded onto the 1--5 scale. In a real study you never get to see this, which is why the rest of the chapter exists.
+First I need R to build me a city cause I want to simulate this process, not actually interact with the "commoners". Here our simulation generates all one million riders and their opinions, rounded onto the 1--5 scale. In a real study you never get to see this, which is why the rest of the chapter exists.
 
 ```{r cta-population}
 #| echo: true
@@ -96,7 +87,7 @@ tibble(CTA.1 = sample.1) |>
 
 The mean of this sample is $M =$ `r round(mean(sample.1),2)`.
 
-Okay, so is that true population mean? Who knows. Ugh, I should probably double check. So I head out again to a new random subway car, at a random time, and randomly select 10 new people and ask them to answer the question. Let's hope no one punches me...
+Okay, so is that the **true** population mean? *Have I sacrificed enough undergrads to the Probability Gods to get it perfectly right?* Probably not, since they always demand more. Ugh, I should probably double check. So I head out again to a new random subway car, at a random time, and randomly select 10 new people and ask them to answer the question. Let's hope no one punches me...
 
 Same code. New seed, new subway car.
 
@@ -125,20 +116,13 @@ tibble(CTA.2 = sample.2) |>
 
 The new mean of this sample is $M =$ `r round(mean(sample.2),2)`.
 
-The mean is higher now. Which sample (1 or 2) is correct? 
+**What the heck?!** The mean is higher now. Which sample (1 or 2) is correct? Grrrr... 
 
 ### Brute force solution? 
 
-Hmm, I am not sure. So to solve my problem, I will do what all **good** professors do: use coerced undergraduate labor! So I send all undergraduates in this class out to each randomly sample 10 people on different days, at different times, and on different subway lines, and collect the data. We will call it homework...yeah homework...
+Hmm, I am not sure. So to solve my problem, I will do what all **good** professors do: use coerced undergraduate labor! So I send all undergraduates in my class out to each randomly sample 10 people on different days, at different times, and on different subway lines, and collect the data. We will call it homework...yeah homework...
 
-<!-- ALEX: the next line is drafted from the review (CH05-U01), verbatim. Two problems
-     to decide on: (1) it lands right after "homework...yeah homework...", so that is two
-     punchlines back to back (voice guide §7); (2) it spends the Dean two sections early --
-     the Dean does not find out about the forced labor until "The Standard Error of the
-     Mean (SEM)" below. Options: keep it, cut "The Dean will be pleased," or move the whole
-     line down to the SEM section where the Dean is already on stage. -->
-
-Three lines of R replace 80 undergraduates. The Dean will be pleased.
+Three lines of R replace 80 undergraduates. 
 
 ```{r brute-force}
 #| echo: true
@@ -147,13 +131,15 @@ NumberofSamples <- 80
 SampleSize <- 10
 
 Sample.Results <- replicate(NumberofSamples,
-                            sample(CTA.Population, size = SampleSize, replace = FALSE))
+                            sample(CTA.Population, 
+                                   size = SampleSize, 
+                                   replace = FALSE)) 
 Sample.Means <- apply(Sample.Results, 2, mean)
 ```
 
 ```{r brute-force-plot}
 #| fig-cap: "Eighty samples, eighty means. No single one of them is the truth; together they show how far off any one of them can be."
-#| fig-alt: "Histogram of 80 sample means, each from a sample of ten riders. The means form a roughly bell-shaped pile centered near 3, spanning from about 2.2 to about 3.8."
+#| fig-alt: "Histogram of 80 sample means, each from a sample of ten riders. The means form a roughly normal-shaped pile centered near 3, spanning from about 2.2 to about 3.8."
 tibble(CTA.means = Sample.Means) |>
   ggplot(aes(x = CTA.means)) +
   geom_histogram(binwidth = .1, boundary = 0.5) +
@@ -165,13 +151,13 @@ tibble(CTA.means = Sample.Means) |>
 ```
 
 You will notice the distribution of means is normal-ish and centered around
-3, and it was precisely: Mean of means = `r round(mean(Sample.Means),2)`
+3, and it was precisely: Mean of means = `r round(mean(Sample.Means),2)`. *Remember, you would not ever know the true population mean because (a) good luck getting every single rider of the CTA to answer a survey question, and more importantly (b) the Probability Gods only love me and not you, cause you have not spent your career tricking undergrads into jumping into a volcano.*
 
 ### SD of Distribution of Means
 
-But you can also see that there is a wide range of sample means. So what does that mean?
+But you can also see that there is a wide range of sample means in that figure. *So what does that mean?*
 
-Can I trust any individual sample to tell me the true population value?
+Can I *trust* any **individual sample** to tell me the true population value? *Like a stranger with candy, we need to trust but verify, so ask your mother about the van before you get in it, or about any strange sample you meet in the park.*
 
 Recall what a standard deviation (SD) represents: **the typical distance that observations fall from their mean.**
 
@@ -179,7 +165,7 @@ For a single sample, SD tells us how much individual observations vary around th
 
 But now we’re doing something slightly different.
 
-Just like we had a standard deviation (S) around a sample mean, we can also calculate the standard deviation of the sample means themselves, that is, how much the means vary from sample to sample.
+Just like we had a standard deviation (S) around a sample mean, we can also calculate the standard deviation of the sample means themselves, that is, how much the *means vary from sample to sample*.
 
 For a single sample, SD is:
 
@@ -187,14 +173,11 @@ $$S = \sqrt{\frac{\Sigma (X-M)^2}{N-1}}$$
 
 Here $N$ is the number of people in the sample: 10.
 
-For the distribution of means, we look at how each sample mean differs from the **grand mean**:
+For the distribution of means, we look at how each sample mean differs from the **grand mean** (mean of means): 
 
 $$S_M = \sqrt{\frac{\Sigma (M-M_{Grand})^2}{N_{samples}-1}}$$
 
-<!-- ALEX: the second sentence here is my punchline, not yours -- swap it for a better one.
-     The teaching part (which count is which) is above it and survives on its own. -->
-
-Here $N_{samples}$ is the number of *samples*: 80 of them, one per undergraduate. It is not the 10 people inside each sample. This distinction has cost more exam points than any other line in the chapter.
+Here $N_{samples}$ is the number of *samples*: 80 of them, one per undergraduate. It is not the 10 people inside each sample. 
 
 ::: {.callout-note title="Two Different Counts Are Hiding in This Example"}
 Our simulation contains:
@@ -202,7 +185,7 @@ Our simulation contains:
 - **10 people per sample**, which determines how stable each sample mean is.
 - **80 repeated samples**, which lets us see the sampling distribution.
 
-In a real study, we usually collect only one sample. We cannot directly observe its entire sampling distribution, so we estimate the standard error with $S/\sqrt{N}$ — and that $N$ is back to being the 10 people.
+In a real study, we usually collect only one sample. We cannot directly observe its entire sampling distribution, so we estimate the standard error with $S/\sqrt{N}$---and that $N$ is back to being the 10 people.
 :::
 
 This quantity is the standard error (SE). Conceptually, it tells us: **how much we expect a sample mean to vary simply due to random sampling**.
@@ -213,9 +196,9 @@ The **standard deviation** describes how individual scores vary around their sam
 The **standard error** describes how sample means would vary across repeated samples.
 
 - SD asks: *How different are the people?*
-- SE asks: *How unstable is our estimate?*
+- SE asks: *How unstable is our estimate of the population mean?*
 
-Same units. Different crowd. Confusing them will anger Dorkaos.
+Same units. Different crowd. Confusing them will anger the God Dorkaos.
 :::
 
 We already have the 80 means sitting in `Sample.Means`, so the standard error is one function call:
@@ -241,43 +224,43 @@ In other words, if we repeatedly sample from this population, about 95% of the s
      you may want a half-sentence here saying you are being loose on purpose and will come
      back for it. -->
 
-Thus, the population mean is probably between:`r round(M.S-2*SD.S,2)` and `r round(M.S+2*SD.S,2)`
+Thus, the population mean is hopefully between: `r round(M.S-2*SD.S,2)` and `r round(M.S+2*SD.S,2)`
 
-(*Assuming random sampling and a roughly normal sampling distribution—both of which we’re getting for free here.*)
+(*Assuming random sampling and a roughly normal sampling distribution---both of which we’re getting for free here.*)
 
-::: {.callout-warning title="Two Is a Shortcut, Not a Sacred Number"}
+::: {.callout-warning title="Two Is a Shortcut for Now; We Return to It Next Chapter"}
 Using $M \pm 2SE$ gives a rough 95% interval when the sampling distribution is approximately normal.
 
-For small samples, the proper confidence interval uses a value from the **t-distribution**:
+For small samples, the proper confidence interval uses a value from the **t-distribution**: 
 
 $$
 M \pm t^*SE
 $$
 
-For example, with $N=10$, the 95% multiplier is about 2.26—not exactly 2. We will learn where that number comes from in the t-test chapter. For now, $\pm2SE$ is a useful approximation.
+For example, with $N=10$, the 95% multiplier is about 2.26---not exactly 2. We will learn where that number comes from in the t-test chapter. For now, $\pm2SE$ is a useful approximation. But **hold your Guinness Beers** (*that's dramatic foreshadowing btw---see, English teachers, I learned something between all those Fs for my awesome essays about penguins.*)
 :::
 
-### The Standard Error of the Mean (SEM)
- 
-The Dean found out about my use of forced student labor. Apparently it’s unethical or something and told me to solve my problem another way. 
+### The Standard Error of the Mean (SEM), the One Number to Rule Them All
 
-So… what if we just make some assumptions about the world and estimate our sampling error from one sample? Because, again, I am lazy and would like to keep all the money for myself.
+The Dean found out about my use of forced student labor for my personal consulting gig. Apparently it’s unethical, and I owe the university 60% for "overhead" *(yes, seriously, they take 60% of grant money)*. The Dean told me to solve my problem another way or fork it over.
+
+Since I still have student loans to pay (sadly), what if we just make some *assumptions* about the world and estimate our sampling error from one sample? Because, again, I am lazy, my mother said the van checked out, and of course I would like to keep all the money for myself.
 
 The strange thing was that the distribution of the means from all those samples looked normal-ish. After a little digging in some old, dusty textbooks, I learned that what I was seeing was not a fluke. In fact, it’s a well-known property of repeated sampling called the *Central Limit Theorem*.
 
 Central Limit Theorem (CLT): *If you repeatedly take random samples from a population, the distribution of the sample means will be approximately normal, centered on the population mean, even if the original population is not normal, as long as the sample size is reasonably large.*
 
 ::: {.callout-tip title="The Raw Data Do Not Become Normal"}
-The Central Limit Theorem applies to the **distribution of sample means**. It does not promise that the individual scores—or the population they came from—will become normal.
+The Central Limit Theorem applies to the **distribution of sample means**. It does not promise that the individual scores---or the population they came from---will become normal.
 
-The commuters remain weird. Their means become better behaved.
+The individual commuters remain weird. Their means become better behaved.
 :::
 
 Because of this, we can assume that if I took repeated samples, the means would be normally distributed around the population mean, and that the amount of error depends on the sample size.
 
-That makes intuitive sense. If I sampled 100 people per sample, there would be less random error. If I only sampled 10 people, there’s a much better chance my estimate would be off.
+That makes intuitive sense. If I sampled 100 people per sample, there would be less random error per sample. If I only sampled 10 people, there’s a much better chance my estimate would be way off.
 
-According to this dusty old textbook, we can approximate the standard error of the mean using:
+According to this dusty old textbook, we can *approximate* the **standard error of the mean** using:
 
 $$S_M = \frac{S}{\sqrt{N}}$$
 
@@ -287,13 +270,13 @@ $S_M$ = `r round(sd(sample.1) / sqrt(10), 2)`
 
 This value is not too far off from the value I estimated earlier by sending out 80 undergraduates to repeatedly run the study: SE from the “actual” sampling distribution = `r round(SD.S, 2)`.
 
-In other words: the math mostly agrees with the coerced labor. 
+In other words: the math mostly agrees with the coerced labor. *Now I can pay my loans and buy a convertible Porsche like other middle-aged men and look ridiculous with my bald head reflecting the sun into other people's aghast faces.*
 
 ### Effect of Sample Size
 
 Okay, so what would have happened if I ran my coerced labor study with different sample sizes?
 
-Instead of sending out more undergrads (sadly), I can just use math.
+Instead of sending out more undergrads (ugh, mean Dean), I can just use math.
 
 Recall:
 
@@ -304,8 +287,10 @@ So as $N$ increases, the SEM must decrease and it does so nonlinearly.
 Let’s compute the SEM ($S_M$) for sample sizes from 10 to 400 people per sample and visualize it.
 
 ```{r sem-by-n}
+#| echo: true
 #| fig-cap: "The standard error as a function of sample size. The expensive part of the curve is on the left."
 #| fig-alt: "A curve showing the standard error of the mean falling steeply from about 0.32 at a sample size of 10 to about 0.10 at a sample size of 100, then flattening out to about 0.05 by a sample size of 400."
+
 # Population SD
 pop_sd <- sd(CTA.Population)
 
@@ -329,12 +314,14 @@ ggplot(sem_df, aes(x = N, y = SEM)) +
   theme_bw()
 ```
 
-So look at that, my error drops really close to zero pretty quickly. Past about 400 the curve is basically crawling: going all the way out to 10,000 riders buys me a standard error of `r round(sd(CTA.Population)/sqrt(10000), 3)` instead of `r round(sd(CTA.Population)/sqrt(400), 3)`. So how many people would I need for this study?
+So look at that, my error drops really close to zero pretty quickly. Past about 400 the curve is basically crawling: going all the way out to 10,000 riders buys me a standard error of `r round(sd(CTA.Population)/sqrt(10000), 3)` instead of `r round(sd(CTA.Population)/sqrt(400), 3)`. 
+
+**So how many people would I need for this study?**
 
 In short, there are diminishing returns.
 
 - When the sample size is small, the error is large and unstable.
-- As the sample size gets very large, the error continues to shrink—but only a little at a time.
+- As the sample size gets very large, the error continues to shrink---but only a little at a time.
 
 ::: {.callout-warning title="A Larger Sample Can Produce Very Precise Nonsense"}
 Increasing $N$ reduces random sampling error. It does **not** repair:
@@ -354,14 +341,19 @@ You never actually know if your guess is right, which is why replication exists 
 
 **Statistics doesn’t give you truth, but you can make increasingly expensive guesses.**
 
-### What was the Truth? 
+### What Was the Truth?
 
-So… you will never actually know the true population value unless you are either
+<!-- ALEX: this sentence had lost its own punchline -- it read "I told you in the last
+     chapter that truth is, but in reality that means will never actually know..." I
+     restored the G'Kar quote from Ch4 ("truth is a river and god is the mouth of that
+     river"), since that is what makes the God bullets below land. Check I guessed right. -->
+
+I told you in the last chapter that truth is a river and god is the mouth of that river. In reality that means you will **never** actually know the true population value unless you are either
 
 - (a) an all-knowing God, or
-- (b) good friends with a God.
+- (b) good friends with said God.
 
-Luckily, if you properly appease *Dorkaos*, the Ancient Greek God of Statistics, knower of all true distributions, with sufficient sacrifices, you may briefly glimpse the truth. Below, all is revealed:
+Luckily, if you properly appease *Dorkaos*, the Ancient Greek God of Statistics, knower of all true distributions, with sufficient sacrifices, you may briefly glimpse the truth. Below, all is revealed to you, the future acolyte:
 
 ```{r population-reveal}
 #| fig-cap: "The truth, briefly visible. All one million riders, with the population mean marked."
@@ -379,7 +371,7 @@ tibble(CTA = CTA.Population) |>
 
 The true mean of this population distribution is $\mu =$ `r round(mean(CTA.Population),1)`. 
 
-Note: Most people are not on speaking terms with Dorkaos, so in real life you would never truly know this value.
+*Note: Most people are not on speaking terms with Dorkaos, so in real life you would never truly know this value.*
 
 So the real question is: **How close did we come with our original samples?**
 
@@ -452,18 +444,9 @@ Sample 3:
 
 Our 95% confidence guess is now: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)` 
 
-And now you can see the key difference:
-the interval is much narrower.
+And now you can see the key difference: the interval is much narrower.
 
 ### Final Report (to the CTA)
-
-<!-- ALEX: this is the payoff of the whole arc and it currently just reports a number.
-     Two threads are left hanging and this is the only place to land them:
-     (1) the money -- you opened with "pocket all the money" and "have you seen how much
-         groceries cost," and the chapter never says whether you got paid;
-     (2) the 90 extra riders -- the honest ending is that the cheap study was not good
-         enough and you had to go back and survey 100 people, which is the actual lesson.
-     I did not write the joke because the money bit is yours. One line here, punchline last. -->
 
 So, at last, I can report that the average Chicagoan is roughly neutral toward the CTA, with a true rating that likely falls somewhere between: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)`.
 
@@ -501,14 +484,9 @@ ggplot(ci_df, aes(y = Sample, x = Mean)) +
 
 ### What do we do with this?
 
-<!-- ALEX: the answer to the heading is a sentence fragment starting with "Because."
-     It reads like the second half of a thought whose first half got cut. Suggest something
-     blunt and complete: "Nothing comforting. Samples are noisy guesses and we still have to
-     make decisions." -- but your phrasing, not mine. -->
+Pay loans, buy groceries, get the Porsche if there is money left over? 
 
-Because samples are noisy guesses, and we still need to make decisions.
-
-All of this stuff (SDs, SEs, sampling distributions, confidence intervals) exists for one reason: *to let us draw inferences about a population using imperfect data.*
+Yes, but all of this stuff (SDs, SEs, sampling distributions, confidence intervals) exists for one reason: *to let us draw inferences about a population using imperfect data.*
 
 We rarely get to see the truth. Instead, we:
 
