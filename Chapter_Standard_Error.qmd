@@ -1,21 +1,16 @@
 ---
 title: "Standard Error"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning =  FALSE)
-knitr::opts_chunk$set(fig.width=4.5)
-knitr::opts_chunk$set(fig.height=3.5)
-knitr::opts_chunk$set(fig.align='center') 
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.5,
+  fig.height = 3.5
+)
 library(tidyverse)
 ```
 
@@ -50,9 +45,19 @@ So I am hoping that 10 people is enough to answer their question and also lets m
 
 ### Randomly sample from the population
 
-I enter a random subway car, at a random time, and randomly select 10 people and ask them to answer the question.
+<!-- ALEX: heading is a plain label. Voice guide §4 says headings get a tag stapled on
+     ("Randomly Sample from the Population, Which Is Harder Than It Sounds"?). Your call --
+     I did not want to invent a heading joke for you. Same note on "Effect of Sample Size"
+     and "What do we do with this?" below. -->
 
-```{r, echo=FALSE}
+<!-- ALEX: the next two sentences are new (they exist because the code below is now
+     visible and a million fake commuters appearing without warning is confusing).
+     Punch them up or cut them. -->
+
+First, R builds me a city. Here are all million riders and their opinions, rounded onto the 1--5 scale. In a real study you never get to see this, which is why the rest of the chapter exists.
+
+```{r cta-population}
+#| echo: true
 set.seed(42)
 
 Npop <- 1e6
@@ -64,16 +69,22 @@ CTA.Population[CTA.Population < 1] <- 1
 CTA.Population[CTA.Population > 5] <- 5
 ```
 
+I enter a random subway car, at a random time, and randomly select 10 people and ask them to answer the question.
 
-```{r, echo=FALSE}
+```{r sample-1}
+#| echo: true
 set.seed(1)
-SampleSize = 10
-sample.1<-sample(CTA.Population, SampleSize, replace = TRUE)
+SampleSize <- 10
+sample.1 <- sample(CTA.Population, SampleSize, replace = FALSE)
 
-M.1<-mean(sample.1)
-SD.1<-sd(sample.1)
+M.1 <- mean(sample.1)
+SD.1 <- sd(sample.1)
+```
 
-tibble(CTA.1 = sample.1) %>%
+```{r sample-1-plot}
+#| fig-cap: "Ten riders, one afternoon. This is the entire evidence base for our first estimate."
+#| fig-alt: "Histogram of ten CTA liking ratings on a 1 to 5 scale, with a small number of responses in most categories and a visibly lumpy, uneven shape."
+tibble(CTA.1 = sample.1) |>
   ggplot(aes(x = CTA.1)) +
   geom_histogram(binwidth = 1, boundary = 0.5) +
   labs(
@@ -83,19 +94,26 @@ tibble(CTA.1 = sample.1) %>%
   ) + theme_bw()
 ```
 
-The mean of this sample is $M =$ `r round(mean(sample.1),2)`. 
+The mean of this sample is $M =$ `r round(mean(sample.1),2)`.
 
 Okay, so is that true population mean? Who knows. Ugh, I should probably double check. So I head out again to a new random subway car, at a random time, and randomly select 10 new people and ask them to answer the question. Let's hope no one punches me...
 
-```{r, echo=FALSE}
+Same code. New seed, new subway car.
+
+```{r sample-2}
+#| echo: true
 set.seed(26)
-SampleSize = 10
-sample.2<-sample(CTA.Population, SampleSize, replace = TRUE)
+SampleSize <- 10
+sample.2 <- sample(CTA.Population, SampleSize, replace = FALSE)
 
-M.2<-mean(sample.2)
-SD.2<-sd(sample.2)
+M.2 <- mean(sample.2)
+SD.2 <- sd(sample.2)
+```
 
-tibble(CTA.2 = sample.2) %>%
+```{r sample-2-plot}
+#| fig-cap: "Ten different riders, a different afternoon, a different answer."
+#| fig-alt: "Histogram of a second set of ten CTA liking ratings on a 1 to 5 scale, with most responses clustered in the middle categories and a different shape from the first sample."
+tibble(CTA.2 = sample.2) |>
   ggplot(aes(x = CTA.2)) +
   geom_histogram(binwidth = 1, boundary = 0.5) +
   labs(
@@ -105,7 +123,7 @@ tibble(CTA.2 = sample.2) %>%
   ) + theme_bw()
 ```
 
-The new mean of this sample is $M =$ `r round(mean(sample.2),2)`. 
+The new mean of this sample is $M =$ `r round(mean(sample.2),2)`.
 
 The mean is higher now. Which sample (1 or 2) is correct? 
 
@@ -113,14 +131,30 @@ The mean is higher now. Which sample (1 or 2) is correct?
 
 Hmm, I am not sure. So to solve my problem, I will do what all **good** professors do: use coerced undergraduate labor! So I send all undergraduates in this class out to each randomly sample 10 people on different days, at different times, and on different subway lines, and collect the data. We will call it homework...yeah homework...
 
-```{r, echo=FALSE}
-set.seed(616)
-NumberofSamples=80
-SampleSize=10
-Sample.Results<-replicate(NumberofSamples,sample(CTA.Population, size = SampleSize, replace=TRUE))
-Sample.Means<-apply(Sample.Results,2,mean)
+<!-- ALEX: the next line is drafted from the review (CH05-U01), verbatim. Two problems
+     to decide on: (1) it lands right after "homework...yeah homework...", so that is two
+     punchlines back to back (voice guide §7); (2) it spends the Dean two sections early --
+     the Dean does not find out about the forced labor until "The Standard Error of the
+     Mean (SEM)" below. Options: keep it, cut "The Dean will be pleased," or move the whole
+     line down to the SEM section where the Dean is already on stage. -->
 
-tibble(CTA.means = Sample.Means) %>%
+Three lines of R replace 80 undergraduates. The Dean will be pleased.
+
+```{r brute-force}
+#| echo: true
+set.seed(616)
+NumberofSamples <- 80
+SampleSize <- 10
+
+Sample.Results <- replicate(NumberofSamples,
+                            sample(CTA.Population, size = SampleSize, replace = FALSE))
+Sample.Means <- apply(Sample.Results, 2, mean)
+```
+
+```{r brute-force-plot}
+#| fig-cap: "Eighty samples, eighty means. No single one of them is the truth; together they show how far off any one of them can be."
+#| fig-alt: "Histogram of 80 sample means, each from a sample of ten riders. The means form a roughly bell-shaped pile centered near 3, spanning from about 2.2 to about 3.8."
+tibble(CTA.means = Sample.Means) |>
   ggplot(aes(x = CTA.means)) +
   geom_histogram(binwidth = .1, boundary = 0.5) +
   labs(
@@ -151,9 +185,25 @@ For a single sample, SD is:
 
 $$S = \sqrt{\frac{\Sigma (X-M)^2}{N-1}}$$
 
+Here $N$ is the number of people in the sample: 10.
+
 For the distribution of means, we look at how each sample mean differs from the **grand mean**:
 
-$$S_M = \sqrt{\frac{\Sigma (M-M_{Grand})^2}{N-1}}$$
+$$S_M = \sqrt{\frac{\Sigma (M-M_{Grand})^2}{N_{samples}-1}}$$
+
+<!-- ALEX: the second sentence here is my punchline, not yours -- swap it for a better one.
+     The teaching part (which count is which) is above it and survives on its own. -->
+
+Here $N_{samples}$ is the number of *samples*: 80 of them, one per undergraduate. It is not the 10 people inside each sample. This distinction has cost more exam points than any other line in the chapter.
+
+::: {.callout-note title="Two Different Counts Are Hiding in This Example"}
+Our simulation contains:
+
+- **10 people per sample**, which determines how stable each sample mean is.
+- **80 repeated samples**, which lets us see the sampling distribution.
+
+In a real study, we usually collect only one sample. We cannot directly observe its entire sampling distribution, so we estimate the standard error with $S/\sqrt{N}$ — and that $N$ is back to being the 10 people.
+:::
 
 This quantity is the standard error (SE). Conceptually, it tells us: **how much we expect a sample mean to vary simply due to random sampling**.
 
@@ -168,9 +218,12 @@ The **standard error** describes how sample means would vary across repeated sam
 Same units. Different crowd. Confusing them will anger Dorkaos.
 :::
 
-```{r, echo=FALSE}
-M.S<-mean(Sample.Means)
-SD.S<-sd(Sample.Means)
+We already have the 80 means sitting in `Sample.Means`, so the standard error is one function call:
+
+```{r sampling-distribution-sd}
+#| echo: true
+M.S <- mean(Sample.Means)
+SD.S <- sd(Sample.Means)
 ```
 
 The grand mean $M_G$ = `r round(M.S,2)`
@@ -180,6 +233,13 @@ Standard error (spread of the sample means) = `r round(SD.S,2)`
 Just like $\pm2$ SD captures about 95% of individual observations in a roughly normal distribution, $\pm2$ SE captures about 95% of the sample means in the sampling distribution.
 
 In other words, if we repeatedly sample from this population, about 95% of the sample means should fall within two standard errors of the grand mean.
+
+<!-- ALEX: read this next line against your own CI callout at the end of the chapter.
+     "95% of sample means fall within 2 SE of the grand mean, THEREFORE the population mean
+     is probably in here" is the slide you spend two callouts warning against later. It is
+     the standard intro move and I did not touch it (not my call to change a claim), but
+     you may want a half-sentence here saying you are being loose on purpose and will come
+     back for it. -->
 
 Thus, the population mean is probably between:`r round(M.S-2*SD.S,2)` and `r round(M.S+2*SD.S,2)`
 
@@ -219,15 +279,6 @@ That makes intuitive sense. If I sampled 100 people per sample, there would be l
 
 According to this dusty old textbook, we can approximate the standard error of the mean using:
 
-::: {.callout-note title="Two Different Counts Are Hiding in This Example"}
-Our simulation contains:
-
-- **10 people per sample**, which determines how stable each sample mean is.
-- **80 repeated samples**, which lets us see the sampling distribution.
-
-In a real study, we usually collect only one sample. We cannot directly observe its entire sampling distribution, so we estimate the standard error with $S/\sqrt{N}$.
-:::
-
 $$S_M = \frac{S}{\sqrt{N}}$$
 
 So, if our first sample has a standard deviation of $S$ = `r round(SD.1,2)` then our estimated standard error of the mean is:
@@ -250,39 +301,11 @@ $$S_M = \frac{S}{\sqrt{N}}$$
 
 So as $N$ increases, the SEM must decrease and it does so nonlinearly.
 
-Let’s compute the SEM ($S_M$) for sample sizes from 10 to 10,000 people per sample and visualize it.
+Let’s compute the SEM ($S_M$) for sample sizes from 10 to 400 people per sample and visualize it.
 
-```{r, echo=FALSE}
-library(tidyverse)
-
-# Population SD
-pop_sd <- sd(CTA.Population)
-
-# Sample sizes
-N_vals <- 10:10000
-
-# Compute SEM for each N
-sem_df <- tibble(
-  N = N_vals,
-  SEM = pop_sd / sqrt(N)
-)
-
-# Plot
-ggplot(sem_df, aes(x = N, y = SEM)) +
-  geom_line(linewidth = 1) +
-  labs(
-    title = "Standard Error of the \nMean as a Function of Sample Size",
-    x = "Sample Size (N)",
-    y = "Standard Error of the Mean (SEM)"
-  ) +
-  theme_bw()
-```
-
-So look at that, my error drops really close to zero pretty quickly. So how many people would I need for this study? 
-
-```{r, echo=FALSE}
-library(tidyverse)
-
+```{r sem-by-n}
+#| fig-cap: "The standard error as a function of sample size. The expensive part of the curve is on the left."
+#| fig-alt: "A curve showing the standard error of the mean falling steeply from about 0.32 at a sample size of 10 to about 0.10 at a sample size of 100, then flattening out to about 0.05 by a sample size of 400."
 # Population SD
 pop_sd <- sd(CTA.Population)
 
@@ -298,7 +321,6 @@ sem_df <- tibble(
 # Plot
 ggplot(sem_df, aes(x = N, y = SEM)) +
   geom_line(linewidth = 1) +
-  coord_cartesian(ylim = c(0, .2), xlim=c(10, 400)) +
   labs(
     title = "Standard Error of the \nMean as a Function of Sample Size",
     x = "Sample Size (N)",
@@ -306,6 +328,8 @@ ggplot(sem_df, aes(x = N, y = SEM)) +
   ) +
   theme_bw()
 ```
+
+So look at that, my error drops really close to zero pretty quickly. Past about 400 the curve is basically crawling: going all the way out to 10,000 riders buys me a standard error of `r round(sd(CTA.Population)/sqrt(10000), 3)` instead of `r round(sd(CTA.Population)/sqrt(400), 3)`. So how many people would I need for this study?
 
 In short, there are diminishing returns.
 
@@ -339,11 +363,10 @@ So… you will never actually know the true population value unless you are eith
 
 Luckily, if you properly appease *Dorkaos*, the Ancient Greek God of Statistics, knower of all true distributions, with sufficient sacrifices, you may briefly glimpse the truth. Below, all is revealed:
 
-```{r, echo = FALSE}
-set.seed(42)
-library(tidyverse)
-
-tibble(CTA = CTA.Population) %>%
+```{r population-reveal}
+#| fig-cap: "The truth, briefly visible. All one million riders, with the population mean marked."
+#| fig-alt: "Histogram of one million CTA liking ratings on a 1 to 5 scale, roughly symmetric and peaking at 3, with a vertical line at 3 marking the true population mean."
+tibble(CTA = CTA.Population) |>
   ggplot(aes(x = CTA)) +
   geom_histogram(binwidth = 1, boundary = 0.5) +
   geom_vline(xintercept = 3) +
@@ -394,14 +417,21 @@ Importantly, both intervals include the true population mean. That doesn’t mea
 
 What if we ran a third sample with 100 people?
 
-```{r, echo=FALSE}
+```{r sample-3}
+#| echo: true
 set.seed(26)
-SampleSize = 100
-sample.3<-sample(CTA.Population, SampleSize, replace = TRUE)
-M3<-mean(sample.3)
-SD3<-sd(sample.3)
-SEM3<-sd(sample.3) / sqrt(100)
-tibble(CTA.3 = sample.3) %>%
+SampleSize <- 100
+sample.3 <- sample(CTA.Population, SampleSize, replace = FALSE)
+
+M3 <- mean(sample.3)
+SD3 <- sd(sample.3)
+SEM3 <- SD3 / sqrt(SampleSize)
+```
+
+```{r sample-3-plot}
+#| fig-cap: "One hundred riders. Same population, same question, a much smoother picture."
+#| fig-alt: "Histogram of one hundred CTA liking ratings on a 1 to 5 scale, peaking at 3 and falling away on both sides, noticeably smoother than the ten-person samples."
+tibble(CTA.3 = sample.3) |>
   ggplot(aes(x = CTA.3)) +
   geom_histogram(binwidth = 1, boundary = 0.5) +
   labs(
@@ -418,7 +448,7 @@ Sample 3:
 - $N = 100$,
 - $M_{Sample 3} =$ `r round(M3,2)`,  
 - $S_{Sample 3} =$ `r round(SD3,2)`,  
-- $S_M = \frac{.957}{\sqrt{100}}$ = `r round(SEM3,2)`. 
+- $S_M = \frac{`r round(SD3,2)`}{\sqrt{100}}$ = `r round(SEM3,2)`.
 
 Our 95% confidence guess is now: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)` 
 
@@ -427,11 +457,21 @@ the interval is much narrower.
 
 ### Final Report (to the CTA)
 
-So, at last, I can report that the average Chicagoan is roughly neutral toward the CTA, with a true rating that likely falls somewhere between: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)`. 
+<!-- ALEX: this is the payoff of the whole arc and it currently just reports a number.
+     Two threads are left hanging and this is the only place to land them:
+     (1) the money -- you opened with "pocket all the money" and "have you seen how much
+         groceries cost," and the chapter never says whether you got paid;
+     (2) the 90 extra riders -- the honest ending is that the cheap study was not good
+         enough and you had to go back and survey 100 people, which is the actual lesson.
+     I did not write the joke because the money bit is yours. One line here, punchline last. -->
+
+So, at last, I can report that the average Chicagoan is roughly neutral toward the CTA, with a true rating that likely falls somewhere between: `r round(M3-2*SEM3,2)` and `r round(M3+2*SEM3,2)`.
 
 Still just a guess, but now a much better one as you can see below: 
 
-```{r}
+```{r ci-comparison}
+#| fig-cap: "Three guesses at the same number. The dashed line is the truth, which we are not normally allowed to see."
+#| fig-alt: "A horizontal interval plot with three rows. Sample 1 with ten people and Sample 2 with ten people both have wide intervals; Sample 3 with one hundred people has a much narrower interval. A vertical dashed line marking the true population mean of 3 passes through all three intervals."
 # Create CI summary table
 ci_df <- tibble(
   Sample = factor(c("Sample 1 (N=10)", "Sample 2 (N=10)", "Sample 3 (N=100)"),
@@ -445,7 +485,8 @@ true_mu <- mean(CTA.Population)
 
 # Plot
 ggplot(ci_df, aes(y = Sample, x = Mean)) +
-  geom_errorbarh(aes(xmin = Lower, xmax = Upper), height = 0.25, linewidth = 1) +
+  geom_errorbar(aes(xmin = Lower, xmax = Upper),
+                orientation = "y", width = 0.25, linewidth = 1) +
   geom_point(size = 3) +
   geom_vline(xintercept = true_mu, linetype = "dashed", linewidth = 1) +
   labs(
@@ -458,7 +499,12 @@ ggplot(ci_df, aes(y = Sample, x = Mean)) +
 
 ```
 
-### What do we do with this? 
+### What do we do with this?
+
+<!-- ALEX: the answer to the heading is a sentence fragment starting with "Because."
+     It reads like the second half of a thought whose first half got cut. Suggest something
+     blunt and complete: "Nothing comforting. Samples are noisy guesses and we still have to
+     make decisions." -- but your phrasing, not mine. -->
 
 Because samples are noisy guesses, and we still need to make decisions.
 
