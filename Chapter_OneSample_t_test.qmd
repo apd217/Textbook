@@ -210,12 +210,6 @@ Recall our estimate of the standard error of the mean is estimated as follows: $
 
 SO with all 10 people, the $S_M$ = `r round(sd(Full.Data)/10^.5, 2)`
 
-<!-- ALEX: this next sentence said the 9-person case gives a "much larger" standard error.
-     It is the other way round: 9 Chicagoans give SE = 0.16, all 10 give SE = 0.91. Your
-     inline code was already printing the smaller number right after the word "larger."
-     I flipped the word. Everything downstream of here (the two curves, and your conclusion
-     that one NYer makes Chicago pizza look average) was already correct. -->
-
 If that one tourist had never walked in and only the 9 Chicagoans were measured, we would have found a very different and much *smaller* standard error, $S_M$ = `r round(sd(Chicagoan)/9^.5, 2)`
 
 We are back to which is right? Take for example now you want to compare how people rate Giordano's to the national average for pizza, which is 7.5 out of 10. In the case of only sampling Chicagoans you would ask: is Chicago pizza "better" (i.e., abnormal) than the average American pizza? Here is the same question asked twice, once with each standard error.
@@ -655,8 +649,6 @@ Large  | .8
 Huge   | 1.2
               
 ### Small Visualized
-
-
 
 ```{r effect-small}
 #| echo: false

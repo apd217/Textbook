@@ -263,7 +263,7 @@ $S_M$ = `r round(sd(sample.1) / sqrt(10), 2)`
 
 This value is not too far off from the value I estimated earlier by sending out 80 undergraduates to repeatedly run the study: SE from the “actual” sampling distribution = `r round(SD.S, 2)`.
 
-In other words: the math mostly agrees with the coerced labor. *Now I can pay my loans and buy a convertible Porsche like other middle-aged men and look ridiculous with my bald head reflecting the sun into other people's aghast faces.*
+In other words: the math mostly agrees with the coerced labor. *Now I can pay my loans and buy a convertible Porsche like other middle-aged men and look ridiculous.*
 
 ### Effect of Sample Size
 
@@ -336,12 +336,7 @@ You never actually know if your guess is right, which is why replication exists 
 
 ### What Was the Truth?
 
-<!-- ALEX: this sentence had lost its own punchline -- it read "I told you in the last
-     chapter that truth is, but in reality that means will never actually know..." I
-     restored the G'Kar quote from Ch4 ("truth is a river and god is the mouth of that
-     river"), since that is what makes the God bullets below land. Check I guessed right. -->
-
-I told you in the last chapter that truth is a river and god is the mouth of that river. In reality that means you will **never** actually know the true population value unless you are either
+I told you in the last chapter that *truth* is a river. In reality that means you will **never** actually know the true population value unless you are either
 
 - (a) an all-knowing God, or
 - (b) good friends with said God.
