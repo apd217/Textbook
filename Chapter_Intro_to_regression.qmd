@@ -1,27 +1,32 @@
 ---
 title: "Linear Regression"
-geometry: margin=.5in
-fontsize: 10pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(fig.width=4.25)
-knitr::opts_chunk$set(fig.height=4.0)
-knitr::opts_chunk$set(fig.align='center')
-knitr::opts_chunk$set(fig.show = "hold")
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.25,
+  fig.height = 4.0,
+  fig.show = "hold"
+)
 ```
 
 ```{r load libraries}
 library(ggplot2)
 ```
+
+## The Number Correlation Refused to Give You
+
+The last chapter ended on a complaint. Correlation tells you that two things move together and how tightly they do it, and then declines to say anything further. It will not tell you *why*, which is a problem for theory. It also will not tell you *how much*, which is a problem for almost everything else.
+
+You can hear the gap the moment you ask a practical question. If a student studies one more hour a week, how many exam points does that buy? An $r$ of .45 cannot answer that, and not because it is being difficult. It threw the units away on purpose, back when we divided by both standard deviations to force the answer to sit politely between $-1$ and $+1$.
+
+Regression puts the units back. It answers in points per hour, dollars per year, and scoops of ice cream per unit of happiness. Same relationship, same arithmetic underneath, but now the number means something you could act on.
+
+That is the whole upgrade, and it is why the next eight chapters are built on this one.
 
 ## Introduction to Regression
 
@@ -33,13 +38,15 @@ Regression tells us **how close those guesses tend to be**.
 
 Regression predicts. It does not automatically explain causes. If people who eat more ice cream report greater happiness, ice cream may help, happier people may seek ice cream, hot weather may increase both, or the entire pattern may be driven by one billionaire buying all the pistachio. Design and theory decide which causal stories remain plausible.
 
-**Note**: Regression assumes interval or ratio scale variables. In practice, psychologists use Likert scales all the time anyway.
+**Note**: The *outcome* in ordinary regression should be interval or ratio scale. In practice, psychologists use Likert scales all the time anyway and mostly get away with it, and there is more on that fight later. Predictors are far less picky. Over the next few chapters we will feed regression categorical variables on purpose, and it will thank us for it.
 
 ### The Experiment
 
 I bought several tubs of vanilla ice cream, scooped out different amounts, and handed them to students. After eating, they rated their happiness on a 0–10 "feelings thermometer." Nobody got zero scoops, but some got barely a teaspoon.
 
 ```{r simulate}
+#| fig-cap: "The raw data: 80 students, their scoops, and how happy they said they were afterward."
+#| fig-alt: "Scatterplot of happiness against scoops of ice cream for 80 students. Scoops run from 0 to 6, happiness from 0 to 10. The cloud drifts upward from left to right with a lot of vertical scatter."
 library(tidyverse)
 
 set.seed(343)
@@ -66,7 +73,7 @@ You can — and correlation is often the first step. But correlation only handle
 
 Here's the correlation:
 
-```{r, echo = TRUE}
+```{r correlation-first, echo = TRUE}
 library(apa)
 apa(cor.test(dat$Scoops, dat$Happiness))
 ```
@@ -84,16 +91,30 @@ Correlation and regression describe the **same linear relationship** — just di
 
 You probably remember from middle school: $y = Mx + b$
 
-The modern version:
+The modern version comes in two lines, and the difference between them matters more than almost anything else in this chapter.
 
 $$Y = B_0 + B_1X + e$$
 
+That is what the world does: model, plus miss.
+
+$$\widehat{Y} = B_0 + B_1X$$
+
+That is what the model predicts. No $e$, because the model does not know your dog died.
+
 Where:
 
-- $Y$ = predicted value
-- $B_1$ = slope (effect of X)
+- $Y$ = observed value, the score the person actually gave you
+- $\widehat{Y}$ = predicted value, what the line says they should have given you
+- $B_1$ = slope (change in prediction per one-unit increase in X)
 - $B_0$ = intercept
-- $e$ = residual (observed − predicted)
+- $e$ = residual, the gap between the two ($Y - \widehat{Y}$)
+
+The hat is the whole distinction. $Y$ is a fact about a person. $\widehat{Y}$ is a guess about a person. Mixing them up is the single most common way to get lost in regression, and it will keep mattering all the way into the mixed models at the end of Part 2.
+
+<!-- ---Alex--- CH11-P01. The old bullet list said "Y = predicted value" under an equation that
+contains e, which contradicted the residual section later. Both lines are now shown. The "does
+not know your dog died" line is from the review item, not invented here. -->
+
 
 ## The Ice Cream Model
 
@@ -103,6 +124,42 @@ We fit regression models with `lm()` (linear model). Formula structure: **DV ~ I
 Happy.Model.1 <- lm(Happiness ~ Scoops, data = dat)
 summary(Happy.Model.1)
 ```
+
+### Reading the Output Without Panic
+
+That block is the most-stared-at object in this course. You will meet it in every remaining chapter, it will grow extra rows, and at 2 a.m. before an assignment it will look like a ransom note. So here is what each region is, top to bottom.
+
+**Call.** Your own formula, echoed back. Worth an actual glance, because this is where you find out you regressed the wrong variable.
+
+**Residuals.** A five-number summary of the leftovers, the $e$ from the equation above. You are looking for a median near zero and roughly symmetric ends. Ours run from `r round(min(residuals(Happy.Model.1)), 2)` to `r round(max(residuals(Happy.Model.1)), 2)`, which means the model's worst miss was about `r round(abs(min(residuals(Happy.Model.1))), 1)` happiness points. Nobody is being lied to catastrophically.
+
+**Coefficients table.** Four columns, one row per term:
+
+- **Estimate** is $B$. The intercept row is $B_0$, the `Scoops` row is $B_1$.
+- **Std. Error** is the standard error *of that estimate*. Same species as the SEM from the standard error chapter: run the study again with 80 different people and the slope would bounce around by roughly this much.
+- **t value** is Estimate divided by Std. Error. That is the one-sample t-test logic, wearing a different hat: how many standard errors is this estimate away from zero?
+- **Pr(>|t|)** is that t's p-value, testing the null that this coefficient is really zero.
+
+**Residual standard error.** The typical size of a miss, in the outcome's own units. Ours is `r round(summary(Happy.Model.1)$sigma, 2)`, so a typical prediction is off by about `r round(summary(Happy.Model.1)$sigma, 1)` happiness points. The `on 78 degrees of freedom` is the $N-2$ we paid for in the correlation chapter, and for the same reason: two parameters estimated, this time an intercept and a slope.
+
+**Multiple R-squared.** The proportion of outcome variance the model accounts for. There is a whole section on it below.
+
+**F-statistic.** The test of the entire model at once, rather than one coefficient at a time. With a single predictor it is telling you exactly what the slope's t-test already told you, and we can prove that:
+
+```{r f-equals-t-squared, echo=TRUE}
+t.for.slope <- summary(Happy.Model.1)$coefficients["Scoops", "t value"]
+
+t.for.slope^2                          # square the slope's t
+summary(Happy.Model.1)$fstatistic[1]   # the model's F
+```
+
+Identical. With one predictor, $F = t^2$, because "is this one slope non-zero" and "does this model do anything at all" are the same question asked twice. That stops being true the moment we add a second predictor, which is precisely when $F$ starts earning its keep, in the hierarchical regression chapter.
+
+::: {.callout-tip title="The Two Numbers Everyone Skips"}
+Students read the Estimate and the p-value and stop. The two most useful numbers in that block are the ones they scroll past: the **Std. Error**, which tells you how much to trust the estimate, and the **Residual standard error**, which tells you in plain units how wrong a typical prediction is.
+
+A slope of `r round(Happy.Model.1$coefficients[2], 2)` with typical misses of `r round(summary(Happy.Model.1)$sigma, 1)` happiness points is a very different finding from the same slope with typical misses of 0.2. The p-value cannot tell those apart. You can.
+:::
 
 ### Intercept
 
@@ -116,7 +173,7 @@ Nobody had zero scoops, so we can't actually interpret this directly. **Never pr
 
 ### Slope
 
-The slope is `r Happy.Model.1$coefficients[2]`. For each additional scoop, happiness changes by that amount.
+The slope is `r round(Happy.Model.1$coefficients[2], 3)`. For each additional scoop, happiness changes by that amount.
 
 ### Making a prediction
 
@@ -154,6 +211,8 @@ mean(dat$Residual)
 The residuals have a mean of approximately zero because ordinary least squares balances the line through the data. Positive and negative mistakes cancel out.
 
 ```{r regression-residual-picture, echo=TRUE, fig.width=7, fig.height=4.4}
+#| fig-cap: "Every vertical segment is one residual: the gap between what a student reported and what the line predicted for them."
+#| fig-alt: "Scatterplot with a fitted regression line. Each observed point is joined to the line by a vertical coloured segment, blue where the person was less happy than predicted and orange where they were happier. Hollow points sit on the line at each prediction."
 ggplot(dat, aes(x = Scoops, y = Happiness)) +
   geom_smooth(method = "lm", se = FALSE, color = "gray45") +
   geom_segment(
@@ -173,6 +232,46 @@ ggplot(dat, aes(x = Scoops, y = Happiness)) +
 
 The filled points are observed happiness. The hollow points are predicted happiness. Each vertical segment is one residual. This is the error the model did not explain.
 
+## Why This Line and Not Some Other Line?
+
+Nothing so far has explained where the line came from. R drew one, we believed it. But an infinite number of straight lines could be drawn through that cloud of points, so something had to choose.
+
+Here is the rule. Take any line you like. Measure every vertical miss, square each one, and add them all up. That total is the line's score, and lower is better. The regression line is the line that makes that total as small as it can possibly be. That is the entire idea, and it is what **least squares** means.
+
+We can check that R did its job. The fitted line's squared misses:
+
+```{r least-squares-fitted, echo=TRUE}
+sum(residuals(Happy.Model.1)^2)
+```
+
+Now some rival lines. The first is the flattest possible one, a slope of zero, which ignores ice cream entirely and predicts the mean happiness for everybody. The other two keep our intercept but guess the slope wrong:
+
+```{r least-squares-rivals, echo=TRUE}
+b0 <- coef(Happy.Model.1)[1]
+
+# Slope of 0: the mean-only model, ice cream tells us nothing
+sum((dat$Happiness - mean(dat$Happiness))^2)
+
+# Too steep
+sum((dat$Happiness - (b0 + 1.5*dat$Scoops))^2)
+
+# Too flat
+sum((dat$Happiness - (b0 + 0.3*dat$Scoops))^2)
+```
+
+The fitted line wins, and it is not close. Every wrong slope costs you, and the further off you guess, the more it costs.
+
+**Why squared, and not just the raw misses?** Because raw residuals sum to zero by construction, as we saw a moment ago. A criterion that adds up to zero for every possible line is a criterion that cannot choose between lines. Squaring kills the signs, which is exactly the trick variance pulled back in the distributions chapter, for exactly the same reason. It also means one enormous miss hurts far more than several small ones, which is a genuine design decision and not a neutral one.
+
+Hold onto that mean-only number, `r round(sum((dat$Happiness - mean(dat$Happiness))^2), 1)`. It is the score of a model with no predictor in it: your best guess before ice cream entered the room. The fitted line scores `r round(sum(residuals(Happy.Model.1)^2), 1)`. The gap between those two numbers is what ice cream bought you, and turning that gap into a proportion is the entire content of the $R^2$ section coming up.
+
+<!-- ---Alex--- CH11-U02, all new. Two things to check: (1) the mean-only comparison is doing
+double duty on purpose, it sets up R-squared two sections later so the reader meets 1 - 220/346
+having already seen both numbers; (2) I called squaring "a genuine design decision and not a
+neutral one" as a quiet forward pointer to outliers and influence in the diagnostics chapter.
+Cut that clause if it feels like too much for Week 5. -->
+
+
 ## The Assumptions: What Could Make the Line Lie?
 
 Regression assumptions are claims about the errors left after fitting the line. They are not personality tests that the raw variables must pass before R permits them into the building.
@@ -188,6 +287,8 @@ For now, focus on five questions:
 ### Residuals Versus Fitted Values
 
 ```{r regression-residual-fitted, echo=TRUE, fig.width=6.5, fig.height=4}
+#| fig-cap: "Residuals against fitted values. We want a boring cloud around the dashed line, and this one is reasonably boring."
+#| fig-alt: "Scatterplot of residuals against fitted happiness values, with a dashed horizontal line at zero. Points scatter above and below the line with no obvious curve or funnel shape."
 plot(
   fitted(Happy.Model.1),
   residuals(Happy.Model.1),
@@ -210,6 +311,8 @@ Changing residual spread can mean the uncertainty differs across people or condi
 ### The Q-Q Plot
 
 ```{r regression-qq, echo=TRUE, fig.width=5.5, fig.height=4.2}
+#| fig-cap: "A Q-Q plot of the residuals. Points near the line mean the residuals are behaving roughly normally."
+#| fig-alt: "Q-Q plot with sample residual quantiles on the vertical axis and theoretical normal quantiles on the horizontal axis. Points follow the diagonal reference line closely, with mild departure at the lower tail."
 qqnorm(residuals(Happy.Model.1), pch = 19, col = "#1F4E79")
 qqline(residuals(Happy.Model.1), col = "#D55E00", lwd = 2)
 ```
@@ -219,6 +322,8 @@ A **Q-Q plot** compares the ordered residuals with values expected from a normal
 R can produce four standard diagnostic plots at once:
 
 ```{r regression-four-diagnostics, echo=TRUE, fig.width=7, fig.height=6.5}
+#| fig-cap: "The four diagnostic plots R gives you for free. The top two are the ones we just built by hand."
+#| fig-alt: "A two-by-two panel of regression diagnostics: residuals versus fitted, a normal Q-Q plot, a scale-location plot, and a residuals versus leverage plot with Cook's distance contours."
 par(mfrow = c(2, 2))
 plot(Happy.Model.1)
 par(mfrow = c(1, 1))
@@ -229,6 +334,8 @@ The first two are the residual-versus-fitted and Q-Q plots we just learned. The 
 ## Residual Variance and $R^2$
 
 Before using ice cream to predict happiness, our best simple guess for everyone was the mean. The total variance describes how far scores spread around that mean. After fitting the model, residual variance describes how far scores spread around the regression line.
+
+Those are the two lines we just raced. The mean-only model was the flat one that lost; the fitted line was the one that won. $R^2$ is simply that race expressed as a proportion: of all the spread we started with, what fraction did the line manage to account for?
 
 ```{r regression-variance-explained, echo=TRUE}
 TotalVariance <- var(dat$Happiness)
@@ -256,7 +363,9 @@ summary(std.reg)
 
 ### What didn't change?
 
-The **t-statistic and p-value** for the slope. These don't change with any linear rescaling, so you can transform or rescale variables whenever you want without affecting statistical significance.
+The **t-statistic and p-value** for the slope. These don't change under any *linear* rescaling: adding constants, multiplying by constants, z-scoring. Shift and stretch the axes all you like and the significance test is untouched.
+
+Nonlinear transformations are a different animal. Logs, square roots, and powers change the model itself, along with $t$, $p$, and what the slope even means. The correlation chapter showed this the hard way with ice-cream⁴, where a perfectly good relationship fell apart the moment we bent the scale.
 
 ### What changed?
 
@@ -266,7 +375,7 @@ The **t-statistic and p-value** for the slope. These don't change with any linea
 print(summary(std.reg), digits = 6)
 ```
 
-```{r, echo=TRUE}
+```{r correlation-again, echo=TRUE}
 cor.test(dat$Happiness, dat$Scoops)
 ```
 
@@ -296,11 +405,53 @@ $$Mean(Y) = B_0 + B_1 \times Mean(X)$$
 
 Solve for $B_0$ and you're done.
 
+## APA Style Report
+
+Here is how the whole thing gets written up. Every number below is computed from the model rather than typed, which is why it cannot go stale when the data change.
+
+```{r apa-pieces}
+m  <- summary(Happy.Model.1)
+b1 <- m$coefficients["Scoops", "Estimate"]
+se <- m$coefficients["Scoops", "Std. Error"]
+tv <- m$coefficients["Scoops", "t value"]
+df <- df.residual(Happy.Model.1)
+beta <- coef(lm(scale(Happiness) ~ scale(Scoops), data = dat))[2]
+
+# APA drops the leading zero on statistics that cannot exceed 1 (beta, R^2, r, p)
+apa.dec <- function(x, d = 2) sub("^(-?)0", "\\1", sprintf(paste0("%.", d, "f"), x))
+```
+
+> Ice cream consumption significantly predicted happiness, $b =$ `r round(b1, 2)`, $SE =$ `r round(se, 2)`, $\beta =$ `r apa.dec(beta)`, $t(`r df`) =$ `r round(tv, 2)`, $p < .001$. The overall model explained `r round(m$r.squared * 100, 1)`% of the variance in happiness, $R^2 =$ `r apa.dec(m$r.squared, 3)`, $F(1, `r df`) =$ `r round(m$fstatistic[1], 2)`, $p < .001$.
+
+Then say what it means in words a human would use:
+
+> Each additional scoop predicted about `r round(b1, 2)` more points of happiness on the 0 to 10 thermometer.
+
+A few things to notice, because this paragraph is the template for every regression write-up in the rest of the book:
+
+- Report $b$ **and** $SE$ **and** $t$ **and** $p$ for the predictor. The slope alone is not a result, it is half of one.
+- Report the model as a whole with $R^2$ and $F$, including both degrees of freedom: $F(1, `r df`)$. The 1 is the number of predictors, the `r df` is $N-2$.
+- That $\beta$ of `r apa.dec(beta)` should look familiar. It is the correlation from the top of this chapter, which is the payoff we proved a section ago. In simple regression you can report either, but never present them as two separate findings.
+- The plain-English sentence is not optional decoration. Being able to say what your slope means in the units your grandmother would understand is a graded skill, in this course and in every paper you will ever write.
+
+::: {.callout-warning title="p < .001 Is a Claim, Not a Default"}
+The write-up above says $p < .001$ because this model's p-value genuinely is `r format(m$coefficients["Scoops", "Pr(>|t|)"], digits = 3)`. Report the exact value to two or three decimals whenever it is larger than .001, and never copy `p < .001` out of an example because it looked authoritative.
+:::
+
+<!-- ---Alex--- CH11-U03, all new, and the piece I would most like your eyes on since it is
+the template every later chapter copies. Two calls I made: (1) the beta is recomputed inline
+from a standardized model rather than reusing std.reg from the section above, so this block
+stands alone if a reader jumps straight here from the homework; (2) I added the p < .001
+callout because the drafted write-up hard-codes that string, and students copy example
+write-ups verbatim. Cut it if it is one warning too many. -->
+
 ## The Short Story
 
 - Simple linear regression predicts a quantitative outcome from one predictor.
 - The intercept is the predicted outcome when $X=0$.
 - The slope is the expected change in $Y$ for a one-unit increase in $X$.
+- The line is chosen by **least squares**: of all possible lines, it is the one with the smallest total of squared vertical misses.
+- In the `summary()` output, Std. Error says how much to trust the estimate and Residual standard error says how wrong a typical prediction is. With one predictor, $F = t^2$.
 - Residuals are observed outcomes minus predicted outcomes: the model's leftovers.
 - $R^2$ is the proportion of observed outcome variance explained by the fitted linear model.
 - With one predictor, the standardized slope equals Pearson's $r$.
