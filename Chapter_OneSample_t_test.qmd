@@ -491,6 +491,41 @@ Kids.t.test <- t.test(x = kids.1, #we put the vector of scores in
 
 Kids.t.test
 ```
+
+### Reading What R Just Handed You
+
+That is the first real block of R output in this book, and it is a wall. Here is every line of it, in order, in English.
+
+```
+	One Sample t-test          <- which test R decided to run
+
+data:  kids.1                  <- the object you handed it
+
+t = 2.4138, df = 9,            <- the test statistic and its degrees of freedom
+p-value = 0.03901              <- the p-value, exact, not rounded to stars
+
+alternative hypothesis: true mean is not equal to 50
+                               <- your H1, in words. R is repeating your
+                                  mu = 50 and your "two.sided" back to you
+
+95 percent confidence interval:
+ 50.19156 55.90708             <- the interval around the SAMPLE mean
+
+sample estimates:
+mean of x
+ 53.04932                      <- the mean of your data
+```
+
+Five things worth noticing, because these are the five things students get wrong:
+
+1. **`t = 2.4138` is the number you just computed by hand.** Scroll up. It matches. R did not do anything mysterious, it did the same division faster.
+2. **`df = 9`, not 10.** Degrees of freedom are $n - 1$. You have ten children and nine degrees of freedom, and this is the number you take to the t-table, not your sample size.
+3. **The `alternative hypothesis` line is R repeating your own instructions back to you.** It says "not equal to 50" because you typed `mu = 50` and `alternative = "two.sided"`. If that line does not describe the test you meant to run, you typed the wrong thing, and this is the line that tells you so. Read it every single time.
+4. **The confidence interval is around your sample mean, not around 50.** It runs from 50.19 to 55.91, and the interesting thing is what it does *not* contain: 50, our hypothesized value, sits just outside the bottom end. That is the same conclusion as the p-value, arriving by a different road.
+5. **`sample estimates: mean of x` is just the mean of your data.** R labels it `x` because that is the argument name you filled in. It is not a new quantity, it is `mean(kids.1)`.
+
+What R does *not* give you: an effect size. There is no $d$ anywhere in that output. That absence is the whole reason for the next chapter.
+
 ### Test Statistic Result
 
 We get a $t_{test} =$ `r round(Kids.t.test$statistic, 3)`. Now, the question is: **does this value fall in the tail of the population distribution**?

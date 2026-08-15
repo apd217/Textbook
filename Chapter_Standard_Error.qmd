@@ -64,12 +64,15 @@ I enter a random subway car, at a random time, and randomly select 10 people and
 
 ```{r sample-1}
 #| echo: true
-set.seed(1)
+set.seed(1)          # makes the "random" draw repeatable, so you get my numbers
 SampleSize <- 10
+
+# sample() reaches into the population and pulls out 10 riders at random.
+# replace = FALSE means we cannot survey the same person twice.
 sample.1 <- sample(CTA.Population, SampleSize, replace = FALSE)
 
-M.1 <- mean(sample.1)
-SD.1 <- sd(sample.1)
+M.1  <- mean(sample.1)   # this sample's mean
+SD.1 <- sd(sample.1)     # this sample's standard deviation
 ```
 
 ```{r sample-1-plot}
@@ -93,11 +96,11 @@ Same code. New seed, new subway car.
 
 ```{r sample-2}
 #| echo: true
-set.seed(26)
+set.seed(26)         # a different seed, so a different 10 riders
 SampleSize <- 10
 sample.2 <- sample(CTA.Population, SampleSize, replace = FALSE)
 
-M.2 <- mean(sample.2)
+M.2  <- mean(sample.2)
 SD.2 <- sd(sample.2)
 ```
 
@@ -130,10 +133,16 @@ set.seed(616)
 NumberofSamples <- 80
 SampleSize <- 10
 
+# replicate() runs the same line over and over. Here it runs the sampling
+# 80 times, once per undergraduate, and stacks the results into a table
+# with one column per sample.
 Sample.Results <- replicate(NumberofSamples,
-                            sample(CTA.Population, 
-                                   size = SampleSize, 
-                                   replace = FALSE)) 
+                            sample(CTA.Population,
+                                   size = SampleSize,
+                                   replace = FALSE))
+
+# apply() runs a function down each row (1) or each column (2) of that table.
+# We want the mean of each sample, and samples are columns, so we use 2.
 Sample.Means <- apply(Sample.Results, 2, mean)
 ```
 
@@ -205,8 +214,9 @@ We already have the 80 means sitting in `Sample.Means`, so the standard error is
 
 ```{r sampling-distribution-sd}
 #| echo: true
-M.S <- mean(Sample.Means)
-SD.S <- sd(Sample.Means)
+# Note what these are running on: Sample.Means, the 80 means themselves.
+M.S  <- mean(Sample.Means)   # the grand mean, a mean OF means
+SD.S <- sd(Sample.Means)     # the standard error, an SD OF means
 ```
 
 The grand mean $M_G$ = `r round(M.S,2)`

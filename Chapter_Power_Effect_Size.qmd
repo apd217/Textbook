@@ -519,12 +519,19 @@ round(c(M = M_kids, SD = S_kids, n = length(kids.1), d = d_kids), 3)
 Suppose we are designing this study fresh and expect a small-to-medium effect, $d = .4$. How many children do we need for 80% power?
 
 ```{r one-sample-80}
-At.Power.80 <- power.t.test(n = NULL, delta = .4, sd = 1,
-                            sig.level = 0.05, power = .80,
-                            type = "one.sample",
+At.Power.80 <- power.t.test(n = NULL,              # <- the unknown we want solved
+                            delta = .4,            # the effect size we expect
+                            sd = 1,                # sd = 1 makes delta mean "Cohen's d"
+                            sig.level = 0.05,      # our alpha
+                            power = .80,           # the power we are demanding
+                            type = "one.sample",   # which t-test
                             alternative = "two.sided")
 At.Power.80
 ```
+
+That is one function with one trick, and the trick is the `NULL`. `power.t.test()` takes five quantities that constrain each other, and it solves for **whichever one you leave as `NULL`**. Here we left `n = NULL` and asked how many people we need. Leave `power = NULL` instead and it tells you the power you have. Leave `delta = NULL` and it tells you the smallest effect you could catch. Same function, three different questions, and we will ask all three below.
+
+The `sd = 1` is worth a second look too. It is not a claim about your data. Setting it to 1 puts `delta` in standard-deviation units, which means you can hand `delta` a Cohen's $d$ directly and R will do the right thing.
 
 We always **round up**: `r ceiling(At.Power.80$n)` children. You cannot recruit a fractional child, and rounding down leaves you below your target.
 
@@ -545,6 +552,7 @@ ceiling(At.Power.95$n)
 If the sample size is already fixed, perhaps because that is how many children were available, or how much money you had, run it the other way.
 
 ```{r solve-power}
+# Same function. This time n is known and power is the NULL.
 AP.Power.N36 <- power.t.test(n = 36, delta = .4, sd = 1,
                              sig.level = 0.05, power = NULL,
                              type = "one.sample",
@@ -559,6 +567,7 @@ With 36 children and a true $d$ of .4, we had a `r round(AP.Power.N36$power,3)*1
 The third useful question: given my sample, what is the *smallest* effect I could reliably find?
 
 ```{r solve-d}
+# Third question, same function. Now delta is the NULL.
 Eff.Power.N36 <- power.t.test(n = 36, delta = NULL, sd = 1,
                               sig.level = 0.05, power = .80,
                               type = "one.sample",

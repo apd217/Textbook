@@ -58,22 +58,30 @@ Counterbalancing does not fix everything. Chocolate eaten in the first session d
 set.seed(343)
 
 n <- 48
+
+# Each student gets a personal tendency to stare, high or low, that follows
+# them into BOTH conditions. This is what makes the two scores correlated,
+# and it is the thing pairing will subtract back out.
 participant_effect <- rnorm(n, mean = 0, sd = 1.20)
 
 paired_wide <- data.frame(
   participant = factor(seq_len(n)),
+  # each condition = a baseline + that person's tendency + fresh noise
   no_chocolate = 5.00 + participant_effect + rnorm(n, 0, 0.80),
   chocolate = 5.75 + participant_effect + rnorm(n, 0, 0.80)
 )
 
+# one difference score per person: the whole test runs on this column
 paired_wide$difference <-
   paired_wide$chocolate - paired_wide$no_chocolate
 
+# pivot_longer() stacks the two condition columns into one, turning
+# 48 rows into 96. See the wide-vs-long section below for why we want both.
 paired_long <- tidyr::pivot_longer(
   paired_wide,
-  cols = c(no_chocolate, chocolate),
-  names_to = "condition",
-  values_to = "fixation"
+  cols = c(no_chocolate, chocolate),   # the columns to stack
+  names_to = "condition",              # new column holding the old column names
+  values_to = "fixation"               # new column holding the values
 )
 
 paired_long$condition <- factor(
@@ -164,13 +172,15 @@ This is the one-sample t-test from the earlier chapter. The paired t-test does n
 
 ```{r paired-t-test}
 paired_result <- t.test(
-  paired_wide$chocolate,
-  paired_wide$no_chocolate,
-  paired = TRUE
+  paired_wide$chocolate,       # first vector
+  paired_wide$no_chocolate,    # second vector, in the SAME person order
+  paired = TRUE                # the one argument that changes everything
 )
 
 paired_result
 ```
+
+`paired = TRUE` is doing all the work in that call. Without it, R would compare the two columns as though they came from 96 unrelated students. With it, R matches them row by row, subtracts, and tests the differences. Which means **row order matters**: row 1 of the first vector must be the same human as row 1 of the second.
 
 ### R Has Become Picky About the Formula Method
 
@@ -183,6 +193,8 @@ t.test(fixation ~ condition, data = paired_long, paired = TRUE)
 Use the two paired vectors, as above. Even better, make the pairing visible by calculating the differences yourself:
 
 ```{r difference-score-test}
+# A one-sample t-test on the difference column, asking whether it differs from 0.
+# No paired = TRUE needed, because we already did the subtracting ourselves.
 difference_result <- t.test(paired_wide$difference, mu = 0)
 difference_result
 ```
@@ -202,6 +214,7 @@ d_z=\frac{M_D}{S_D}
 $$
 
 ```{r paired-effect-size}
+# Note the denominator: the SD of the DIFFERENCES, not of either condition.
 d_z <- mean(paired_wide$difference) /
   sd(paired_wide$difference)
 
