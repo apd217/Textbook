@@ -194,6 +194,14 @@ $$
 Cov_{xy}  = \frac{\sum(X-M_X)(Y-M_Y)}{n-1} = \frac{SP_{xy}}{n-1}
 $$
 
+::: {.callout-note title="Why You Have to Sit Through This Part"}
+This is the most formula-heavy stretch of the chapter, and it is fair to ask why you are being made to look at it.
+
+You are not here because I want you to suffer. The sum of squares, the sum of products, and the $n-1$ underneath them are the parts that nearly everything later in this book is assembled from. Regression slopes, $R^2$, model comparison, and the mixed models at the end of Part 2 are all built out of these same few pieces, usually without anyone stopping to reintroduce them.
+
+So learn them here, on five numbers you can check by hand in about a minute. Every time they come back wearing a different name, and they will, you will already know what you are looking at.
+:::
+
 ### Perfect Positive Relationship
 
 Why would we do this? Let's start with an illustrative example, using the smallest dataset that will sit still. Take one variable, $X = 1,2,3,4,5$, and find its variance.
@@ -347,7 +355,7 @@ Other types we will not cover:
 - Point-biserial correlation (quantitative by genuinely dichotomous)
 - Polychoric (ordinal vs ordinal) [used more in psychometrics or factor analysis of ordinal by ordinal]
 - Tetrachoric correlation (dichotomous vs. dichotomous, under a latent-continuous-variable model)
-- Psychopathic correlation, used only when you want to cause insanity in your reader of your paper
+- Psychopathic correlation, used only when you want to cause insanity in the reader of your paper
 
 These measures do **not** all share one assumption set. Classical inference for Pearson's correlation commonly assumes independent pairs and, for its exact small-sample test, bivariate normality. Bivariate normality describes the joint distribution of two variables; it does not mean they become normal when “added together,” and it certainly does not mean the two variables must be independent. If they were independent, their population correlation would be zero, which would make this a remarkably short chapter.
 
@@ -434,12 +442,24 @@ Corr.Result.1<-cor.test(~Happiness + IceCream, data= CorrData,
 ```
 
 ### P-value for Pearson's Correlation
-The classical p-value for Pearson's correlation is adapted from the *t*-distribution which we covered in chapter on one-sample *t*-test. 
+The classical p-value for Pearson's correlation is adapted from the *t*-distribution which we covered in chapter on one-sample *t*-test.
+
+The statistic is built from $r$ and the sample size, and nothing else:
+
+$$t = \frac{r\sqrt{N-2}}{\sqrt{1-r^2}}$$
+
+That $N-2$ is the degrees of freedom, and it is worth knowing where the 2 went.
+
+Before you can compute a single deviation score, you have to know where the middle is. So you estimate $M_X$ from your own data, and that costs one degree of freedom. Then you estimate $M_Y$, and that costs another. One mean per variable, two variables, so $N-2$ are left. This is the same tax that makes each variance divide by $n-1$ rather than $n$: you pay once, per variable, for having to find its center first.
+
+With our `r nrow(CorrData)` people, that leaves `r Corr.Result.1$parameter` degrees of freedom.
+
+You will meet this exact number again from the other direction. In regression, a straight line has two parameters, an intercept and a slope, and fitting each one costs a degree of freedom. Two parameters, $N-2$ left over. Same number, same reason, different story about it.
 
 
 ### Report them in APA format
 
-The `cor_apa` function in the APA package will report it in APA format for you. Here, $r(df)$ gives Pearson's $r$ and its degrees of freedom. The degrees of freedom equal $N-2$ because two variables are involved. The function has several output-format options. 
+The `cor_apa` function in the APA package will report it in APA format for you. Here, $r(df)$ gives Pearson's $r$ and its degrees of freedom, which is the $N-2$ we just paid for. The function has several output-format options.
 
 ```{r pearson-apa, results="asis"}
 library(apa)
@@ -451,6 +471,14 @@ cor_apa(Corr.Result.1,format ="rmarkdown")
 No matter the mean differences or range of scores, the Pearson's r will give the same results. We can also z-score the data and get the same result. However, if they are scaled non-linearly (sqrt, ^2, log,...) the correlation will change.
 
 This is worth proving rather than saying with fancy words, so the next four sections do the same analysis four times while abusing the measurement scale in a different way each time. Watch the reported $r$ in the corner of each plot. Three of the four will not move.
+
+::: {.callout-warning title="That Corner Label Is Not APA, and That Is Fine Here"}
+The correlation printed on these plots comes from `ggpubr`, and it takes liberties. It writes a capital $R$ where APA wants a lowercase italic $r$. It reports no degrees of freedom at all. It prints the p-value in scientific notation instead of as $p < .001$.
+
+None of that belongs in a manuscript. All of it is fine right now, because these four plots exist so we can glance at a graph and see whether the number moved. Writing mountains of code to produce a journal-ready figure, just to check something with our own eyes, is a waste of an afternoon.
+
+Keep that distinction for the rest of the book. Some code is for us: fast, slightly ugly, written to figure out what the data are doing. Other code is for the journal: slow and fussy, written so the output looks the way reviewers expect it to look. The `cor_apa` call above is the second kind. This corner label is the first kind. Use each where it belongs, and never paste the first kind into a paper.
+:::
 
 
 ### Scale change: Add a constant (shift the mean)
