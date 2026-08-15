@@ -26,9 +26,25 @@ the diff and merges into `main` themselves — do not merge or push to `main`.
 **Part 1 is finished.** Every approved item in `01`–`09` is implemented and marked. Do not
 re-open those chapters except on Alex's instruction.
 
-**Chapter 10 is finished**, including a voice pass Alex asked for after reading it. **Every
-item in `10`–`25` is now approved** (Alex ticked them all on 2026-08-15), so approval is no
-longer the gate. Remaining Part 2 work is chapters 11–18.
+**Chapters 10, 11, 12 and 13 are finished.** **Every item in `10`–`25` is approved** (Alex
+ticked them all on 2026-08-15), so approval is no longer the gate.
+
+**Remaining Part 2 work: chapters 14, 15, 16, 17, 18.** Suggested grouping, and the reasoning
+matters more than the grouping:
+
+- **14 (Control) + 15 (Hierarchical) together.** They are joined by one identity: CH15-P02
+  asks for the callback that $\Delta R^2$ *is* the $sr^2$ from the Control chapter, computed on
+  the same data. Doing them in one session is how that stays consistent. Note the reorder put
+  Hierarchical *before* Control, so Control is now the payoff chapter and Hierarchical is where
+  the reader first meets $\Delta R^2$. CH15-B01 is already moot.
+- **16 (Interaction) + 17 (CatXCat) together.** CH16-P01 and CH17-P02 are the *same* bug: the
+  DV is a 0–100 closeness thermometer but both chapters keep calling it a count of friends.
+  Fixing it in one and not the other leaves the book contradicting itself. These are also the
+  two largest files in Part 2 (44KB and 36KB).
+- **18 (Mixed Regression) on its own, with a fresh session.** CH18-U01 is a real code
+  conversion (glmmTMB → lmer, which changes every output in the chapter) and CH18-U02 is new
+  voice-bearing narrative that this README classifies as Tier 3. Do not tack it onto the end
+  of a long session.
 
 **The Part 2 ordering swap is done.** Hierarchical now sits directly after Multiple Regression,
 with Control closing the trilogy. See the DECIDED block in `00_OVERVIEW.md` §2. Recommendation
