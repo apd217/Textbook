@@ -1,12 +1,5 @@
 ---
 title: "Power and Effect Size"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -30,13 +23,26 @@ A few figures in this chapter are generated with genuinely unpleasant code. Wher
 If you find yourself reading the hidden code anyway, welcome. Dorkaos, the Ancient Greek God of Statistics, is watching, and He approves.
 :::
 
+::: {.callout-tip title="Where the Exam Material Lives in This Chapter"}
+This is the longest chapter in the book, so here is the map before you start.
+
+- **First section**: *why* power exists, which comes down to the fact that small samples flatter you. Conceptually the hardest part, and not the part your exam asks about.
+- **The middle**: the vocabulary that is on the exam (Type I and Type II error, $\alpha$, $\beta$, power) and how to compute power in R. If you are short on time, start at "Type I and Type II Error" and read forward.
+- **Advanced Topics at the end**: for when someone you love runs a pilot study. Genuinely optional.
+:::
+
 ## Probability Is Fickle
 
 Before we can talk about power, we have to admit something uncomfortable about small samples.
 
 Recall that the standard error is the standard deviation of sample means. Let us build a population for children's hyperactivity scores, the same population from the one-sample t-test chapter, with $\mu = 50$ and $\sigma = 5$.
 
-```{r population-pdf, echo=FALSE, fig.width=5.0, fig.height=3.0}
+```{r population-pdf}
+#| echo: false
+#| fig-width: 5.0
+#| fig-height: 3.0
+#| fig-cap: "The population of hyperactivity scores, with the middle 95% shaded."
+#| fig-alt: "A normal curve centered on 50. The region between about 40 and 60 is filled in red, and a label above reports that this shaded area holds 95% of children."
 mu <- 50
 sigma <- 5
 lb <- mu - sigma * 1.96
@@ -64,7 +70,12 @@ About 95% of children score between `r round(lb,2)` and `r round(ub,2)`. Fine. N
 
 Suppose we run ten separate studies, each with $n = 13$ children. Ten data collections, thirteen children each, one hyperactivity score per child.
 
-```{r ten-samples, echo=FALSE, fig.width=5.0, fig.height=3.0}
+```{r ten-samples}
+#| echo: false
+#| fig-width: 5.0
+#| fig-height: 3.0
+#| fig-cap: "Ten studies, ten means. None of them is 50, and that is the point."
+#| fig-alt: "Histogram of ten study means spread between about 48 and 51, scattered around the true population mean of 50 rather than landing on it."
 set.seed(543)
 N <- 13; M <- 50; SD <- 5; samples <- 10
 Sample.Means <- replicate(samples, mean(rnorm(n = N, mean = M, sd = SD)))
@@ -90,25 +101,36 @@ Those are not the same number. **Why?**
 
 ### The Answer Is Unpleasant
 
-Our samples were small. With only thirteen children, we are most likely to grab people from the fat middle of the distribution, because that is where most people live. The extremes are rare, so small samples usually miss them. Miss the extremes, and your estimate of spread comes out too small.
+Two different things are wobbling here, and they are worth keeping apart, because this is exactly the two-counts trap the standard error chapter warned about.
 
-Let us prove it with brute force. We will repeat the entire ten-study exercise 5,000 times and look at the distribution of the standard errors we get.
+The first is not very interesting. We computed a standard deviation from only **ten numbers**, the ten study means. A standard deviation built from ten values is itself a shaky estimate, and some of that gap is just that.
 
-```{r sem-fickle, echo=FALSE, fig.width=5.0, fig.height=3.0}
+The second one is the reason this chapter exists. The same disease infects the $S$ that any single study computes from its **thirteen children**. With only thirteen people, you are most likely to grab from the fat middle of the distribution, because that is where most people live. The extremes are rare, so small samples usually miss them. Miss the extremes, and your estimate of spread comes out too small.
+
+Let us prove that second one with brute force. We will run 5,000 separate studies of thirteen children each, and look at the standard deviation each study reports back:
+
+```{r sem-fickle}
+#| echo: true
+#| fig-width: 5.0
+#| fig-height: 3.0
+#| fig-cap: "What 5,000 small studies report as their SD, against the truth in red."
+#| fig-alt: "Histogram of standard deviations reported by 5,000 studies of thirteen children each. The pile is slightly right-skewed and sits noticeably to the left of a thick red vertical line marking the true sigma of 5, showing that most studies report a spread smaller than the real one."
 set.seed(543)
-N <- 13; M <- 50; SD <- 5; samples <- 10
-Sample.SD <- replicate(5000,
-                       sd(replicate(samples, mean(rnorm(n = N, mean = M, sd = SD)))))
+
+# Run 5,000 studies. Each one grabs 13 children from a population where we
+# KNOW the true spread is sigma = 5, and reports the SD it happened to see.
+Sample.SD <- replicate(5000, sd(rnorm(n = 13, mean = 50, sd = 5)))
 
 hist(Sample.SD,
      main = "Histogram",
-     xlab = "Empirical SEM: \n5000 replications of SD(10 studies of n = 13)",
-     ylab = "Frequency",
-     xlim = c(0, 3))
-abline(v = 5/sqrt(13), col = "red", lwd = 4)
+     xlab = "SD reported by each study \n(5000 studies, n = 13 each)",
+     ylab = "Frequency")
+abline(v = 5, col = "red", lwd = 4)   # the TRUE sigma
 ```
 
-The red line is the theoretical standard error. Notice the histogram is **not symmetric around it**. In this simulation, `r round(mean(Sample.SD < (5/sqrt(13))),3)*100`% of the estimates fall *below* the theoretical value and only `r round(mean(Sample.SD > (5/sqrt(13))),3)*100`% fall above.
+The red line is the truth, $\sigma = 5$. Notice the histogram is **not centered on it**. In this simulation `r round(mean(Sample.SD < 5),3)*100`% of studies reported a standard deviation *below* the true value and only `r round(mean(Sample.SD > 5),3)*100`% landed above it. The average study reported `r round(mean(Sample.SD),2)` when the truth was 5.
+
+That is not a rounding artifact, it is a known bias, and the theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of $S$ works out to `r round(sqrt(2/12)*gamma(6.5)/gamma(6)*5, 3)`. Our 5,000 simulated studies averaged `r round(mean(Sample.SD),3)`. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.
 
 Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known $\sigma$ and started using a sample $S$ as an approximation, and it is why we have a t-distribution at all.
 
@@ -161,66 +183,20 @@ Psychology and neuroscience have historically obsessed over Type I error and tre
 
 Given that I must estimate my standard error from a wobbly $S$, I need a way to say how "big" an effect is in the first place.
 
-Cohen borrowed the idea from signal detection theory, developed alongside radio and radar. The question there was: how strong must a signal be before you can detect it over the noise? For us, the noise is the control condition and the signal is the effect of the treatment.
+Cohen borrowed the idea from signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The [one-sample t-test chapter](Chapter_OneSample_t_test.qmd) built $d$ out of those two curves and drew the pictures, so we do not need to do that again. The one-line version: $d$ is the distance between the noise distribution and the signal-plus-noise distribution, measured in standard deviations.
 
-The hearing-test version of the table above is worth keeping in your head, because it is the same table:
+What that chapter did not point out is that signal detection theory hands us this chapter's 2×2 for free. Here is the hearing-test version of the table above, and it is the *same table*:
 
 |  | There **was** a beep | There was **no** beep |
 |-------------|---------------|-------------------|
 | You said **YES** | Hit | False alarm |
 | You said **NO** | Miss | Correct rejection |
 
-Hit, miss, false alarm, correct rejection. Power, Type II error, Type I error, correct decision. Same 2×2, different lab coat.
-
-```{r sdt-figure, echo=FALSE, fig.width=6.25, fig.height=3.0}
-m1 <- 0; sd1 <- 1.5
-m2 <- 3.5; sd2 <- 1.5
-
-x <- seq(min(m1 - sd1*4, m2 - sd2*4), max(m1 + sd1*4, m2 + sd2*4), .01)
-
-df1 <- data.frame(x = x, y = dnorm(x, m1, sd1), id = "h0")
-df2 <- data.frame(x = x, y = dnorm(x, m2, sd2), id = "h1")
-poly <- rbind(df1, df2)
-
-ggplot(poly, aes(x, y, group = id)) +
-  geom_polygon(alpha = 0.8, show.legend = FALSE) +
-  geom_line(data = df1, aes(x, y, color = "H0"),
-            linewidth = 1.5, show.legend = FALSE) +
-  geom_line(data = df2, aes(x, y, color = "HA"),
-            linewidth = 1.5, show.legend = FALSE) +
-  scale_color_manual(values = c("HA" = "#981e0b", "H0" = "black")) +
-  annotate("segment", x = m1 + .4, y = 0.265, xend = m2 - .4, yend = 0.265,
-           color = "blue", arrow = arrow(length = unit(0.3, "cm")), linewidth = 1) +
-  annotate("segment", x = m2 - .4, y = 0.265, xend = m1 + .4, yend = 0.265,
-           color = "blue", arrow = arrow(length = unit(0.3, "cm")), linewidth = 1) +
-  annotate("text", label = "d", x = (m1 + m2)/2, y = 0.25, size = 8) +
-  annotate("text", label = "N", x = m1, y = 0.28, size = 8) +
-  annotate("text", label = "N + S", x = m2, y = 0.28, size = 8) +
-  ggtitle("Signal Detection") +
-  theme(panel.grid = element_blank(),
-        panel.background = element_blank(),
-        plot.background = element_rect(fill = "#ffffff"),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 22))
-```
-
-$$
-d = \frac{\mu_{(Noise+Signal)} - \mu_{(Noise)}}{\sigma_{(Noise)}}
-$$
-
-Note the implicit assumption hiding in that denominator:
-
-$$
-\sigma_{(Noise)} = \sigma_{(Noise+Signal)}
-$$
-
-We are assuming the treatment shifts the distribution without changing its spread. Sometimes that is true. Sometimes a treatment helps some people enormously and others not at all, which changes the spread, and then this formula is quietly describing a world that does not exist.
+Hit, miss, false alarm, correct rejection. Power, Type II error, Type I error, correct decision. Same 2×2, different lab coat. Detecting a treatment effect and detecting a faint beep are the same problem, and the reason both fields drew the same table is that both are asking how far the signal has to sit from the noise before you can trust yourself.
 
 ### Cohen's $d$
 
-Cohen worked out that we can apply the same logic to experiments, to say how easy it is to distinguish the signal from the noise:
+For our purposes:
 
 $$
 d = \frac{M_{H1} - \mu_{H0}}{S_{H1}}
@@ -233,6 +209,8 @@ Z = \frac{M - \mu}{S}
 $$
 
 So Cohen's $d$ is in standard deviation units.
+
+That denominator carries an assumption worth naming: we are treating the treatment as something that shifts the distribution without changing its spread. Sometimes that is true. Sometimes a treatment helps some people enormously and others not at all, which changes the spread, and then this formula is quietly describing a world that does not exist.
 
 | Size | $d$ |
 |--------|------|
@@ -259,7 +237,12 @@ Power is the likelihood that a study will detect an effect when there genuinely 
 
 Here is the whole thing in one picture.
 
-```{r power-figure, echo=FALSE, fig.width=6.25, fig.height=3.0}
+```{r power-figure}
+#| echo: false
+#| fig-width: 6.25
+#| fig-height: 3.0
+#| fig-cap: "Power is the slice of the alternative distribution that clears the critical value."
+#| fig-alt: "Two overlapping bell curves, the null on the left and the alternative on the right. A vertical line marks the critical value, and the portion of the right-hand curve beyond it is shaded to represent power."
 m1 <- 0; sd1 <- 1.5
 m2 <- 3.5; sd2 <- 1.5
 
@@ -356,7 +339,7 @@ Everything above drew the curves in **standard deviation** units. But significan
 The distance between the peaks is the effect size, and it does **not** change with sample size. What changes is how *wide* the curves are.
 
 ::: {.callout-tip title="Homer Simpson and the Statistically Significant Hair"}
-In "Simpson and Delilah" (The Simpsons, S7:E2), Homer takes Dimoxinil and wakes up the next morning with a full luscious head of hair. That is an enormous effect size.
+In "Simpson and Delilah" (The Simpsons, S2:E2), Homer takes Dimoxinil and wakes up the next morning with a full luscious head of hair. That is an enormous effect size.
 
 In reality, Minoxidil grows back very little hair, after months of twice-daily application, in a subset of men, most of whom keep checking the mirror hopefully. The effect is genuinely small. It is also statistically significant, because "most men experience *some* growth beyond noise," and noise here is defined in standard error units, not standard deviation units.
 
@@ -365,7 +348,12 @@ Statistically significant is not the same as clinically significant. It is not e
 
 Watch the curves narrow while the peaks stay exactly where they are. The effect below is a medium one, $d = .5$, in all four pictures.
 
-```{r se-narrowing, echo=FALSE, fig.width=6.5, fig.height=5.0}
+```{r se-narrowing}
+#| echo: false
+#| fig-width: 6.5
+#| fig-height: 5.0
+#| fig-cap: "The same half-point difference, seen through progressively narrower sampling distributions."
+#| fig-alt: "A grid of panels, each showing the same pair of overlapping curves separated by half a point. Moving through the panels the curves become narrower and taller, so the same fixed difference goes from almost total overlap to clean separation."
 draw_pair <- function(divisor, title) {
   m1 <- 0; m2 <- 0.5
   s  <- 1 / divisor
@@ -507,7 +495,12 @@ This is the calculation to run when a reviewer asks why your null result should 
 
 At a fixed effect size, adding participants buys you power, but not at a constant rate.
 
-```{r power-curves-n, echo=FALSE, fig.width=6.5, fig.height=2.6}
+```{r power-curves-n}
+#| echo: false
+#| fig-width: 6.5
+#| fig-height: 2.6
+#| fig-cap: "Power against sample size at three effect sizes. Each curve rises steeply and then flattens."
+#| fig-alt: "Three side-by-side line plots of power against sample size, one per effect size. Every curve climbs steeply at small sample sizes and then bends over and flattens as it approaches a power of one, with the smallest effect needing by far the most participants."
 pow_n <- function(nn, dd) {
   power.t.test(n = nn, delta = dd, sd = 1, sig.level = .05,
                type = "one.sample", alternative = "two.sided")$power
@@ -533,7 +526,12 @@ The blue line is 80% power; the red line is 95%. Notice how far right the curve 
 
 Flip it around: hold the sample size fixed and vary the effect.
 
-```{r power-curves-d, echo=FALSE, fig.width=6.5, fig.height=2.6}
+```{r power-curves-d}
+#| echo: false
+#| fig-width: 6.5
+#| fig-height: 2.6
+#| fig-cap: "Power against effect size at three sample sizes. Same shape, different axis."
+#| fig-alt: "Three side-by-side line plots of power against effect size, one per sample size. Each curve rises steeply through the small and medium effect sizes and then flattens near a power of one, and the larger the sample the further left that rise begins."
 pow_d <- function(dd, nn) {
   power.t.test(n = nn, delta = dd, sd = 1, sig.level = .05,
                type = "one.sample", alternative = "two.sided")$power
@@ -767,7 +765,12 @@ Our one study observed $d =$ `r round(Obs.d,3)`, against a truth of $0.067$.
 
 Now re-run that same study 5,000 times and look at the distribution of observed effect sizes.
 
-```{r mozart-sim, echo=FALSE, fig.width=5.0, fig.height=3.0}
+```{r mozart-sim}
+#| echo: false
+#| fig-width: 5.0
+#| fig-height: 3.0
+#| fig-cap: "The observed effect size is a guess too, and in a small study it is a wild one."
+#| fig-alt: "Histogram of observed Cohen's d values from many simulated small studies of a tiny true effect. The distribution is wide and straddles zero, so plenty of studies report a moderate positive effect and plenty report a negative one."
 set.seed(666)
 
 SimD <- function(n) {
