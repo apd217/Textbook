@@ -1,12 +1,5 @@
 ---
 title: "Paired-Samples t-Test"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +27,7 @@ An **independent-samples** design compares different people. Half the students r
 
 A **repeated-measures** design measures the same students twice. Every student attends one lecture without chocolate and one with chocolate. Each student is now their own control.
 
-A **matched-pairs** design uses different people who were deliberately matched on something important, such as age or baseline ability. This can help, but matched strangers are not magical clones. If you place two undergraduates beside each other because they have the same GPA, one may still be a morning person while the other communicates only through exhausted grunting.
+A **matched-pairs** design uses different people who were deliberately matched on something important, such as age or baseline ability. This can help, but matched strangers are not magical clones. If you place two undergraduates beside each other because they have the same GPA, one may still be a morning person while the other communicates only through exhausted grunting. The analysis is identical (pair, difference, test), but matched strangers usually correlate far less than a person does with themself, so the power benefit is real and smaller. Watch for the $-2rS_1S_2$ term later in this chapter, because everything depends on that $r$.
 
 Repeated scores tend to be correlated because stable characteristics follow people into both conditions. A student who generally looks at the screen for a long time may do that with or without chocolate. Another student may stare out the window in both conditions while contemplating escape. Pairing lets us remove some of those stable person-to-person differences.
 
@@ -46,6 +39,20 @@ Suppose we ask whether eating a small piece of chocolate during a lecture change
 - once with chocolate.
 
 This example is simulated. Do not distribute mystery candy to human participants and announce that a textbook authorized it. Allergies, informed consent, and research ethics remain annoyingly real.
+
+::: {.callout-warning title="The Price of Measuring the Same Person Twice"}
+Measuring someone twice buys you statistical power, and it charges you for it. Three things ride along with that second measurement:
+
+- **Practice effects.** People get better at a task simply by having done it once.
+- **Fatigue effects.** Or they get worse, because they are tired and would like to go home.
+- **Carryover.** The first condition is still working on them when the second one starts.
+
+Here is the problem for our study. If every student sits through the no-chocolate lecture first and the chocolate lecture second, then "chocolate increased fixation time" and "students settled down in the second session" are the same sentence. No t-test can separate them, because nothing in the data distinguishes them.
+
+The fix is **counterbalancing**. Half the students get chocolate first and half get it second. Order effects still happen, but now they land on both conditions equally and cancel out of the comparison. So assume we counterbalanced, because we are professionals.
+
+Counterbalancing does not fix everything. Chocolate eaten in the first session does not un-eat itself ten minutes later, so with sessions that close together the sugar is still in the room during the control condition. Spacing matters, and some carryover cannot be designed away at all.
+:::
 
 ```{r simulate-paired-data}
 set.seed(343)
@@ -81,6 +88,8 @@ The **wide data** have one row per person and one column per condition. This sha
 ## Look at the Pairs Before Testing Them
 
 ```{r plot-pairs}
+#| fig-cap: "Each gray line is one student measured twice. The red line is the average change."
+#| fig-alt: "A paired line plot with two columns, no chocolate on the left and chocolate on the right. Forty-eight faint gray lines connect each student's two fixation times, most sloping upward but several sloping down. A thick red line runs between the two condition means, rising from about 4.8 to about 5.6 seconds."
 library(ggplot2)
 
 ggplot(
@@ -183,6 +192,30 @@ When the two measurements are positively correlated, the last term subtracts var
 
 This often gives a smaller standard error than an independent-samples analysis. Pairing does not guarantee more power, however. If the repeated scores barely correlate, little stable variation is removed. Pairing also cannot repair a terrible measure. Measuring attention by counting how often someone blinks at the ceiling remains a terrible plan in both conditions.
 
+### How Much Does Pairing Actually Buy You?
+
+We have the data, so we do not have to speculate. First, how correlated are the two measurements? Then we run the analysis **incorrectly on purpose**, treating our 96 scores as if they came from 96 different students who happened to wander in:
+
+```{r pairing-payoff}
+#| echo: true
+# How much do a person's two scores agree with each other?
+cor(paired_wide$chocolate, paired_wide$no_chocolate)
+
+# The WRONG test, run deliberately: the same numbers with the pairing thrown away.
+# Do not copy this into your homework.
+unpaired_result <- t.test(paired_wide$chocolate, paired_wide$no_chocolate)
+
+unpaired_result
+```
+
+Same numbers. Same two means. The same mean difference of `r round(mean(paired_wide$difference), 2)` seconds. Nothing about the data changed, only what we told R about where the numbers came from.
+
+The paired test gave $t(`r unname(paired_result$parameter)`) =$ `r round(unname(paired_result$statistic), 2)`. Ignoring the pairing gives $t(`r round(unname(unpaired_result$parameter), 1)`) =$ `r round(unname(unpaired_result$statistic), 2)`, roughly `r round(unname(paired_result$statistic) / unname(unpaired_result$statistic), 2)` times smaller. The standard error tells the same story: `r round(sd(paired_wide$difference)/sqrt(n), 2)` seconds when we keep the pairing, `r round(unname(unpaired_result$stderr), 2)` seconds when we discard it.
+
+Where did the extra error come from? From the students. Some people simply stare longer than others, in both conditions, for reasons that have nothing to do with chocolate. The paired test subtracts that stable personal tendency out and never looks at it again. The unpaired test has no idea those students are the same humans, so all of that person-to-person variability gets dumped into the error term, where it makes the difference between conditions look less trustworthy than it is.
+
+That is the whole argument for within-subjects designs, and it is why the design chapter of every methods book keeps yelling about them. It is also, in this case, a correlation of only `r round(cor(paired_wide$chocolate, paired_wide$no_chocolate), 2)`. A stronger correlation would have bought even more.
+
 ## Assumptions That Actually Matter
 
 For the paired-samples t-test:
@@ -195,7 +228,11 @@ For the paired-samples t-test:
 
 The test does **not** require the two condition variances to be equal. It operates on one set of differences. Inspect those differences, not two separate normality tests performed as ritual offerings.
 
-```{r inspect-differences, fig.width=5.5, fig.height=2.8}
+```{r inspect-differences}
+#| fig-width: 5.5
+#| fig-height: 2.8
+#| fig-cap: "The 48 difference scores. This is the distribution the test actually looks at."
+#| fig-alt: "Histogram of 48 difference scores, chocolate minus no chocolate, roughly mound-shaped and centered a little below one second. A dashed red vertical line marks zero, with most of the distribution sitting to its right and a handful of students falling to the left."
 ggplot(paired_wide, aes(x = difference)) +
   geom_histogram(binwidth = 0.35, color = "white", fill = "steelblue4") +
   geom_vline(xintercept = 0, linetype = 2, color = "firebrick") +
