@@ -14,7 +14,15 @@ knitr::opts_chunk$set(
 ```
 
 
-## The Research Question 
+::: {.callout-note title="Two Groups, and Now Both of Them Wobble"}
+Use an independent-samples t-test when **two different sets of people** are each measured once and you want to know whether the groups differ.
+
+This is the workhorse of experimental psychology. Two groups, one measurement each, and random assignment deciding who went where. A very large share of the experiments you will read are exactly this shape, which means you will spend far more of your career reading this test than running it.
+
+Chapter 6 compared one group against a number someone handed us. That number was fixed and blameless. Now both sides of the comparison are estimates, both of them wobble, and the standard error has to carry the uncertainty of two means instead of one. That is the entire structural change. Everything else you already learned still applies.
+:::
+
+## The Research Question
 
 What would happen if the CTA actually ran every 7 minutes?
 
