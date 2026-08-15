@@ -73,7 +73,7 @@ Under the null, $\mu_1 - \mu_2 = 0$. Why? Cause if nothing is happening, $3 - 3 
 
 ## Step 2: Collect the Data
 
-Two groups, thirty riders each. Those two `rnorm()` lines are the entire experiment. *I mean I could go out really get data, but again I would have to actually talk to people.* 
+Two groups, thirty riders each. Those two `rnorm()` lines are the entire experiment. *I mean I could go out and really get data, but again I would have to actually talk to people.*
 
 ```{r cta-data}
 #| echo: true
@@ -124,7 +124,7 @@ ggplot(CTA.df, aes(x = Liking, fill = Condition)) +
   theme_bw(base_size = 11)
 ```
 
-Already you should see separation. But eyeballing histograms is not a statistical test (even if it seems obvious). Notice the overlap in the middle: some control riders liked the CTA more than some experimental riders did. A group difference is about where the two piles sit, not about every person in one group beating every person in the other. Group differences are what we care about here, and we do not actually concern ourselves with the feelings of individual people. What are we, psychologists?! Oh wait...we are...okay, let me rephrase that...
+Already you should see separation. But eyeballing histograms is not a statistical test (even if it seems obvious). Notice the overlap in the middle: some control riders liked the CTA more than some experimental riders did. A group difference is about where the two piles sit, not about every person in one group beating every person in the other. Group differences are what we care about here, and we do not actually concern ourselves with the feelings of individual people. What are we, psychologists?! *Oh wait...we are...okay, let me rephrase that...*
 
 Individual commoners, I mean subway riders, all have very different experiences and attitudes toward the subway and toward the new schedule. Maybe some people like the chaos of the old system, or are freaked out by the clockwork timing of the new one. What are we, Switzerland with its adherence to precision, or Japan where you get a note to hand your boss if the train is a minute late?! Each person has their reasons, and we are not clinical psychologists (well, I am not, that is for sure) who need to unpack why their father yelling at them for stepping on their Legos at age 5 now shapes their perception of trains.
 
@@ -150,22 +150,22 @@ Back in the standard error chapter we wrote $S_M$, meaning "the standard error o
 
 Now look at what the formula actually does, because this is the part worth stopping for. The label says *difference*, but the arithmetic **adds**. Both variances go in with a plus sign.
 
-That is not a typo. Group 1 is a guess and wobbles. Group 2 is a guess and wobbles. When you subtract two wobbly numbers, the wobble does not politely cancel out, it piles up. You are now uncertain about where the first mean sits *and* uncertain about where the second one sits, and both of those doubts make the gap between them harder to trust. Uncertainty always accumulates. It never subtracts.
+That is not a typo. Group 1 is a guess and wobbles (varies due to chance). Group 2 is also a guess and wobbles. When you subtract two "wobbly" numbers, the wobble does not politely cancel out, it piles up like two waves at the beach. You are now uncertain about where the first mean sits *and* uncertain about where the second one sits, and both of those doubts make the gap between them harder to trust. Uncertainty accumulates.
 :::
 
 Welch's test does not assume equal population variances. In other words, we do not have to assume that people riding the chaotic subway and people riding the clockwork subway have the same amount of variance. Why would that matter, and why would the variances be different?
 
 Imagine the chaotic subway causes more varied feelings: some riders LOVE it and some HATE it. The clockwork one does not draw opinions that strong, so people give a narrower range of ratings. Now suppose that by pure luck you sampled too many of the HATE it crowd on the chaotic subway. It would make you think the chaotic system was more hated than it really is.
 
-So Welch's t-test corrects this problem by shrinking our estimate of the degrees of freedom. Remember that our df sets the critical values of the t-distribution. By shrinking our df, we push those critical values further out into the tails, so a result has to be more extreme before we are allowed to call it anything. Thus we make our test more conservative, harder to say something is there when it is not. Remember type I error.
+So Welch's t-test corrects this problem by shrinking our estimate of the degrees of freedom (*df*). Remember that our *df* sets the critical values of the *t*-distribution. By shrinking our *df*, we push those critical values further out into the tails of the distribution, so a result has to be more extreme before we are allowed to make our decision. Thus we make our test more conservative, harder to say something is there when it is not. Remember type I error, which is a bad thing to do.
 
 ::: {.callout-tip title="Layers of Knowledge, and Why Your Brain Is Not Broken"}
-Have you noticed that in this one section I had to call back to degrees of freedom, the t-distribution, type I error, and several other concepts? This is the part about statistics that freaks people out. You have to actually remember what you learned before.
+Have you noticed that in this one section I had to call back to degrees of freedom, the *t*-distribution, type I error, and several other concepts? This is the part about statistics that freaks people out. You have to actually remember what you learned before.
 
-So if you are lost, go back to those chapters and review. It is normal to need to go back. I keep the regression bible written by Cohen on my desk and have to refer to it all the time.
+So if you are lost, go back to those chapters and review. **It is normal to need to go back.** I keep the regression bible written by Cohen on my desk and have to refer to it all the time.
 :::
 
-So how do we actually shrink our degrees of freedom? We use the Welch--Satterthwaite approximation, which R will calculate because we have suffered enough.
+So how do we actually *shrink* our degrees of freedom? We use the Welch--Satterthwaite approximation, which R will calculate because we have suffered enough.
 
 For fun, here is that formula. It is a crazy formula that you never want to calculate by hand:
 
@@ -176,7 +176,7 @@ $$
 
 Notice the $\approx$. This one does not even pretend to land on a whole number, which is why Welch's degrees of freedom for our study come out as `r round(unname(t.test(CTA.Experimental, CTA.Control)$parameter), 2)` instead of a respectable integer. Nobody sits down and computes this. R does it, and we let it.
 
-What if you do not have access to R and have to do all the calculations the old fashioned way, by hand, with a pencil and paper? Gasp, the horror.
+What if you do not have access to R and have to do all the calculations the old fashioned way, by hand, with a pencil and paper? *Gasp, the horror.*
 
 What we do instead is use the classical pooled-variance version, the standard error is:
 
@@ -191,7 +191,7 @@ S^2_p =  \frac{SS_1 + SS_2}{df_1 + df_2}
 $$
 
 
-## Step 4: Compute the t Statistic
+## Step 4: Compute the *t* Statistic
 
 $$
 t = \frac{M_1 - M_2 - (\mu_1 - \mu_2)}{S_{M1 - M2}}
@@ -222,11 +222,11 @@ t_by_hand <- (M1 - M2) / SE_pooled
 c(Sp2 = Sp2, SE_pooled = SE_pooled, t_by_hand = t_by_hand)
 ```
 
-Now let R do the same arithmetic. Here it is in **formula syntax**, `outcome ~ group`, which is what your lab uses and what every regression in Part 2 of the book will use:
+Now let R do the same arithmetic. Here it is in **formula syntax**, `outcome ~ group`, which is what you will do in lab (if you take more courses, that is) and what every regression in Part 2 of the book will use:
 
 ```{r pooled-test}
 #| echo: true
-# The classical pooled test: matches the hand calculation above, and your lab
+# The classical pooled test: matches the hand calculation above
 t.test(Liking ~ Condition, data = CTA.df, var.equal = TRUE)
 ```
 
@@ -286,7 +286,7 @@ ggbarplot(
 The bars would look exactly the same if every rider in a group had given the identical score. The dots are there so you can check that they did not.
 
 
-## Step 6: Extract the APA Values
+## Step 6: Extract the Values for the APA Write-Up
 
 Formatting packages can be convenient, but some do not support Welch's t-test. We can extract the values directly and avoid letting a package bully us back into an equal-variance assumption.
 
@@ -306,12 +306,6 @@ apa_values
 Modern APA wants the exact p-value, reported to two or three decimal places: $p = .03$, $p = .008$. The one exception is when p is very small. Below .001 you stop counting zeros and write $p < .001$, which is what our output above deserves.
 
 What you must never write is $p = 0$. A p-value is the probability of data at least this extreme under the null, and that probability is never exactly zero. Your software prints `2e-16` because it ran out of decimal places, not because the universe ruled the possibility out. Rounding that to zero claims something no test can deliver.
-
-<!-- ALEX: your original line said "if its between .01 and .001 you say p < .01" and I
-     changed it, because that rule collides with the "report the exact p-value" advice in
-     Ch6 and with this chapter's own APA paragraph, which prints an exact p unless it is
-     below .001. If you do want the older bracketed style (p < .05, p < .01, p < .001),
-     say so and I will make Ch6 and the APA paragraph agree with it instead. -->
 :::
 
 ## Step 7: Cohen's d
@@ -345,7 +339,7 @@ c(M_experimental = M1, M_control = M2, Sp = Sp, d = cohens_d)
 The value tells us how far apart the two means are in pooled standard-deviation units. Context still matters. A conventional adjective cannot tell us whether the change matters for actual riders, budgets, access, or the continued emotional survival of anyone waiting for a bus in February.
 
 ::: {.callout-note title="Yes, We Just Pooled the Variances We Refused to Pool"}
-Ten lines ago we ran Welch precisely so we would not have to assume equal variances, and now the effect size pools them anyway. That is standard practice, and it is not hypocrisy, because the two numbers have different jobs. The test is an inference and needs to protect itself against unequal spreads. The effect size is a description, and pooling gives a reasonable yardstick when the spreads are similar, as they are here (`r round(sd(CTA.Experimental), 2)` and `r round(sd(CTA.Control), 2)`).
+Earlier we ran Welch precisely so we would not have to assume equal variances, and now the effect size pools them anyway. That is standard practice, and it is not hypocrisy, because the two numbers have different jobs. The test is an inference and needs to protect itself against unequal spreads. The effect size is a description, and pooling gives a reasonable yardstick when the spreads are similar, as they are here (`r round(sd(CTA.Experimental), 2)` and `r round(sd(CTA.Control), 2)`).
 
 If the two spreads are very different, standardize by the control group's SD instead. That is **Glass's** $\Delta$, and it answers a cleaner question: how far did the treatment move people, in units of how much they varied before you touched them?
 :::
