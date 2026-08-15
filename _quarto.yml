@@ -4,7 +4,6 @@ project:
 execute:
   cache: false
   freeze: auto
-  fig-pos: H
 
 book:
   chapters:
@@ -82,6 +81,7 @@ format:
     number-sections: true
     include-before-body: cover.tex
     fontsize: 10pt
+    fig-pos: 'H'
     include-in-header:
       text: |
         \usepackage{microtype}
@@ -102,6 +102,11 @@ format:
             \setlength{\parindent}{0pt}
           }
         }
+        % Tables render one step down, matching the callout boxes
+        \AtBeginEnvironment{longtable}{\small}
+        \AtBeginEnvironment{tabular}{\small}
+        \AtBeginEnvironment{tabularx}{\small}
+
         \setstretch{1.15}
         \geometry{top=0.62in,bottom=0.82in,left=0.62in,right=0.62in,footskip=0.34in}
         \AtBeginEnvironment{longtable}{\Needspace{10\baselineskip}}

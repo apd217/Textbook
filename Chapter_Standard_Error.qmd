@@ -53,9 +53,17 @@ set.seed(42)
 
 Npop <- 1e6
 
+# Draw a million opinions from a normal distribution centered on 3.
 CTA.Population <- rnorm(Npop, mean = 3, sd = 1)
-# Round to Likert categories and clamp to [1,5]
+
+# rnorm gives decimals like 3.47, but nobody circles 3.47 on a survey.
+# round() snaps every score to the nearest whole number.
 CTA.Population <- round(CTA.Population)
+
+# The scale only goes 1 to 5, but rnorm does not know that and will hand
+# us the occasional 0 or 6. These two lines find every score below 1 and
+# set it to 1, then every score above 5 and set it to 5.
+# Read it as: "of all the scores, the ones that are too small become 1."
 CTA.Population[CTA.Population < 1] <- 1
 CTA.Population[CTA.Population > 5] <- 5
 ```
@@ -297,13 +305,15 @@ Let’s compute the SEM ($S_M$) for sample sizes from 10 to 400 people per sampl
 # Population SD
 pop_sd <- sd(CTA.Population)
 
-# Sample sizes
+# Every sample size from 10 to 400. The colon makes a sequence: 10, 11, 12, ... 400.
 N_vals <- 10:400
 
-# Compute SEM for each N
-sem_df <- tibble(
-  N = N_vals,
-  SEM = pop_sd / sqrt(N)
+# A data frame is R's spreadsheet: each argument becomes a column, and
+# the columns line up row by row. Here row 1 holds N = 10 and its SEM,
+# row 2 holds N = 11 and its SEM, and so on down to 400.
+sem_df <- data.frame(
+  N   = N_vals,
+  SEM = pop_sd / sqrt(N_vals)   # the SEM formula, applied to all 391 values at once
 )
 
 # Plot
@@ -389,8 +399,7 @@ From sample 1
 - $M_{Sample 1} =$ `r round(M1,2)`,
 - $S_{Sample 1} =$ `r round(SD1,2)`,  
 - $S_M$ = `r round(SEM1, 2)`,
-- So our 95% confidence guess (i.e., $\pm2$ SE) would be: 
-  - `r round(M1-2*SEM1,2)` and `r round(M1+2*SEM1,2)` 
+- So our 95% confidence guess (i.e., $\pm2$ SE) would be `r round(M1-2*SEM1,2)` to `r round(M1+2*SEM1,2)`
 
 From sample 2
 
@@ -398,8 +407,7 @@ From sample 2
 - $M_{Sample 2} =$ `r round(M2,2)`,
 - $S_{Sample 2} =$ `r round(SD2,2)`,  
 - $S_M$ = `r round(SEM2, 2)`,
-- So our 95% confidence guess (i.e., $\pm2$ SE) would be: 
-  - `r round(M2-2*SEM2,2)` and `r round(M2+2*SEM2,2)` 
+- So our 95% confidence guess (i.e., $\pm2$ SE) would be `r round(M2-2*SEM2,2)` to `r round(M2+2*SEM2,2)`
   
 Importantly, both intervals include the true population mean. That doesn’t mean we were brilliant; it means the intervals were wide. How do we shrink them? 
 
@@ -484,7 +492,7 @@ ggplot(ci_df, aes(y = Sample, x = Mean)) +
 
 Pay loans, buy groceries, get the Porsche if there is money left over? 
 
-Yes, but all of this stuff (SDs, SEs, sampling distributions, confidence intervals) exists for one reason: *to let us draw inferences about a population using imperfect data.*
+Yes, but also all of this stuff (SDs, SEs, sampling distributions, confidence intervals) exists for one reason: *to let us draw inferences about a population using imperfect data.*
 
 We rarely get to see the truth. Instead, we:
 

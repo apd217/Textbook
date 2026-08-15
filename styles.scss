@@ -56,8 +56,13 @@ pre, code {
   font-size: .95rem;
 }
 
-/* Tables */
+/* Tables: match the smaller register the callout boxes use */
 
 table {
-  font-size: .95rem;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+table th {
+  font-size: .82rem;
 }

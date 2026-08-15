@@ -203,7 +203,7 @@ $$
 df = (n_1 - 1) + (n_2 - 1)
 $$
 
-Those formulas are not decoration, so let's run them. This is the same arithmetic your lab asks you to do on paper:
+Those formulas are not decoration, so let's run them. This is the same arithmetic you would do on paper:
 
 ```{r pooled-by-hand}
 #| echo: true
@@ -291,12 +291,16 @@ The bars would look exactly the same if every rider in a group had given the ide
 Formatting packages can be convenient, but some do not support Welch's t-test. We can extract the values directly and avoid letting a package bully us back into an equal-variance assumption.
 
 ```{r, echo=TRUE}
+# The $ pulls one piece out of the t.test object by name.
+# unname() strips the label R attaches to it: without it, the t column
+# would come out headed "t.t" because the statistic arrives carrying
+# its own name tag. We want a clean column, so we take the tag off.
 apa_values <- data.frame(
-  t = unname(CTA.t.test$statistic),
-  df = unname(CTA.t.test$parameter),
-  p = CTA.t.test$p.value,
-  CI_low = CTA.t.test$conf.int[1],
-  CI_high = CTA.t.test$conf.int[2]
+  t       = unname(CTA.t.test$statistic),
+  df      = unname(CTA.t.test$parameter),
+  p       = CTA.t.test$p.value,
+  CI_low  = CTA.t.test$conf.int[1],   # [1] = first value in the interval
+  CI_high = CTA.t.test$conf.int[2]    # [2] = second value
 )
 
 apa_values
@@ -387,7 +391,7 @@ For `type = "two.sample"`, the `n` that comes back is the number of participants
 Students report this number as their total sample roughly half the time, which halves their actual power and turns an 80% study into something closer to a coin flip with extra steps.
 :::
 
-::: {.callout-warning title="Simulated Data Lies to You, Politely"}
+::: {.callout-warning title="Advanced: Simulated Data Lies to You, Politely"}
 Our simulated CTA effect is $d =$ `r round(cohens_d,2)`. That is not a large effect. That is not even a huge effect. That is two distributions in different postal codes, and it happens because I *built* the simulation with a clean one-point gap and a standard deviation of exactly 0.5.
 
 Real psychological effects essentially never look like this. If a power analysis tells you that four people per group is sufficient, you have not discovered a cheap study. You have discovered that your assumed effect size is fictional.
@@ -405,7 +409,7 @@ sapply(c(0.2, 0.5, 0.8, cohens_d),
 Small, medium, large, and whatever we simulated. **That first number is the one to internalize.** Most of the effects you actually care about live near it.
 :::
 
-### Hedges' Correction
+### Advanced: Hedges' Correction
 
 Cohen's $d$ is biased upward in small samples, for the reason the power chapter opened with: small samples underestimate $\sigma$, and $\sigma$ is in the denominator. Smaller denominator, bigger $d$.
 

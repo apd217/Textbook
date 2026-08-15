@@ -21,6 +21,48 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
+## Status as of 2026-08-15 (read before starting Part 2)
+
+**Part 1 is finished.** Every approved item in `01`–`09` is implemented and marked. Do not
+re-open those chapters except on Alex's instruction.
+
+Things established during Part 1 that apply to Part 2:
+
+1. **Part 1 is the 242 course; Part 2 is the 343 course.** Different audiences. Part 1
+   readers are new to R and to statistics; Part 2 readers have had Part 1. This is why Part 1
+   comments code on first use and walks through R output, and why Part 2 can move faster.
+2. **Part 1's chapter order was changed** to match the 242 syllabus: Power now sits between
+   One-Sample t and Independent t. See the CORRECTION block in `00_OVERVIEW.md`. If a Part 2
+   item's reasoning depends on Part 1's old order, re-check it.
+3. **Em-dashes are rationed.** Alex asked for this explicitly. Do not introduce `---` or `—`
+   in new prose. Use commas, colons, or full stops. Existing ones in his own text stay.
+4. **"Bounce around" is the house term** for sampling variability, grounded in the
+   bouncing-ball image planted in the Probability chapter. Do not invent a synonym ("wobble"
+   was tried and rejected).
+5. **`fig-pos: 'H'`** is now set in the pdf format block of `_quarto.yml`, so figures stay
+   where they are written. It was previously under `execute:`, where it did nothing, which is
+   why figures floated away from their text in the PDF.
+6. **Tables render at `\small` in PDF and .82rem in HTML**, matching the callout register.
+   Set in `_quarto.yml` and `styles.scss`. Do not restyle tables per chapter.
+7. **Report the exact p-value** to 2–3 decimals, `p < .001` below that. Settled in Ch7.
+8. **Code comments go on first use of a function**, not every use. R output gets walked
+   through the first time a reader meets that kind of output (see Ch6's "Reading What R Just
+   Handed You" for the pattern to copy).
+
+### Windows/Dropbox render note
+
+Renders intermittently fail with `os error 32` file locks, and Quarto sometimes fails to copy
+figures from `_freeze/` into `Chapter_X_files/`, producing `Unable to load picture or PDF
+file`. The fix is not to re-run blindly:
+
+1. `rm -f index.tex`
+2. If a figure is named in the error, check `_freeze/<chapter>/figure-pdf/` — the file there
+   is usually fine and only the working copy is missing.
+3. `mkdir -p Chapter_X_files/figure-pdf && cp _freeze/Chapter_X/figure-pdf/*.pdf Chapter_X_files/figure-pdf/`
+4. Re-render.
+
+Never "fix" this by deleting `_freeze/`; that throws away every cached result in the book.
+
 ## Hard rules
 
 0. **Read `VOICE_GUIDE.md` in this folder before writing a single sentence of prose.**

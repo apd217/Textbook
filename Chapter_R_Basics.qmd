@@ -72,7 +72,7 @@ Comments begin with `#`. Write comments that explain *why* the code exists. `# c
 
 For this book, make an **RStudio Project** for your work. Projects keep scripts, data, and output together and reduce the need for `setwd()`, which is the command people use to make code work only on their own computer.
 
-## PEMDAS Has Returned
+## PEMDAS
 
 I regret to report that middle-school mathematics has returned!
 
@@ -131,7 +131,7 @@ regret
 
 Read `<-` as "gets." `coffee_cups <- 4` means *coffee_cups gets 4*. You may see `=` used for assignment. It often works, but this book will generally use `<-` because it makes assignment easier to recognize.
 
-Object names cannot contain spaces. Use names such as `exam_score`, `ExamScore`, or `exam.score`. Pick a system and try not to invent a new one every seven minutes.
+Object names cannot contain spaces. Use names such as `exam_score`, `ExamScore`, or `exam.score`. Pick a system and stick to it. 
 
 ## Vectors and Functions
 
@@ -219,6 +219,41 @@ table(study$therapy)
 ```
 
 `table()` counts how many cases fall into each category. Run it on every categorical variable before you analyze anything. It is the fastest way to discover that you have 47 people in one condition and 3 in the other, or that somebody typed "Contol."
+
+## Random Numbers and the Magic Word `set.seed()`
+
+This book fakes a lot of data. Almost every chapter simulates a study rather than making you go collect one, and simulated data starts with random numbers.
+
+R can produce them on demand:
+
+```{r random-runif}
+runif(5)   # five random numbers between 0 and 1
+```
+
+Run that line again and you get five different numbers. Run it tomorrow, different again. That is the point of random.
+
+It is also a problem for a textbook. If my numbers change every time the book is built, nothing I write about them stays true, and worse, you would run my code and get a different answer than the one printed on the page, and reasonably conclude you had broken something.
+
+So we cheat, on purpose:
+
+```{r seed-demo}
+set.seed(42)
+runif(5)
+
+set.seed(42)
+runif(5)   # the exact same five numbers
+```
+
+`set.seed()` fixes R's starting point for generating randomness. Same seed, same sequence, every time, on every computer. The number inside is arbitrary and means nothing. People use 42, 123, their birthday, or in my case whatever I typed without thinking.
+
+::: {.callout-tip title="What set.seed() Is and Is Not Doing"}
+It is **not** making the numbers less random. The sequence is just as unpredictable as before. You have only told R which unpredictable sequence to use.
+
+Two habits worth forming now:
+
+- When you see `set.seed()` in this book, it is there so your output matches mine. If your numbers differ from the page, check that you ran the seed line too.
+- In real analysis, set a seed any time chance is involved: random assignment, bootstrapping, cross-validation, simulations. It is the difference between "I got p = .04" and "I got p = .04 and here is how you get it too." Future You will need that, and so will Reviewer 2.
+:::
 
 ## Packages: Install Once, Load Each Session
 

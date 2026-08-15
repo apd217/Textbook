@@ -16,13 +16,13 @@ knitr::opts_chunk$set(
 
 ## Experimental Logic
 
-In psychology, we test claims by making comparisons.
+In psychology, we test claims by making comparisons:
 
-Sometimes we compare a group to a known value: *Do more frequent train rides increase CTA liking above the neutral baseline of 3?* $\rightarrow$ one-sample *t*-test.
+> Sometimes we compare a group to a known value: *Do more frequent train rides increase CTA liking above the neutral baseline of 3?* $\rightarrow$ one-sample *t*-test.
 
-Sometimes we compare two groups: *Does CTA liking differ between people in quiet vs. regular subway cars?* $\rightarrow$ independent samples *t*-test.
+>Sometimes we compare two groups: *Does CTA liking differ between people in quiet vs. regular subway cars?* $\rightarrow$ independent samples *t*-test.
 
-Finally, we also compare people to themselves groups: *Do you like to ride the CTA more in the summer or winter?* $\rightarrow$ paired samples *t*-test.
+>Finally, we also compare people to themselves groups: *Do you like to ride the CTA more in the summer or winter?* $\rightarrow$ paired samples *t*-test.
 
 Either way, the logic is the same: **are the differences we observe larger than we'd expect from random sampling noise alone?**
 
@@ -163,9 +163,9 @@ Written symbolically:
 Typical rule is anything outside of 2 SD (for a person) or 2 SE for sample mean is often described as "abnormal", meaning a score that would occur outside of the 95% range that most of the people or sample means tend to fall in by chance.
 :::
 
-Before I show you with a picture what I mean, I need to explain another small problem. Can I assume in small samples that the mean I get will be accurate? We already know the answer from the standard error chapter, no. I know in small samples I can be very uncertain about the mean. But also, I will be uncertain about its variance (spread). Think about this example.
+Before I show you with a picture what I mean, I need to explain another small problem. Can I assume in small samples that the mean I get will be accurate? We already know the answer from the standard error chapter, no. I know in small samples I can be very uncertain about the mean. But also, I will be uncertain about its variance (spread). *Think about this example:*
 
-You collect 10 people in Giordano's eating deep dish pizza. By chance 9 of the 10 people are from Chicago, love deep dish and give high scores, 8 to 9.5 out of 10 with an average around 9 of 10. But that last person is a tourist from New York City. They rate it 0 out of 10 and ask if they can actually give it a -1000 out of 10. *In fact, my visiting college friend from NYC, who is a Medical Doctor, told the waitress that pizza was not only an affront to pizza but a serious health hazard and suggested they close their doors and save people's taste buds and arteries.*
+> You collect 10 people in Giordano's eating deep dish pizza. By chance 9 of the 10 people are from Chicago, love deep dish and give high scores, 8 to 9.5 out of 10 with an average around 9 of 10. But that last person is a tourist from New York City. They rate it 0 out of 10 and ask if they can actually give it a -1000 out of 10. *In fact, my visiting college friend from NYC, who is a Medical Doctor, told the waitress that pizza was not only an affront to pizza but a serious health hazard and suggested they close their doors and save people's taste buds and arteries.*
 
 What happens to the mean with that rating of 0 out of 10? Let's take a look at the scores with the tourist and without:
 

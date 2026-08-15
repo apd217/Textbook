@@ -5,8 +5,11 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.5, 2026-08-14. **v1.5 adds §13, deliberate "errors" that must not be corrected,
-> after a model repeatedly "fixed" a running joke.** v1 was reverse-engineered from the book's text alone; v1.1
+> Status: v1.6, 2026-08-15. **v1.6 adds §14, the punctuation and length rules Alex set while
+> finishing Part 1: no new em-dashes, "bounce around" as the fixed term for sampling
+> variability, and a hard limit on how long an aside may run.** v1.5 added §13, deliberate
+> "errors" that must not be corrected, after a model repeatedly "fixed" a running joke.
+> v1 was reverse-engineered from the book's text alone; v1.1
 > folded in real exam/worksheet material and lecture bits; **v1.2 is the first version
 > calibrated against Alex rewriting the model's own output** — he revised Chapter 1 by hand
 > and the differences are recorded in §0 and §4. Two rules from v1.1 were flatly wrong and
@@ -523,3 +526,36 @@ summary and let Alex rule on it. Do not silently fix it.
 Genuine slips still get fixed, and there are plenty of them: "Have you notice," "paid me
 visit," "charges you benefit," "your will do in lab." The distinguishing question is whether
 the error is *doing* something. "more better" is doing something. "paid me visit" is not.
+
+## 14. Punctuation and length rules (set while finishing Part 1, 2026-08-15)
+
+**No new em-dashes.** Alex asked for this directly: "lets be careful about too many m-dashes."
+Do not introduce `---` or `—` into new prose. Commas, colons, and full stops do the same work.
+Em-dashes already in Alex's own text stay; this is a rule about what you add, not a sweep.
+When a drafted fix in a review file contains an em-dash, translate it before using it.
+
+**"Bounce around" is the fixed term for sampling variability.** Estimates bounce around; they
+do not wobble, jump, waver, or drift. This was settled after "wobble" was tried and rejected,
+and it is grounded in the bouncing-ball image planted at the end of the expected-value section
+in the Probability chapter. It inflects: *bounces*, *bouncy*, *the bounce*. Do not reach for a
+synonym for variety; the repetition is the point, because it gives students one handle that
+works from Chapter 3 to Chapter 9.
+
+**Asides have a ceiling.** Alex's instruction: keep them from getting "too long, too
+self-indulgent... so they don't get too distracting." Working limits, from the pass that
+trimmed about 300 words out of Part 1:
+
+- An italic or parenthetical aside runs to roughly **40 words**. Past that it stops being an
+  aside and becomes a digression the reader has to wait out.
+- A callout runs to roughly **250 words**. The ghost-hunting callout hit 447 and had to lose
+  a third of itself.
+- **One comic image per paragraph, not three.** A paragraph that reaches for Switzerland,
+  then Japan, then a childhood Lego incident has stopped explaining anything.
+- **Setup is what gets cut, not the punchline.** Every trim in that pass removed staging and
+  kept the joke: the ghost hunters lost their tight pants and their dialogue but kept
+  "Analysis...Variance"; the pilot-study aside kept the volcano.
+
+**The diagnostic for a clunky joke.** If a line already lands on its last word, do not append
+anything that explains or extends it. That is what made both the receipts disclaimer and the
+penguin-essay tail clunk: the punchline had already landed and a second beat arrived to
+explain it. A tag has to be *inside* the sentence (Ch2's skibidi line) or not present.

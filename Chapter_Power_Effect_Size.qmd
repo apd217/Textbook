@@ -420,7 +420,7 @@ The distance between the peaks is the effect size, and it does **not** change wi
 ::: {.callout-tip title="Homer Simpson and the Statistically Significant Hair"}
 In "Simpson and Delilah" (The Simpsons, S2:E2), Homer takes Dimoxinil and wakes up the next morning with a full luscious head of hair. That is an enormous effect size.
 
-In reality, Minoxidil grows back very little hair, after months of twice-daily application, in a subset of men, most of whom keep checking the mirror hopefully. The effect is genuinely small. It is also statistically significant, because "most men experience *some* growth beyond noise," and noise here is defined in standard error units, not standard deviation units.
+In reality, Minoxidil grows back very little hair, after months of twice-daily application, in a subset of men, most of whom keep checking the mirror hopefully (*speaking from experience*). The effect is genuinely small. It is also statistically significant, because "most men experience *some* growth beyond noise," and noise here is defined in standard error units, not standard deviation units.
 
 Statistically significant is not the same as clinically significant. It is not even the same as noticeable. Homer's hair is a story about effect size. The clinical trial is a story about standard errors.
 :::
@@ -466,15 +466,45 @@ The area representing $1 - \beta$ grows as we add participants, because the curv
 
 This is why effect size is described as independent of sample size and significance is not. That statement is true if you know the population standard deviation $\sigma$. We never do. We approximate it with $S$, so our observed effect size is itself another guess, subject to the same fickleness we opened this chapter with. Which is why we hope meta-analysis, averaging over many studies, gives a steadier estimate, right up until publication bias mugs it in an alley.
 
+::: {.callout-warning title="Advanced: Effect Size and the Pilot Study Trap"}
+A few lines ago I said sample size is independent of effect size. That is half true, and here is the other half.
+
+Look at the formula again: $d = \frac{M - \mu}{S}$. We are estimating **two** things from our sample to guess at one true effect size in the population. In a small sample, both of them bounce around. But there is a hidden way they bounce, and it is not symmetric.
+
+In a small sample you are unlikely to catch the genuinely abnormal people, because there are not many of them and you did not grab many people. Miss the extremes and your $S$ comes out smaller than it should be. That is bias, not bad luck, and it happens on average.
+
+So what? Look at where $S$ sits. It is the **denominator**. When the denominator comes out too small, the effect size comes out too big.
+
+How bad is it? Bad. Under realistic small-sample conditions the observed effect can run **roughly twice** what it should be. I am not asking you to take my word for it, because there is a simulation in the Advanced Topics section at the end of this chapter that shows exactly this happening.
+
+Now think about what that means for a **pilot study**, where the entire point is to run a small sample to decide whether the real study is worth doing. Your pilot is systematically biased toward telling you yes. Then you power your real study on that inflated number, recruit far too few people, and find nothing.
+
+There is no consensus in the literature beyond "interpret with caution," and I show a couple of the proposed fixes in the advanced section. My own solution is to throw lots of undergraduates into the volcano and hope it does not happen to me.
+:::
+
 ## Estimating A Priori Power in R
 
 Base R ships with a power function for t-tests. No package required.
 
-```{r power-intro}
-args(power.t.test)
-```
+It needs five pieces of information, and you already know all of them by other names:
 
-It works by solving for whatever you leave as `NULL`. Give it any four of `n`, `delta`, `sd`, `sig.level`, and `power`, and it returns the fifth.
+| Argument | What it is in the words we have been using |
+|---|---|
+| `n` | sample size |
+| `delta` | the effect size, in Cohen's $d$ units (see the tip below) |
+| `sd` | the standard deviation (set this to 1 and `delta` becomes $d$) |
+| `sig.level` | $\alpha$, your Type I error rate, almost always .05 |
+| `power` | $1 - \beta$, the chance of catching the effect if it is real |
+
+You fill in four and leave one as `NULL`. R solves for the blank.
+
+::: {.callout-important title="Why Everyone Uses .80, and Why That Is Not Very Impressive"}
+Convention says aim for power of **.80**. Say that out loud in the other direction: $\beta = 1 - .80 = .20$, so a study designed to the field's standard **misses a real effect one time in five.** That is the norm, not the failure case.
+
+Plenty of people now argue for **.95**, which drops the miss rate to one in twenty. Excellent idea. Now buy it.
+
+Sample size does not scale linearly with power. Going from .80 to .95 does not cost you a few extra participants, it costs a great many, and we will watch exactly how badly it scales later in this chapter. Get your wallet out.
+:::
 
 ::: {.callout-tip title="How to Make power.t.test Speak Cohen's d"}
 `power.t.test()` wants a raw mean difference (`delta`) and a standard deviation (`sd`), not a $d$.
@@ -500,18 +530,36 @@ Getting `n` wrong here is the single most common power mistake. A `two.sample` a
 
 ### One-Sample: The Cookies Return
 
-Recall the one-sample study: we feed children cookies and compare their hyperactivity to a hypothesized population value of $\mu = 50$.
+Recall the one-sample study: we feed children cookies and compare their hyperactivity to a hypothesized population value of $\mu = 50$. The steps were:
+
+1. Assume a population value to test against, here $\mu = 50$.
+2. Collect a sample of children and feed them cookies.
+3. Compute the sample mean $M$ and standard deviation $S$.
+4. Ask whether $M$ sits farther from 50 than sampling error can comfortably explain.
+
+::: {.callout-note title="In a Real Study You Do Not Get to Build the Population"}
+The first two lines below manufacture a million children out of nothing, and then the next line grabs 36 of them. That is not what research looks like.
+
+In the real world there is no `Population` object. You go out and *find* your population, then kidnap, I mean politely ask their parents for permission after your IRB approves the study, and then feed actual children actual cookies and measure what happens.
+
+I simulate because it is free, instant, and nobody's child ends up climbing a curtain. But everything after the sampling step is identical to what you would do with real data.
+:::
 
 ```{r cookie-data}
 set.seed(123)
+
+# Simulate our population: a million children we will never meet.
 Population <- rnorm(1e6, mean = 50, sd = 5)
 
 set.seed(42)
+
+# Sample 36 kids (for real if you can, but I am lazy, so we simulate it)
+# and give each one a 2-point cookie boost.
 kids.1 <- sample(Population, 36, replace = TRUE) + 2
 
-M_kids <- mean(kids.1)
-S_kids <- sd(kids.1)
-d_kids <- (M_kids - 50) / S_kids
+M_kids <- mean(kids.1)                 # our sample mean
+S_kids <- sd(kids.1)                   # our sample SD
+d_kids <- (M_kids - 50) / S_kids       # Cohen's d: how far from 50, in SD units
 
 round(c(M = M_kids, SD = S_kids, n = length(kids.1), d = d_kids), 3)
 ```
@@ -663,9 +711,9 @@ Come back here for the concepts. Go there for the arithmetic.
 
 ---
 
-# Advanced Topics {.unnumbered}
+## Advanced Power Section 
 
-Everything above is what you need to design a study and defend it. What follows is the part that explains *why the field got this so wrong for so long*. You are not required to master it. You are required to know it exists.
+Everything above is what you need to design a study and defend it. What follows is the part that explains *why the field got this so wrong for so long*. You are not required to master it. 
 
 ## The Observed Effect Size Is Also a Guess
 
@@ -782,12 +830,24 @@ Powering a replication off a point estimate like that is not a calculation. It i
 The general-purpose answer is to simulate. Build the world you expect, run your analysis on it thousands of times, and count how often you win.
 
 ```{r sim-power}
+# Build a machine that runs a whole study over and over and reports how
+# often it found the effect. That proportion IS power.
 simulate_power <- function(n_per_group, true_d, n_sims = 2000, alpha = .05) {
-  hits <- replicate(n_sims, {
+
+  hits <- replicate(n_sims, {          # run one study, n_sims times over
+
+    # Build two groups from populations we KNOW differ by true_d.
+    # Group 2 is centered on 0, group 1 on true_d, both with sd = 1,
+    # so the gap between them is exactly true_d in standard deviations.
     g1 <- rnorm(n_per_group, mean = true_d, sd = 1)
     g2 <- rnorm(n_per_group, mean = 0,      sd = 1)
+
+    # Run the test. This line is TRUE if we caught the effect, FALSE if we missed.
     t.test(g1, g2)$p.value < alpha
   })
+
+  # hits is now 2,000 TRUEs and FALSEs. R treats TRUE as 1 and FALSE as 0,
+  # so the mean of them is the proportion of studies that succeeded.
   mean(hits)
 }
 
@@ -797,6 +857,10 @@ simulate_power(n_per_group = 30, true_d = 0.5)
 # compare to the closed-form answer
 power.t.test(n = 30, delta = 0.5, sd = 1, type = "two.sample")$power
 ```
+
+Read what that function does one more time, because the logic is the entire idea of power. We *built* a world where the effect is real and we know its exact size. Then we ran the study 2,000 times in that world and counted how often the t-test noticed. If it noticed 480 times out of 2,000, our power is .48, and the other 1,040 studies were funded, staffed, and wasted.
+
+The last two lines are the important habit: the simulation and the formula agree. Always check a simulation against a known answer before you trust it on a problem where you do not have one.
 
 The simulation agrees with the formula, which is how you know the simulation is trustworthy. Now you can change the generating model to anything you like, skewed outcomes, 20% dropout, a ceiling effect, and get an answer where no formula exists.
 
@@ -822,7 +886,7 @@ Twenty percent attrition costs real power. Plan for it before it happens, not in
 `power.t.test()` is deliberately limited. For anything beyond t-tests:
 
 - the **`pwr`** package covers correlations, proportions, chi-square, ANOVA, and regression with the same solve-for-`NULL` logic;
-- **G\*Power** is free stand-alone software and remains the standard for grant applications;
+- **G\*Power** is free stand-alone software and remains the standard for grant applications for people who do not code;
 - **`simr`** does simulation-based power for mixed models;
 - and for genuinely novel designs, the `simulate_power()` pattern above generalizes to anything you can write down.
 
@@ -839,5 +903,5 @@ Forty-eight years. Please do not make it take any longer.
 :::
 
 ::: {.callout-note title="Figure Credit"}
-The power and signal-detection illustrations in this chapter are adapted from Kristoffer Magnusson's [textbook-illustration walkthrough](http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics), updated for current ggplot2 syntax because the original was written back when `size` still meant line width.
+The power and signal-detection illustrations in this chapter are adapted from Kristoffer Magnusson's [textbook-illustration walkthrough](http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics), updated for current ggplot2 syntax.
 :::

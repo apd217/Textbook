@@ -172,6 +172,12 @@ A normal distribution has zero skewness and zero excess kurtosis, but matching t
 
 ### Simulating a Population in R
 
+::: {.callout-note title="You Do Not Know These Words Yet, and That Is Fine"}
+The code below asks for a mean and a standard deviation, and I have not taught you either one. On purpose.
+
+Right now this is just a machine for manufacturing a million fake people so we have something to look at. By the end of this chapter you will know exactly what every term in it means, and you can come back and read it again with the smug satisfaction of someone who understands the joke the second time.
+:::
+
 We'll use the normal distribution as our population. R makes this easy with `rnorm()`.
 
 Let's create a population with:
@@ -181,10 +187,13 @@ Let's create a population with:
 - $N = 1,000,000$
 
 ```{r}
-set.seed(42) # the answer to the universe
-n  <- 1e6   # 1 million people
-Mu <- 100   # population mean
-S  <- 15    # population SD
+set.seed(42)  # so your million fake people are the same as my million fake people
+n  <- 1e6     # 1e6 is scientific notation for 1,000,000
+Mu <- 100     # population mean
+S  <- 15      # population SD
+
+# rnorm() = "random normal". Draw n scores from a normal distribution
+# with the mean and SD we just specified.
 Normal.Sample.1 <- rnorm(n, mean = Mu, sd = S)
 ```
 
@@ -236,17 +245,29 @@ The center of a distribution can be described three ways:
 
 $$M = \frac{\Sigma X}{N}$$
 
+Add up every score, divide by how many there are. You have done this since grade school.
+
+::: {.callout-important title="Two Symbols for the Mean, and You Will Only Ever Have One of Them"}
+There is a mean of the **population**, written $\mu$ (the Greek letter *mu*, said "mew"), and a mean of your **sample**, written $M$.
+
+They are not two names for the same thing. $\mu$ is the real answer, the average of every person in the population, and **you will almost certainly never know it.** It exists, it is a fixed number, and it is none of your business. $M$ is what you get when you grab a handful of people and average them. It is your estimate of $\mu$, and it is the only one of the two you will ever hold in your hand.
+
+This chapter is a rare exception, because I built the population myself and can therefore cheat. I told R that $\mu = 100$. In a real study nobody hands you that number, which is exactly why the next several chapters exist.
+
+The same split is coming for spread: $\sigma$ for the population, $S$ for your sample. Same relationship, same problem, same resignation.
+:::
+
 ```{r, echo=TRUE}
-SumX <- sum(Normal.Sample.1)
-N    <- length(Normal.Sample.1)
-M    <- SumX / N
+SumX <- sum(Normal.Sample.1)         # add up every score
+N    <- length(Normal.Sample.1)      # count how many scores there are
+M    <- SumX / N                     # divide: that is the mean
 M
 
 # Or all at once:
 M <- sum(Normal.Sample.1) / length(Normal.Sample.1)
 ```
 
-The mean was `r round(M,2)`---close to our target $\mu$ of 100. But just use the built-in:
+The mean was `r round(M,2)`---close to our target $\mu$ of 100, though notice it is not *exactly* 100 even with a million people. But just use the built-in:
 
 ```{r, echo=TRUE}
 mean(Normal.Sample.1)
@@ -258,22 +279,41 @@ mean(Normal.Sample.1)
 median(Normal.Sample.1)
 ```
 
-Want to do it by hand? Here's a custom function (mostly to show you why built-ins exist):
+Want to do it by hand? This is a good excuse to explain what a **function** actually is, because you have been using them since Chapter 2 without anyone defining the word.
+
+A function is a machine you build once and then use forever. You hand it something, it does its work, it hands something back. `mean()` is a function: you hand it numbers, it hands back their average. So is `sort()`, and `length()`, and every other word in this book followed by parentheses.
+
+You can build your own with `function()`. The thing in the parentheses is the **argument**, the placeholder for whatever gets handed in. Here is the median, built from scratch:
 
 ```{r, echo=TRUE}
+# Define a function called calculate_median that takes one input, x.
 calculate_median <- function(x) {
-  sorted_x <- sort(x)
-  n <- length(sorted_x)
-  if (n %% 2 == 1) {
-    sorted_x[(n + 1) / 2]
+
+  sorted_x <- sort(x)         # step 1: put the scores in order, smallest to largest
+  n <- length(sorted_x)       # step 2: count how many there are
+
+  if (n %% 2 == 1) {          # step 3: is n odd? (%% gives the remainder after dividing)
+
+    sorted_x[(n + 1) / 2]     # odd, so there is one number dead in the middle. Take it.
+
   } else {
+
+    # even, so there is no single middle. Take the two middle numbers
+    # and average them.
     (sorted_x[n / 2] + sorted_x[(n / 2) + 1]) / 2
   }
 }
+
+# Now USE the machine we just built.
 calculate_median(Normal.Sample.1)
 ```
 
-Same answer. Lots of code. This is why R has built-in functions!
+Two bits of syntax worth naming, because they show up constantly:
+
+- **`sorted_x[3]`** means "the 3rd item in `sorted_x`." Square brackets pull items out by position.
+- **`%%`** is the remainder operator. `7 %% 2` is 1, because 7 divided by 2 leaves 1 over. So `n %% 2 == 1` is R's way of asking "is n odd?"
+
+Same answer as `median()`. Lots of code. This is why R has built-in functions!
 
 ### Mode
 
@@ -311,22 +351,28 @@ So the honest average distance is useless as a measure of spread. Squaring fixes
 
 Here is the intuition. Once you know the mean and all but one of the deviations, the last deviation is not free---it is forced to be whatever makes the sum come out to zero. Eight numbers, but only seven of them can vary independently once the mean is fixed. You have $N-1$ independent pieces of information, so you divide by $N-1$.
 
-That is the explanation. Here is the proof, because code is an awesome way to settle an argument:
+That is the explanation. Here is the proof, because code is an awesome way to settle an argument.
+
+This uses a function you will see constantly from here on: **`replicate()`**. It does exactly what the name says. You give it a number and a block of code, and it runs that code that many times, collecting every answer. `replicate(10000, ...)` means "do this ten thousand times and keep all ten thousand results." It is how we run a study over and over without recruiting a single human.
 
 ```{r n-minus-one-simulation, echo=TRUE}
 set.seed(343)
 
-# The truth: a population with variance of exactly 25.
+# The truth: a population with variance of exactly 25 (because SD = 5, and 5^2 = 25).
 truth <- 25
 
-# Take 10,000 small samples and estimate the variance both ways.
+# Run the following block 10,000 times, keeping every answer.
 estimates <- replicate(10000, {
-  s <- rnorm(8, mean = 100, sd = 5)
-  deviations <- (s - mean(s))^2
-  c(divide_by_N   = sum(deviations) / 8,
-    divide_by_N_1 = sum(deviations) / 7)
+
+  s <- rnorm(8, mean = 100, sd = 5)   # grab a tiny sample of 8 people
+  deviations <- (s - mean(s))^2       # squared distance of each score from ITS OWN mean
+
+  # Compute the variance two ways and return both.
+  c(divide_by_N   = sum(deviations) / 8,   # the tempting way
+    divide_by_N_1 = sum(deviations) / 7)   # the N-1 way
 })
 
+# estimates now holds 10,000 answers of each kind. Average them.
 round(rowMeans(estimates), 2)
 ```
 
@@ -339,6 +385,22 @@ $$\sigma^2 = \frac{\Sigma (X-\mu)^2}{N}$$
 
 Sample variance, using $N-1$ to estimate population variance:
 $$S^2 = \frac{\Sigma (X-M)^2}{N-1}$$
+
+::: {.callout-important title="Greek Letters Are the Truth; Roman Letters Are Your Guess"}
+You just met the second pair, so here is the rule that runs through the entire rest of this book.
+
+| | Population (the truth) | Sample (your estimate) |
+|---|---|---|
+| Mean | $\mu$ (mu) | $M$ |
+| Variance | $\sigma^2$ (sigma squared) | $S^2$ |
+| Standard deviation | $\sigma$ (sigma) | $S$ |
+
+**Greek letters describe the population.** They are fixed, real, and almost always unknowable.
+
+**Roman letters describe your sample.** They are computed from data you actually collected, they change every time you collect new data, and they are your best available guess at the Greek letter sitting behind them.
+
+So $M$ is your guess at $\mu$, and $S$ is your guess at $\sigma$. When you see a Greek letter in a formula, ask yourself where that number is supposed to come from, because in real research the answer is usually "nowhere, and that is the problem we are about to solve."
+:::
 
 R vectorizes this for you (turns into a string of numbers), but watch your parentheses. The built-in `var()` uses $M$ and $N-1$:
 
@@ -547,7 +609,7 @@ Skewness = `r round(SK.Calc,2)`
 
 ### Moment 4: Kurtosis
 
-This is peakiness! You can have flattish, longish hills (**platykurtic**) or skinny, tall hills (**leptokurtic**). I would be remiss to my mother if I did not point out that these are Greek words. I would also like to point out that nobody has ever confused my body shape with leptokurtotic.
+This is peakiness! You can have flattish, longish hills (**platykurtic**) or skinny, tall hills (**leptokurtic**). I would be remiss to my mother if I did not point out that these are Greek words. *I would also like to point out that nobody has ever confused my body shape with leptokurtotic.*
 
 The kurtosis formula is below for completeness. Not only does almost nobody report it, I do not think many people know how to make sense of the numbers it spews out.
 
@@ -578,18 +640,28 @@ DF <- data.frame(X = Normal.Sample.1)
 Now compute all four moments at once:
 
 ```{r, echo=TRUE}
-library(tidyverse)
-library(moments)
+library(tidyverse)   # loads dplyr, ggplot2, and friends
+library(moments)     # gives us skewness() and kurtosis()
+
 Desc.table <-
-  DF %>%
-  summarise(N    = n(),
-            M    = mean(X),
-            S    = sd(X),
-            CV   = S / abs(M),
-            Skew = skewness(X),
-            Kurt = kurtosis(X) - 3)
+  DF %>%                        # take the data frame, then...
+  summarise(N    = n(),                 # count the rows
+            M    = mean(X),             # moment 1: center
+            S    = sd(X),               # moment 2: spread
+            CV   = S / abs(M),          # spread relative to the mean
+            Skew = skewness(X),         # moment 3: lopsidedness
+            Kurt = kurtosis(X) - 3)     # moment 4: tails (minus 3 = "excess")
+
 round(Desc.table, 2)
 ```
+
+That `%>%` is a **pipe**. Read it as the word "then." It takes whatever is on its left and feeds it into the function on its right, so `DF %>% summarise(...)` means "take DF, *then* summarise it." It saves you from writing `summarise(DF, ...)` with everything crammed inside one set of parentheses, and it gets very handy once you are stacking four or five operations.
+
+::: {.callout-tip title="About All Those Plots I Keep Making Without Explaining Them"}
+You have now seen several figures built with `ggplot()`, and I have never once told you how it works. That is deliberate. Explaining the grammar of graphics in the middle of a chapter about variance would help nobody.
+
+There is a whole chapter on `ggplot()` and the tidyverse at the end of the book. When you want to make your own plots rather than read mine, go there. For now, feel free to copy any plotting code you see, change the variable names, and see what happens. That is how everyone learns it anyway.
+:::
 
 ## Distributions and Probability
 
