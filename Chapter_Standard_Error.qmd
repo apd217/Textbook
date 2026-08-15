@@ -160,7 +160,7 @@ tibble(CTA.means = Sample.Means) |>
 ```
 
 You will notice the distribution of means is normal-ish and centered around
-3, and it was precisely: Mean of means = `r round(mean(Sample.Means),2)`. *Remember, you would not ever know the true population mean because (a) good luck getting every single rider of the CTA to answer a survey question, and more importantly (b) the Probability Gods only love me and not you, cause you have not spent your career tricking undergrads into jumping into a volcano.*
+3, and it was precisely: Mean of means = `r round(mean(Sample.Means),2)`. *Remember, you would never know the true population mean. Good luck getting every rider of the CTA to answer a survey, and the Probability Gods only love me anyway, cause you have not spent your career tricking undergrads into a volcano.*
 
 ### SD of Distribution of Means
 
@@ -240,7 +240,7 @@ $$
 M \pm t^*SE
 $$
 
-For example, with $N=10$, the 95% multiplier is about 2.26---not exactly 2. We will learn where that number comes from in the t-test chapter. For now, $\pm2SE$ is a useful approximation. But **hold your Guinness Beers** (*that's dramatic foreshadowing btw---see, English teachers, I learned something between all those Fs for my awesome essays about penguins.*)
+For example, with $N=10$, the 95% multiplier is about 2.26---not exactly 2. We will learn where that number comes from in the t-test chapter. For now, $\pm2SE$ is a useful approximation. But **hold your Guinness Beers**. *That is dramatic foreshadowing, and yes, English teachers, I did learn something.*
 :::
 
 ### The Standard Error of the Mean (SEM), the One Number to Rule Them All
