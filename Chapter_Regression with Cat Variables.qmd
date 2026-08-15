@@ -1,25 +1,29 @@
 ---
 title: 'Linear Regression with Categorical Variables'
-geometry: margin=.5in
-fontsize: 10pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE) #Show all script by default
-knitr::opts_chunk$set(message = FALSE) #hide messages 
-knitr::opts_chunk$set(warning =  FALSE) #hide package warnings 
-knitr::opts_chunk$set(fig.width=5) #Set default figure sizes
-knitr::opts_chunk$set(fig.height=3.5) #Set default figure sizes
-knitr::opts_chunk$set(fig.align='center') #Set default figure
-knitr::opts_chunk$set(fig.show = "hold") #Set default figure
-knitr::opts_chunk$set(results = "hold") 
+knitr::opts_chunk$set(
+  echo = TRUE,        # Show all script by default
+  message = FALSE,    # hide messages
+  warning = FALSE,    # hide package warnings
+  fig.width = 5,
+  fig.height = 3.5,
+  fig.align = "center",
+  fig.show = "hold",
+  results = "hold"
+)
 ```
+
+## The Promise From Last Chapter
+
+The last chapter said the outcome has to be quantitative but the predictors are far less picky, and that we would start feeding regression categorical variables on purpose.
+
+This is that chapter.
+
+The question is genuinely strange the first time you meet it. Regression multiplies a predictor by a slope, and you cannot multiply "Texting" by 0.34. So how does a model built entirely out of arithmetic handle a variable whose values are words?
+
+The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something quietly excellent falls out: the t-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.
 
 ## Distracted Driving
 
@@ -36,9 +40,7 @@ Reaction time is measured in seconds. Larger values indicate slower reactions.
 When a predictor is categorical, regression cannot use the labels directly.  
 Regression requires numbers, so the categories must be translated into numeric variables. 
 
-This process is called **dummy coding**.
-
-The most common coding scheme is **dummy coding**, which is also the **default used by R** when it detects a factor.
+This process is called **dummy coding**. It is the most common coding scheme, and the **default used by R** whenever it detects a factor.
 
 ### Dummy Coding Details
 
@@ -138,7 +140,7 @@ The **first level of the factor becomes the reference group**.
 
 For example:
 
-```{r, echo=TRUE}
+```{r set-factor-levels, echo=TRUE}
 dat2$Condition <- factor(dat2$Condition,
                          levels = c("No Distraction", "Texting"))
 ```
@@ -160,7 +162,7 @@ First we load the packages needed for this example.
 - **tidyverse**: used for data manipulation and summarizing the data  
 - **apa**: used to produce APA-style statistical output
 
-```{r, echo=TRUE}
+```{r load-packages, echo=TRUE}
 library(apa)
 library(tidyverse)
 ```
@@ -171,7 +173,7 @@ Before running a statistical test, it is always good practice to examine the des
 
 The code below calculates the **mean (M)** and **standard deviation (SD)** of reaction time for each condition.
 
-```{r, echo=TRUE}
+```{r group-descriptives, echo=TRUE}
 dat2 %>%
   group_by(Condition) %>%
   summarise(
@@ -187,7 +189,7 @@ This gives us a quick summary of how reaction time differs across the two drivin
 
 Next we test whether the difference between groups is statistically significant.
 
-```{r, echo=TRUE}
+```{r run-ttest, echo=TRUE}
 texting.ttest <- t.test(RT ~ Condition,
                         data = dat2,
                         var.equal = TRUE)
@@ -204,24 +206,60 @@ Reminder:
 
 Finally, we format the results in **APA style** using the `apa` package.
 
-```{r, echo=TRUE}
+```{r ttest-apa, echo=TRUE}
 apa(texting.ttest)
 ```
 
 ### APA write up
 
-Drivers who texted while driving had significantly slower reaction times ($M = 1.01$, $SD = 0.12$) than drivers with no distraction ($M = 0.66$, $SD = 0.14$), $t(58) = -10.21$, $p < .001$, $d = -2.64$, indicating that texting substantially increased reaction time.
+```{r ttest-apa-values, echo=FALSE}
+desc <- dat2 |>
+  dplyr::group_by(Condition) |>
+  dplyr::summarise(M = mean(RT), SD = sd(RT), n = dplyr::n())
+
+sp <- sqrt(((desc$n[1]-1)*desc$SD[1]^2 + (desc$n[2]-1)*desc$SD[2]^2) / (sum(desc$n)-2))
+d.texting <- (desc$M[1] - desc$M[2]) / sp
+
+# APA drops the leading zero on statistics bounded by 1
+apa.dec <- function(x, k = 2) sub("^(-?)0", "\\1", sprintf(paste0("%.", k, "f"), x))
+```
+
+Drivers who texted while driving had significantly slower reaction times ($M =$ `r round(desc$M[2], 2)`, $SD =$ `r round(desc$SD[2], 2)`) than drivers with no distraction ($M =$ `r round(desc$M[1], 2)`, $SD =$ `r round(desc$SD[1], 2)`), $t(`r texting.ttest$parameter`) =$ `r round(texting.ttest$statistic, 2)`, $p < .001$, $d =$ `r round(d.texting, 2)`, indicating that texting substantially increased reaction time.
 
 **Small note**: the negative sign on $t$ simply reflects the order of subtraction (No Distraction minus Texting).
+
+::: {.callout-warning title="A d of 2.6 Should Be Making You Suspicious"}
+By now you have read the power chapter, so that effect size should raise an eyebrow. Real texting-while-driving effects are large, which is exactly why it is illegal, but they are not science-fiction large. Published estimates sit closer to $d$ of 0.5 to 1.
+
+I built this simulation to make the pictures come out clean. Simulated data lies politely, and it will happily calibrate your intuitions to a world that does not exist.
+:::
 
 ### The Same Analysis Using Regression
 
 Now we run the equivalent regression model.
 
-```{r, echo=TRUE}
+```{r two-level-model, echo=TRUE}
 model2 <- lm(RT ~ Condition, data = dat2)
 summary(model2)
 ```
+
+### Why Are the t-values the Same?
+
+Stop and compare two numbers before going any further, because this is the whole point of the section.
+
+In the `ConditionTexting` row above: $t =$ `r round(summary(model2)$coefficients[2,3], 2)`, $p < .001$.
+
+Back in the t-test: $t =$ `r round(texting.ttest$statistic, 2)`, $p < .001$.
+
+Same magnitude, opposite sign. Not similar. *Identical.*
+
+The sign flip is bookkeeping: `t.test()` subtracted in the order No Distraction minus Texting, and the regression reports Texting relative to No Distraction. Everything else matches because the two procedures are doing the same arithmetic:
+
+- The regression slope **is** the difference between the group means.
+- Its standard error **is** the pooled standard error of that difference.
+- Dividing one by the other is precisely what the t-test did.
+
+One condition on that equivalence, and it is worth naming. It holds because we ran the t-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student t-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
 
 The regression equation is
 
@@ -250,16 +288,16 @@ $$
 
 So the intercept is simply the mean reaction time for the reference group.
 
-```{r, echo=TRUE}
+```{r two-level-coefs, echo=TRUE}
 coef(model2)
 ```
 
-The model returns something like:
+Which gives us:
 
 | Coefficient | Value |
 |--------------|------|
-| Intercept | 0.664 |
-| ConditionTexting | 0.341 |
+| Intercept | `r round(coef(model2)[1], 3)` |
+| ConditionTexting | `r round(coef(model2)[2], 3)` |
 
 Now we can reconstruct the means.
 
@@ -270,10 +308,10 @@ RT = b_0
 $$
 
 $$
-RT = 0.664
+RT = `r round(coef(model2)[1], 3)`
 $$
 
-So the predicted mean reaction time is **0.664 seconds**.
+So the predicted mean reaction time is **`r round(coef(model2)[1], 3)` seconds**.
 
 ### Texting
 
@@ -282,14 +320,14 @@ RT = b_0 + b_1
 $$
 
 $$
-RT = 0.664 + 0.341
+RT = `r round(coef(model2)[1], 3)` + `r round(coef(model2)[2], 3)`
 $$
 
 $$
-RT = 1.005
+RT = `r round(coef(model2)[1] + coef(model2)[2], 3)`
 $$
 
-So the predicted mean reaction time is **1.005 seconds** for texting while driving.
+So the predicted mean reaction time is **`r round(coef(model2)[1] + coef(model2)[2], 3)` seconds** for texting while driving.
 
 These values match the observed group means from the data.
 
@@ -300,7 +338,7 @@ These values match the observed group means from the data.
 
 We can also extract the model-estimated means so we do not have to reconstruct them manually from the regression equation.
 
-```{r, echo=TRUE}
+```{r emmeans-two-level, echo=TRUE}
 library(emmeans)
 
 emmeans(model2, ~ Condition)
@@ -345,7 +383,7 @@ So `emmeans()` is simply doing the same math we just performed manually:
 
 For simple models like this one, calculating the means by hand is straightforward.
 
-However, as models become more complex (for, with multiple predictors or interactions), manually reconstructing the means becomes tedious.
+However, as models become more complex (for example, with multiple predictors or interactions), manually reconstructing the means becomes tedious.
 
 `emmeans` provides a convenient way to:
 
@@ -361,7 +399,7 @@ All while keeping the results tied directly to the regression model.
 
 We can also test the difference between groups directly from the regression model using `emmeans`.
 
-```{r, echo=TRUE}
+```{r pairs-two-level, echo=TRUE}
 pairs(emmeans(model2, ~ Condition))
 ```
 
@@ -408,7 +446,7 @@ The means and the group comparison are both derived directly from the fitted reg
 
 ### APA Regression Write up
 
-Drivers who texted while driving had significantly slower reaction times than drivers with no distraction. Relative to this reference group (no distractions), the Texting condition increased reaction time by 0.34 seconds, $b = 0.34, SE = 0.03, p < .001$. The model explained a substantial proportion of variance in reaction time, indicating that differences in driving condition accounted for about 64% of the variability in reaction times across drivers
+Drivers who texted while driving had significantly slower reaction times than drivers with no distraction. Relative to this reference group (no distractions), the Texting condition increased reaction time by `r round(coef(model2)[2], 2)` seconds, $b =$ `r round(coef(model2)[2], 2)`, $SE =$ `r round(summary(model2)$coefficients[2,2], 2)`, $t(`r df.residual(model2)`) =$ `r round(summary(model2)$coefficients[2,3], 2)`, $p < .001$. The model explained a substantial proportion of variance in reaction time, $R^2 =$ `r apa.dec(summary(model2)$r.squared)`, $F(1, `r df.residual(model2)`) =$ `r round(summary(model2)$fstatistic[1], 2)`, $p < .001$, indicating that differences in driving condition accounted for about `r round(summary(model2)$r.squared * 100)`% of the variability in reaction times across drivers.
 
 
 ### Plotting the Model-Estimated Means
@@ -417,7 +455,7 @@ We can also visualize the model-estimated means returned by `emmeans`.
 
 First we store the estimated means in an object.
 
-```{r, echo=TRUE}
+```{r store-means, echo=TRUE}
 means <- emmeans(model2, ~ Condition)
 
 means
@@ -425,7 +463,7 @@ means
 
 To make plotting easier, we convert the results into a data frame.
 
-```{r, echo=TRUE}
+```{r means-to-df, echo=TRUE}
 means_df <- as.data.frame(means)
 
 means_df
@@ -439,7 +477,9 @@ The data frame contains:
 
 Now we can quickly plot these values using **ggplot**.
 
-```{r, echo=TRUE}
+```{r two-level-means-plot, echo=TRUE}
+#| fig-cap: "Model-estimated mean reaction time in each condition, with 95% confidence intervals. The bars come straight out of the regression."
+#| fig-alt: "Bar chart with two bars, No Distraction at about 0.66 seconds and Texting at about 1.01 seconds, each with a narrow error bar. The Texting bar is clearly taller and the intervals do not overlap."
 library(ggplot2)
 
 ggplot(means_df, aes(x = Condition, y = emmean)) +
@@ -461,7 +501,7 @@ Now suppose we repeat the study but add a third condition:
 **Listening to a statistics lecture while driving to class.**
 
 
-```{r, echo=FALSE}
+```{r simulate-three-level, echo=FALSE}
 set.seed(543)
 
 Lecture <- rnorm(n, .85, sd_rt)
@@ -480,7 +520,7 @@ dat3 <- data.frame(Condition, RT)
 
 Again we convert the predictor to a factor.
 
-```{r, echo=TRUE}
+```{r factor-three-level, echo=TRUE}
 dat3$Condition <- factor(dat3$Condition,
                          levels = c("No Distraction",
                                     "Texting",
@@ -524,21 +564,35 @@ $$
 1 - (1 - .05)^3
 $$
 
-```{r, echo=TRUE}
+```{r type-one-inflation, echo=TRUE}
 1 - (1 - .05)^3
 ```
 
-This is about **14%**, much larger than the intended 5%. Using regression means we will not increase our type I error in the same way!
+This is about **14%**, much larger than the intended 5%.
+
+Regression helps here, but it is worth being precise about how, because the honest version is less magical than it sounds. Fitting one model does not delete the multiple-testing problem. What it does is organize every comparison under a single model and hand you a **gatekeeper**: one overall test of whether the group means differ at all, which you check *before* going looking for which pairs differ. That gate is the omnibus $F$, and we are about to meet it.
 
 
 ### Regression with Three Groups
 
 Regression allows us to test all comparisons within a single model.
 
-```{r, echo=TRUE}
+```{r three-level-model, echo=TRUE}
 model3 <- lm(RT ~ Condition, data = dat3)
 summary(model3)
 ```
+
+### The Gate: the Omnibus F
+
+Look at the very last line of that output, the one everybody scrolls past:
+
+`F-statistic: `r round(summary(model3)$fstatistic[1], 2)` on `r summary(model3)$fstatistic[2]` and `r summary(model3)$fstatistic[3]` DF`
+
+That is the gatekeeper. It tests one null hypothesis: **all three group means are equal**. Not "texting differs from no distraction," not any particular pair, just whether there is any difference anywhere in the set.
+
+Ours is $F(`r summary(model3)$fstatistic[2]`, `r summary(model3)$fstatistic[3]`) =$ `r round(summary(model3)$fstatistic[1], 2)`, $p < .001$, so the gate is open. Something in there differs, and we have earned the right to go find out what.
+
+Had that $F$ come back non-significant, the honest move is to stop. The means are not distinguishable, and hunting through pairs anyway is precisely the 14% problem we just calculated, now with extra steps.
 
 The model is
 
@@ -553,7 +607,6 @@ Interpretation:
 - $b_2$ = difference between **Lecture** and **No Distraction**
 
 
-### Connecting the Model to the Means
 ### Reconstructing the Group Means from the Regression Model
 
 Recall that the regression model is
@@ -566,13 +619,13 @@ From the model output we obtained the following coefficients:
 
 | Coefficient | Value |
 |-------------|------|
-| $b_0$ (Intercept) | 0.664 |
-| $b_1$ (Texting) | 0.341 |
-| $b_2$ (Lecture) | 0.192 |
+| $b_0$ (Intercept) | `r round(coef(model3)[1], 3)` |
+| $b_1$ (Texting) | `r round(coef(model3)[2], 3)` |
+| $b_2$ (Lecture) | `r round(coef(model3)[3], 3)` |
 
 Again, the intercept represents the **mean reaction time for the reference group**, which is **No Distraction**.
 
-```{r, echo=TRUE}
+```{r three-level-coefs, echo=TRUE}
 coef(model3)
 ```
 
@@ -588,10 +641,10 @@ $$
 Substituting the coefficient:
 
 $$
-RT = 0.664
+RT = `r round(coef(model3)[1], 3)`
 $$
 
-So the predicted mean reaction time for **No Distraction** is **0.664 seconds**.
+So the predicted mean reaction time for **No Distraction** is **`r round(coef(model3)[1], 3)` seconds**.
 
 
 ### Texting
@@ -608,14 +661,14 @@ $$
 Substituting the coefficients:
 
 $$
-RT = 0.664 + 0.341
+RT = `r round(coef(model3)[1], 3)` + `r round(coef(model3)[2], 3)`
 $$
 
 $$
-RT = 1.005
+RT = `r round(coef(model3)[1] + coef(model3)[2], 3)`
 $$
 
-So the predicted mean reaction time for **Texting** is **1.005 seconds**.
+So the predicted mean reaction time for **Texting** is **`r round(coef(model3)[1] + coef(model3)[2], 3)` seconds**.
 
 
 ### Lecture
@@ -632,14 +685,14 @@ $$
 Substituting the coefficients:
 
 $$
-RT = 0.664 + 0.192
+RT = `r round(coef(model3)[1], 3)` + `r round(coef(model3)[3], 3)`
 $$
 
 $$
-RT = 0.856
+RT = `r round(coef(model3)[1] + coef(model3)[3], 3)`
 $$
 
-So the predicted mean reaction time for **Lecture** is **0.856 seconds**.
+So the predicted mean reaction time for **Lecture** is **`r round(coef(model3)[1] + coef(model3)[3], 3)` seconds**.
 
 
 ### Prediction summarized
@@ -648,47 +701,70 @@ The regression coefficients allow us to **reconstruct the group means directly**
 
 | Condition | Model Equation | Predicted Mean |
 |-----------|---------------|---------------|
-| No Distraction | $b_0$ | 0.664 |
-| Texting | $b_0 + b_1$ | 1.005 |
-| Lecture | $b_0 + b_2$ | 0.856 |
+| No Distraction | $b_0$ | `r round(coef(model3)[1], 3)` |
+| Texting | $b_0 + b_1$ | `r round(coef(model3)[1] + coef(model3)[2], 3)` |
+| Lecture | $b_0 + b_2$ | `r round(coef(model3)[1] + coef(model3)[3], 3)` |
 
 **Regression is simply expressing the group means and their differences using an equation.**
 
-### Extracting the Means
-
-```{r, echo=TRUE}
-emmeans(model3, ~ Condition)
-```
-
-
-### APA Write-Up
-
-A regression model was used to predict reaction time from driving condition.  
-Because **No Distraction** was entered as the first factor level, it served as the **reference group**, and the intercept represented the mean reaction time for that condition (*M* = 0.66, *SE* = 0.02, 95% CI [0.62, 0.71]).
-
-Relative to this reference group, texting significantly increased reaction time, $b = 0.34$, $SE = 0.03$, $p < .001$. Listening to a statistics lecture also increased reaction time relative to the no-distraction condition, $b = 0.19$, $SE = 0.03$, $p < .001$.
-
-Overall, the model explained a substantial proportion of variance in reaction time, indicating that driving condition accounted for about **54% of the variability in reaction times**.
-
-
 ### Extracting the Model-Estimated Means
 
-Just like before, we can extract the model-estimated means using **emmeans**.
+Just like before, `emmeans` will do all of that reconstruction for us.
 
-```{r, echo=TRUE}
-library(emmeans)
+```{r three-level-emmeans, echo=TRUE}
 means3 <- emmeans(model3, ~ Condition)
 means3
 ```
 
-These values represent the **means predicted by the regression model**.
+These values represent the **means predicted by the regression model**, and they match the numbers we just assembled by hand.
+
+### Changing the Reference Group
+
+The reference group is a choice, not a fact about the world. `factor(levels = )` sets it when you build the variable. To switch it afterwards, use `relevel()`:
+
+```{r relevel-demo, echo=TRUE}
+dat3$Condition2 <- relevel(dat3$Condition, ref = "Texting")
+
+model3b <- lm(RT ~ Condition2, data = dat3)
+coef(model3b)
+```
+
+Every coefficient is now expressed relative to Texting. The intercept is Texting's mean, `r round(coef(model3b)[1], 3)`, and the other two rows are how much *slower or faster* the remaining conditions are compared to it. No Distraction now carries a negative coefficient, `r round(coef(model3b)[2], 3)`, because being undistracted is faster than texting.
+
+Here is the part worth watching, though. Nothing about the model actually moved:
+
+```{r relevel-unchanged, echo=TRUE}
+# Same variance explained, same omnibus test, same fitted means
+c(R2.original = summary(model3)$r.squared,
+  R2.releveled = summary(model3b)$r.squared)
+
+c(F.original = summary(model3)$fstatistic[1],
+  F.releveled = summary(model3b)$fstatistic[1])
+```
+
+Identical. Releveling changed which comparisons the coefficients describe. It did not change the fit, the group means, the residuals, or the drivers.
+
+
+### APA Write-Up
+
+```{r three-level-apa-values, echo=FALSE}
+s3   <- summary(model3)
+em3  <- as.data.frame(emmeans(model3, ~ Condition))
+ref  <- em3[em3$Condition == "No Distraction", ]
+```
+
+A regression model was used to predict reaction time from driving condition. The overall model was significant, $R^2 =$ `r apa.dec(s3$r.squared)`, $F(`r s3$fstatistic[2]`, `r s3$fstatistic[3]`) =$ `r round(s3$fstatistic[1], 2)`, $p < .001$, indicating that driving condition accounted for about `r round(s3$r.squared * 100)`% of the variability in reaction times.
+
+Because **No Distraction** was entered as the first factor level, it served as the **reference group**, and the intercept represented the mean reaction time for that condition (*M* = `r round(ref$emmean, 2)`, *SE* = `r round(ref$SE, 2)`, 95% CI [`r round(ref$lower.CL, 2)`, `r round(ref$upper.CL, 2)`]).
+
+Relative to this reference group, texting significantly increased reaction time, $b =$ `r round(coef(model3)[2], 2)`, $SE =$ `r round(s3$coefficients[2,2], 2)`, $t(`r df.residual(model3)`) =$ `r round(s3$coefficients[2,3], 2)`, $p < .001$. Listening to a statistics lecture also increased reaction time relative to the no-distraction condition, $b =$ `r round(coef(model3)[3], 2)`, $SE =$ `r round(s3$coefficients[3,2], 2)`, $t(`r df.residual(model3)`) =$ `r round(s3$coefficients[3,3], 2)`, $p < .001$.
 
 
 ### Testing Differences Between Groups
 
 We can also test the differences between all pairs of conditions.
 
-```{r, echo=TRUE}
+```{r pairwise-comparisons, echo=TRUE}
 pairs(means3, adjust="none")
 ```
 
@@ -700,9 +776,30 @@ This compares the estimated means for:
 
 All comparisons are derived directly from the regression model. This contains the comparison we did not test earlier (texting vs. lecture). You can add that to your APA report as well.
 
+### About That `adjust="none"`
+
+You should be suspicious of that argument, because we spent a whole section calculating that three unadjusted tests inflate the error rate to 14%. So why are we allowed to run three unadjusted tests?
+
+Because we checked the gate first. The omnibus $F$ was significant, which is what earns the right to look at individual pairs without adjusting each one. This is **Fisher's protected LSD**, and the word doing the work is *protected*: the $F$ is the protection, and it was bought before any pair was examined.
+
+The protection has a hard expiry date, and it is worth memorizing, because it is a favorite exam question:
+
+::: {.callout-important title="The Protection Expires at Three Groups"}
+With exactly **three** groups, a significant omnibus $F$ followed by unadjusted pairwise tests keeps the familywise error rate at $\alpha$. This is a genuine mathematical result, not a convention.
+
+With **four or more** groups it stops working, and the error rate creeps back up. At that point you need a real correction (Tukey, Holm, Bonferroni), which is what the [Multiple Comparisons](Chapter_Multiple_Comparisons.qmd) chapter is for.
+
+So `adjust = "none"` here is a defensible choice with three groups and a significant $F$. Pasted into a four-group analysis, it is just the 14% problem again.
+:::
+
 ### APA for follow up test
 
-In addition, pairwise comparisons of the estimated marginal means showed that texting produced significantly slower reaction times than listening to a statistics lecture, $b = 0.15$, $SE = 0.03$, $p < .001$. Thus, although both distractions impaired reaction time relative to the no-distraction condition, texting was associated with the greatest slowing of reactions.
+```{r followup-values, echo=FALSE}
+pw <- as.data.frame(pairs(means3, adjust = "none"))
+tl <- pw[pw$contrast == "Texting - Lecture", ]
+```
+
+In addition, pairwise comparisons of the estimated marginal means showed that texting produced significantly slower reaction times than listening to a statistics lecture, $b =$ `r round(tl$estimate, 2)`, $SE =$ `r round(tl$SE, 2)`, $t(`r tl$df`) =$ `r round(tl$t.ratio, 2)`, $p < .001$. Thus, although both distractions impaired reaction time relative to the no-distraction condition, texting was associated with the greatest slowing of reactions.
 
 
 ### Plotting the Model-Estimated Means
@@ -711,14 +808,16 @@ We can also visualize the results using a simple plot.
 
 First we convert the estimated means to a data frame.
 
-```{r, echo=TRUE}
+```{r three-level-means-df, echo=TRUE}
 means3_df <- as.data.frame(means3)
 means3_df
 ```
 
 Now we plot the estimated means and their 95% confidence intervals.
 
-```{r, echo=TRUE}
+```{r three-level-means-plot, echo=TRUE}
+#| fig-cap: "All three conditions, model-estimated means with 95% confidence intervals. Lecture sits between the other two."
+#| fig-alt: "Bar chart with three bars: No Distraction at about 0.66 seconds, Texting at about 1.01, and Lecture at about 0.86, each with a narrow error bar. Texting is tallest and No Distraction shortest."
 library(ggplot2)
 
 ggplot(means3_df, aes(x = Condition, y = emmean)) +
