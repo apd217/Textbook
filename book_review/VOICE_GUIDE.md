@@ -5,9 +5,13 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.6, 2026-08-15. **v1.6 adds §14, the punctuation and length rules Alex set while
+> Status: v1.7, 2026-08-15. **v1.7 adds §15, the chapter-opening spec, and §16, five moves
+> and one register recovered from Alex's own edit pass on Chapter 10. This is the second
+> version calibrated against Alex rewriting the model's output, and the first calibrated
+> against him rewriting a whole chapter's headings.** v1.6 added §14, the punctuation and
+> length rules Alex set while
 > finishing Part 1: no new em-dashes, "bounce around" as the fixed term for sampling
-> variability, and a hard limit on how long an aside may run.** v1.5 added §13, deliberate
+> variability, and a hard limit on how long an aside may run. v1.5 added §13, deliberate
 > "errors" that must not be corrected, after a model repeatedly "fixed" a running joke.
 > v1 was reverse-engineered from the book's text alone; v1.1
 > folded in real exam/worksheet material and lecture bits; **v1.2 is the first version
@@ -559,3 +563,106 @@ trimmed about 300 words out of Part 1:
 anything that explains or extends it. That is what made both the receipts disclaimer and the
 penguin-essay tail clunk: the punchline had already landed and a second beat arrived to
 explain it. A tag has to be *inside* the sentence (Ch2's skibidi line) or not present.
+
+## 15. How a chapter opens (set 2026-08-15, after Chapter 10 failed this test)
+
+**A chapter never opens on a bulleted definition list.** Chapter 10 did, and Alex's diagnosis
+was that it "started out different from the others and the text is pretty dry." Check any
+chapter you are editing against this before anything else.
+
+Every good opening in this book does one of three things, and all three are concrete before
+they are abstract:
+
+| Opening move | Example | Why it works |
+|---|---|---|
+| **The blunt claim** | Standard Error: "Samples are guesses." | Four words, whole chapter's thesis, nowhere to hide |
+| **The research question** | Independent t: "The CTA already paid me once to ask riders how they feel about the CTA." | The reader is inside a study before meeting a formula |
+| **The graph that indicts itself** | Covariance: the pirates-versus-temperature plot | Shows the tool working *and* the tool being fooled, in one picture |
+
+**The cold open is the strongest of the three and is worth building where material allows.**
+The Chapter 10 pattern, which Alex accepted essentially unchanged, is:
+
+1. Show the thing (a graph, a number, a claim) with no preamble beyond "Here is a graph."
+2. Land the absurd conclusion it licenses. ("We all quit school, buy a boat, and go be
+   pirates until the planet cools back down.")
+3. Admit what is fake about it, and make that admission the actual lesson. The pirate counts
+   are invented; the point is that the arithmetic could not tell.
+4. Only *then* say why the reader needs the tool, in questions they already care about
+   ("Does studying go with better grades?").
+5. Close on an italic aphorism (§4).
+
+**Then answer "why should I care" explicitly, and connect forward.** Chapter 10 names
+regression as "this same idea in better clothes" and tells the reader that if this one clicks,
+most of Part 2 is variations on it. A reader who knows the payoff tolerates the algebra.
+
+**The preface is a contract, so re-read it before and after editing any chapter.** It promises
+that "nothing abstract is allowed to stay abstract. Every idea gets a picture, a story, or R
+code you can run to watch it happen," and that "no long stretch goes by without a simulation,
+an analogy, or a joke at my own expense." A chapter with a long formula stretch and no
+picture, story, or joke is in breach. Chapter 10's middle was.
+
+**A running example gets introduced as a study, not as `colnames()`.** Ice cream and happiness
+previously first appeared as column names in a simulation chunk, which is where the chapter
+read most like abandoned slides. Give the example a sentence of setup, say what makes it
+interesting, and where possible tie it to the chapter's opening image.
+
+## 16. Moves recovered from Alex's Chapter 10 pass (2026-08-15)
+
+Five of these come from headings and lines Alex wrote or kept while revising the model's
+draft. They are calibration data: he had the whole chapter in front of him and these are what
+he changed and what he left alone.
+
+**The heading that pre-empts the reader's dread.** Alex's own retitles were all of one kind:
+he appends a plain-language gloss that names the difficulty out loud instead of hiding it.
+
+> "## Variance, The Scary Math"
+> "## Variance but now in 2-D: Covariance"
+> "## Correlations: Our second most common workhorse"
+
+Mechanics: the informative noun comes first and survives alone; the tag either admits the
+material is hard ("The Scary Math"), translates it ("but now in 2-D"), or tells the reader how
+much it matters ("our second most common workhorse"). This is different from §4's
+joke-stapled heading: the goal here is not a laugh, it is lowering the reader's guard.
+
+**A joke-first heading IS allowed when the joke is the chapter's thesis.** §4 says never to
+write a heading that is only a joke, because the TOC has to work as navigation. Chapter 10
+now opens on "## Quit School, Become a Pirate, Save the Earth," which is pure joke, and Alex
+kept it after being explicitly offered a safer alternative. The exception: the joke must *be*
+the argument, not decorate it. That heading is the chapter's thesis about causation.
+
+**The fake entry in a real list.** Alex added this to a straight list of correlation types:
+
+> "- Psychopathic correlation, used only when you want to cause insanity in your reader of
+>   your paper"
+
+Mechanics: a list of four or five genuinely correct items, then one that is obviously
+invented, delivered in exactly the same register and formatting as the real ones. It works
+because the surrounding items are real and dry. One per list, always last, never in a list the
+reader must memorize for an exam.
+
+**Reassurance about workload, which is not the same as §4's kind hand on the shoulder.** §4
+covers reassurance about *ability* ("this does not mean you are bad at statistics"). This is
+reassurance about *effort*, and Alex asked for it by name: tell them they need to sit through
+the formulas "cause it comes back as very common concepts in statistics, its not cause i want
+them to suffer." Register: name the tedium, deny the sadism, then say concretely where the
+material returns. Played straight, no joke attached.
+
+**Exploratory code versus reporting code.** Established in Chapter 10 and reusable everywhere:
+some code is for us, fast and slightly ugly, written to find out what the data are doing;
+other code is for the journal, slow and fussy, written so output looks the way reviewers
+expect. Alex's framing: "why write mountains of code to just quickly get a visual to
+understand." Use this whenever a quick-and-dirty tool appears with non-APA output. It also
+gives you a graceful way to keep a convenient function without endorsing its formatting.
+
+**Credit boxes.** Attribution goes in a `callout-note`, not a bare paragraph. Precedents:
+"Figure Credit" (Power chapter) and "Credit, and Also Blame" (Chapter 10, crediting Ryne
+Estabrook). Keep Alex's wording verbatim; he writes these himself and they are usually jokes
+about who to blame.
+
+### What Alex kept from the model's draft, which is worth knowing
+
+He deleted every `<!-- ALEX: -->` query comment and kept the prose under all of them. Notably
+he kept: the admission that the pirate data is invented, the line "It does not know what a
+pirate is. It has never been outside," and the italic aphorism closing the cold open. He also
+kept the model's habit of ending a section on a short, flat sentence after a long one. When in
+doubt, the precision snap (§4) is safe.

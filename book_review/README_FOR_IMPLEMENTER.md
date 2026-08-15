@@ -26,6 +26,55 @@ the diff and merges into `main` themselves — do not merge or push to `main`.
 **Part 1 is finished.** Every approved item in `01`–`09` is implemented and marked. Do not
 re-open those chapters except on Alex's instruction.
 
+**Chapter 10 is finished**, including a voice pass Alex asked for after reading it. **Every
+item in `10`–`25` is now approved** (Alex ticked them all on 2026-08-15), so approval is no
+longer the gate. Remaining Part 2 work is chapters 11–18.
+
+**The Part 2 ordering swap is done.** Hierarchical now sits directly after Multiple Regression,
+with Control closing the trilogy. See the DECIDED block in `00_OVERVIEW.md` §2. Recommendation
+2 (moving Mixed Regression earlier) was declined, and CH15-B01 is moot as a result.
+
+### Lessons from Chapter 10 that apply to every remaining chapter
+
+1. **Check the chapter's opening first.** Chapter 10 opened on a bulleted definition list, and
+   Alex's verdict was that it "started out different from the others and the text is pretty
+   dry." `VOICE_GUIDE.md` §15 is now the spec for openings. Do this before item work, because
+   it often reframes the rest of the chapter.
+2. **Re-read the preface before and after each chapter.** Alex asks for this directly. It is a
+   contract: every idea gets a picture, a story, or runnable code, and no long stretch passes
+   without a simulation, an analogy, or a joke. Audit against it when you finish.
+3. **No hanging figures or captions.** Every figure needs a caption saying what it shows, and
+   where a figure demonstrates a transformation the caption must name *what happened to each
+   axis* ("X axis: ice cream, raised to the fourth power. Y axis: happiness, untouched."). A
+   bare plot with no lead-in text is the most common dryness bug in this book.
+4. **Name every chunk.** Anonymous chunks produce `unnamed-chunk-N` figure filenames that shift
+   whenever a chunk is added, silently invalidating the freeze cache. Ch10 had 20 of them;
+   chapters 11 and 12 still do.
+5. **Verify package output before describing it.** Two Ch10 claims would have been wrong from
+   memory: `ggpubr` prints a capital italic `R` with no df and a scientific-notation p, and
+   `GGally`'s stars are `***` <.001, `**` <.01, `*` <.05, `.` <.10. Run it and read the output.
+6. **Inline-compute every number in new prose** (G08). Ch10 defines an `apa.r()` helper in its
+   `pirate-r` chunk so inline correlations print APA style (`.60`, not `0.60`). Reuse that
+   pattern; do not define it twice in one file.
+7. **Leave focus notes as `<!-- ---Alex--- ... -->`.** HTML comments, so they never render into
+   a student-facing build, and greppable so Alex can pull them all at once with
+   `grep -rn -- "---Alex---" *.qmd`. Use them for new voice-bearing prose, judgment calls, and
+   deviations. He deletes the comment and keeps the prose when he agrees.
+8. **Deviating from an item is fine when the item is internally inconsistent.** Say so on the
+   item. CH10-U03's code named one variable while its framing implied another; the deviation
+   and its reasoning are recorded there.
+
+### Known issue: the book will not build to PDF from a clean checkout
+
+Both chapters whose *filenames contain spaces* fail with `Unable to load picture or PDF file`.
+`*_files/` is gitignored, and for those two the freeze cache does not preserve `figure-pdf`,
+because Quarto rewrites `Chapter_Covariance and Correlation` to
+`Chapter_Covariance-and-Correlation` and the supporting-files bookkeeping does not survive the
+rename. Confirmed pre-existing: reproduced with every Chapter 10 edit stashed. It works on
+Alex's machine only because those gitignored directories linger from earlier renders. The fix
+is renaming both files plus their `_quarto.yml` entries, and it needs Alex's approval.
+**Verify with `--to html`, which is unaffected.**
+
 Things established during Part 1 that apply to Part 2:
 
 1. **Part 1 is the 242 course; Part 2 is the 343 course.** Different audiences. Part 1
