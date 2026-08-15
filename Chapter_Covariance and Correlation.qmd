@@ -14,7 +14,57 @@ knitr::opts_chunk$set(
 ```
 
 
+## Quit School, Become a Pirate, Save the Earth
+
+Here is a graph.
+
+```{r pirates-plot}
+#| fig-width: 5
+#| fig-height: 3.6
+#| fig-cap: "Global temperature against the number of pirates at sea. The pirate counts are made up. The correlation is not."
+#| fig-alt: "Scatterplot with the number of pirates at sea on the x-axis, running from near zero to about 45,000, and global average temperature on the y-axis, running from about 14 to 17 degrees Celsius. The seven points fall close to a straight downhill line: as pirate numbers collapse, temperature climbs."
+library(ggpubr)
+
+Pirates <- data.frame(
+  Year        = c(1820, 1860, 1880, 1920, 1940, 1980, 2000),
+  Pirates     = c(35000, 45000, 20000, 15000, 5000, 400, 17),
+  Temperature = c(14.25, 14.50, 15.90, 16.10, 16.30, 16.80, 17.00)
+)
+
+ggscatter(Pirates, x = "Pirates", y = "Temperature",
+   add = "reg.line",
+   add.params = list(color = "blue", fill = "lightgray"),
+   conf.int = TRUE,
+   xlab = "Pirates at sea",
+   ylab = "Global temperature (C)")
+```
+
+```{r pirate-r}
+r.pirate <- cor(Pirates$Pirates, Pirates$Temperature)
+
+# APA style: two decimals, no leading zero. Used throughout the chapter.
+apa.r <- function(x) sub("^(-?)0", "\\1", sprintf("%.2f", x))
+```
+
+The pirates went away. The planet got hotter. Those two facts move together with a correlation of `r apa.r(r.pirate)`, which is stronger than almost anything you will ever measure in psychology.
+
+So the solution is obvious. We all quit school, buy a boat, and go be pirates until the planet cools back down.
+
+I should probably admit that the pirate counts are invented. Nobody ran a census of pirates. The temperatures are roughly real, and that is the part worth staring at: put one honest trend next to one fabricated one, and the arithmetic cannot tell them apart. It returned `r apa.r(r.pirate)` with a completely straight face.
+
+That number is what this chapter builds. It is the first tool in this book that looks at two variables at once, which matters because nearly every question you actually care about is a two-variable question. Does studying go with better grades? Does anxiety go with worse performance? Does the treatment go with the recovery?
+
+It is also the floor that the rest of the book stands on. Regression, which takes up the next eight chapters, is this same idea in better clothes. If this one clicks, most of Part 2 is variations on it.
+
+What it will never do is tell you *why*. It does not know what a pirate is. It has never been outside.
+
+*Two things moving together is a fact. Why they move together is an argument, and you have to make that one yourself.*
+
+<!-- ALEX: this is the PPTX pirate bit rebuilt as a live chunk, so the r is computed from the numbers on the page rather than typed. Three things to rule on: (1) the "I should probably admit" paragraph is me being honest that the pirate data is fake -- cut it if you'd rather let the gag run unqualified; (2) "It has never been outside" is my line, not yours, so kill it if it clunks; (3) the heading is a joke-first heading, which VOICE_GUIDE 4 says not to do because the TOC has to work as navigation. I think it earns the exception since it IS the chapter's thesis, but it's your call. Safe alternative: "Why Two Variables at Once, and Why Pirates". -->
+
 ## A Visual Intuition: Variance, Covariance, and Correlation
+
+Before we can trust that number, we should know what it is made of. It gets built in three steps, and we will look at each one with a dataset small enough to check by hand.
 
 We’ll start with a very simple dataset and visualize three situations:
 
@@ -316,9 +366,20 @@ or more simply (see Cohen's textbook for the derivation):
 
 $$r_{xy}=\frac{\sum{xy}}{\sqrt{\sum{x^2}\sum{y^2}}}$$
 
+### A Study We Will Keep Using: Ice Cream and Happiness
+
+Time for a running example, and something less alarming than pirates.
+
+Suppose we ask 100 people two questions: how much ice cream they eat, and how happy they are. We expect the two to go together, because ice cream is delicious and happiness is what happens to people who eat delicious things. This example follows us for the rest of the chapter, so it is worth noticing now that it has the identical structure to the pirate graph. Two variables, one span of observations, no control group, and no idea which way any arrow points.
+
+Hold onto that. We will come back for it once we have a number.
+
 ### Simulate Data
 
 We will use the `mvrnorm` function (multivariate normal distribution) from the *MASS* package, but to do this we need to make a **covariance** matrix with a $r = .60$ and set the mean values for each variable (which I will set to 5 for each). With unit variances, this covariance matrix is also the correlation matrix, a freebie that will matter later.
+
+<!-- ALEX: this section is new. It exists because ice cream and happiness previously appeared for the first time as colnames() with no introduction, which is where the chapter felt most like slides. It also plants the callback that the r^2 section pays off ("heat may produce both while quietly stealing credit"). -->
+
 
 ```{r simulate-corrdata, echo=TRUE}
 #Set params
@@ -384,9 +445,14 @@ library(apa)
 cor_apa(Corr.Result.1,format ="rmarkdown")
 ```
 
-### Pearson's correlation is scale-independent! 
+### Pearson's correlation is scale-independent!
 
-No matter the mean differences or range of scores, the Pearson's r will give the same results. We can also z-score the data and get the same result. However, if they are scaled non-linearly (sqrt, ^2, log,...) the correlation will change. 
+No matter the mean differences or range of scores, the Pearson's r will give the same results. We can also z-score the data and get the same result. However, if they are scaled non-linearly (sqrt, ^2, log,...) the correlation will change.
+
+This is worth proving rather than asserting, so the next four sections do the same analysis four times while abusing the measurement scale in a different way each time. Watch the reported $r$ in the corner of each plot. Three of the four will not move.
+
+<!-- ALEX: added this lead-in because the four "Scale change:" sections previously arrived as four bare plots with no framing, and a reader has no idea they are watching one demonstration in four parts. -->
+
 
 ### Scale change: Add a constant (shift the mean)
 
@@ -477,9 +543,6 @@ sd(ShopOnly$IceCream)  # spread among shop customers only
 r.full <- cor(CorrData$IceCream, CorrData$Happiness)
 r.shop <- cor(ShopOnly$IceCream, ShopOnly$Happiness)
 n.shop <- nrow(ShopOnly)
-
-# APA style: two decimals, no leading zero
-apa.r <- function(x) sub("^(-?)0", "\\1", sprintf("%.2f", x))
 ```
 
 ```{r restriction-plots}
@@ -535,7 +598,14 @@ box()
 
 The picture is conceptual rather than drawn to exact area scale. Its job is to keep the shared piece visible, not to audition for an engineering degree.
 
-This means that `r r^2*100`% of the variance of happiness overlaps with ice cream consumption. Can we conclude ice cream causes happiness? No, because we did not design a study with a control group. We can not infer causation.  It seems to make sense to say “eating ice cream causes me to be happy”, but the opposite could be true as well “happiness causes me to eat ice cream”. How do I know which causes which? We cannot without an experiment.  
+This means that `r r^2*100`% of the variance of happiness overlaps with ice cream consumption. Can we conclude ice cream causes happiness? No, because we did not design a study with a control group. We can not infer causation.  It seems to make sense to say “eating ice cream causes me to be happy”, but the opposite could be true as well “happiness causes me to eat ice cream”. How do I know which causes which? We cannot without an experiment.
+
+There is a third possibility, and it is worse than the first two, because it does not require either variable to touch the other. Hot weather sells ice cream. Hot weather also pushes people outdoors into daylight and company, which reliably lifts mood. Heat moves both variables, and heat never once appears in our data.
+
+Which is the pirate graph again, wearing a nicer outfit. The `r apa.r(r.pirate)` we opened with was never a claim that pirates cool the planet. It was two things drifting across the same two centuries for unrelated reasons, and the arithmetic could not tell. Your `r r^2*100`% is that same kind of number until a design rules the alternatives out.
+
+<!-- ALEX: I kept your original paragraph verbatim and added two after it. The first introduces the unmeasured third variable (heat), which your Short Story already pays off at the end of the chapter with "heat may produce both while quietly stealing credit" -- previously that line arrived with no setup. The second closes the pirate loop. -->
+
 
 ### Non-Parametric Correlations
 
@@ -614,6 +684,8 @@ One thing to expect the first time you try this on your own data. Asking for `ex
 ### Correlation Matrices 
 
 When we have multiple variables we can compare them all to each other at once.  First we will simulate a 4 variables and all their bivariate correlations using the mvrnorm function again.
+
+This is also where Meehl's crud factor stops being a quotation and starts being a picture. Look at how few of these cells are anywhere near zero. In real data they rarely are, and a matrix like this is where most fishing expeditions begin: run enough pairs and something will look publishable.
 
 ```{r simulate-corrdata2, echo=TRUE}
 #Set params
