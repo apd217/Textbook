@@ -340,7 +340,7 @@ A large biased sample can estimate the wrong value with extraordinary precision.
 
 In short: A sample is just a guess about the population. How good that guess is depends on how variable the population is to begin with. If the distribution is tight, you can get away with a smaller sample. If it’s spread out, you need a lot more people to pin it down.
 
-You never actually know if your guess is right, which is why replication exists and why we all lose sleep. If you rerun the study and the first two moments (the mean and the variance) keep bouncing around, that’s your data politely telling you: get more people.
+You never actually know if your guess is right, which is why replication exists and why we all lose sleep. If you rerun the study and the first two moments (the mean and the variance) keep bouncing around, that’s your data politely telling you: get more people. This is the ball from the probability chapter, and the standard error is our estimate of how far it bounces.
 
 **Statistics doesn’t give you truth, but you can make increasingly expensive guesses.**
 

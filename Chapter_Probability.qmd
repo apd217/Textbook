@@ -260,6 +260,18 @@ The expected number of children in a family might be 1.7. Nobody has to produce 
 Expected value is an average, not a prophecy or a declaration from the Probability Gods.
 :::
 
+### Numbers Bounce
+
+Here is the picture to keep for the rest of the book, because we are going to need it constantly.
+
+Drop a rubber ball on the sidewalk. You know roughly where it is going to end up. You are not surprised by where it lands, and you would not accept a bet that it will roll into traffic. But it bounces on the way down, and it almost never comes to rest on the exact spot you were aiming at. Sometimes it settles an inch away. Once in a while it catches an edge and ends up under a parked car.
+
+Numbers that come out of chance behave the same way. They have a place they are aimed at, which is the expected value, and they have a bounce, which is everything else. The aim is predictable. The bounce is not.
+
+Almost every worry in the rest of this book is one of two questions about that ball. **Where was it aimed?** That is estimation: means, proportions, effect sizes. **How far does it bounce?** That is the standard error, and it is the reason we cannot simply read a number off a sample and believe it.
+
+So when a later chapter says a sample mean *bounces around*, this is the ball. It does not mean the number is wrong. It means the number is one landing out of many that could have happened, and that if you drop the ball again you should expect a slightly different answer.
+
 ## Advanced Section: Bayes, Base Rates, and a Scary Positive Test
 
 You test positive for a rare condition that will turn you into a goat. The condition affects 1% of people. The test correctly detects 95% of cases and has a 5% false-positive rate. What is the probability that you actually have the condition and turn into a goat?
