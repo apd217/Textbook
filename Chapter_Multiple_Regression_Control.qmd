@@ -1,23 +1,17 @@
 ---
 title: "Multiple Regression: Statistical Control"
-geometry: margin=.5in
-fontsize: 11pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(message = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(fig.width = 4.25)
-knitr::opts_chunk$set(fig.height = 4.0)
-knitr::opts_chunk$set(fig.align = 'center')
-knitr::opts_chunk$set(fig.show = "hold")
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 4.25,
+  fig.height = 4.0,
+  fig.align = "center",
+  fig.show = "hold"
+)
 ```
 
 ```{r load libraries}
@@ -116,6 +110,8 @@ summary(dat)
 And here is a pairs plot showing all three pairwise relationships simultaneously. Each panel in the lower triangle shows a scatterplot, and the diagonal shows histograms for each variable.
 
 ```{r pairs plot, fig.width = 5.5, fig.height = 5, echo=TRUE}
+#| fig-cap: "All three variables against each other. Read it the way we read the matrix in the correlation chapter: diagonal is each variable alone, below is the scatterplot, above is the number."
+#| fig-alt: "A three-by-three matrix comparing study hours, anxiety, and exam score. The diagonal shows each variable's density curve, the lower triangle shows scatterplots, and the upper triangle shows correlations with significance stars."
 GGally::ggpairs(
   dat,
   lower = list(continuous = "smooth"),
@@ -150,6 +146,7 @@ When you use simple regression with a single predictor, things are straightforwa
 When we add a second predictor, things get more interesting. Now we have three circles — X1, X2, and Y — and some of the circles overlap with each other:
 
 ```{r ballantine-overlap}
+#| fig-alt: "Three overlapping circles labelled Study Hours, Test Anxiety, and Exam Score. The overlaps between each predictor and the outcome are labelled a and b, and the region where all three overlap is labelled c."
 #| echo: false
 #| fig-width: 6.5
 #| fig-height: 5.5
@@ -331,9 +328,10 @@ B1 <- Model.3$coefficients[2]
 B2 <- Model.3$coefficients[3]
 
 predicted <- B0 + B1 * 10 + B2 * 45
+round(predicted, 1)
 ```
 
-This student would be predicted to score about `r round(B0 + B1 * 10 + B2 * 45, 1)` on the exam.
+This student would be predicted to score about `r round(predicted, 1)` on the exam.
 
 ## How Well Does the Model Fit? R²
 
@@ -389,6 +387,12 @@ In our data:
 
 This numerical breakdown puts the Venn diagram concept in concrete terms. The **squared semi-partial correlations** correspond directly to regions $a$ and $b$. The regression slopes are based on the same unique predictor variation, but express the expected outcome change in Exam Score units.
 
+::: {.callout-warning title="If Region c Comes Out Negative, You Found Something"}
+Run this subtraction on your own data and region $c$ can come back **negative**, which is impossible for an overlapping area and tends to make students assume they broke the arithmetic.
+
+You did not. A negative $c$ means the two predictors are doing something called **suppression**, where adding one predictor makes the other's contribution *larger* rather than smaller. It is real, it is not rare, and it is the point at which the Venn diagram metaphor quietly resigns and goes home. The next chapter takes suppression apart properly. Grad readers who want the full treatment should see Cohen, Cohen, West and Aiken, chapter 3.
+:::
+
 ### Adding Predictors Always Increases R²
 
 There is an important quirk about $R^2$: it will **always increase** when you add another predictor to the model — even if that predictor is completely useless random noise. This is simply because any variable, no matter how irrelevant, will share at least a tiny sliver of variance with Y by chance in any given sample.
@@ -430,8 +434,14 @@ Tables of numbers are useful, but plots help build intuition. Let's visualize wh
 
 This first pair of plots shows the predicted relationship between Study Hours and Exam Score in the two models. The key question is: how does the slope change when we control for Anxiety?
 
-```{r plot study before, fig.width=4.5, fig.height=3.5}
-plot_model(
+We draw these with `plot_model()` from the **sjPlot** package, which is also the tool your homework asks for, so it is worth reading the code rather than just the picture. It takes predictions straight out of a fitted model: `type = "pred"` means "show me predicted values," and `terms` picks which predictor goes on the x-axis. Both panels are locked to the same y-axis with `coord_cartesian()`, because a slope comparison across two differently scaled plots is not a comparison at all.
+
+```{r plot study before, echo=TRUE, fig.width=9, fig.height=3.6}
+#| fig-cap: "The Study Hours slope, before and after controlling for Anxiety. Same y-axis on both panels, so the difference you see is real."
+#| fig-alt: "Two line plots side by side, both showing predicted exam score rising with study hours. The right panel, which controls for anxiety, rises slightly less steeply than the left."
+library(patchwork)
+
+p.study.before <- plot_model(
   Model.1,
   type       = "pred",
   terms      = "StudyHours",
@@ -441,10 +451,8 @@ plot_model(
 ) +
   coord_cartesian(ylim = c(55, 95)) +
   theme_bw()
-```
 
-```{r plot study after, fig.width=4.5, fig.height=3.5}
-plot_model(
+p.study.after <- plot_model(
   Model.3,
   type       = "pred",
   terms      = "StudyHours",
@@ -454,14 +462,30 @@ plot_model(
 ) +
   coord_cartesian(ylim = c(55, 95)) +
   theme_bw()
+
+p.study.before + p.study.after
 ```
 
-The slope becomes slightly shallower after controlling for Anxiety. This is statistical control in action: some of the original Study Hours effect was shared with (and partially driven by) lower anxiety levels in high-studying students. The controlled slope is more precise — it captures only what studying contributes, independent of anxiety.
+The slope becomes slightly shallower after controlling for Anxiety. This is statistical control in action: some of the original Study Hours effect was shared with (and partially driven by) lower anxiety levels in high-studying students.
+
+Be careful about what the controlled slope is, though. It answers the **conditional** question: what studying is associated with among students at the same anxiety level.
+
+What it is *not* is more **precise**. Precision means the standard error, and here the controlled slope's standard error is slightly *larger* than the uncontrolled one. That is the normal pattern: correlated predictors share information, and the more of it they share, the less each one is separately pinned down. A later chapter measures exactly this with something called variance inflation.
+
+So the controlled slope is the answer to a different question, and usually a more useful one. That is not the same as being a better-estimated answer, and it is definitely not the same as being "truer."
+
+<!-- ---Alex--- CH13-P01. The old sentence said the controlled slope "is more precise," which
+means the opposite of the truth: controlling routinely inflates the SE, and the diagnostics
+chapter's VIF section is entirely about that. Worth a look since the replacement is longer than
+the original and this chapter is already your most carefully hedged one. -->
+
 
 ### The Anxiety Slope — Before and After Controlling
 
-```{r plot anxiety before, fig.width=4.5, fig.height=3.5}
-plot_model(
+```{r plot anxiety before, echo=TRUE, fig.width=9, fig.height=3.6}
+#| fig-cap: "The Anxiety slope, before and after controlling for Study Hours. Same y-axis again."
+#| fig-alt: "Two line plots side by side, both showing predicted exam score falling as anxiety rises. The right panel, which controls for study hours, falls slightly less steeply than the left."
+p.anx.before <- plot_model(
   Model.2,
   type       = "pred",
   terms      = "Anxiety",
@@ -471,10 +495,8 @@ plot_model(
 ) +
   coord_cartesian(ylim = c(55, 95)) +
   theme_bw()
-```
 
-```{r plot anxiety after, fig.width=4.5, fig.height=3.5}
-plot_model(
+p.anx.after <- plot_model(
   Model.3,
   type       = "pred",
   terms      = "Anxiety",
@@ -484,6 +506,8 @@ plot_model(
 ) +
   coord_cartesian(ylim = c(55, 95)) +
   theme_bw()
+
+p.anx.before + p.anx.after
 ```
 
 The same pattern appears in reverse: the negative slope for Anxiety becomes slightly smaller after we account for the fact that highly anxious students also tend to study less. The controlled slope describes Anxiety's conditional association with performance while Study Hours is held constant.
@@ -492,7 +516,9 @@ The same pattern appears in reverse: the negative slope for Anxiety becomes slig
 
 We can also visualize both predictors simultaneously. The plot below shows how predicted exam scores change with Study Hours, for students at three different anxiety levels (low, average, and high).
 
-```{r plot full model, fig.width=5, fig.height=4}
+```{r plot full model, echo=TRUE, fig.width=5, fig.height=4}
+#| fig-cap: "Predicted exam score by study hours, drawn separately for low, average, and high anxiety. The lines are parallel, and that is the point."
+#| fig-alt: "Three parallel upward-sloping lines showing predicted exam score against study hours, one line each for low, average, and high anxiety. The lines are stacked vertically and never cross."
 plot_model(
   Model.3,
   type         = "pred",
@@ -541,6 +567,15 @@ A few things to notice in this write-up:
 - We use the phrase **"after controlling for..."** (or equivalently, "above and beyond" or "holding constant") to signal that a multiple regression slope is being reported.
 - We report $F$, $R^2$, and adjusted $R^2$ for the overall model, then report $b$, $SE$, $t$, and $p$ for each individual predictor.
 - We do not report Cohen's $d$ here. In regression, $b$ (the unstandardized slope) is the primary effect size. The overall model's $R^2$ tells us the total proportion of variance explained.
+
+## The Short Story
+
+- One predictor is never enough, because predictors are correlated with each other. That is not a nuisance, it is the normal condition of psychological data.
+- A slope in multiple regression is a **unique** association: what this predictor is worth while holding the other predictors constant. Every such slope carries an invisible "holding the others constant" clause, and you should read it aloud every time.
+- Slopes can shrink, grow, disappear, or flip sign when a control enters. None of those outcomes is the "true" one. Each model answers a different question, and you have to know which question you asked.
+- $R^2$ values do not add up across models, because the variance the predictors share (region $c$) only gets counted once.
+- Adjusted $R^2$ charges rent for every predictor you add, which is why it can go down when you add a useless one.
+- Statistical control is not experimental control. Holding a variable constant in an equation is not the same as holding it constant in the world, and only design decides which causal stories survive.
 
 ::: {.callout-tip title="Next: Did the Second Predictor Earn Its Keep?"}
 The next chapter, [Hierarchical Regression](Chapter_Hierarchical_Regression.qmd), picks up Models 1 and 3 where we just left them and asks whether adding Test Anxiety improved the model by more than chance. After that, [Statistical Control: What Are We Actually Removing?](Chapter_Control.qmd) uses these same students to show exactly how residuals, semi-partial correlation, partial correlation, standardized beta, and change in $R^2$ fit together. No new imaginary undergraduates will be recruited until the current ones have finished the exam.
