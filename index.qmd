@@ -4,7 +4,7 @@ I'm dyslexic, I don't like reading, and I wrote a stats textbook. Make it make s
 
 Here's the deal: I learn by *doing* things and *seeing* things. Dense paragraphs of text make my brain go on vacation unless they are funny, interesting, or use analogies. So that's what this book is: nothing abstract is allowed to stay abstract. Every idea gets a picture, a story, or R code you can run to watch it happen. If I ever tell you something is true without showing you, I have failed and you should email me about it.
 
-Fair warning, though. I said I would keep this short and then I wrote ninety thousand words and counting, as I plan to add chapters and sadly there will be more words. What I can promise is that no long stretch goes by without a simulation, an analogy, or a joke at my own expense.
+Fair warning, though. I said I would keep this short and then I wrote seventy thousand words and counting, plus more code than you can shake a stick at. I plan to add chapters, so sadly there will be more of both. What I can promise is that no long stretch goes by without a simulation, an analogy, or a joke at my own expense.
 
 This book teaches **statistics and R at the same time**---because honestly, you learn both better together. Stats without code is just memorizing formulas. Code without stats is just typing. Together they're actually useful.
 
