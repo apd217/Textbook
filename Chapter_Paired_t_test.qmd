@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ::: {.callout-note title="The Same People Have Returned"}
 Use a paired-samples t-test when the **same people are measured twice** or when observations form meaningful pairs. The two scores from one person know each other. Pretending they are independent is statistical identity theft.
 
-The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in the a later chapter with lots of paperwork.
+The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in a later chapter with lots of paperwork.
 :::
 
 ## Why Pair the Scores?
@@ -41,11 +41,11 @@ Suppose we ask whether eating a small piece of chocolate during a lecture change
 This example is simulated. Do not distribute mystery candy to human participants and announce that a textbook authorized it. I mean, I do, but no one tell the IRB (ethics review board). *Snitches get no chocolate, also maybe stitches.*  
 
 ::: {.callout-warning title="The Price of Measuring the Same Person Twice"}
-Measuring someone twice buys you statistical power (easier time to see effect if one actually exists), but it charges you benefit. Three things ride along with that second measurement:
+Measuring someone twice buys you statistical power (an easier time seeing an effect if one actually exists), but it charges you for the privilege. Three things ride along with that second measurement:
 
-- **Practice effects.** People get better at a task simply by having done it once. *We cannot wipe their memories between trials---pesky IRB again.*
-- **Fatigue effects.** They get worse on the task because they are tired and would like to go home. *I tried to lock the doors, but Fire Marshal Bill paid me visit.*
-- **Carryover.** The first condition is still working on them when the second one starts. *The accumulation of experience always causing problems.*
+- **Practice effects.** People get better at a task simply by having done it once. *We cannot wipe their memories between trials, pesky IRB again.*
+- **Fatigue effects.** They get worse on the task because they are tired and would like to go home. *I tried to lock the doors, but Fire Marshal Bill paid me a visit.*
+- **Carryover.** The first condition is still working on them when the second one starts. *The accumulation of experience, always causing problems.*
 
 Here is the problem for our study. If every student sits through the no-chocolate lecture first and the chocolate lecture second, then "chocolate increased fixation time" and "students settled down in the second session" are the same sentence. No t-test can separate them, because nothing in the data distinguishes them.
 
@@ -101,11 +101,11 @@ head(paired_long[, c("participant", "condition", "fixation")], 6)
 
 The same three students. The same six numbers. Six rows instead of three. Participant 1 now appears twice, and a new `condition` column keeps track of which measurement each row belongs to.
 
-Neither shape is more correct than the other. They are the same data wearing different outfits, and different tools insist on different outfits:
+Neither shape is better than the other. They are the same data wearing different pants, and different tools insist on different pants:
 
 - `t.test(..., paired = TRUE)` wants **wide**, because you hand it two vectors and it matches them up position by position. Row 1 with row 1, row 2 with row 2, and so on.
 - `ggplot()` wants **long**, because it needs one column to put on the x axis and one to put on the y axis. The plot below draws a separate line for each participant, which is only possible if there is a `condition` column to move along.
-- Mixed models will also want long, for the same reason, when we get there.
+- Mixed regressions will also want long, for the same reason, when we get there.
 
 `tidyr::pivot_longer()` turns wide into long, and `pivot_wider()` turns it back. You will do this constantly, usually at the precise moment a plot refuses to work.
 
@@ -210,15 +210,31 @@ d_z
 
 This standardizes the mean change by the standard deviation of the **difference scores**. Say which version of $d$ you used because repeated-measures effect sizes have several possible denominators. Calling all of them "Cohen's d" and wandering away is how future readers begin sharpening office supplies.
 
-## Why Pairing Can Help
+## Why Pairing Helps
 
-The variance of a difference score is:
+Forget chocolate for a minute. Suppose I want to know whether wearing shoes makes you taller.
+
+**The bad design.** I measure 50 people wearing shoes and 50 different people barefoot, then compare the two group averages. The shoe effect is about an inch. But people range from roughly five feet to six and a half feet, so the differences *between people* are enormous compared with the thing I actually care about. My one inch is drowning in eighteen inches of human height that has nothing to do with footwear.
+
+**The good design.** I measure the same person twice, once in shoes and once barefoot. Now each person's own height cancels out of their own difference score, because their height is sitting in both measurements. The six-foot-four person gives me about an inch. The five-foot-two person also gives me about an inch. The noise disappeared and the effect did not.
+
+That is the whole idea, and your fixation data works the same way. Some students stare at the screen longer than others no matter what is in their mouth. Comparing each student with themself strips that variation out before it ever reaches the test, and what survives is the part chocolate is responsible for.
+
+There is a catch, and it is the reason pairing is not automatically better. This only works to the extent that a person's two scores actually travel together. Height travels together beautifully, because you are the same height in both measurements. If a person's score today told you nothing whatsoever about their score tomorrow, there would be nothing stable to subtract out, and pairing would buy you almost nothing.
+
+If you want to see exactly how that cancelling works, and the term in the formula that controls how much you get, the next section has the details.
+
+## Advanced: Why Pairing Can Help
+
+Here is the same argument with the algebra attached. The variance of a difference score is:
 
 $$
 S_D^2=S_1^2+S_2^2-2rS_1S_2
 $$
 
-When the two measurements are positively correlated, the last term subtracts variability. Stable person differences cancel: the consistently attentive student is compared with themself, and the student planning an elaborate escape is also compared with themself.
+That $r$ is the correlation between a person's two scores, and it is the shoes-and-height idea in symbolic form. When the two measurements are positively correlated, the last term subtracts variability. Stable person differences cancel: the consistently attentive student is compared with themself, and the student planning an elaborate escape is also compared with themself.
+
+Notice what happens at the extremes. If $r = 0$, the two scores know nothing about each other, that last term is zero, and the variance of the difference is just $S_1^2 + S_2^2$. You paired the data and got nothing for it. The closer $r$ climbs toward 1, the more the last term eats, and the smaller the difference scores' variance becomes.
 
 This often gives a smaller standard error than an independent-samples analysis. Pairing does not guarantee more power, however. If the repeated scores barely correlate, little stable variation is removed. Pairing also cannot repair a terrible measure. Measuring attention by counting how often someone blinks at the ceiling remains a terrible plan in both conditions.
 
