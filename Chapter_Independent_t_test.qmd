@@ -19,7 +19,7 @@ Use an independent-samples t-test when **two different sets of people** are each
 
 This is the workhorse of experimental psychology. Two groups, one measurement each, and random assignment deciding who went where. A very large share of the experiments you will read are exactly this shape, which means you will spend far more of your career reading this test than running it.
 
-Chapter 6 compared one group against a number someone handed us. That number was fixed and blameless. Now both sides of the comparison are estimates, both of them wobble, and the standard error has to carry the uncertainty of two means instead of one. That is the entire structural change. Everything else you already learned still applies.
+Chapter 6 compared one group against a number someone handed us. That number was fixed and given to us, something that rarely occurs in real research. Now both sides of the comparison are estimates, both of them jump around a little, and the standard error has to carry the uncertainty of two means instead of one. That is the entire structural change. Everything else you already learned still applies.
 :::
 
 ## The Research Question
@@ -39,21 +39,17 @@ Nobody rides both schedules. Each rider contributes one number and goes home. Th
 
 ### Dependent Variable
 
-<!-- ALEX: two continuity things now that the opener points explicitly back at Ch5.
-     (1) Ch5's CTA survey used a 1-5 scale; this chapter uses 1-7. Fine as a separate
-     study, but a sharp reader who just came from Ch5 will notice.
-     (2) On Ch5's 1-5 scale, 3 was exactly neutral and the finding was "roughly neutral."
-     On this 1-7 scale, 4 is neutral, so a control mean of 3 is mild dislike. The story
-     still works, but "classic Chicago baseline" now means something slightly grumpier
-     than it did last chapter. Both are one-line fixes if they bother you. -->
+The same question I asked back in the standard error chapter, on the same **1-5 bipolar Likert scale**, so that the two studies can actually talk to each other:
 
-A **1-7 bipolar Likert scale** measuring how much participants like using the CTA to get around Chicago:
+*How much do you typically like traveling on the CTA?*
 
-- 1 = Absolutely hate using the CTA
-- 4 = Neutral / It's fine
-- 7 = Love it, I now defend the CTA on the internet
+- 1 = Strongly dislike
+- 2 = Dislike
+- 3 = Neither dislike nor like
+- 4 = Like
+- 5 = Strongly like (you now defend the CTA on the internet)
 
-We expect the control group to land near **3** (mild frustration, classic Chicago baseline) and the experimental group near **5** ("Wait... this works?").
+We expect the control group to land near **3**, which is exactly where Chapter 5 found riders sitting, and the experimental group near **4** ("Wait... this works?").
 
 I know those numbers because I am about to simulate them, which is the only situation in which I ever know the truth in advance.
 
@@ -85,13 +81,13 @@ Two groups, thirty riders each. Those two `rnorm()` lines are the entire experim
 set.seed(343)
 
 n = 30
-CTA.SD = 1
+CTA.SD = 0.5
 
-# Control group (mean ~ 3)
+# Control group (mean ~ 3, the neutral answer Chapter 5 found)
 CTA.Control <- rnorm(n, 3, CTA.SD)
 
-# Experimental group (mean ~ 5)
-CTA.Experimental <- rnorm(n, 5, CTA.SD)
+# Experimental group (mean ~ 4)
+CTA.Experimental <- rnorm(n, 4, CTA.SD)
 ```
 
 We also stack the two groups into one data frame, because that is the shape R wants when you use formula syntax later (and the shape your lab data will arrive in).
@@ -115,21 +111,21 @@ CTA.df$Condition <- factor(CTA.df$Condition,
 #| fig-width: 6
 #| fig-height: 3.7
 #| fig-cap: "Both groups on one axis. The overlap in the middle is the part a t-test has to argue about."
-#| fig-alt: "Two overlaid histograms of CTA liking on a 0 to 8 axis. The control group piles up around 2 to 3 and the experimental group around 5, with a band roughly between 3 and 5.5 where the two overlap."
+#| fig-alt: "Two overlaid histograms of CTA liking on a 1 to 5 axis. The control group piles up around 3 and the experimental group around 4, with a band near 3.5 where the two overlap."
 library(ggplot2)
 
 ggplot(CTA.df, aes(x = Liking, fill = Condition)) +
-  geom_histogram(binwidth = 0.5, position = "identity",
+  geom_histogram(binwidth = 0.25, position = "identity",
                  alpha = 0.5, color = "white") +
   scale_fill_manual(values = c("Experimental\n(every 7 min)" = "#4477AA",
                                "Control\n(regular timing)"   = "grey35")) +
-  labs(x = "CTA Liking (1-7)", y = "Frequency", fill = NULL,
+  labs(x = "CTA Liking (1-5)", y = "Frequency", fill = NULL,
        title = "CTA liking by timing condition") +
-  xlim(0, 8) +
+  xlim(1, 5) +
   theme_bw(base_size = 11)
 ```
 
-Already you should see separation. But eyeballing histograms is not a statistical test (even if it feels persuasive). Notice the overlap around 4: some control riders liked the CTA more than some experimental riders did. Group differences are about where the piles sit, not about every person in one group beating every person in the other.
+Already you should see separation. But eyeballing histograms is not a statistical test (even if it feels persuasive). Notice the overlap in the middle: some control riders liked the CTA more than some experimental riders did. Group differences are about where the piles sit, not about every person in one group beating every person in the other.
 
 ## Step 3: Compute the Standard Error
 
@@ -236,9 +232,9 @@ ggbarplot(
   add = c("mean_ci", "jitter"),   # mean + 95% CI, plus the raw ratings
   fill = "Condition",
   palette = c("grey80", "grey60"),   # light enough that the dots stay visible
-  ylim = c(1, 7),
+  ylim = c(1, 5),
   xlab = NULL,
-  ylab = "Mean CTA liking (1-7)",
+  ylab = "Mean CTA liking (1-5)",
   title = "CTA liking by timing condition"
 ) +
   theme_bw(base_size = 11) +
@@ -307,7 +303,7 @@ Because let's be honest - trains every 7 minutes would change lives.
 
 ## Step 8: APA Results Paragraph
 
-Participants in the every-7-minutes condition ($M =$ `r round(M1, 2)`, $SD =$ `r round(S1, 2)`) reported greater liking of the CTA than those in the regular-timing control condition ($M =$ `r round(M2, 2)`, $SD =$ `r round(S2, 2)`), Welch's $t(`r round(unname(CTA.t.test$parameter), 2)`) =$ `r round(unname(CTA.t.test$statistic), 2)`, $p$ `r ifelse(CTA.t.test$p.value < .001, "< .001", paste("=", round(CTA.t.test$p.value, 3)))`, 95% CI [`r round(CTA.t.test$conf.int[1], 2)`, `r round(CTA.t.test$conf.int[2], 2)`], $d =$ `r round(cohens_d, 2)`.
+Participants in the every-7-minutes condition ($M =$ `r round(M1, 2)`, $SD =$ `r format(round(S1, 2), nsmall = 2)`) reported greater liking of the CTA than those in the regular-timing control condition ($M =$ `r round(M2, 2)`, $SD =$ `r format(round(S2, 2), nsmall = 2)`), Welch's $t(`r round(unname(CTA.t.test$parameter), 2)`) =$ `r round(unname(CTA.t.test$statistic), 2)`, $p$ `r ifelse(CTA.t.test$p.value < .001, "< .001", paste("=", round(CTA.t.test$p.value, 3)))`, 95% CI [`r round(CTA.t.test$conf.int[1], 2)`, `r round(CTA.t.test$conf.int[2], 2)`], $d =$ `r round(cohens_d, 2)`.
 
 In this simulated experiment, increasing train frequency produced a very large difference in reported attitudes. In real life, the CTA has declined our invitation to be manipulated with `set.seed(343)`.
 
