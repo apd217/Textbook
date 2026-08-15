@@ -49,10 +49,9 @@ The same question I asked back in the standard error chapter, on the same **1-5 
 - 4 = Like
 - 5 = Strongly like (you now defend the CTA on the internet)
 
-We expect the control group to land near **3**, which is exactly where Chapter 5 found riders sitting, and the experimental group near **4** ("Wait... this works?").
+We expect the control group to land near **3**, which is exactly where Chapter 5 found riders sitting, and the experimental group near **4**, assuming the manipulation works at all.
 
-I know those numbers because I am about to simulate them, which is the only situation in which I ever know the truth in advance.
-
+I know those numbers because I am about to simulate them, which is the only situation in which I ever know the truth in advance. In a real study we can only hypothesize that the experimental group will be different from the control group, and then go find out.
 
 ## Step 1: State the Hypotheses
 
@@ -69,12 +68,12 @@ Where:
 - $\mu_1$ = Experimental (7-minute trains)
 - $\mu_2$ = Control (regular timing)
 
-Under the null, $\mu_1 - \mu_2 = 0$.
+Under the null, $\mu_1 - \mu_2 = 0$. Why? Cause if nothing is happening, $3 - 3 = 0$.
 
 
 ## Step 2: Collect the Data
 
-Two groups, thirty riders each. Those two `rnorm()` lines are the entire experiment.
+Two groups, thirty riders each. Those two `rnorm()` lines are the entire experiment. *I mean I could go out really get data, but again I would have to actually talk to people.* 
 
 ```{r cta-data}
 #| echo: true
@@ -125,7 +124,16 @@ ggplot(CTA.df, aes(x = Liking, fill = Condition)) +
   theme_bw(base_size = 11)
 ```
 
-Already you should see separation. But eyeballing histograms is not a statistical test (even if it feels persuasive). Notice the overlap in the middle: some control riders liked the CTA more than some experimental riders did. Group differences are about where the piles sit, not about every person in one group beating every person in the other.
+Already you should see separation. But eyeballing histograms is not a statistical test (even if it seems obvious). Notice the overlap in the middle: some control riders liked the CTA more than some experimental riders did. A group difference is about where the two piles sit, not about every person in one group beating every person in the other. Group differences are what we care about here, and we do not actually concern ourselves with the feelings of individual people. What are we, psychologists?! Oh wait...we are...okay, let me rephrase that...
+
+Individual commoners, I mean subway riders, all have very different experiences and attitudes toward the subway and toward the new schedule. Maybe some people like the chaos of the old system, or are freaked out by the clockwork timing of the new one. What are we, Switzerland with its adherence to precision, or Japan where you get a note to hand your boss if the train is a minute late?! Each person has their reasons, and we are not clinical psychologists (well, I am not, that is for sure) who need to unpack why their father yelling at them for stepping on their Legos at age 5 now shapes their perception of trains.
+
+::: {.callout-note title="Who Are We Doing Research to Explain?"}
+The goal of most experimental research is to understand how a treatment or manipulation would affect the "average" person. Remember that average person we talked about early on, when I showed you what a distribution was? The average person stands in for the boring, super average "every-person" (or the *Letzter Mensch*, as Nietzsche calls them). So we ask: how would the average person be affected by this treatment?
+
+This is why it is so important to think about who the "average" person would be in our research. In this case it is not easy, cause I am randomly sampling subway riders. Do you think the time of day would matter? What if I went to get my data at rush hour instead of 3am on the Red Line? Or what if I only rode the Brown Line well above the Loop, in the more affluent areas? Never forget who our sample is and who the average represents. This is going to be important in limiting the scope of our results and how far they generalize.
+:::
+
 
 ## Step 3: Compute the Standard Error
 
@@ -135,9 +143,42 @@ $$
 S_{M_1-M_2}=\sqrt{\frac{S_1^2}{n_1}+\frac{S_2^2}{n_2}}
 $$
 
-Welch's test does not assume equal population variances. It uses a Welch--Satterthwaite approximation for the degrees of freedom, which R will calculate because we have suffered enough.
+::: {.callout-important title="The Subscript Is a Name Tag, Not an Instruction"}
+That $M_1-M_2$ hanging off the bottom of the $S$ is not telling you to subtract anything. Nothing is being subtracted. It is a label.
 
-If we instead use the classical pooled-variance version, the standard error is:
+Back in the standard error chapter we wrote $S_M$, meaning "the standard error of $M$," or in plain English, how much a sample mean bounces around from study to study. The subscript names *which* statistic we are describing. Same idea here. The statistic we care about now is no longer a single mean, it is the gap between two means, so the label is $M_1 - M_2$. Read the whole symbol out loud as "the standard error of the difference between the means" and it stops being intimidating.
+
+Now look at what the formula actually does, because this is the part worth stopping for. The label says *difference*, but the arithmetic **adds**. Both variances go in with a plus sign.
+
+That is not a typo. Group 1 is a guess and wobbles. Group 2 is a guess and wobbles. When you subtract two wobbly numbers, the wobble does not politely cancel out, it piles up. You are now uncertain about where the first mean sits *and* uncertain about where the second one sits, and both of those doubts make the gap between them harder to trust. Uncertainty always accumulates. It never subtracts.
+:::
+
+Welch's test does not assume equal population variances. In other words, we do not have to assume that people riding the chaotic subway and people riding the clockwork subway have the same amount of variance. Why would that matter, and why would the variances be different?
+
+Imagine the chaotic subway causes more varied feelings: some riders LOVE it and some HATE it. The clockwork one does not draw opinions that strong, so people give a narrower range of ratings. Now suppose that by pure luck you sampled too many of the HATE it crowd on the chaotic subway. It would make you think the chaotic system was more hated than it really is.
+
+So Welch's t-test corrects this problem by shrinking our estimate of the degrees of freedom. Remember that our df sets the critical values of the t-distribution. By shrinking our df, we push those critical values further out into the tails, so a result has to be more extreme before we are allowed to call it anything. Thus we make our test more conservative, harder to say something is there when it is not. Remember type I error.
+
+::: {.callout-tip title="Layers of Knowledge, and Why Your Brain Is Not Broken"}
+Have you noticed that in this one section I had to call back to degrees of freedom, the t-distribution, type I error, and several other concepts? This is the part about statistics that freaks people out. You have to actually remember what you learned before.
+
+So if you are lost, go back to those chapters and review. It is normal to need to go back. I keep the regression bible written by Cohen on my desk and have to refer to it all the time.
+:::
+
+So how do we actually shrink our degrees of freedom? We use the Welch--Satterthwaite approximation, which R will calculate because we have suffered enough.
+
+For fun, here is that formula. It is a crazy formula that you never want to calculate by hand:
+
+$$
+df \approx \frac{\left(\dfrac{S_1^2}{n_1}+\dfrac{S_2^2}{n_2}\right)^2}
+{\dfrac{\left(S_1^2/n_1\right)^2}{n_1-1}+\dfrac{\left(S_2^2/n_2\right)^2}{n_2-1}}
+$$
+
+Notice the $\approx$. This one does not even pretend to land on a whole number, which is why Welch's degrees of freedom for our study come out as `r round(unname(t.test(CTA.Experimental, CTA.Control)$parameter), 2)` instead of a respectable integer. Nobody sits down and computes this. R does it, and we let it.
+
+What if you do not have access to R and have to do all the calculations the old fashioned way, by hand, with a pencil and paper? Gasp, the horror.
+
+What we do instead is use the classical pooled-variance version, the standard error is:
 
 $$
 S_{M_1-M_2}=\sqrt{S_p^2\left(\frac{1}{n_1}+\frac{1}{n_2}\right)}
@@ -155,6 +196,7 @@ $$
 $$
 t = \frac{M_1 - M_2 - (\mu_1 - \mu_2)}{S_{M1 - M2}}
 $$
+
 For the pooled-variance test, the degrees of freedom are:
 
 $$
@@ -180,7 +222,7 @@ t_by_hand <- (M1 - M2) / SE_pooled
 c(Sp2 = Sp2, SE_pooled = SE_pooled, t_by_hand = t_by_hand)
 ```
 
-Now let R do the same arithmetic. Here it is in **formula syntax**, `outcome ~ group`, which is what your lab uses and what every regression in Part 2 will use:
+Now let R do the same arithmetic. Here it is in **formula syntax**, `outcome ~ group`, which is what your lab uses and what every regression in Part 2 of the book will use:
 
 ```{r pooled-test}
 #| echo: true
@@ -188,9 +230,9 @@ Now let R do the same arithmetic. Here it is in **formula syntax**, `outcome ~ g
 t.test(Liking ~ Condition, data = CTA.df, var.equal = TRUE)
 ```
 
-Same number. The machine just types faster.
+Same number. The machine just does math faster.
 
-R uses **Welch's t-test** by default because it does not require the two populations to have equal variances. That is usually the safer choice. The pooled formula above is still useful because it makes the basic machinery visible, but we should not force equal variances merely because an ancient statistics ritual told us to.
+R uses **Welch's t-test** by default because it does not require the two populations to have equal variances. That is usually the safer choice. The pooled formula above is still useful because it makes the basic machinery visible, but we should not force equal variances merely because ancient papers did it that way. Also, we have these things called computers now. We do not do this by hand anymore.
 
 ```{r welch-test}
 #| echo: true
@@ -204,7 +246,6 @@ Look at what changed between the two outputs, and what did not. The $t$ statisti
 
 If trains truly arrive every 7 minutes, we should see a statistically significant increase in liking.
 
-
 ## What This Test Assumes
 
 Four things, and they are not equally dangerous.
@@ -213,7 +254,7 @@ Four things, and they are not equally dangerous.
 
 **Random assignment.** Nothing about the arithmetic knows how riders ended up in their groups. The reason we can talk about the 7-minute schedule *causing* anything is that chance built the groups, so the schedule is the only systematic difference between them. Let people choose their own condition and you have a quasi-experiment, the same t-test, and a much weaker sentence at the end of it.
 
-**Normality, roughly.** The test assumes the sampling distribution of each mean is approximately normal. With 30 people per group the Central Limit Theorem does most of that work for you. Look at the histograms anyway.
+**Normality, roughly.** The test assumes the *sampling distribution of each mean* is approximately normal. With 30 people per group the Central Limit Theorem does most of that work for you. Look at the histograms anyway.
 
 **Equal variances.** Only the pooled test needs this one. Welch shrugs, which is precisely why it is the default.
 
@@ -222,7 +263,7 @@ Four things, and they are not equally dangerous.
 ```{r cta-barplot}
 #| echo: true
 #| fig-cap: "The bars are the summary; the dots are the humans."
-#| fig-alt: "Bar chart of mean CTA liking for the two conditions with 95 percent confidence interval whiskers. The experimental bar sits near 5 and the control bar near 3, and individual jittered dots are scattered over each bar showing the spread of the 30 raters in each group."
+#| fig-alt: "Bar chart of mean CTA liking for the two conditions with 95 percent confidence interval whiskers. The experimental bar sits near 4 and the control bar near 3, and individual jittered dots are scattered over each bar showing the spread of the 30 raters in each group."
 library(ggpubr)
 
 ggbarplot(
@@ -258,9 +299,20 @@ apa_values <- data.frame(
   CI_high = CTA.t.test$conf.int[2]
 )
 
-round(apa_values, 3)
+apa_values
 ```
 
+::: {.callout-warning title="Never Write p = 0"}
+Modern APA wants the exact p-value, reported to two or three decimal places: $p = .03$, $p = .008$. The one exception is when p is very small. Below .001 you stop counting zeros and write $p < .001$, which is what our output above deserves.
+
+What you must never write is $p = 0$. A p-value is the probability of data at least this extreme under the null, and that probability is never exactly zero. Your software prints `2e-16` because it ran out of decimal places, not because the universe ruled the possibility out. Rounding that to zero claims something no test can deliver.
+
+<!-- ALEX: your original line said "if its between .01 and .001 you say p < .01" and I
+     changed it, because that rule collides with the "report the exact p-value" advice in
+     Ch6 and with this chapter's own APA paragraph, which prints an exact p unless it is
+     below .001. If you do want the older bracketed style (p < .05, p < .01, p < .001),
+     say so and I will make Ch6 and the APA paragraph agree with it instead. -->
+:::
 
 ## Step 7: Cohen's d
 
@@ -298,8 +350,7 @@ Ten lines ago we ran Welch precisely so we would not have to assume equal varian
 If the two spreads are very different, standardize by the control group's SD instead. That is **Glass's** $\Delta$, and it answers a cleaner question: how far did the treatment move people, in units of how much they varied before you touched them?
 :::
 
-Because let's be honest - trains every 7 minutes would change lives.
-
+Because let's be honest, trains every 7 minutes would change lives, and the data say it would be a huge effect.
 
 ## Step 8: APA Results Paragraph
 
