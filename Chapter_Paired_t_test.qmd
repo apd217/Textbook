@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ::: {.callout-note title="The Same People Have Returned"}
 Use a paired-samples t-test when the **same people are measured twice** or when observations form meaningful pairs. The two scores from one person know each other. Pretending they are independent is statistical identity theft.
 
-The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in a later chapter, and they will want receipts. *I am told that is how you say it.*
+The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in a later chapter, and they will want receipts.
 :::
 
 ## Why Pair the Scores?
