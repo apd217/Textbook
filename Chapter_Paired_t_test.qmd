@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ::: {.callout-note title="The Same People Have Returned"}
 Use a paired-samples t-test when the **same people are measured twice** or when observations form meaningful pairs. The two scores from one person know each other. Pretending they are independent is statistical identity theft.
 
-The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in the next chapter with paperwork.
+The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in the a later chapter with lots of paperwork.
 :::
 
 ## Why Pair the Scores?
@@ -38,14 +38,14 @@ Suppose we ask whether eating a small piece of chocolate during a lecture change
 - once with no chocolate;
 - once with chocolate.
 
-This example is simulated. Do not distribute mystery candy to human participants and announce that a textbook authorized it. Allergies, informed consent, and research ethics remain annoyingly real.
+This example is simulated. Do not distribute mystery candy to human participants and announce that a textbook authorized it. I mean, I do, but no one tell the IRB (ethics review board). *Snitches get no chocolate, also maybe stitches.*  
 
 ::: {.callout-warning title="The Price of Measuring the Same Person Twice"}
-Measuring someone twice buys you statistical power, and it charges you for it. Three things ride along with that second measurement:
+Measuring someone twice buys you statistical power (easier time to see effect if one actually exists), but it charges you benefit. Three things ride along with that second measurement:
 
-- **Practice effects.** People get better at a task simply by having done it once.
-- **Fatigue effects.** Or they get worse, because they are tired and would like to go home.
-- **Carryover.** The first condition is still working on them when the second one starts.
+- **Practice effects.** People get better at a task simply by having done it once. *We cannot wipe their memories between trials---pesky IRB again.*
+- **Fatigue effects.** They get worse on the task because they are tired and would like to go home. *I tried to lock the doors, but Fire Marshal Bill paid me visit.*
+- **Carryover.** The first condition is still working on them when the second one starts. *The accumulation of experience always causing problems.*
 
 Here is the problem for our study. If every student sits through the no-chocolate lecture first and the chocolate lecture second, then "chocolate increased fixation time" and "students settled down in the second session" are the same sentence. No t-test can separate them, because nothing in the data distinguishes them.
 
@@ -83,7 +83,37 @@ paired_long$condition <- factor(
 )
 ```
 
-The **wide data** have one row per person and one column per condition. This shape makes the pairing obvious and works nicely for a paired t-test. The **long data** have two rows per person. We use that shape for the picture below and will need it again when we reach mixed regression.
+Those last few lines built the same data twice, in two different shapes. This confuses more students than any actual statistics in this chapter, so it is worth slowing down for.
+
+**Wide** data give each person one row, with a separate column for each condition:
+
+```{r show-wide-shape}
+head(paired_wide[, c("participant", "no_chocolate", "chocolate")], 3)
+```
+
+Three students, three rows. The pairing is impossible to miss here, because each person's two scores sit side by side and you can subtract across the row with your eyes.
+
+**Long** data give each *measurement* its own row, so one person now takes up two:
+
+```{r show-long-shape}
+head(paired_long[, c("participant", "condition", "fixation")], 6)
+```
+
+The same three students. The same six numbers. Six rows instead of three. Participant 1 now appears twice, and a new `condition` column keeps track of which measurement each row belongs to.
+
+Neither shape is more correct than the other. They are the same data wearing different outfits, and different tools insist on different outfits:
+
+- `t.test(..., paired = TRUE)` wants **wide**, because you hand it two vectors and it matches them up position by position. Row 1 with row 1, row 2 with row 2, and so on.
+- `ggplot()` wants **long**, because it needs one column to put on the x axis and one to put on the y axis. The plot below draws a separate line for each participant, which is only possible if there is a `condition` column to move along.
+- Mixed models will also want long, for the same reason, when we get there.
+
+`tidyr::pivot_longer()` turns wide into long, and `pivot_wider()` turns it back. You will do this constantly, usually at the precise moment a plot refuses to work.
+
+::: {.callout-tip title="How to Tell Which Shape You Are Holding"}
+Count the rows and compare that to the number of humans.
+
+If the two match, you are in wide format. If you have more rows than people, you are in long format, and some column in there is telling you what the extra rows are for.
+:::
 
 ## Look at the Pairs Before Testing Them
 
