@@ -18,17 +18,17 @@ library(grid)   # for arrow()
 ```
 
 ::: {.callout-note title="Some of Today's Code Is Not Your Problem"}
-A few figures in this chapter are generated with genuinely unpleasant code. Where you see a plot appear without the code attached, that is deliberate: I hid it because you are not expected to learn it. Every function you *are* expected to learn is shown, explained, and used more than once.
+A few figures in this chapter are generated with genuinely unpleasant code. Where you see a plot appear without the code attached, that is deliberate: I hid it because you are not expected to learn it, yet. Every function you *are* expected to learn is shown, explained, and used more than once.
 
-If you find yourself reading the hidden code anyway, welcome. Dorkaos, the Ancient Greek God of Statistics, is watching, and He approves.
+If you find yourself reading the hidden code anyway, good for you! Dorkaos, the Ancient Greek God of Statistics, is watching, and approves.
 :::
 
 ::: {.callout-tip title="Where the Exam Material Lives in This Chapter"}
 This is the longest chapter in the book, so here is the map before you start.
 
-- **First section**: *why* power exists, which comes down to the fact that small samples flatter you. Conceptually the hardest part, and not the part your exam asks about.
-- **The middle**: the vocabulary that is on the exam (Type I and Type II error, $\alpha$, $\beta$, power) and how to compute power in R. If you are short on time, start at "Type I and Type II Error" and read forward.
-- **Advanced Topics at the end**: for when someone you love runs a pilot study. Genuinely optional.
+- **First section**: *why* power exists, which comes down to the fact that small samples flatter you. Conceptually the hardest part.
+- **The middle**: the vocabulary that most people put on the exams (Type I and Type II error, $\alpha$, $\beta$, power) and how to compute power in R. If you are short on time, start at "Type I and Type II Error" and read forward.
+- **Advanced Topics at the end**: for when someone you love runs a pilot study.  Not Optional for graduate students.
 :::
 
 ## Probability Is Fickle
@@ -101,7 +101,7 @@ Those are not the same number. **Why?**
 
 ### The Answer Is Unpleasant
 
-Two different things are wobbling here, and they are worth keeping apart, because this is exactly the two-counts trap the standard error chapter warned about.
+Two different things are bouncing around here, and they are worth keeping apart, because this is exactly the two-counts trap the standard error chapter warned about.
 
 The first is not very interesting. We computed a standard deviation from only **ten numbers**, the ten study means. A standard deviation built from ten values is itself a shaky estimate, and some of that gap is just that.
 
@@ -135,7 +135,7 @@ That is not a rounding artifact, it is a known bias, and the theory predicts it 
 Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known $\sigma$ and started using a sample $S$ as an approximation, and it is why we have a t-distribution at all.
 
 ::: {.callout-important title="This Is the Whole Reason Power Exists"}
-Your sample gives you one guess about the mean and one guess about the spread. Both guesses wobble, and the smaller the sample, the more they wobble, in a direction that flatters you.
+Your sample gives you one guess about the mean and one guess about the spread. Both guesses bounce around, and the smaller the sample, the harder they bounce. Worse, the guess about the spread does not bounce evenly. It lands low more often than high, in a direction that flatters you.
 
 The solution is not to stop guessing. The solution is to work out, **before you collect data**, how likely you are to detect an effect given your specific sample size and how big the effect probably is.
 
@@ -181,7 +181,7 @@ Psychology and neuroscience have historically obsessed over Type I error and tre
 
 ## Signal Detection Theory
 
-Given that I must estimate my standard error from a wobbly $S$, I need a way to say how "big" an effect is in the first place.
+Given that I must estimate my standard error from an $S$ that bounces around, I need a way to say how "big" an effect is in the first place.
 
 The one-sample t-test chapter ended by handing you a $d$ and refusing to explain it. Here is the explanation.
 

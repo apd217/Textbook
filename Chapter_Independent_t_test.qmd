@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 ```
 
 
-::: {.callout-note title="Two Groups, and Now Both of Them Wobble"}
+::: {.callout-note title="Two Groups, and Now Both of Them Bounce"}
 Use an independent-samples t-test when **two different sets of people** are each measured once and you want to know whether the groups differ.
 
 This is the workhorse of experimental psychology. Two groups, one measurement each, and random assignment deciding who went where. A very large share of the experiments you will read are exactly this shape, which means you will spend far more of your career reading this test than running it.
@@ -150,7 +150,7 @@ Back in the standard error chapter we wrote $S_M$, meaning "the standard error o
 
 Now look at what the formula actually does, because this is the part worth stopping for. The label says *difference*, but the arithmetic **adds**. Both variances go in with a plus sign.
 
-That is not a typo. Group 1 is a guess and wobbles (varies due to chance). Group 2 is also a guess and wobbles. When you subtract two "wobbly" numbers, the wobble does not politely cancel out, it piles up like two waves at the beach. You are now uncertain about where the first mean sits *and* uncertain about where the second one sits, and both of those doubts make the gap between them harder to trust. Uncertainty accumulates.
+That is not a typo. Group 1 is a guess and bounces around (varies due to chance). Group 2 is also a guess and bounces around. When you subtract two "bouncy" numbers, the bounce does not politely cancel out, it piles up like two waves at the beach. You are now uncertain about where the first mean sits *and* uncertain about where the second one sits, and both of those doubts make the gap between them harder to trust. Uncertainty accumulates.
 :::
 
 Welch's test does not assume equal population variances. In other words, we do not have to assume that people riding the chaotic subway and people riding the clockwork subway have the same amount of variance. Why would that matter, and why would the variances be different?
