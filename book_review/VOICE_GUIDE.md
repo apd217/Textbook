@@ -498,6 +498,18 @@ This section exists because a model kept fixing them.
   "corrected" it to "is better" during a grammar pass and Alex put it back. It now carries
   quotation marks to mark it as deliberate. Do not touch it.
 
+**Running bit: the slang disclaimer.** When Alex reaches for current idiom, he sometimes tags
+it to announce he is a visitor to the vocabulary. Two forms are now in the book:
+
+- Chapter 2: "...like skibidi or whatever nonsense you all say now."
+- Chapter 8: "...they will want receipts. *I am told that is how you say it.*"
+
+Alex approved the second form on 2026-08-14 and wants it in the book at least once. Keep it
+rare, once every several chapters at most, or it becomes a tic. **Chapter 1's "this is not a
+me problem" stays bare on purpose** — that one is a jab at research cultures rather than a
+slang performance, and appending a disclaimer would blunt the jab and add a second beat where
+one belongs.
+
 **The general rule this teaches.** §5 already says not to correct Alex's casual register into
 formality ("cause I am lazy and tired"), and this is the same rule with a sharper edge: the
 non-standard construction may be a *callback to a lecture you have never heard*, so the joke
