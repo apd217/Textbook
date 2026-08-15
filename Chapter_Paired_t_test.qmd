@@ -101,7 +101,7 @@ head(paired_long[, c("participant", "condition", "fixation")], 6)
 
 The same three students. The same six numbers. Six rows instead of three. Participant 1 now appears twice, and a new `condition` column keeps track of which measurement each row belongs to.
 
-Neither shape is better than the other. They are the same data wearing different pants, and different tools insist on different pants:
+Neither shape is "more better" than the other. They are the same data wearing different pants, and different tools insist on different pants:
 
 - `t.test(..., paired = TRUE)` wants **wide**, because you hand it two vectors and it matches them up position by position. Row 1 with row 1, row 2 with row 2, and so on.
 - `ggplot()` wants **long**, because it needs one column to put on the x axis and one to put on the y axis. The plot below draws a separate line for each participant, which is only possible if there is a `condition` column to move along.

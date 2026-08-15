@@ -5,7 +5,8 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.4, 2026-08-12. v1 was reverse-engineered from the book's text alone; v1.1
+> Status: v1.5, 2026-08-14. **v1.5 adds §13, deliberate "errors" that must not be corrected,
+> after a model repeatedly "fixed" a running joke.** v1 was reverse-engineered from the book's text alone; v1.1
 > folded in real exam/worksheet material and lecture bits; **v1.2 is the first version
 > calibrated against Alex rewriting the model's own output** — he revised Chapter 1 by hand
 > and the differences are recorded in §0 and §4. Two rules from v1.1 were flatly wrong and
@@ -485,3 +486,25 @@ Things Alex cut from a draft. Do not reintroduce them without asking.
   search-box sentence. Reason not stated — most likely length, possibly preachiness. The
   broader "distrust unverified automation" throughline is still live elsewhere in the book
   (§3), so this is a ban on *that sentence in that spot*, not on the idea.
+
+## 13. Deliberate "errors" — do not correct these
+
+Some things that look like grammar mistakes are jokes, and several of them are callbacks to
+things Alex said in lecture. **A model reading only the page cannot tell the difference.**
+This section exists because a model kept fixing them.
+
+- **"more better"** (Chapter 8, restored 2026-08-14). "Neither shape is 'more better' than
+  the other." The double comparative is a running joke from an earlier lecture. A model
+  "corrected" it to "is better" during a grammar pass and Alex put it back. It now carries
+  quotation marks to mark it as deliberate. Do not touch it.
+
+**The general rule this teaches.** §5 already says not to correct Alex's casual register into
+formality ("cause I am lazy and tired"), and this is the same rule with a sharper edge: the
+non-standard construction may be a *callback to a lecture you have never heard*, so the joke
+is invisible from the text alone. When a grammar pass turns up something that is both
+technically wrong and slightly funny, that combination is the warning sign. Flag it in the
+summary and let Alex rule on it. Do not silently fix it.
+
+Genuine slips still get fixed, and there are plenty of them: "Have you notice," "paid me
+visit," "charges you benefit," "your will do in lab." The distinguishing question is whether
+the error is *doing* something. "more better" is doing something. "paid me visit" is not.
