@@ -544,218 +544,13 @@ Written the way it would appear in a paper, our result looks like this:
 
 Wait, what is the $d$ thing at the end? The problem with significance testing is it does not tell you how "big" the effect is. It just tells you the result is probably not due to chance.
 
-## Effect Sizes
+::: {.callout-note title="The d Is a Cliffhanger, and the Next Chapter Is the Payoff"}
+That $d$ is **Cohen's d**, an *effect size*. All you need for now is the one-sentence version: it reports how far apart things are in standard deviation units, so a $d$ of `r format(round((mean(kids.1) - 50) / sd(kids.1), 2), nsmall = 2)` means our cookie-fed children sit about that many standard deviations above the value we tested against.
 
-I need a way to see how "big" an effect might be. Cohen borrowed a useful idea at the time, signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The idea was that you want to know how strong a signal needed to be for you to detect it over the noise. The noise for us is the control group and the signal the effect of your treatment.
+Report it beside your p-value, every time. A p-value tells the reader that *something* is there. Only the effect size tells them whether it is worth crossing the room for.
 
-```{r signal-detection}
-#| echo: false
-#| fig-width: 6.25
-#| fig-height: 3.0
-#| fig-cap: "Signal detection. The distance between the noise curve and the signal-plus-noise curve, measured in standard deviations, is d."
-#| fig-alt: "Two overlapping bell curves. The left curve is labeled N for noise and the right curve is labeled N plus S for signal plus noise. A double-headed blue arrow between their peaks is labeled d."
-# modifed from http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics
-library(ggplot2)
-library(grid) # for arrow()
-
-m1 <- 0    # mu H0
-sd1 <- 1.5 # sigma H0
-m2 <- 3.5  # mu HA
-sd2 <- 1.5 # sigma HA
-
-z_crit <- qnorm(1 - (0.05/2), m1, sd1)
-
-# set range
-min1 <- m1 - sd1*4
-max1 <- m1 + sd1*4
-min2 <- m2 - sd2*4
-max2 <- m2 + sd2*4
-
-x <- seq(min(min1, min2), max(max1, max2), .01)
-
-# distributions
-df1 <- data.frame(
-  x = x,
-  y = dnorm(x, m1, sd1),
-  id = "h0"
-)
-
-df2 <- data.frame(
-  x = x,
-  y = dnorm(x, m2, sd2),
-  id = "h1"
-)
-
-poly <- rbind(df1, df2)
-
-ggplot(poly, aes(x, y, group = id)) +
-  geom_polygon(alpha = 0.8, show.legend = FALSE) +
-  geom_line(data = df1,
-            aes(x, y, color = "H0"),
-            linewidth = 1.5,
-            show.legend = FALSE) +
-  geom_line(data = df2,
-            aes(x, y, color = "HA"),
-            linewidth = 1.5,
-            show.legend = FALSE) +
-  scale_color_manual(
-    values = c("HA" = "#981e0b", "H0" = "black")
-  ) +
-  annotate("segment",
-           x = m1 + .4, y = 0.265,
-           xend = m2 - .4, yend = 0.265,
-           color = "blue",
-           arrow = arrow(length = unit(0.3, "cm")),
-           linewidth = 1) +
-  annotate("segment",
-           x = m2 - .4, y = 0.265,
-           xend = m1 + .4, yend = 0.265,
-           color = "blue",
-           arrow = arrow(length = unit(0.3, "cm")),
-           linewidth = 1) +
-  annotate("text", label = "d", x = (m1 + m2)/2, y = 0.25, size = 8) +
-  annotate("text", label = "N", x = m1, y = 0.28, size = 8) +
-  annotate("text", label = "N + S", x = m2, y = 0.28, size = 8) +
-  ggtitle("Signal Detection") +
-  theme(
-    panel.grid = element_blank(),
-    panel.background = element_blank(),
-    plot.background = element_rect(fill = "#ffffff"),
-    axis.text = element_blank(),
-    axis.ticks = element_blank(),
-    axis.title = element_blank(),
-    plot.title = element_text(size = 22)
-  )
-```
-
-$$ d = \frac{\mu_{(Noise+Signal)}-\mu_{(Noise)}}{\sigma_{(Noise)}} $$
-Note this implicit assumption: $$\sigma_{(Noise)} = \sigma_{(Noise+Signal)}$$
-
-### Cohen's $d$
-
-Cohen surmised that we could apply the same logic to experiments to determine how big the effect would be (in other words how easy it is to distinguish the signal from the noise). 
-
-$$d = \frac{M_{H1}-\mu_{H0}}{S_{H1}} $$
-
-Notice the denominator changed. The signal detection version divides by $\sigma_{(Noise)}$; here we divide by the sample's own SD. We do that because it is the only SD we have, and under the equal-spread assumption above it is also our best guess at the noise.
-
-So Cohen's $d$ is in standard deviation units:
-
-Size   | $d$
------- | --------
-Small  | .2
-Medium | .5
-Large  | .8
-Huge   | 1.2
-              
-### Small Visualized
-
-```{r effect-small}
-#| echo: false
-#| fig-width: 4.25
-#| fig-height: 2.0
-#| fig-cap: "A small effect, d = .2. The two curves are nearly on top of each other."
-#| fig-alt: "Two bell curves that overlap almost completely, with their peaks barely separated."
-# modified from http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics
-library(ggplot2)
-library(grid) # for arrow()
-
-plot_signal <- function(
-  m2,
-  title,
-  m1 = 0,
-  sd1 = 1,
-  sd2 = 1,
-  alpha = 0.8
-) {
-
-  # set range
-  min1 <- m1 - sd1*4
-  max1 <- m1 + sd1*4
-  min2 <- m2 - sd2*4
-  max2 <- m2 + sd2*4
-
-  x <- seq(min(min1, min2), max(max1, max2), 0.01)
-
-  df1 <- data.frame(
-    x = x,
-    y = dnorm(x, m1, sd1),
-    id = "h0"
-  )
-
-  df2 <- data.frame(
-    x = x,
-    y = dnorm(x, m2, sd2),
-    id = "h1"
-  )
-
-  poly <- rbind(df1, df2)
-
-  ggplot(poly, aes(x, y, group = id)) +
-    geom_polygon(alpha = alpha, show.legend = FALSE) +
-    geom_line(
-      data = df1,
-      aes(x, y, color = "H0"),
-      linewidth = 1.5,
-      show.legend = FALSE
-    ) +
-    geom_line(
-      data = df2,
-      aes(x, y, color = "HA"),
-      linewidth = 1.5,
-      show.legend = FALSE
-    ) +
-    scale_color_manual(values = c("HA" = "#981e0b", "H0" = "black")) +
-    ggtitle(title) +
-    theme(
-      panel.grid = element_blank(),
-      panel.background = element_blank(),
-      plot.background = element_rect(fill = "#ffffff"),
-      panel.border = element_blank(),
-      axis.line = element_blank(),
-      axis.text = element_blank(),
-      axis.ticks = element_blank(),
-      axis.title = element_blank(),
-      plot.title = element_text(size = 22)
-    )
-}
-plot_signal(0.2, "Small Effect")
-```
-
-### Medium Visualized
-
-```{r effect-medium}
-#| echo: false
-#| fig-width: 4.25
-#| fig-height: 2.0
-#| fig-cap: "A medium effect, d = .5."
-#| fig-alt: "Two bell curves with clearly separated peaks but still a large shared area in the middle."
-plot_signal(0.5, "Medium Effect")
-```
-
-### Large Visualized
-
-```{r effect-large}
-#| echo: false
-#| fig-width: 4.25
-#| fig-height: 2.0
-#| fig-cap: "A large effect, d = .8."
-#| fig-alt: "Two bell curves whose peaks are well apart, though the curves still overlap substantially through the middle."
-plot_signal(0.8, "Large Effect")
-```
-
-### Huge Visualized
-
-```{r effect-huge}
-#| echo: false
-#| fig-width: 4.25
-#| fig-height: 2.0
-#| fig-cap: "A huge effect, d = 1.2. Even here the curves share a lot of ground."
-#| fig-alt: "Two bell curves separated by more than one standard deviation, yet a visible region in the middle still belongs to both."
-plot_signal(1.2, "Huge Effect")
-```
-
-You notice that even in a huge effect there is a lot of overlap between the curves. 
+Where it comes from, why radar operators invented it, what counts as small or large, and what it costs you to detect one, all of that is the [next chapter](Chapter_Power_Effect_Size.qmd). It is the reason the next chapter exists.
+:::
 
 ##  APA Style Report
 
@@ -807,7 +602,11 @@ You met the extreme version of this in the [Probability chapter](Chapter_Probabi
 The numerator is how far the sample mean sits from the null value. The denominator is the standard error of that mean. A large t statistic can come from a large difference, a precise estimate, or both, so report the effect and its uncertainty, not merely the ceremonial p-value.
 :::
 
-::: {.callout-note title="Which t-Test Comes Next?"}
+::: {.callout-note title="What Comes Next?"}
+**Straight ahead** is the [power and effect size chapter](Chapter_Power_Effect_Size.qmd), and it is not optional scenery. It explains the $d$ we just dangled in front of you, it covers Type I and Type II error, and it answers the only question anyone actually asks before running a study: how many people do I need? Read it before the other two t-tests, because both of them assume it.
+
+After that, the remaining two t-tests are variations on what you already know.
+
 Use the one-sample t-test when one group is being compared with one number. If you want to ask whether **Group A differs from Group B**, continue to the [independent-samples t-test chapter](Chapter_Independent_t_test.qmd). For example, you might compare the running speed of one group of undergraduates chased by a goose with a completely different group chased by two geese. The ethics board will compare your application with a paper shredder.
 
 If you measure the **same people twice**, continue to the [paired-samples t-test chapter](Chapter_Paired_t_test.qmd). For example, you might measure the same students' stress before and after telling them that the group presentation they forgot about has been moved to today. Same humans, two measurements, one sudden desire to transfer universities.

@@ -17,9 +17,9 @@ book:
         - Chapter_Distro_Moments.qmd
         - Chapter_Standard_Error.qmd
         - Chapter_OneSample_t_test.qmd
+        - Chapter_Power_Effect_Size.qmd
         - Chapter_Independent_t_test.qmd
         - Chapter_Paired_t_test.qmd
-        - Chapter_Power_Effect_Size.qmd
     - part: "Putting Lines Through Things"
       chapters:
         - Chapter_Covariance and Correlation.qmd

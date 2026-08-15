@@ -303,6 +303,57 @@ One difference score works beautifully when each person has two measurements and
 
 That is where [mixed regression](Chapter_Mixed_Regression.qmd) begins. It keeps the repeated observations, tells the model which rows belong to the same human, and allows people to differ without creating one indicator variable for every person who wandered into the study.
 
+## Power: How Many People Would You Need?
+
+Same function again, with `type = "paired"`. Two things change from the independent-samples version: the effect size you feed it is $d_z$, and the `n` that comes back is the number of **pairs**, which here means the number of people, since each person supplies both scores.
+
+```{r paired-power}
+#| echo: true
+Paired.Power.80 <- power.t.test(n = NULL,
+                                delta = d_z,       # the effect size for paired data
+                                sd = 1,
+                                sig.level = 0.05,
+                                power = .80,
+                                type = "paired",
+                                alternative = "two.sided")
+
+ceiling(Paired.Power.80$n)
+```
+
+`r ceiling(Paired.Power.80$n)` pairs, meaning `r ceiling(Paired.Power.80$n)` people, each measured twice.
+
+### Why Pairing Is Cheaper
+
+Here is the payoff for repeated measures, and it is the whole reason this design is worth the counterbalancing headache. Compare what it costs to detect the *same* effect in the two designs:
+
+```{r paired-vs-independent}
+#| echo: true
+# Same effect size, same power, same alpha. Only the design changes.
+n_independent <- ceiling(power.t.test(delta = d_z, sd = 1, power = .80,
+                                      sig.level = .05,
+                                      type = "two.sample")$n)
+
+n_paired <- ceiling(power.t.test(delta = d_z, sd = 1, power = .80,
+                                 sig.level = .05,
+                                 type = "paired")$n)
+
+c(independent_per_group = n_independent,
+  independent_total     = 2 * n_independent,
+  paired_people         = n_paired)
+```
+
+`r 2*n_independent` people the hard way against `r n_paired` the smart way. The paired design needs far fewer humans, because pairing removes the stable person-to-person differences from the denominator, exactly as the shoes-and-height section promised:
+
+$$
+S_D^2 = S_1^2 + S_2^2 - 2rS_1S_2
+$$
+
+::: {.callout-important title="This Comparison Is Fair Only If You Are Careful"}
+The numbers above compare designs at the same $d_z$, and $d_z$ is not on the same scale as the independent-samples $d$. A paired design with a strong within-person correlation can produce a large $d_z$ from a modest raw change, because the denominator shrank.
+
+So: repeated measures usually *do* buy power, sometimes dramatically. But do not report a $d_z$ of 1.2 and let a reader believe it means what a between-groups $d$ of 1.2 would mean. **Say which effect size you used.** Every time. Repeated-measures effect sizes have several possible denominators, and pretending otherwise is how future readers begin sharpening office supplies.
+:::
+
 ## The Short Story
 
 - Use a paired-samples t-test when observations form genuine pairs.

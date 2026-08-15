@@ -183,9 +183,54 @@ Psychology and neuroscience have historically obsessed over Type I error and tre
 
 Given that I must estimate my standard error from a wobbly $S$, I need a way to say how "big" an effect is in the first place.
 
-Cohen borrowed the idea from signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The [one-sample t-test chapter](Chapter_OneSample_t_test.qmd) built $d$ out of those two curves and drew the pictures, so we do not need to do that again. The one-line version: $d$ is the distance between the noise distribution and the signal-plus-noise distribution, measured in standard deviations.
+The one-sample t-test chapter ended by handing you a $d$ and refusing to explain it. Here is the explanation.
 
-What that chapter did not point out is that signal detection theory hands us this chapter's 2×2 for free. Here is the hearing-test version of the table above, and it is the *same table*:
+Cohen borrowed the idea from signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The question there was: how strong must a signal be before you can detect it over the noise? For us, the noise is the control condition and the signal is the effect of the treatment.
+
+```{r sdt-figure}
+#| echo: false
+#| fig-width: 6.25
+#| fig-height: 3.0
+#| fig-cap: "Signal detection. The gap between the two peaks, measured in standard deviations, is d."
+#| fig-alt: "Two overlapping bell curves. The left is labelled N for noise and the right N plus S for signal plus noise. A double-headed blue arrow between the peaks is labelled d."
+m1 <- 0; sd1 <- 1.5
+m2 <- 3.5; sd2 <- 1.5
+
+x <- seq(min(m1 - sd1*4, m2 - sd2*4), max(m1 + sd1*4, m2 + sd2*4), .01)
+
+df1 <- data.frame(x = x, y = dnorm(x, m1, sd1), id = "h0")
+df2 <- data.frame(x = x, y = dnorm(x, m2, sd2), id = "h1")
+poly <- rbind(df1, df2)
+
+ggplot(poly, aes(x, y, group = id)) +
+  geom_polygon(alpha = 0.8, show.legend = FALSE) +
+  geom_line(data = df1, aes(x, y, color = "H0"),
+            linewidth = 1.5, show.legend = FALSE) +
+  geom_line(data = df2, aes(x, y, color = "HA"),
+            linewidth = 1.5, show.legend = FALSE) +
+  scale_color_manual(values = c("HA" = "#981e0b", "H0" = "black")) +
+  annotate("segment", x = m1 + .4, y = 0.265, xend = m2 - .4, yend = 0.265,
+           color = "blue", arrow = arrow(length = unit(0.3, "cm")), linewidth = 1) +
+  annotate("segment", x = m2 - .4, y = 0.265, xend = m1 + .4, yend = 0.265,
+           color = "blue", arrow = arrow(length = unit(0.3, "cm")), linewidth = 1) +
+  annotate("text", label = "d", x = (m1 + m2)/2, y = 0.25, size = 8) +
+  annotate("text", label = "N", x = m1, y = 0.28, size = 8) +
+  annotate("text", label = "N + S", x = m2, y = 0.28, size = 8) +
+  ggtitle("Signal Detection") +
+  theme(panel.grid = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_rect(fill = "#ffffff"),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        plot.title = element_text(size = 22))
+```
+
+$$
+d = \frac{\mu_{(Noise+Signal)} - \mu_{(Noise)}}{\sigma_{(Noise)}}
+$$
+
+Signal detection theory also hands us this chapter's 2×2 for free. Here is the hearing-test version of the table above, and it is the *same table*:
 
 |  | There **was** a beep | There was **no** beep |
 |-------------|---------------|-------------------|
@@ -219,8 +264,42 @@ That denominator carries an assumption worth naming: we are treating the treatme
 | Large | .8 |
 | Huge | 1.2 |
 
-::: {.callout-note title="You Have Met These Curves Already"}
-The visualizations of small, medium, large, and huge effects appear in the [one-sample t-test chapter](Chapter_OneSample_t_test.qmd), along with the observation that even a huge effect leaves the two distributions substantially overlapping.
+Those adjectives are easier to trust once you see them. Each panel below shows two distributions separated by the $d$ in its title:
+
+```{r effect-size-visuals}
+#| echo: false
+#| fig-width: 6.5
+#| fig-height: 5.0
+#| fig-cap: "Small, medium, large, and huge. Note how much overlap survives even at the bottom right."
+#| fig-alt: "Four panels of two overlapping bell curves each. At d = .2 the curves are nearly on top of each other; at .5 the peaks are clearly apart; at .8 they are well separated; and at 1.2 they are separated by more than a standard deviation, yet a substantial shared region remains in every panel."
+plot_signal <- function(m2, title, m1 = 0, sd1 = 1, sd2 = 1, alpha = 0.8) {
+  x <- seq(min(m1 - sd1*4, m2 - sd2*4), max(m1 + sd1*4, m2 + sd2*4), 0.01)
+  d1 <- data.frame(x = x, y = dnorm(x, m1, sd1), id = "h0")
+  d2 <- data.frame(x = x, y = dnorm(x, m2, sd2), id = "h1")
+  ggplot(rbind(d1, d2), aes(x, y, group = id)) +
+    geom_polygon(alpha = alpha, show.legend = FALSE) +
+    geom_line(data = d1, aes(x, y, color = "H0"), linewidth = 1.2, show.legend = FALSE) +
+    geom_line(data = d2, aes(x, y, color = "HA"), linewidth = 1.2, show.legend = FALSE) +
+    scale_color_manual(values = c("HA" = "#981e0b", "H0" = "black")) +
+    ggtitle(title) +
+    theme(panel.grid = element_blank(), panel.background = element_blank(),
+          plot.background = element_rect(fill = "#ffffff"),
+          panel.border = element_blank(), axis.line = element_blank(),
+          axis.text = element_blank(), axis.ticks = element_blank(),
+          axis.title = element_blank(), plot.title = element_text(size = 16))
+}
+
+gridExtra::grid.arrange(
+  plot_signal(0.2, "Small (d = .2)"),
+  plot_signal(0.5, "Medium (d = .5)"),
+  plot_signal(0.8, "Large (d = .8)"),
+  plot_signal(1.2, "Huge (d = 1.2)"),
+  ncol = 2
+)
+```
+
+::: {.callout-note title="Even a Huge Effect Overlaps"}
+Look at the bottom-right panel again. That is a *huge* effect, and the two distributions still share an enormous amount of ground.
 
 That overlap is the point. Two groups can differ by a "large" amount and still contain enormous numbers of people who look exactly like each other. An effect size is a statement about distributions, not about individuals, and it has never promised you a clean separation.
 :::
@@ -551,171 +630,15 @@ par(op)
 
 With 25 people you need a whopping effect before you are likely to find anything. With 100, medium effects come into range. The curves are S-shaped, not straight, which means there is a region where adding a few participants helps enormously and a region where it barely matters at all.
 
-## Power for the Independent-Samples t-Test
+::: {.callout-note title="Power for the Other Two t-Tests Lives With Those Tests"}
+Everything above used `type = "one.sample"`, because the one-sample t-test is the only one you have met so far.
 
-Now two separate groups. The function is the same; only `type` changes, and `n` now means **per group**.
+The other two work identically, with one argument changed. Rather than teach them here to a reader who has not seen the tests yet, each one waits in its own chapter:
 
-Back to the CTA study from the [independent-samples chapter](Chapter_Independent_t_test.qmd): what happens to how much people like the CTA if the trains actually arrive every seven minutes?
+- **Two separate groups**: the [independent-samples chapter](Chapter_Independent_t_test.qmd) closes with `type = "two.sample"`, where `n` means *per group*, plus Hedges' correction for the bias small samples put into $d$.
+- **The same people twice**: the [paired-samples chapter](Chapter_Paired_t_test.qmd) closes with `type = "paired"`, and shows how much cheaper a repeated-measures design is for the same effect.
 
-```{r cta-data}
-set.seed(343)
-n <- 30
-
-CTA.Control      <- rnorm(n, 3, 1)   # regular timing
-CTA.Experimental <- rnorm(n, 5, 1)   # every 7 minutes
-
-CTA.t.test <- t.test(CTA.Experimental, CTA.Control)
-round(c(t = unname(CTA.t.test$statistic),
-        df = unname(CTA.t.test$parameter),
-        p = CTA.t.test$p.value), 4)
-```
-
-For two independent groups, Cohen originally suggested $d = \frac{M_{exp} - M_{control}}{S_{control}}$, on the reasoning that $S_{control} = S_{exp}$. Later it was agreed we should use the **pooled** standard deviation instead:
-
-$$
-d = \frac{M_{exp} - M_{control}}{S_{pooled}},
-\qquad
-S_{pooled} = \sqrt{\frac{SS_1 + SS_2}{df_1 + df_2}}
-$$
-
-Why is the corrected version better? Because the control group's $S$ is just one wobbly estimate, and we have a second one sitting right there. Pooling uses all the information instead of throwing half of it away out of tradition.
-
-```{r cta-d}
-M1 <- mean(CTA.Experimental); S1 <- sd(CTA.Experimental)
-M2 <- mean(CTA.Control);      S2 <- sd(CTA.Control)
-
-Sp <- sqrt(((n - 1)*S1^2 + (n - 1)*S2^2) / (2*n - 2))
-d_cta <- (M1 - M2) / Sp
-
-round(c(M_exp = M1, M_ctl = M2, Sp = Sp, d = d_cta), 3)
-```
-
-Now the design question. If we wanted to replicate this, how many riders would we need per group?
-
-```{r cta-power}
-ID.Power.80 <- power.t.test(n = NULL, delta = d_cta, sd = 1,
-                            sig.level = 0.05, power = .80,
-                            type = "two.sample",
-                            alternative = "two.sided")
-ceiling(ID.Power.80$n)
-```
-
-`r ceiling(ID.Power.80$n)` riders **per group**, so `r 2*ceiling(ID.Power.80$n)` people total.
-
-That number should make you deeply suspicious, and it should.
-
-::: {.callout-warning title="Simulated Data Lies to You, Politely"}
-Our simulated CTA effect is $d =$ `r round(d_cta,2)`. That is not a large effect. That is not even a huge effect. That is two distributions in different postal codes, and it happens because I *built* the simulation with a two-point gap and a standard deviation of exactly 1.
-
-Real psychological effects essentially never look like this. If a power analysis tells you that four people per group is sufficient, you have not discovered a cheap study. You have discovered that your assumed effect size is fictional.
-
-Watch what a believable effect costs instead:
-
-```{r cta-realistic}
-sapply(c(0.2, 0.5, 0.8, d_cta),
-       function(dd) ceiling(power.t.test(delta = dd, sd = 1, power = .80,
-                                         type = "two.sample")$n))
-```
-
-Small, medium, large, and whatever we simulated. **That first number is the one to internalize.** Most of the effects you actually care about live near it.
-:::
-
-Trains every seven minutes really would change lives. The statistics agree, but only because I told them to.
-
-::: {.callout-warning title="Per Group Means Per Group"}
-For `type = "two.sample"`, the `n` that comes back is the number of participants **in each group**. Double it for your recruitment target.
-
-Students report this number as their total sample roughly half the time, which halves their actual power and turns an 80% study into something closer to a coin flip with extra steps.
-:::
-
-### Hedges' Correction
-
-Cohen's $d$ is biased upward in small samples, for exactly the reason we opened this chapter with: small samples underestimate $\sigma$, and $\sigma$ is in the denominator. Smaller denominator, bigger $d$.
-
-Hedges proposed a correction factor [@hedges1981]:
-
-$$
-g = d \times \left(1 - \frac{3}{4(n_1 + n_2) - 9}\right)
-$$
-
-```{r hedges}
-hedges_g <- function(d, n1, n2) {
-  d * (1 - 3 / (4 * (n1 + n2) - 9))
-}
-
-g_cta <- hedges_g(d_cta, n, n)
-round(c(d = d_cta, g = g_cta), 4)
-```
-
-With 30 per group the correction is small. With 8 per group it is not.
-
-```{r hedges-small}
-round(sapply(c(5, 10, 20, 50, 200),
-             function(k) hedges_g(0.8, k, k)), 4)
-```
-
-A true $d$ of .8 estimated from five people per group is meaningfully inflated. This is the arithmetic behind your instinct to distrust a huge effect from a tiny study, and it is a real correction, not a vibe.
-
-## Power for the Paired-Samples t-Test
-
-Now the same people measured twice. From the [paired-samples chapter](Chapter_Paired_t_test.qmd): does eating chocolate during a lecture change fixation time?
-
-```{r paired-data}
-set.seed(343)
-n <- 48
-participant_effect <- rnorm(n, mean = 0, sd = 1.20)
-
-no_chocolate <- 5.00 + participant_effect + rnorm(n, 0, 0.80)
-chocolate    <- 5.75 + participant_effect + rnorm(n, 0, 0.80)
-
-difference <- chocolate - no_chocolate
-
-d_z <- mean(difference) / sd(difference)
-round(c(M_diff = mean(difference), SD_diff = sd(difference), d_z = d_z), 3)
-```
-
-For paired data the relevant effect size is $d_z$, the mean difference divided by the standard deviation of the **difference scores**. That is also exactly what `power.t.test()` wants when you set `type = "paired"`.
-
-```{r paired-power}
-Paired.Power.80 <- power.t.test(n = NULL, delta = d_z, sd = 1,
-                                sig.level = 0.05, power = .80,
-                                type = "paired",
-                                alternative = "two.sided")
-ceiling(Paired.Power.80$n)
-```
-
-`r ceiling(Paired.Power.80$n)` **pairs**, meaning `r ceiling(Paired.Power.80$n)` people, each measured twice.
-
-### Why Pairing Is Cheaper
-
-Here is the payoff for repeated measures. Compare the sample sizes required to detect the *same* effect in the two designs.
-
-```{r paired-vs-independent}
-n_independent <- ceiling(power.t.test(delta = d_z, sd = 1, power = .80,
-                                      sig.level = .05,
-                                      type = "two.sample")$n)
-
-n_paired <- ceiling(power.t.test(delta = d_z, sd = 1, power = .80,
-                                 sig.level = .05,
-                                 type = "paired")$n)
-
-c(independent_per_group = n_independent,
-  independent_total     = 2 * n_independent,
-  paired_people         = n_paired)
-```
-
-The paired design needs far fewer humans, because pairing removes the stable person-to-person differences from the denominator:
-
-$$
-S_D^2 = S_1^2 + S_2^2 - 2rS_1S_2
-$$
-
-When the two measurements are positively correlated, that last term subtracts variability.
-
-::: {.callout-important title="This Comparison Is Fair Only If You Are Careful"}
-The numbers above compare designs at the same $d_z$, and $d_z$ is not on the same scale as the independent-samples $d$. A paired design with a strong within-person correlation can produce a large $d_z$ from a modest raw change, because the denominator shrank.
-
-So: repeated measures usually *do* buy power, sometimes dramatically. But do not report a $d_z$ of 1.2 and let a reader believe it means what a between-groups $d$ of 1.2 would mean. **Say which effect size you used.** Every time. Repeated-measures effect sizes have several possible denominators, and pretending otherwise is how future readers begin sharpening office supplies.
+Come back here for the concepts. Go there for the arithmetic.
 :::
 
 ## The Short Story
@@ -726,8 +649,7 @@ So: repeated measures usually *do* buy power, sometimes dramatically. But do not
 - Effect size lives in standard deviation units. Significance lives in standard error units. Adding participants narrows the curves without moving the peaks.
 - Compute power **before** you run the study. Post-hoc power is a restatement of your p-value wearing a disguise.
 - `power.t.test()` solves for whatever you leave `NULL`. Set `sd = 1` and put $d$ in `delta`.
-- For `two.sample`, `n` is per group. Double it.
-- For `paired`, `n` is the number of pairs, and `delta` is $d_z$.
+- The other two t-tests use the same function with `type` changed, and each is powered in its own chapter. For `two.sample`, `n` is per group, so double it. For `paired`, `n` is the number of pairs and `delta` is $d_z$.
 - Non-significant does not mean no effect. Very often it means no chance.
 
 ---

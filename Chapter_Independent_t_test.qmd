@@ -356,6 +356,86 @@ In this simulated experiment, increasing train frequency produced a very large d
 Welch's t-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The p-value cannot tell the reader how far apart the groups are.
 :::
 
+## Power: How Many Riders Would You Actually Need?
+
+The [power chapter](Chapter_Power_Effect_Size.qmd) did all of this for the one-sample test. The function is the same, and exactly one argument changes: `type = "two.sample"`.
+
+One thing about the answer catches almost everybody, so brace for it now.
+
+```{r cta-power}
+#| echo: true
+# delta takes the effect size; with sd = 1, that means Cohen's d.
+# Leave n = NULL and power.t.test() solves for the sample size.
+ID.Power.80 <- power.t.test(n = NULL,
+                            delta = cohens_d,      # our d, from Step 7
+                            sd = 1,
+                            sig.level = 0.05,
+                            power = .80,
+                            type = "two.sample",
+                            alternative = "two.sided")
+
+ceiling(ID.Power.80$n)
+```
+
+`r ceiling(ID.Power.80$n)` riders **per group**, so `r 2*ceiling(ID.Power.80$n)` people in total.
+
+That number should make you deeply suspicious, and it should.
+
+::: {.callout-warning title="Per Group Means Per Group"}
+For `type = "two.sample"`, the `n` that comes back is the number of participants **in each group**. Double it for your recruitment target.
+
+Students report this number as their total sample roughly half the time, which halves their actual power and turns an 80% study into something closer to a coin flip with extra steps.
+:::
+
+::: {.callout-warning title="Simulated Data Lies to You, Politely"}
+Our simulated CTA effect is $d =$ `r round(cohens_d,2)`. That is not a large effect. That is not even a huge effect. That is two distributions in different postal codes, and it happens because I *built* the simulation with a clean one-point gap and a standard deviation of exactly 0.5.
+
+Real psychological effects essentially never look like this. If a power analysis tells you that four people per group is sufficient, you have not discovered a cheap study. You have discovered that your assumed effect size is fictional.
+
+Watch what a believable effect costs instead:
+
+```{r cta-realistic}
+#| echo: true
+# What does each effect size cost, per group, for 80% power?
+sapply(c(0.2, 0.5, 0.8, cohens_d),
+       function(dd) ceiling(power.t.test(delta = dd, sd = 1, power = .80,
+                                         type = "two.sample")$n))
+```
+
+Small, medium, large, and whatever we simulated. **That first number is the one to internalize.** Most of the effects you actually care about live near it.
+:::
+
+### Hedges' Correction
+
+Cohen's $d$ is biased upward in small samples, for the reason the power chapter opened with: small samples underestimate $\sigma$, and $\sigma$ is in the denominator. Smaller denominator, bigger $d$.
+
+Hedges proposed a correction factor [@hedges1981]:
+
+$$
+g = d \times \left(1 - \frac{3}{4(n_1 + n_2) - 9}\right)
+$$
+
+```{r hedges}
+#| echo: true
+hedges_g <- function(d, n1, n2) {
+  d * (1 - 3 / (4 * (n1 + n2) - 9))
+}
+
+g_cta <- hedges_g(cohens_d, n, n)
+round(c(d = cohens_d, g = g_cta), 4)
+```
+
+With 30 per group the correction is small. With 8 per group it is not.
+
+```{r hedges-small}
+#| echo: true
+# The same true d of .8, "measured" at five different group sizes
+round(sapply(c(5, 10, 20, 50, 200),
+             function(k) hedges_g(0.8, k, k)), 4)
+```
+
+A true $d$ of .8 estimated from five people per group is meaningfully inflated. This is the arithmetic behind your instinct to distrust a huge effect from a tiny study, and it is a real correction, not a vibe.
+
 ## The Short Story
 
 - An independent-samples t-test compares two separate groups: the difference between the means, divided by the standard error of that difference.

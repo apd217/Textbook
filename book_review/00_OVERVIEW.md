@@ -27,9 +27,35 @@ items as mechanical passes.
 
 ## 2. Chapter ordering & structure recommendations
 
-**Part 1 (The Necessary Slog): keep as is.** The order matches the 242 weeks, and putting
-Power after all three t-tests is right (it reuses all of them). Only change: Chi-Square
-still *believes* it lives here (see CH22-B01) — fix its text, not its position.
+**Part 1 (The Necessary Slog): ~~keep as is~~ — SUPERSEDED 2026-08-14, see below.** Only
+other change: Chi-Square still *believes* it lives here (see CH22-B01) — fix its text, not
+its position.
+
+> **CORRECTION (2026-08-14, Alex's call, implemented).** This paragraph was wrong, and the
+> curriculum matrix in §3 of this same document proves it. The matrix says 242 teaches power
+> in **Week 10**, *before* the independent-samples t-test (Week 11) and the paired t-test
+> (Week 12). The book had Power at position 9, after both. The claim that "the order matches
+> the 242 weeks" was simply false, and the reasoning that Power should come last because "it
+> reuses all of them" put a book-internal tidiness argument ahead of the syllabus that Part 1
+> actually serves. Part 1 is the 242 course; Part 2 is 343.
+>
+> **New Part 1 order:** Introduction → R_Basics → Probability → Distro_Moments →
+> Standard_Error → OneSample_t → **Power_Effect_Size** → Independent_t → Paired_t.
+>
+> The two test-specific power sections moved out of the Power chapter and into the chapters
+> they belong to: `type = "two.sample"` plus Hedges' correction now closes Independent_t, and
+> `type = "paired"` plus "Why Pairing Is Cheaper" now closes Paired_t. Each now runs on the
+> data its host chapter already simulated instead of re-simulating it, which also fixed a
+> silent staleness bug: the moved chunk was still building the CTA data on the pre-1-5-scale
+> parameters. The Power chapter keeps the concepts and the one-sample worked example, and
+> carries a callout pointing forward to the two it handed off.
+>
+> This also resolved CH09-B01 the way that item originally wanted. With Power now immediately
+> after OneSample_t, Chapter 6 can defer effect sizes entirely: it keeps the $d$ in its APA
+> line and a callout telling the reader the next chapter explains it. The SDT figure, both
+> $d$ formulas, the small/medium/large/huge benchmarks, and the four effect-size
+> visualisations all now live in exactly one place, the Power chapter. The "keep the table in
+> both chapters" compromise recorded in `09_Power_Effect_Size.md` is therefore obsolete.
 
 **Part 2 (Putting Lines Through Things): two changes recommended.**
 
