@@ -24,31 +24,38 @@ Chapter 6 compared one group against a number someone handed us. That number was
 
 ## The Research Question
 
-What would happen if the CTA actually ran every 7 minutes?
+The CTA already paid me once to ask riders how they feel about the CTA. The answer came back somewhere around "fine, I guess," which is the most Chicago answer available. Now they want to know whether they can buy a better answer.
 
-Would people like using it more?
+So: what happens if the trains actually show up every 7 minutes?
 
 ### Design
 
-Two independent groups:
+Two groups of riders, assigned by chance, not by preference.
 
-- **Control** = Regular CTA timing ("scheduled" is a flexible concept)
-- **Experimental** = Trains arrive every 7 minutes. Like clockwork. Almost suspiciously efficient.
+- **Control**: regular CTA timing, where "scheduled" is a flexible concept.
+- **Experimental**: trains every 7 minutes. Like clockwork. Almost suspiciously efficient.
+
+Nobody rides both schedules. Each rider contributes one number and goes home. That is what makes these groups *independent*, and it is the entire reason this chapter's test is the right one.
 
 ### Dependent Variable
 
+<!-- ALEX: two continuity things now that the opener points explicitly back at Ch5.
+     (1) Ch5's CTA survey used a 1-5 scale; this chapter uses 1-7. Fine as a separate
+     study, but a sharp reader who just came from Ch5 will notice.
+     (2) On Ch5's 1-5 scale, 3 was exactly neutral and the finding was "roughly neutral."
+     On this 1-7 scale, 4 is neutral, so a control mean of 3 is mild dislike. The story
+     still works, but "classic Chicago baseline" now means something slightly grumpier
+     than it did last chapter. Both are one-line fixes if they bother you. -->
+
 A **1-7 bipolar Likert scale** measuring how much participants like using the CTA to get around Chicago:
 
-- 1 = Absolutely hate using the CTA  
-- 4 = Neutral / It's fine  
+- 1 = Absolutely hate using the CTA
+- 4 = Neutral / It's fine
 - 7 = Love it, I now defend the CTA on the internet
 
-We expect:
+We expect the control group to land near **3** (mild frustration, classic Chicago baseline) and the experimental group near **5** ("Wait... this works?").
 
-- Control mean is approximately **3** (mild frustration, classic Chicago baseline)
-- Experimental mean is approximately **5** ("Wait... this works?")
-
-Now we walk through how to test this.
+I know those numbers because I am about to simulate them, which is the only situation in which I ever know the truth in advance.
 
 
 ## Step 1: State the Hypotheses
