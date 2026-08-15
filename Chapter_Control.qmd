@@ -32,7 +32,7 @@ Keep asking three questions:
 
 ## Statistical Control Is Not a Statistics Jail
 
-In the previous chapter, [Multiple Regression: Statistical Control](Chapter_Multiple_Regression_Control.qmd), we predicted **Exam Score** from **Study Hours** and **Test Anxiety**. Study Hours and Anxiety were related to one another, which meant their relationships with Exam Score overlapped.
+In [Multiple Regression: Statistical Control](Chapter_Multiple_Regression_Control.qmd), we predicted **Exam Score** from **Study Hours** and **Test Anxiety**. Study Hours and Anxiety were related to one another, which meant their relationships with Exam Score overlapped.
 
 Multiple regression gave us a Study Hours slope while *controlling for* Anxiety. That phrase sounds reassuringly official. It also hides nearly all the interesting work.
 

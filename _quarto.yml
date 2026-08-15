@@ -25,8 +25,8 @@ book:
         - Chapter_Intro_to_regression.qmd
         - Chapter_Regression with Cat Variables.qmd
         - Chapter_Multiple_Regression_Control.qmd
-        - Chapter_Control.qmd
         - Chapter_Hierarchical_Regression.qmd
+        - Chapter_Control.qmd
         - Chapter_Interaction_1.qmd
         - Chapter_CatXCat_Interaction.qmd
         - Chapter_Mixed_Regression.qmd

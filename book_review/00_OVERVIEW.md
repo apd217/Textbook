@@ -59,6 +59,29 @@ its position.
 
 **Part 2 (Putting Lines Through Things): two changes recommended.**
 
+> **DECIDED (2026-08-15, Alex's call).** Recommendation 1 is **adopted and implemented**;
+> recommendation 2 is **declined for now** — Mixed Regression stays where it is, and the
+> cheaper CH18-U02 on-ramp alternative was not taken either. Revisit if the Week 10 mismatch
+> bites.
+>
+> **New Part 2 order:** CovCorr → Intro Regression → Categorical Variables →
+> Multiple Regression → **Hierarchical** → **Control** → Interaction_1 → CatXCat →
+> Mixed Regression.
+>
+> Three cross-references had to move with it, since a reorder that leaves "the next chapter"
+> pointing at the wrong chapter is a broken reorder:
+> - Multiple Regression's closing `callout-tip` now routes to Hierarchical first and Control
+>   second (both linked). Alex's undergraduate-recruitment punchline is untouched.
+> - Multiple Regression's "The next chapter takes apart what statistical control is actually
+>   doing" became a plain link to the Control chapter, with no positional claim to rot.
+> - Control's opener dropped "In the previous chapter," keeping the link. It now reads
+>   "In [Multiple Regression: Statistical Control], we predicted…".
+>
+> Two references *repaired themselves*, which was the point: Hierarchical's "Where We Left
+> Off" opener and its "Recall the Venn diagram from the previous chapter" (the Ballantine
+> lives in Multiple Regression) are both true as written now. That closes CH15-B01 without
+> touching the chapter — see the note on that item.
+
 1. **Swap Control (14) and Hierarchical (15).** Hierarchical directly continues the
    Multiple-Regression chapter's Models 1/3 (its "in the previous chapter" opener becomes
    *true*, fixing CH15-B01 for free), and Control — explicitly labeled an advanced chapter —

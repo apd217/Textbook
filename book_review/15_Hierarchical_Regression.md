@@ -25,7 +25,7 @@ chapter that would tie the trilogy together.
 - **Location:** Chapter_Hierarchical_Regression.qmd → "Where We Left Off" (search anchor: "In the previous chapter, we used **multiple regression**")
 - **Problem:** In the book order (Multiple Regression → Control → Hierarchical), the "previous chapter" that fit Models 1–3 is two back; the actual previous chapter is Statistical Control. Small, but it's the opening sentence, and readers navigating the web version by sidebar will click the wrong chapter.
 - **Fix:** Change to "In the [multiple regression chapter](Chapter_Multiple_Regression_Control.qmd)…" with the link, and add one clause acknowledging the Control chapter ("and the last chapter showed what 'controlling' really does under the hood"). Alternatively, if the ordering recommendation in 00_OVERVIEW.md (Hierarchical directly after Multiple Regression, Control after) is adopted, this fixes itself — coordinate.
-- **Approved:** [ ]
+- **Approved:** [ ] — MOOT 2026-08-15. Resolved by the ordering swap (Alex's call, see the Part 2 note in `00_OVERVIEW.md` §2), not by editing the sentence. Hierarchical now follows Multiple Regression directly, so both of its back-references became true as written: the "Where We Left Off" opener *and* "Recall the Venn diagram from the previous chapter" at the $\Delta R^2$ section, which had the same defect and was not caught by this item. No text changed in this chapter.
 
 ### [CH15-P02] Missing callback: ΔR² here *is* the sr² from the Control chapter
 - **Priority:** MED

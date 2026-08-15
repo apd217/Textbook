@@ -519,7 +519,7 @@ In Model 3, **both predictors remain statistically significant** after controlli
 
 The meaning: **a slope that shrinks when you add a control variable is not automatically a sign of a weak finding.** It means the controlled and uncontrolled models answer different questions. In this example, the controlled slope is based on predictor variance not linearly explained by the other predictor.
 
-Adding a control variable can also make a slope grow, disappear, reverse, or change statistical significance. Those patterns can reflect confounding, suppression, collinearity, measurement problems, or a poorly chosen control. The next chapter takes apart what statistical control is actually doing.
+Adding a control variable can also make a slope grow, disappear, reverse, or change statistical significance. Those patterns can reflect confounding, suppression, collinearity, measurement problems, or a poorly chosen control. The [Statistical Control](Chapter_Control.qmd) chapter takes apart what statistical control is actually doing.
 
 ## APA Write-Up
 
@@ -542,6 +542,6 @@ A few things to notice in this write-up:
 - We report $F$, $R^2$, and adjusted $R^2$ for the overall model, then report $b$, $SE$, $t$, and $p$ for each individual predictor.
 - We do not report Cohen's $d$ here. In regression, $b$ (the unstandardized slope) is the primary effect size. The overall model's $R^2$ tells us the total proportion of variance explained.
 
-::: {.callout-tip title="Next: We Take Control Apart"}
-The next chapter, [Statistical Control: What Are We Actually Removing?](Chapter_Control.qmd), uses these same students to show exactly how residuals, semi-partial correlation, partial correlation, standardized beta, and change in $R^2$ fit together. No new imaginary undergraduates will be recruited until the current ones have finished the exam.
+::: {.callout-tip title="Next: Did the Second Predictor Earn Its Keep?"}
+The next chapter, [Hierarchical Regression](Chapter_Hierarchical_Regression.qmd), picks up Models 1 and 3 where we just left them and asks whether adding Test Anxiety improved the model by more than chance. After that, [Statistical Control: What Are We Actually Removing?](Chapter_Control.qmd) uses these same students to show exactly how residuals, semi-partial correlation, partial correlation, standardized beta, and change in $R^2$ fit together. No new imaginary undergraduates will be recruited until the current ones have finished the exam.
 :::
