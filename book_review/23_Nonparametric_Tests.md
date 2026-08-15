@@ -14,7 +14,7 @@ mostly explaining output the chapter already produces.
 - **Location:** Chapter_Nonparametric_Tests.qmd → Wilcoxon rank-sum chunk (search anchor: "conf.int = TRUE")
 - **Problem:** Both `wilcox.test(..., conf.int = TRUE)` calls print "difference in location" with a CI — the Hodges–Lehmann shift estimate, which is precisely the effect-size-with-uncertainty the chapter's own reporting checklist (item 4) demands. The reader is never told what that number is, so the chapter's best output line goes unread. There's also no standardized effect size (rank-biserial r) anywhere, which grad students will be asked for.
 - **Fix:** After the rank-sum output, add ~4 sentences: the "difference in location" is the Hodges–Lehmann estimate (median of all between-group pairwise differences — a location-shift effect size in raw units) and its CI; that plus the group medians/IQRs satisfies the reporting checklist. Add one line for the standardized option: rank-biserial correlation (e.g., `effectsize::rank_biserial()` or the r = Z/√N approximation), with the usual caveat that raw-units effects communicate better.
-- **Approved:** [ ]
+- **Approved:** [ x]
 
 ### [CH23-U01] `exact = FALSE` is used five times and never explained
 - **Priority:** LOW
@@ -23,7 +23,7 @@ mostly explaining output the chapter already produces.
 - **Location:** Chapter_Nonparametric_Tests.qmd → first wilcox.test (search anchor: "exact = FALSE,")
 - **Problem:** Every rank-test call sets `exact = FALSE` silently. Students who omit it get warnings about ties ("cannot compute exact p-value with ties") and think they broke something — the same anxiety the Spearman section of the correlation chapter needs a sentence for (CH10-P03). One explanation, first use.
 - **Fix:** At first use: "`exact = FALSE` asks for the normal approximation. With tied ranks (psychology data always ties), R cannot compute exact p-values and would warn you before falling back anyway — we're just telling it upfront so nobody panics." 
-- **Approved:** [ ]
+- **Approved:** [ x]
 
 ### [CH23-U02] No Short Story
 - **Priority:** LOW
@@ -32,7 +32,7 @@ mostly explaining output the chapter already produces.
 - **Location:** Chapter_Nonparametric_Tests.qmd → end (search anchor: "offended a normality test at 2:00 a.m.")
 - **Problem:** Cross-cutting item; the decision-guide table + reporting checklist provide most of the material.
 - **Fix:** Add `## The Short Story`: nonparametric ≠ assumption-free; counts/signs/ranks answer different questions than means; pick by design and question, not by a 2 a.m. normality test; the decision table is the map; follow-ups need Holm; report medians/IQRs + HL shift, and state how ties were handled.
-- **Approved:** [ ]
+- **Approved:** [ x]
 
 ---
 
