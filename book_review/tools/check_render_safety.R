@@ -65,6 +65,9 @@ for (f in files) {
     if (!inchunk) keep <- c(keep, ln)
   }
   s <- paste(keep, collapse = "\n")
+  s <- gsub("(?s)<!--.*?-->", " ", s, perl = TRUE)         # HTML comments, incl. ---Alex--- notes
+  s <- gsub("^---$", " ", s)                               # the two YAML fences
+  s <- gsub("\n---\n", "\n", s)
   s <- gsub("\\|[-: |]+\\|", " ", s)                       # markdown table rules
   n <- lengths(regmatches(s, gregexpr("—", s))) +
        lengths(regmatches(s, gregexpr("(?<![-])---(?![-])", s, perl = TRUE)))

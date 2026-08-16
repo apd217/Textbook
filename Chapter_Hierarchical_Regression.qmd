@@ -1,12 +1,5 @@
 ---
 title: "Hierarchical Regression: Testing Whether Your Model Improves"
-geometry: margin=.5in
-fontsize: 10pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 
@@ -53,9 +46,16 @@ dat <- data.frame(
 ```
 
 
+<!-- ---Alex--- Scope note, not an edit. I did the approved items (P01, P02, U01), the em-dash
+     sweep, the YAML strip and fig-alt, and stopped there. But this chapter reads dryer than
+     anything else in Part 2: about 3,000 words carrying two jokes (the Sorting Hat and the
+     asterisk callout), no picture until the stacked bar three quarters of the way down, and an
+     opening that recaps instead of showing anything. By the preface's own contract that is a
+     breach, the same one Chapter 10's middle had. Fixing it is a voice pass, not an item, so
+     say the word and I will do it as its own session rather than smuggling it in here. -->
 ## Where We Left Off
 
-In the previous chapter, we used **multiple regression** to predict exam performance from two predictors simultaneously: Study Hours and Test Anxiety. We learned that each predictor has a *unique* effect on exam scores — an effect that persists even after statistically controlling for the other predictor.
+In the previous chapter, we used **multiple regression** to predict exam performance from two predictors simultaneously: Study Hours and Test Anxiety. We learned that each predictor has a *unique* effect on exam scores, an effect that persists even after statistically controlling for the other predictor.
 
 By the end of that chapter, we had fit three models:
 
@@ -65,19 +65,25 @@ By the end of that chapter, we had fit three models:
 
 We showed that Model 3 explained more variance in exam scores ($R^2$) than either predictor alone, and we compared the slopes before and after controlling. But we never formally asked: **does adding Test Anxiety to the model produce a statistically significant improvement?** Or put differently, is the improvement in $R^2$ when we go from Model 1 to Model 3 bigger than we would expect from chance alone?
 
-That question is the heart of **hierarchical regression** — and it is the focus of this chapter.
+That question is the heart of **hierarchical regression**, and it is the focus of this chapter.
 
 ## What Is Hierarchical Regression?
 
-**Hierarchical regression** (also called **sequential regression**) is a strategy for building and comparing regression models in a deliberate, theory-driven order. Instead of putting all your predictors in at once, you add them in meaningful *steps* — and at each step, you ask whether the new addition genuinely improved your ability to predict the outcome.
+**Hierarchical regression** (also called **sequential regression**) is a strategy for building and comparing regression models in a deliberate, theory-driven order. Instead of putting all your predictors in at once, you add them in meaningful *steps*, and at each step you ask whether the new addition genuinely improved your ability to predict the outcome.
 
 The word "hierarchical" refers to the hierarchy of models, not a hierarchy of people or importance. Each model in the sequence is more complex than the one before it, and you evaluate whether that added complexity is worth it.
+
+::: {.callout-note title="Two Things Are Called Hierarchical, and This Is Only One of Them"}
+What we are doing here, adding predictors in theory-driven steps, is also called *sequential* regression. It has nothing to do with **hierarchical linear models**, which are multilevel or mixed models for clustered data: students inside classrooms, trials inside participants, patients inside hospitals. Those get their own chapter, [Mixed Regression](Chapter_Mixed_Regression.qmd).
+
+This matters because searching "hierarchical regression in R" will drop you into `lme4` and random effects, and you will conclude you need machinery you do not need. Same adjective, unrelated ideas. Blame history.
+:::
 
 This approach is useful any time you have a specific question about the *incremental value* of a predictor. In our example, the question is precise and testable:
 
 > **Does Test Anxiety explain variance in exam performance above and beyond what Study Hours already explains?**
 
-Notice the phrase "above and beyond." That is the language of hierarchical regression. You are not just asking whether Test Anxiety predicts exam scores (it does — we know this from the simple regression). You are asking whether it adds *something new* to a model that already includes Study Hours.
+Notice the phrase "above and beyond." That is the language of hierarchical regression. You are not just asking whether Test Anxiety predicts exam scores (it does; we know this from the simple regression). You are asking whether it adds *something new* to a model that already includes Study Hours.
 
 ## Nested Models
 
@@ -87,20 +93,20 @@ Here is how nesting works in our example:
 
 | Model | Predictors | Is it nested in...? |
 |---|---|---|
-| Model 1 | Study Hours | — |
+| Model 1 | Study Hours | n/a |
 | Model 3 | Study Hours + Test Anxiety | Yes, contains Model 1 |
 
 Model 1 only has Study Hours. Model 3 has Study Hours **plus** Test Anxiety. Because Model 1's predictor (Study Hours) is fully contained within Model 3, these two models are nested. The difference between them is exactly one predictor: Test Anxiety.
 
-This is what makes the comparison meaningful. When we compare these two models, we are directly asking: **what does Test Anxiety add, given that Study Hours is already in the model?** We are not comparing apples to oranges — we are asking a precise, surgical question about one specific addition.
+This is what makes the comparison meaningful. When we compare these two models, we are directly asking: **what does Test Anxiety add, given that Study Hours is already in the model?** We are not comparing apples to oranges. We are asking a precise, surgical question about one specific addition.
 
-If the models were *not* nested — for example, if Model A had Study Hours and Model B had Test Anxiety — we could not make a direct statistical comparison, because the difference between them involves both removing one predictor *and* adding a different one. The formal test we will use below only works for nested models.
+If the models were *not* nested (say Model A had Study Hours and Model B had Test Anxiety), we could not make a direct statistical comparison, because the difference between them involves both removing one predictor *and* adding a different one. The formal test we will use below only works for nested models.
 
 ## Setting Up the Hierarchical Comparison
 
 In our example, the research question drives the ordering of the models:
 
-**Step 1 (Block 1):** Enter Study Hours. This is our primary predictor — the one we already know matters, and the one that came first in our theoretical thinking about what drives exam performance.
+**Step 1 (Block 1):** Enter Study Hours. This is our primary predictor: the one we already know matters, and the one that came first in our theoretical thinking about what drives exam performance.
 
 **Step 2 (Block 2):** Add Test Anxiety. This is the incremental question: does anxiety explain variance in exam scores *above and beyond* what study behavior already tells us?
 
@@ -127,23 +133,31 @@ cat("Model 3 (Both predictors):  R-squared =", round(r2_m3, 3), "\n")
 cat("Change in R-squared: Delta R-squared =", round(r2_m3 - r2_m1, 3), "\n")
 ```
 
-The $R^2$ went up when we added Test Anxiety. But $R^2$ **always** goes up when you add a predictor — even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is meaningful.
+The $R^2$ went up when we added Test Anxiety. But $R^2$ **always** goes up when you add a predictor. Even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is meaningful.
 
 ## The Change in R²: What Are We Measuring?
 
 Before we run the test, let's understand what $\Delta R^2$ (read: "delta R-squared," or "change in R-squared") actually represents.
 
-Recall the Venn diagram from the previous chapter. When Study Hours is the only predictor, it explains regions $a + c$ — its unique share of the variance in exam scores, plus the variance it shares with Test Anxiety. When we add Test Anxiety to the model, we pick up region $b$: the variance in exam scores that Test Anxiety explains *uniquely*, after Study Hours has already claimed its portion.
+Recall the Venn diagram from the previous chapter. When Study Hours is the only predictor, it explains regions $a + c$: its unique share of the variance in exam scores, plus the variance it shares with Test Anxiety. When we add Test Anxiety to the model, we pick up region $b$, the variance in exam scores that Test Anxiety explains *uniquely*, after Study Hours has already claimed its portion.
 
 $$\Delta R^2 = R^2_{\text{Model 3}} - R^2_{\text{Model 1}} = \text{Region } b$$
 
-So $\Delta R^2$ is the proportion of variance in exam scores that Test Anxiety explains *uniquely* — the additional predictive power it brings to the table after Study Hours has already been accounted for. This is precisely what we want to know.
+So $\Delta R^2$ is the proportion of variance in exam scores that Test Anxiety explains *uniquely*: the additional predictive power it brings after Study Hours has already been accounted for. This is precisely what we want to know.
+
+<!-- ---Alex--- CH15-P02 asked for a *callback* to the Control chapter ("you met this quantity
+     already"). The Part 2 reorder made Control the NEXT chapter, so I flipped it to a forward
+     pointer. Control's own "this also equals the change in R-squared" line still reads correctly
+     as the callback, so the trilogy closes there instead of here. Also note the two chapters
+     residualize different predictors: this sr-squared is Anxiety's (.067), Control's is Study
+     Hours' (.110). Same identity, different number, and I did not claim otherwise. -->
+This quantity has a second name, and you are going to meet it in the next chapter. Predict Test Anxiety from Study Hours, keep the leftovers, correlate those leftovers with Exam Score, and square the result. You get `r round(cor(dat$Exam, residuals(lm(Anxiety ~ StudyHours, data = dat)))^2, 3)`, which is the same $\Delta R^2$ printed above. That number is the **squared semi-partial correlation**, $sr^2$, and [Statistical Control](Chapter_Control.qmd) takes it apart properly. The identity $sr^2 = \Delta R^2$ is not a coincidence. It is region $b$ measured twice, in two vocabularies.
 
 The question is: is this $\Delta R^2$ of `r round(r2_m3 - r2_m1, 3)` ($`r round((r2_m3 - r2_m1)*100, 1)`$% of variance) large enough to conclude that Test Anxiety is a genuinely useful addition? Or could a difference this big arise just from sampling variability, even if Test Anxiety had no real predictive power?
 
 ## The F-Test for Model Comparison
 
-The tool we use to answer that question is an **F-test for model comparison**. It tests the null hypothesis that the added predictor(s) explain *zero additional variance in the population* — that the improvement in $R^2$ is nothing more than noise.
+The tool we use to answer that question is an **F-test for model comparison**. It tests the null hypothesis that the added predictor(s) explain *zero additional variance in the population*, meaning the improvement in $R^2$ is nothing more than noise.
 
 $$H_0: \Delta R^2 = 0 \text{ (Test Anxiety adds nothing beyond Study Hours)}$$
 $$H_1: \Delta R^2 > 0 \text{ (Test Anxiety adds meaningful predictive power)}$$
@@ -159,7 +173,7 @@ Where:
 - $R^2_{\text{full}}$ = the $R^2$ of the more complex (full) model
 - $df_{\text{residual, full}}$ = residual degrees of freedom in the full model ($n - k - 1$, where $k$ is the total number of predictors)
 
-The numerator captures how much new variance the added predictor explains *per additional parameter*. The denominator captures the average unexplained variance per residual degree of freedom — essentially, the baseline "noise level" of the full model. If the ratio is large, the new predictor is explaining more variance than you would expect from noise. If the ratio is close to 1, the new predictor is not doing much better than chance.
+The numerator captures how much new variance the added predictor explains *per additional parameter*. The denominator captures the average unexplained variance per residual degree of freedom, essentially the baseline "noise level" of the full model. If the ratio is large, the new predictor is explaining more variance than you would expect from noise. If the ratio is close to 1, the new predictor is not doing much better than chance.
 
 You do not need to compute this by hand. In R, the `anova()` function computes it for you when you feed it two nested models.
 
@@ -176,7 +190,24 @@ Let's read this output carefully. The `anova()` output when comparing two models
 - **F**: the F-statistic for the comparison.
 - **Pr(>F)**: the p-value for that F-statistic.
 
-The key row to focus on is the second one — that is where the comparison lives. The F-statistic tells you whether the drop in residual sum of squares (i.e., the gain in explained variance) between Model 1 and Model 3 is statistically significant.
+The key row to focus on is the second one. That is where the comparison lives. The F-statistic tells you whether the drop in residual sum of squares (i.e., the gain in explained variance) between Model 1 and Model 3 is statistically significant.
+
+### This F Is a t You Have Already Met
+
+<!-- ---Alex--- New section (CH15-P02, part 2). I avoided "Not similar. *Identical.*" here
+     because Chapter 12 already lands that exact snap and two chapters is too close for a repeat. -->
+When you add exactly one predictor, the model-comparison $F$ is the square of that predictor's $t$ in the full model. Not approximately. The same number, to every decimal R will print.
+
+```{r f equals t squared, echo=TRUE}
+t_anxiety <- summary(Model.3)$coefficients["Anxiety", "t value"]
+
+c(t_squared    = t_anxiety^2,
+  F_from_anova = anova(Model.1, Model.3)$F[2])
+```
+
+Two tests, one fact. The t-test asks whether Test Anxiety's slope differs from zero once Study Hours is in the model. The F-test asks whether adding Test Anxiety improves fit once Study Hours is in the model. Those turn out to be the same question in two accents.
+
+This stops being true the moment you add two or more predictors in a single step, because then the F is testing the whole block at once and there is no single $t$ to square.
 
 ### What to Look For
 
@@ -236,11 +267,14 @@ cat("Model 3 (Study Hours + Anxiety):  R-squared =", round(r2_m3,  3),
 cat("Change: Delta R-squared =", round(r2_m3 - r2_m1, 3), "\n")
 ```
 
-Notice that the **adjusted** $R^2$ also increased from `r round(summary(Model.1)$adj.r.squared, 3)` to `r round(summary(Model.3)$adj.r.squared, 3)`. Recall that adjusted $R^2$ penalizes models for adding predictors. When adjusted $R^2$ goes up, it means the new predictor is earning its keep — the improvement in fit outweighs the cost of the extra parameter. This is consistent with the significant F-test.
+Notice that the **adjusted** $R^2$ also increased from `r round(summary(Model.1)$adj.r.squared, 3)` to `r round(summary(Model.3)$adj.r.squared, 3)`. Recall that adjusted $R^2$ penalizes models for adding predictors. When adjusted $R^2$ goes up, it means the new predictor is earning its keep: the improvement in fit outweighs the cost of the extra parameter. This is consistent with the significant F-test.
 
 We can also visualize this as a stacked bar showing how the explained variance is distributed:
 
 ```{r variance plot, fig.width=5.5, fig.height=3.5}
+#| fig-cap: "Total variance in Exam Score, split into four pieces: the part only Study Hours explains, the part only Test Anxiety explains (the orange band, which is the $\\Delta R^2$ we just tested), the part they share, and the part the model never reaches."
+#| fig-alt: "A single stacked vertical bar showing the proportion of total Exam Score variance in four segments: unique to Study Hours, unique to Test Anxiety, shared between the two predictors, and unexplained. The unexplained grey segment is by far the largest, taking up roughly three quarters of the bar."
+
 r2_unique_sh  <- r2_m3 - summary(lm(Exam ~ Anxiety, data=dat))$r.squared
 r2_unique_anx <- r2_m3 - r2_m1
 r2_shared     <- r2_m1 + summary(lm(Exam ~ Anxiety, data=dat))$r.squared - r2_m3
@@ -272,13 +306,13 @@ ggplot(variance_df, aes(x = "", y = Proportion, fill = Component)) +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
 ```
 
-The orange segment — Test Anxiety's unique contribution ($\Delta R^2 =$ `r round(r2_unique_anx, 3)`) — is what the F-test just confirmed is statistically significant. It represents the additional explanatory power Test Anxiety brings to a model that already contains Study Hours. Adding it was worth it.
+The orange segment is Test Anxiety's unique contribution ($\Delta R^2 =$ `r round(r2_unique_anx, 3)`), and it is what the F-test just confirmed is statistically significant. It represents the additional explanatory power Test Anxiety brings to a model that already contains Study Hours. Adding it was worth it.
 
 ## The Logic in Plain Language
 
 Let's step back from the numbers and make sure the core logic is clear.
 
-Hierarchical regression is built on a simple and intuitive idea: **if a predictor truly matters, it should explain variance in the outcome that no other predictor in the model can already account for.** If it does not, it is just explaining the same territory as something already in the model — and we should not clutter up our model with redundant predictors.
+Hierarchical regression is built on a simple and intuitive idea: **if a predictor truly matters, it should explain variance in the outcome that no other predictor in the model can already account for.** If it does not, it is just explaining the same territory as something already in the model, and we should not clutter up our model with redundant predictors.
 
 Here is the sequence of reasoning:
 
@@ -294,12 +328,12 @@ This four-step logic applies no matter how many predictors you are adding. You c
 
 ## Blocks of Predictors
 
-One of the most powerful applications of hierarchical regression is adding **blocks** of predictors — groups of theoretically related variables — all at once. For example, imagine we had three anxiety-related measures instead of one. We could build:
+One of the most powerful applications of hierarchical regression is adding **blocks** of predictors, groups of theoretically related variables, all at once. For example, imagine we had three anxiety-related measures instead of one. We could build:
 
 - **Block 1:** Study Hours
 - **Block 2:** Test Anxiety + Generalized Anxiety + Worry (three anxiety measures added simultaneously)
 
-The F-test for Block 2 would then ask: do these three anxiety measures *together* explain additional variance in exam scores, above and beyond Study Hours? The degrees of freedom for the F-test would be 3 (one per added predictor), and the test is still a single, omnibus comparison — no need to test each anxiety measure separately at this stage.
+The F-test for Block 2 would then ask: do these three anxiety measures *together* explain additional variance in exam scores, above and beyond Study Hours? The degrees of freedom for the F-test would be 3 (one per added predictor), and the test is still a single, omnibus comparison. No need to test each anxiety measure separately at this stage.
 
 This is particularly useful when you want to:
 
@@ -311,9 +345,9 @@ This is particularly useful when you want to:
 
 Hierarchical regression is a tool for **theory-driven** model building. The order in which you enter predictors should be decided *before* you look at the results, based on your understanding of the literature and your hypotheses.
 
-It is tempting to try many different orderings and report the one that looks best. This is a form of "fishing" — running multiple comparisons in the hope of finding a significant result — and it inflates the Type I error rate. If you run 20 model comparisons, you should expect one of them to be "significant" by chance at the $p < .05$ threshold, even if nothing is real.
+It is tempting to try many different orderings and report the one that looks best. This is a form of "fishing," running multiple comparisons in the hope of finding a significant result, and it inflates the Type I error rate. If you run 20 model comparisons, you should expect one of them to be "significant" by chance at the $p < .05$ threshold, even if nothing is real.
 
-The safe approach: decide on your model sequence based on theory, pre-register it if you can, and report all models you tested — not just the one that "worked."
+The safe approach: decide on your model sequence based on theory, pre-register it if you can, and report all models you tested, not just the one that "worked."
 
 ## APA Write-Up
 
@@ -332,10 +366,19 @@ In Step 2, the addition of test anxiety produced a statistically significant imp
 A few things to notice in this write-up:
 
 - Report each *step* as a block, not just the final model. Readers need to see what each step added.
-- Report $\Delta R^2$ and the F-test for the change — these are the key hierarchical results.
+- Report $\Delta R^2$ and the F-test for the change. These are the key hierarchical results.
 - After reporting the model comparison, also report the individual slopes from the final model.
 - Use the phrase **"above and beyond"** or **"produced a statistically significant improvement in model fit"** to signal that a hierarchical comparison is being reported.
 
 ::: {.callout-important title="The Order Must Come from the Question"}
 $\Delta R^2$ belongs to a particular sequence of models. Enter predictors in an order justified by theory or design, not the order that made the Probability Gods finally hand you an asterisk.
 :::
+
+## The Short Story
+
+- **Nested** means the simpler model's predictors are a subset of the bigger model's. Only nested models can be compared this way.
+- **$\Delta R^2$** is the variance the new predictor explains that nothing already in the model could reach. Region $b$. The next chapter calls the same quantity $sr^2$.
+- **The F-test** asks whether that gain beats sampling noise. Add exactly one predictor and it equals the square of that predictor's $t$ in the full model.
+- **Adjusted $R^2$ is the sanity check.** Raw $R^2$ always goes up. Adjusted $R^2$ goes up only when the new predictor earned its seat.
+- **The order comes from theory,** decided before you look at the output. Reordering until something turns significant is fishing, and it inflates your Type I error rate.
+- **Report each step,** then $\Delta R^2$, then the F for the change, then the slopes from the final model. In that order.
