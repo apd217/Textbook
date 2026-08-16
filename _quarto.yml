@@ -1,3 +1,11 @@
+# Callout convention for this book (G10). Quarto only has five types, so pick by job:
+#   important  the reader must not misunderstand this (causality warnings, order-matters rules)
+#   warning    a mistake people actually make, and how to avoid it
+#   note       context, history, a naming collision, a credit box
+#   tip        practice advice, and the collapsible answers to self-check questions
+# There is no callout-danger. It is not a Quarto type; it renders as an unstyled div and can
+# lose its box entirely in the PDF pipeline. Use important.
+
 project:
   type: book
 

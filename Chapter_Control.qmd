@@ -1,12 +1,5 @@
 ---
 title: "Statistical Control: What Are We Actually Removing?"
-geometry: margin=.5in
-fontsize: 11pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -103,6 +96,7 @@ The circles below represent variance. The overlapping portions represent shared 
 #| fig-width: 6.5
 #| fig-height: 5.5
 #| fig-cap: "A Ballantine for Study Hours, Test Anxiety, and Exam Score. The areas are conceptual, not drawn to scale."
+#| fig-alt: "Three overlapping circles. Study Hours sits upper left in blue, Test Anxiety upper right in orange, and Exam Score below and between them in green. Region a is where Study Hours overlaps Exam Score alone, region b is where Test Anxiety overlaps Exam Score alone, region c is where all three overlap, and region e is the part of the Exam Score circle no predictor touches."
 
 plot.new()
 plot.window(xlim = c(0, 1), ylim = c(0, 1), asp = 1)
@@ -190,6 +184,7 @@ A positive residual means "more than expected." A negative residual means "less 
 ```{r residual-lines}
 #| echo: false
 #| fig-cap: "Study Hours predicted from Test Anxiety. Selected vertical lines show residuals: the distance between each student's actual and expected Study Hours."
+#| fig-alt: "Scatterplot of Test Anxiety on the x axis against Study Hours on the y axis, with a downward-sloping orange regression line through a loose blue cloud of 100 students. Twelve purple vertical segments connect the most extreme points to the line, showing how far each of those students studied above or below what their anxiety score predicted."
 
 plot(
   dat$Anxiety,
@@ -262,6 +257,7 @@ The answer is yes. More of the Study Hours that Anxiety cannot explain is associ
 #| fig-width: 8.5
 #| fig-height: 4.3
 #| fig-cap: "Left: the zero-order Study Hours–Exam Score relationship. Right: the semi-partial relationship after removing Anxiety from Study Hours only."
+#| fig-alt: "Two scatterplots side by side, each with an orange upward-sloping fit line. The left plot puts raw Study Hours on the x axis against Exam Score. The right plot replaces the x axis with the Study Hours residual after Anxiety is removed, while the y axis stays the original Exam Score. The right cloud is centred on zero and its slope is visibly shallower."
 
 par(mfrow = c(1, 2), mar = c(4.3, 4.3, 3, 1))
 
@@ -368,6 +364,7 @@ Partial correlation asks whether students who study more than Anxiety predicts a
 #| fig-width: 9.5
 #| fig-height: 4.3
 #| fig-cap: "Semi-partial correlation leaves Exam Score untouched. Partial correlation removes Anxiety from both Study Hours and Exam Score."
+#| fig-alt: "Two scatterplots side by side, both with the Study Hours residual on the x axis and an orange fit line. The left plot keeps the original Exam Score on the y axis and is labelled with the semi-partial correlation. The right plot uses the Exam Score residual instead and is labelled with the larger partial correlation. Both point clouds tilt the same way; the right one is more tightly gathered around its line because the anxiety-related spread has been taken out of the y axis too."
 
 par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
 
@@ -504,6 +501,11 @@ All three slopes equal about `r round(coef(full_model)["StudyHours"], 2)` Exam S
 
 This is not a coincidence. The Study Hours coefficient in multiple regression is built from the Study Hours variation that Anxiety cannot linearly explain. This result is sometimes called the **Frisch–Waugh–Lovell theorem**, which is an impressive name for "residualize the relevant pieces and you recover the same slope."
 
+<!-- ---Alex--- CH14-P01. Verified by running: slopes all 1.4149; standard errors 0.3693
+     (full), 0.4056 (semi-partial route), 0.3674 (partial route); residual df 97 versus 98
+     and 98. So the shortcut regressions really are one df richer than they have earned. -->
+One caution before someone reports the wrong t-value. The **slopes** match. The standard errors and t-tests from these shortcut regressions do not, because those regressions do not know that Anxiety already spent a degree of freedom. Report your inference from the full model. Use the residualized regressions to *understand* where that slope came from.
+
 The practical interpretation is:
 
 > Among students at the same Anxiety level, one additional Study Hour is associated with about `r round(coef(full_model)["StudyHours"], 2)` additional Exam Score points.
@@ -579,7 +581,7 @@ The order matters for `spcor.test()` because the control variable is removed fro
 
 ## Statistical Control Is Not Experimental Control
 
-::: {.callout-danger title="Control Does Not Manufacture Causality"}
+::: {.callout-important title="Control Does Not Manufacture Causality"}
 We removed linear associations from numbers. We did **not** randomly assign Anxiety, repair measurement error, eliminate variables we forgot to measure, or reach backward through time.
 
 After controlling for Anxiety, the Study Hours coefficient describes the association between Study Hours and Exam Score conditional on Anxiety. Calling it "the true causal effect of studying" would require a research design and assumptions much stronger than this regression alone provides.
