@@ -46,6 +46,38 @@ chapter that would tie the trilogy together.
 - **Fix:** Add `## The Short Story` after the APA section: nested = simpler model lives inside bigger one; ΔR² = new unique variance (region b, = sr²); F-test asks whether the gain beats noise; order comes from theory, decided before peeking; report each step, ΔR², F, then final-model slopes. Covered by the cross-cutting recap item — flagged because the raw material is already written mid-chapter.
 - **Approved:** [x] — IMPLEMENTED 2026-08-16. `## The Short Story` added at the end of the file, after the "Order Must Come from the Question" callout. Six bullets, following the item's list, in the style of Ch4/Ch8/Ch14. Two additions to the drafted content: the $F = t^2$ fact (it is the most exam-relevant thing in the chapter and it is new here), and adjusted $R^2$ as the sanity check (the mid-chapter material covers it and a cramming student would otherwise miss it). No self-check questions added; those belong to G04 and need Alex's questions.
 
+### [CH15-VOICE] Voice pass: cold open, and a picture before the reader gives up
+- **Priority:** HIGH | **Perspective:** Student | **Effort:** L (Tier 3, new voice-bearing prose)
+- **Problem:** Not from the original review. Raised as a scope flag after the item pass on
+  2026-08-16 and approved by Alex the same day. The chapter carried about 3,000 words and two
+  jokes, had no figure until three quarters of the way down, and opened on a recap rather than
+  on anything the reader could look at. `VOICE_GUIDE.md` §15 and the preface contract both
+  fail on that.
+- **Fix / what was done:**
+  1. **New cold open, `## I Made This Model Better by Adding Absolutely Nothing`.** Follows the
+     §15 Chapter 10 pattern exactly: show the graph with no preamble, land the absurd
+     conclusion, admit what is fake, say why the reader needs the tool, close on an italic
+     aphorism. Code hidden, as Ch10's pirate chunk is. The graph adds ten `rnorm()` columns to
+     `Exam ~ StudyHours` one at a time and plots $R^2$ against adjusted $R^2$.
+  2. **New simulation section, `### First, Look at What Nothing Buys`**, placed *before* the
+     F formula so the test is motivated rather than asserted. 5,000 junk predictors, a
+     histogram of the null $\Delta R^2$, and the observed gain as a dashed line.
+  3. **The payoff**, after the `anova()` output: the F-test's exact p against the simulation's.
+  4. **Callback** in the Blocks section: the ten noise columns entered as one block and tested
+     properly, which is what stops them.
+  5. Fishing warning tied to the histogram's right tail; one release valve after the formula
+     block; `## Nested Models: Which Comparisons Are Even Legal`; a Short Story bullet for the
+     thesis.
+- **Verified by running.** Ten noise predictors buy $\Delta R^2 = .063$; Test Anxiety buys
+  $.067$. Nearly the same raw gain, which is the whole argument and is *not* tuned. The junk
+  block tests at $F(10, 88) = 0.76$, $p = .665$; Test Anxiety at $F(1, 97) = 8.86$, $p = .0037$.
+  Adjusted $R^2$ falls from $.195$ to $.175$. The 5,000-run simulation returns $p = .0036$
+  against the F-test's $.0037$. Seed 6 was chosen because adjusted $R^2$ ends clearly lower;
+  the size of the junk-versus-real gap was not selected on.
+- **Word count** 2,954 to 4,218. Em-dash density stayed at the 0.30 floor. No PDF-breaking
+  characters. Both new figures carry `fig-cap` and `fig-alt`.
+- **Approved:** [x] — IMPLEMENTED 2026-08-16, Alex approved the pass and is reviewing the diff.
+
 **Global items also implemented in this chapter, 2026-08-16:** G01 (YAML stripped to `title:` only, matching Ch10–13); G02 (`fig-alt` on the stacked-bar figure, plus the `fig-cap` it was missing entirely — README lesson 3, it was a hanging figure); em-dash sweep, 26 prose dashes to 0, density 9.48 to the 0.30 floor. This was the "worst in the book" chapter named in `README_FOR_IMPLEMENTER.md`.
 
 ---

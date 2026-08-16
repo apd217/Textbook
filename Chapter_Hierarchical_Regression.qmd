@@ -46,14 +46,70 @@ dat <- data.frame(
 ```
 
 
-<!-- ---Alex--- Scope note, not an edit. I did the approved items (P01, P02, U01), the em-dash
-     sweep, the YAML strip and fig-alt, and stopped there. But this chapter reads dryer than
-     anything else in Part 2: about 3,000 words carrying two jokes (the Sorting Hat and the
-     asterisk callout), no picture until the stacked bar three quarters of the way down, and an
-     opening that recaps instead of showing anything. By the preface's own contract that is a
-     breach, the same one Chapter 10's middle had. Fixing it is a voice pass, not an item, so
-     say the word and I will do it as its own session rather than smuggling it in here. -->
-## Where We Left Off
+<!-- ---Alex--- VOICE PASS, 2026-08-16, at your request. This whole section is new: the cold
+     open, its figure, and the aphorism. Built on the §15 Chapter 10 pattern (show it, land the
+     absurd conclusion, admit what is fake, say why the reader needs the tool, close on an
+     italic aphorism). Every number in it is computed, not typed. The near-tie between ten junk
+     predictors and one real one is genuinely what the data do; I hunted for a seed where
+     adjusted R-squared falls clearly, but I did not tune the gap. -->
+## I Made This Model Better by Adding Absolutely Nothing
+
+Here is a model getting better.
+
+```{r junk staircase, fig.width=6.2, fig.height=3.8}
+#| fig-cap: "Ten columns of random numbers, added to the exam model one at a time. The blue line is $R^2$ and it never once goes down. The orange line is adjusted $R^2$, which charges rent for each new predictor and ends lower than it started."
+#| fig-alt: "A line graph with the number of added noise predictors, zero to ten, on the x axis and proportion of variance explained on the y axis. The blue R-squared line climbs in a ragged staircase from about 0.20 to about 0.27 and never once falls. The orange adjusted R-squared line starts just below it at about 0.195, sags and recovers as predictors are added, and finishes near 0.175, lower than where it began."
+
+set.seed(6)
+
+junk_dat  <- dat[c("Exam", "StudyHours")]
+staircase <- data.frame(Added = 0:10, R2 = NA_real_, AdjR2 = NA_real_)
+
+for (k in 0:10) {
+  if (k > 0) junk_dat[[paste0("Noise", k)]] <- rnorm(nrow(junk_dat))
+  fit <- lm(Exam ~ ., data = junk_dat)
+  staircase$R2[k + 1]    <- summary(fit)$r.squared
+  staircase$AdjR2[k + 1] <- summary(fit)$adj.r.squared
+}
+
+# The gain the real predictor buys, for the comparison two paragraphs down
+anxiety_gain <- summary(lm(Exam ~ StudyHours + Anxiety, data = dat))$r.squared -
+  staircase$R2[1]
+
+staircase |>
+  pivot_longer(c(R2, AdjR2), names_to = "Measure", values_to = "Value") |>
+  mutate(Measure = recode(Measure,
+                          R2    = "R-squared",
+                          AdjR2 = "Adjusted R-squared")) |>
+  ggplot(aes(Added, Value, colour = Measure)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2) +
+  scale_colour_manual(values = c("R-squared" = "#0072B2",
+                                 "Adjusted R-squared" = "#D55E00")) +
+  scale_x_continuous(breaks = 0:10) +
+  labs(
+    title = "Ten Predictors That Do Not Exist",
+    x = "Columns of random numbers added",
+    y = "Proportion of variance explained",
+    colour = NULL
+  ) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+The rising line is $R^2$, the proportion of exam-score variance the model explains. It starts with one honest predictor, Study Hours, at `r round(staircase$R2[1], 3)`. Then I add a column of random numbers. Then another. Ten in all, and every single one leaves the model fitting better than it was before.
+
+I did not measure anything. The columns are `rnorm()`. They do not know what an exam is, they have never met a student, and each one existed for roughly a millisecond before being hired as a predictor. $R^2$ climbed to `r round(staircase$R2[11], 3)` anyway, because $R^2$ is not permitted to fall. Every predictor you add hands least squares one more knob, and least squares will always find some small turn of that knob that fits *this particular sample* a little more closely.
+
+Here is the part that should bother you. Later in this chapter we add Test Anxiety, a real predictor with real theory behind it, and it raises $R^2$ by `r round(anxiety_gain, 3)`. Ten columns of pure noise raised it by `r round(staircase$R2[11] - staircase$R2[1], 3)`. Measured in raw $R^2$, garbage and theory bought roughly the same thing.
+
+The orange line is the first hint of a defense. **Adjusted $R^2$** charges rent for every predictor you take on, and by the tenth noise column it has sagged from `r round(staircase$AdjR2[1], 3)` to `r round(staircase$AdjR2[11], 3)`, below where it started. That is useful. It is also only a rule of thumb. It can tell you something smells wrong. It cannot tell you whether to believe a result.
+
+What you need is a way to ask the harder question: **when a model improves, did it improve by more than nothing would have?** That question has a distribution, a test, and a one-line R function, and it is what the rest of this chapter is for.
+
+*Adding a predictor always helps. That is precisely why "it helped" is not evidence.*
+
+## Where We Left Off, and the Question We Skipped
 
 In the previous chapter, we used **multiple regression** to predict exam performance from two predictors simultaneously: Study Hours and Test Anxiety. We learned that each predictor has a *unique* effect on exam scores, an effect that persists even after statistically controlling for the other predictor.
 
@@ -85,7 +141,7 @@ This approach is useful any time you have a specific question about the *increme
 
 Notice the phrase "above and beyond." That is the language of hierarchical regression. You are not just asking whether Test Anxiety predicts exam scores (it does; we know this from the simple regression). You are asking whether it adds *something new* to a model that already includes Study Hours.
 
-## Nested Models
+## Nested Models: Which Comparisons Are Even Legal
 
 To compare two models formally, they need to be **nested**. Two models are nested when the predictors in the simpler model are a *subset* of the predictors in the more complex model. In other words, the simpler model is contained inside the more complex one.
 
@@ -157,7 +213,50 @@ The question is: is this $\Delta R^2$ of `r round(r2_m3 - r2_m1, 3)` ($`r round(
 
 ## The F-Test for Model Comparison
 
-The tool we use to answer that question is an **F-test for model comparison**. It tests the null hypothesis that the added predictor(s) explain *zero additional variance in the population*, meaning the improvement in $R^2$ is nothing more than noise.
+To judge our gain we need to know what a *useless* predictor buys, and that is not a question we have to be clever about. We can hire five thousand useless predictors and watch what happens.
+
+### First, Look at What Nothing Buys
+
+```{r null distribution, echo=TRUE}
+set.seed(7)
+
+null_delta <- replicate(5000, {
+  d <- dat
+  d$Noise <- rnorm(nrow(d))                     # a predictor made of nothing
+  summary(lm(Exam ~ StudyHours + Noise, data = d))$r.squared - r2_m1
+})
+```
+
+```{r null distribution plot, fig.width=6.2, fig.height=3.6}
+#| fig-cap: "Five thousand $\\Delta R^2$ values, each from adding one column of random numbers to the Study Hours model. This is what a gain of nothing actually looks like. The dashed line is the gain Test Anxiety produced."
+#| fig-alt: "A histogram of five thousand delta R-squared values from noise predictors. The distribution is heavily right-skewed, piled up near zero and thinning out to the right, with almost nothing beyond 0.05. A dashed vertical line at 0.067, labelled as the observed gain from Test Anxiety, sits far out in the sparse right tail."
+
+ggplot(data.frame(delta = null_delta), aes(delta)) +
+  geom_histogram(bins = 60, fill = "grey75", colour = "white") +
+  geom_vline(xintercept = r2_m3 - r2_m1,
+             colour = "#D55E00", linewidth = 1.1, linetype = "dashed") +
+  annotate("text",
+           x = r2_m3 - r2_m1, y = Inf, hjust = -0.06, vjust = 1.8,
+           label = "Test Anxiety", colour = "#D55E00", size = 3.4) +
+  labs(
+    title = "What a Gain of Nothing Looks Like",
+    x = expression(paste(Delta, "R"^2, " from one predictor made of pure noise")),
+    y = "How often it happened"
+  ) +
+  theme_bw()
+```
+
+Not one of those five thousand columns knows anything about exam scores. The average one still bought `r round(mean(null_delta) * 100, 1)`% of the variance, and the luckiest of the five thousand bought `r round(max(null_delta) * 100, 1)`%. Nothing is never worth exactly nothing.
+
+This is why "my $R^2$ went up" is not a finding. The gain is always positive. The question is whether your gain lands further right than noise can comfortably reach, and the histogram tells you where that is: `r sprintf("%.1f", quantile(null_delta, 0.95) * 100)`% of variance is the point only one noise predictor in twenty ever beats.
+
+Our observed $\Delta R^2$ of `r round(r2_m3 - r2_m1, 3)` is the dashed line. Out of five thousand noise runs, `r sum(null_delta >= (r2_m3 - r2_m1))` of them beat it, which comes to $p =$ `r round(mean(null_delta >= (r2_m3 - r2_m1)), 4)`.
+
+Hold on to that number. We come back for it shortly.
+
+### The Test That Skips the Five Thousand Models
+
+Simulating five thousand models every time you want to check one predictor would make for long afternoons. The **F-test for model comparison** gets you the same answer from arithmetic. It tests the null hypothesis that the added predictor(s) explain *zero additional variance in the population*, meaning the improvement in $R^2$ is nothing more than noise.
 
 $$H_0: \Delta R^2 = 0 \text{ (Test Anxiety adds nothing beyond Study Hours)}$$
 $$H_1: \Delta R^2 > 0 \text{ (Test Anxiety adds meaningful predictive power)}$$
@@ -175,7 +274,7 @@ Where:
 
 The numerator captures how much new variance the added predictor explains *per additional parameter*. The denominator captures the average unexplained variance per residual degree of freedom, essentially the baseline "noise level" of the full model. If the ratio is large, the new predictor is explaining more variance than you would expect from noise. If the ratio is close to 1, the new predictor is not doing much better than chance.
 
-You do not need to compute this by hand. In R, the `anova()` function computes it for you when you feed it two nested models.
+You do not need to compute this by hand. In R, the `anova()` function computes it for you when you feed it two nested models. This is one of the rare occasions where statistics asks for less than you were braced for.
 
 ### Running the Comparison in R
 
@@ -191,6 +290,8 @@ Let's read this output carefully. The `anova()` output when comparing two models
 - **Pr(>F)**: the p-value for that F-statistic.
 
 The key row to focus on is the second one. That is where the comparison lives. The F-statistic tells you whether the drop in residual sum of squares (i.e., the gain in explained variance) between Model 1 and Model 3 is statistically significant.
+
+Now collect the number you were holding. The F-test reports $p =$ `r round(anova(Model.1, Model.3)$"Pr(>F)"[2], 4)`. The five thousand noise models reported `r round(mean(null_delta >= (r2_m3 - r2_m1)), 4)`. Those are not two methods that happen to agree. They are the same question, and the histogram is what the formula is a shortcut *for*. The formula just does not make you wait.
 
 ### This F Is a t You Have Already Met
 
@@ -341,11 +442,23 @@ This is particularly useful when you want to:
 - **Test a theoretical construct** measured by multiple items, rather than testing each item individually
 - **Evaluate competing theories** by building them into successive models and checking which block produces the largest gain in $R^2$
 
+It is also the tool that would have rescued me from the graph at the top of this chapter. Those ten columns of random numbers are a block. Enter them as one and test them properly:
+
+```{r junk block test, echo=TRUE}
+Model.Junk <- lm(Exam ~ ., data = junk_dat)   # Study Hours + ten columns of noise
+
+anova(Model.1, Model.Junk)
+```
+
+Ten predictors, `r round(staircase$R2[11] - staircase$R2[1], 3)` of extra $R^2$, and $p =$ `r round(anova(Model.1, lm(Exam ~ ., data = junk_dat))$"Pr(>F)"[2], 3)`. Compare that with Test Anxiety: one predictor, a gain of almost exactly the same size, $p =$ `r round(anova(Model.1, Model.3)$"Pr(>F)"[2], 4)`. The staircase went up either way. Only one of them survived being asked to justify itself.
+
 ## What Not to Do: The Danger of "Fishing"
 
 Hierarchical regression is a tool for **theory-driven** model building. The order in which you enter predictors should be decided *before* you look at the results, based on your understanding of the literature and your hypotheses.
 
 It is tempting to try many different orderings and report the one that looks best. This is a form of "fishing," running multiple comparisons in the hope of finding a significant result, and it inflates the Type I error rate. If you run 20 model comparisons, you should expect one of them to be "significant" by chance at the $p < .05$ threshold, even if nothing is real.
+
+You have already seen the machinery that makes this work. That histogram of noise gains had a right tail, and the luckiest of the five thousand junk predictors bought `r round(max(null_delta) * 100, 1)`% of the variance, comfortably more than our real predictor did. Reordering your blocks until something turns significant is not analysis. It is drawing from that tail until you like what you get.
 
 The safe approach: decide on your model sequence based on theory, pre-register it if you can, and report all models you tested, not just the one that "worked."
 
@@ -376,6 +489,7 @@ $\Delta R^2$ belongs to a particular sequence of models. Enter predictors in an 
 
 ## The Short Story
 
+- **Raw $R^2$ always goes up.** Ten columns of random numbers raised it about as much as the real predictor did. Every test in this chapter exists because of that one fact.
 - **Nested** means the simpler model's predictors are a subset of the bigger model's. Only nested models can be compared this way.
 - **$\Delta R^2$** is the variance the new predictor explains that nothing already in the model could reach. Region $b$. The next chapter calls the same quantity $sr^2$.
 - **The F-test** asks whether that gain beats sampling noise. Add exactly one predictor and it equals the square of that predictor's $t$ in the full model.
