@@ -87,7 +87,7 @@ dat <- data.frame(
 round(cor(dat[c("StudyHours", "Anxiety", "Exam")]), 2)
 ```
 
-## The Ballantine, Now Made Fresh in R
+## The Ballantine, Now Made Fresh
 
 The circles below represent variance. The overlapping portions represent shared variance. This diagram is called a **Ballantine** because apparently three overlapping circles needed a name, and statisticians had already used "Venn diagram" for something fun at parties.
 
@@ -501,9 +501,6 @@ All three slopes equal about `r round(coef(full_model)["StudyHours"], 2)` Exam S
 
 This is not a coincidence. The Study Hours coefficient in multiple regression is built from the Study Hours variation that Anxiety cannot linearly explain. This result is sometimes called the **Frisch–Waugh–Lovell theorem**, which is an impressive name for "residualize the relevant pieces and you recover the same slope."
 
-<!-- ---Alex--- CH14-P01. Verified by running: slopes all 1.4149; standard errors 0.3693
-     (full), 0.4056 (semi-partial route), 0.3674 (partial route); residual df 97 versus 98
-     and 98. So the shortcut regressions really are one df richer than they have earned. -->
 One caution before someone reports the wrong t-value. The **slopes** match. The standard errors and t-tests from these shortcut regressions do not, because those regressions do not know that Anxiety already spent a degree of freedom. Report your inference from the full model. Use the residualized regressions to *understand* where that slope came from.
 
 The practical interpretation is:
@@ -560,15 +557,16 @@ Beta, $sr$, and $pr$ have the same sign here and test the same unique predictor 
 For a strict correlation question involving one outcome, one target predictor, and a control variable, the `ppcor` package can verify our work:
 
 ```{r ppcor-shortcut, eval=FALSE}
+library(ppcor)
 # Semi-partial: remove Anxiety from the SECOND variable, StudyHours
-ppcor::spcor.test(
+spcor.test(
   x = dat$Exam,
   y = dat$StudyHours,
   z = dat$Anxiety
 )
 
 # Partial: remove Anxiety from both Exam and StudyHours
-ppcor::pcor.test(
+pcor.test(
   x = dat$Exam,
   y = dat$StudyHours,
   z = dat$Anxiety
