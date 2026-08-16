@@ -5,9 +5,13 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.8, 2026-08-16. **v1.8 adds the em-dash density target to §14, after Alex read
+> Status: v1.9, 2026-08-16. **v1.9 updates §14's numbers after the chapters 14+15 pass:
+> Hierarchical Regression is fixed (9.48 to 0.30), and the counting script's baseline moved,
+> so every number written before 2026-08-16 reads about two dashes high. Read the note under
+> the table before comparing against an old figure.**
+> v1.8 added the em-dash density target to §14, after Alex read
 > chapters 10–13 and found them dash-heavy compared with Part 1. The "no new em-dashes" rule
-> was not enough on its own, because nobody was counting. There is now a script and a number.**
+> was not enough on its own, because nobody was counting. There is now a script and a number.
 > v1.7 added §15, the chapter-opening spec, and §16, five moves
 > and one register recovered from Alex's own edit pass on Chapter 10. This is the second
 > version calibrated against Alex rewriting the model's output, and the first calibrated
@@ -551,13 +555,26 @@ of prose (code chunks and table rules excluded). Calibration from the book itsel
 
 | Chapter | per 1k | verdict |
 |---|---|---|
-| Power, Independent t, Paired t, Covariance | 0.47–0.72 | the mature voice |
-| One-Sample t | 1.20 | fine |
+| Power, Independent t, Paired t, Covariance | 0.18–0.36 | the mature voice |
+| One-Sample t | 1.00 | fine |
 | Multiple Regression *before* the fix | 6.32 | ten times the target |
-| Hierarchical Regression | 9.48 | worst in the book, still outstanding |
+| Hierarchical Regression *before* the fix | 9.48 | was the worst in the book |
+| Hierarchical Regression *after* | 0.30 | fixed 2026-08-16, 26 dashes to zero |
 
 **Target 1.2 or below. Treat anything above 1.5 as needing a pass.** After the 2026-08-16
-sweep, chapters 11, 12 and 13 sit at 0.85, 1.07 and 0.47.
+sweeps, chapters 11, 12, 13, 14 and 15 sit at 0.56, 0.80, 0.23, 0.41 and 0.30.
+
+**The script's baseline moved on 2026-08-16, so old numbers read about two dashes high.**
+`check_render_safety.R` now strips HTML comments and the YAML fences before counting. It used
+to count both, which meant every chapter carried a phantom 2 from its own `--- title ---`
+block, and a chapter carrying three `<!-- ---Alex--- -->` notes reported a false spike of 6 on
+top of that. A file with genuinely zero em-dashes now reports 1, not 0: the opening fence has
+no newline in front of it and survives the strip. **Treat 1 as the floor, not as a finding.**
+If you are comparing against a number written before that date, subtract about 2.
+
+The two remaining offenders are `Chapter_Distro_Moments` at 6.45 (Part 1, finished, leave it
+unless Alex asks) and `Chapter_CatXCat_Interaction` at 5.35 (chapter 17, belongs to the 16+17
+session).
 
 The house form is `---` (three hyphens), not the literal `—` character. Both count.
 

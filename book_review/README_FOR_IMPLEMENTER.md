@@ -21,7 +21,37 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## Status as of 2026-08-15 (read before starting Part 2)
+## Status as of 2026-08-16 (read before starting Part 2)
+
+**Chapters 14 and 15 are done.** Every item in both is implemented or explicitly marked as
+needing no change: CH15-P01, P02, U01 and CH14-B01, P01, U01. Alex has not read them yet.
+
+Three things from that session the next one needs:
+
+- **CH15-P02 was implemented in the opposite direction from its text**, and any item written
+  before the reorder may have the same defect. The item said "you met this in the Control
+  chapter"; Control is now the chapter *after* Hierarchical, so it became a forward pointer.
+  Before implementing any Part 2 item that references another chapter, check the order in
+  `_quarto.yml` rather than trusting the item.
+- **The em-dash cleanups are down to one.** Hierarchical Regression went from 9.48 per 1000
+  words to the floor. `Chapter_CatXCat_Interaction` at 5.35 is the last one outstanding and
+  belongs to the 16+17 session. `Chapter_Distro_Moments` at 6.45 is Part 1 and finished, so
+  leave it unless Alex asks.
+- **`check_render_safety.R` counts differently now.** It strips HTML comments and the YAML
+  fences, so every chapter's number dropped by about two and a clean file reports 1 rather
+  than 0. Treat 1 as the floor. This was fixed because three `---Alex---` notes in a chapter
+  used to produce a false em-dash spike of 6, which would have sent the next session chasing
+  dashes that did not exist.
+
+**Left for Alex on chapters 14 and 15:** three `---Alex---` notes, all in
+`Chapter_Hierarchical_Regression.qmd`, plus one in `Chapter_Control.qmd` recording the
+verified FWL standard errors. The biggest one is a scope flag, not an edit: **Chapter 15
+reads dryer than anything else in Part 2.** About 3,000 words carrying two jokes, no figure
+until three quarters of the way down, and an opening that recaps rather than showing
+anything. By the preface's own contract that is a breach, the same one Chapter 10's middle
+had. No approved item covers it, so nothing was changed. It wants its own voice pass.
+
+## Status as of 2026-08-15
 
 **Part 1 is finished.** Every approved item in `01`–`09` is implemented and marked. Do not
 re-open those chapters except on Alex's instruction.
@@ -32,22 +62,24 @@ ticked them all on 2026-08-15), so approval is no longer the gate.
 **Chapters 10–13 have been through Alex's own edit pass and a follow-up cleanup** (2026-08-16):
 grammar, em-dash reduction, and a render-safety sweep. Treat them as done.
 
-**Two dash cleanups are outstanding and belong to whoever next opens those files:**
+**Two dash cleanups were outstanding here. One is done; see the 2026-08-16 block above.**
 
-- `Chapter_Hierarchical_Regression.qmd` is at **9.48** em-dashes per 1000 words, the worst in
-  the book. It is chapter 15, so the 14+15 session should fix it as part of that pass.
-- `Chapter_Distro_Moments.qmd` is at **6.69** and `Chapter_CatXCat_Interaction.qmd` at **5.60**.
-  Distro_Moments is Part 1 and finished, so leave it unless Alex asks; CatXCat is chapter 17
-  and should be fixed in the 16+17 session.
+- `Chapter_Hierarchical_Regression.qmd` was at **9.48** em-dashes per 1000 words, the worst in
+  the book. **Fixed 2026-08-16** in the 14+15 pass.
+- `Chapter_Distro_Moments.qmd` is at **6.69** and `Chapter_CatXCat_Interaction.qmd` at **5.60**
+  (old baseline; subtract about 2 for the current script). Distro_Moments is Part 1 and
+  finished, so leave it unless Alex asks; CatXCat is chapter 17 and should be fixed in the
+  16+17 session.
 
-**Remaining Part 2 work: chapters 14, 15, 16, 17, 18.** Suggested grouping, and the reasoning
-matters more than the grouping:
+**Remaining Part 2 work: chapters 16, 17, 18.** Chapters 14 and 15 are done. Suggested
+grouping, and the reasoning matters more than the grouping:
 
-- **14 (Control) + 15 (Hierarchical) together.** They are joined by one identity: CH15-P02
-  asks for the callback that $\Delta R^2$ *is* the $sr^2$ from the Control chapter, computed on
-  the same data. Doing them in one session is how that stays consistent. Note the reorder put
-  Hierarchical *before* Control, so Control is now the payoff chapter and Hierarchical is where
-  the reader first meets $\Delta R^2$. CH15-B01 is already moot.
+- ~~**14 (Control) + 15 (Hierarchical) together.**~~ **Done 2026-08-16.** They were joined by
+  one identity: CH15-P02 asks for the connection that $\Delta R^2$ *is* the $sr^2$ from the
+  Control chapter, computed on the same data. Doing them in one session is how that stayed
+  consistent, and it is how the direction error in the item got caught. Note the reorder put
+  Hierarchical *before* Control, so Control is the payoff chapter and Hierarchical is where
+  the reader first meets $\Delta R^2$. CH15-B01 was already moot.
 - **16 (Interaction) + 17 (CatXCat) together.** CH16-P01 and CH17-P02 are the *same* bug: the
   DV is a 0–100 closeness thermometer but both chapters keep calling it a count of friends.
   Fixing it in one and not the other leaves the book contradicting itself. These are also the
