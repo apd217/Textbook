@@ -35,7 +35,7 @@ library(gridExtra)
 
 ## Where We Are and Where We Are Going
 
-So far in this course, you have learned to build regression models where each predictor has its own independent, additive effect on the outcome. Study hours helps exam scores. Test anxiety hurts them. Each predictor does its job, and we can interpret the effects one at a time.
+So far in this book, you have learned to build regression models where each predictor has its own independent, additive effect on the outcome. Study hours helps exam scores. Test anxiety hurts them. Each predictor does its job, and we can interpret the effects one at a time.
 
 But human behavior is rarely that tidy. In the real world, the effect of one variable often *changes* depending on the value of another variable. A new medication might be effective for women but not men. Praise for effort might motivate some students while leaving others cold. Practice might matter enormously for novices but very little for experts.
 
@@ -161,7 +161,7 @@ So an interaction model is essentially a formalized, simultaneous, significance-
 
 ### Centering: Making Zero Meaningful
 
-You have seen the intercept in every regression model we have run in this course, and you know it means "the predicted value of Y when X = 0." That definition is simple enough. The problem is that zero is not always a meaningful value.
+You have seen the intercept in every regression model we have run in this book, and you know it means "the predicted value of Y when X = 0." That definition is simple enough. The problem is that zero is not always a meaningful value.
 
 In our friendship study, *Being Nice* is measured on a 0–10 scale. Zero means "not nice at all," a real value technically, but one that describes an essentially sociopathic person who presumably does not exist in our sample. When our regression model reports an intercept, it is making a prediction for a hypothetical person with zero niceness. That is not a very interesting or useful prediction.
 
@@ -171,7 +171,7 @@ Now consider what happens when we build an interaction model. The intercept will
 
 The process is simple: subtract the mean.
 
-$$X_c = X - X_{Mean}$$
+$$X_c = X - M$$
 
 After centering:
 
@@ -183,9 +183,9 @@ The scale is shifted, but nothing else changes. The **distances between people a
 
 **Important distinction: centering is not the same as standardizing.**
 
-You may recall from earlier in the course that we can also *standardize* (or *z-score*) a variable by subtracting the mean *and* dividing by the standard deviation:
+You may recall from earlier in the book that we can also *standardize* (or *z-score*) a variable by subtracting the mean *and* dividing by the standard deviation:
 
-$$X_z = \frac{X - X_{Mean}}{S}$$
+$$Z = \frac{X - M}{S}$$
 
 Standardizing changes the units of the variable: a standardized coefficient represents the change in Y for a one-standard-deviation increase in X. Centering does **not** change the units: a centered coefficient still represents the change in Y for a one-unit increase in X. In this chapter, we will only center, not standardize. We want to preserve the original units of our scale (a one-point increase in niceness = one point) while simply making zero mean "the average person."
 
