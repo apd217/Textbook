@@ -761,7 +761,8 @@ We can use the `GGally` package to plot Pearson correlations quickly in an easy 
 #| fig-alt: "A four-by-four grid comparing happiness, ice cream, sprinkles, and Oreos. The diagonal shows each variable's density curve, the lower triangle shows scatterplots with fitted lines, and the upper triangle shows the correlation for each pair."
 library(GGally)
 CorrPlot <- ggpairs(CorrData2,
-              lower = list(continuous = "smooth"))
+              lower = list(continuous = "smooth")) + 
+  theme_bw()
 CorrPlot
 ```
 
@@ -784,6 +785,13 @@ Those asterisks next to each correlation are the significance stars from the [on
 | nothing | above .10 |
 
 Now go back and count how few of those cells are anywhere near zero. This is where Meehl's crud factor stops being a quotation and becomes a picture. In real data these cells are rarely empty, and a matrix like this one is where most fishing expeditions begin: run enough pairs and something will eventually look publishable.
+
+Here is what that code asks R to do:
+
+- `ggpairs()` builds a matrix containing every pair of variables. 
+- `CorrData2` is the data frame whose variables enter the matrix.
+- `lower = list(continuous = "smooth")` places scatterplots and fitted smooth lines in the lower triangle.
+- `theme_bw()` removes some visual clutter so the relationships are easier to inspect.
 
 ## The Short Story
 

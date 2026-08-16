@@ -23,24 +23,24 @@ This is that chapter.
 
 The question is genuinely strange the first time you meet it. Regression multiplies a predictor by a slope, and you cannot multiply "Texting" by 0.34. So how does a model built entirely out of arithmetic handle a variable whose values are words?
 
-The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something quietly excellent falls out: the t-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.
+The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something quietly excellent falls out: the *t*-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.
 
 ## Distracted Driving
 
-Driving requires constant attention. When something unexpected happens—such as a car braking suddenly—you must react quickly. Psychologists studying attention have shown that distractions slow reaction time. One of the most dangerous distractions is texting while driving.
+Driving requires constant attention. When something unexpected happens---such as a car braking suddenly—you must react quickly. Psychologists studying attention have shown that distractions slow reaction time. One of the most dangerous distractions is texting while driving.
 
-The data in this chapter are simulated. Do not reproduce the study by handing undergraduates phones, placing them in actual traffic, and chasing the car with a chainsaw to improve ecological validity. Use a simulator and an ethics-approved protocol. The Institutional Review Board enjoys fewer surprises than the Probability Gods.
+The data in this chapter are simulated. Do not reproduce the study by handing undergraduates phones, placing them in actual traffic, and chasing the car with a bat to improve ecological validity seen in city style road rage. Use a simulator and an ethics-approved protocol. The Institutional Review Board enjoys fewer surprises than the Probability Gods.
 
-In this example we examine **braking reaction time** (seconds) under different driving conditions
+In this example we examine **braking reaction time** (seconds) under different driving conditions.
 
-Reaction time is measured in seconds. Larger values indicate slower reactions.
+Reaction time is measured in seconds. Larger values indicate slower reactions (which is bad).
 
 ### Dummy Coding
 
 When a predictor is categorical, regression cannot use the labels directly.  
 Regression requires numbers, so the categories must be translated into numeric variables. 
 
-This process is called **dummy coding**. It is the most common coding scheme, and the **default used by R** whenever it detects a factor.
+This process is called **dummy coding**. *Who are you calling a dummy? The coding scheme not the coder.* It is the most common coding scheme, and the **default used by R** whenever it detects a factor.
 
 ### Dummy Coding Details
 
@@ -78,7 +78,7 @@ dat2 <- data.frame(Condition, RT)
 
 We have two driving conditions (and predict):
 
-| Condition | Reaction Time |
+| Condition | Reaction Time Prediction |
 |-----------|---------------|
 | No distraction | faster |
 | Texting | slower |
@@ -95,7 +95,7 @@ Here:
 - **0 represents the reference group**
 - **1 represents the comparison group**
 
-So the dummy variable indicates whether a driver is texting.
+So the dummy variable indicates whether a driver is texting. Note: We usually put the 1 on our experimental group. 
 
 ### How This Connects to Regression
 
@@ -117,16 +117,32 @@ For **No Distraction**:
 $C_1 = 0$
 
 $$
+RT = b_0 + b_10
+$$
+
+Which simplifies to
+
+$$
 RT = b_0
 $$
+
+- the **intercept (b_0) equals the mean reaction time for No Distraction**
 
 For **Texting**:
 
 $C_1 = 1$
 
 $$
+RT = b_0 + b_11
+$$
+
+Which simplifies to
+$$
 RT = b_0 + b_1
 $$
+
+- the **slope ($b_1$) coefficient represents the difference between Texting and No Distraction**
+
 
 So the regression coefficients directly reproduce the group means.
 
@@ -147,7 +163,7 @@ dat2$Condition <- factor(dat2$Condition,
 
 Because `"No Distraction"` appears first, it becomes the **reference group**.
 
-This means:
+When we get our regression output from R you see it as:
 
 - the **intercept equals the mean reaction time for No Distraction**
 - the **ConditionTexting coefficient represents the difference between Texting and No Distraction**
@@ -185,7 +201,7 @@ dat2 %>%
 This gives us a quick summary of how reaction time differs across the two driving conditions.
 
 
-### Run the Independent Samples t-test
+### Run the Independent Samples *t*-test
 
 Next we test whether the difference between groups is statistically significant.
 
@@ -207,7 +223,9 @@ Reminder:
 Finally, we format the results in **APA style** using the `apa` package.
 
 ```{r ttest-apa, echo=TRUE}
-apa(texting.ttest)
+apa(texting.ttest, format="rmarkdown") 
+#Note: format can also be "text", "markdown", "rmarkdown", "html", "latex" or "docx"
+#I have to use rmarkdown cause of how I created this chapter. You might use use "text"
 ```
 
 ### APA write up
@@ -229,7 +247,7 @@ Drivers who texted while driving had significantly slower reaction times ($M =$ 
 **Small note**: the negative sign on $t$ simply reflects the order of subtraction (No Distraction minus Texting).
 
 ::: {.callout-warning title="A d of 2.6 Should Be Making You Suspicious"}
-By now you have read the power chapter, so that effect size should raise an eyebrow. Real texting-while-driving effects are large, which is exactly why it is illegal, but they are not science-fiction large. Published estimates sit closer to $d$ of 0.5 to 1.
+By now you have read the power chapter, so that effect size should raise an eyebrow. Real texting---while-driving effects are large, which is exactly why it is illegal, but they are not science-fiction large. Published estimates sit closer to $d$ of 0.5 to 1.
 
 I built this simulation to make the pictures come out clean. Simulated data lies politely, and it will happily calibrate your intuitions to a world that does not exist.
 :::
@@ -257,9 +275,9 @@ The sign flip is bookkeeping: `t.test()` subtracted in the order No Distraction 
 
 - The regression slope **is** the difference between the group means.
 - Its standard error **is** the pooled standard error of that difference.
-- Dividing one by the other is precisely what the t-test did.
+- Dividing one by the other is precisely what the *t*-test did.
 
-One condition on that equivalence, and it is worth naming. It holds because we ran the t-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student t-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
+One condition on that equivalence, and it is worth naming. It holds because we ran the t-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student *t*-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
 
 The regression equation is
 
@@ -437,9 +455,9 @@ $$
 If $b_1$ is significantly different from zero, the two groups have different mean reaction times.
 
 
-### Comparison to t-test
+### Comparison to *t*-test
 
-Even though the output may look similar to a t-test, the comparison is now being computed **within the regression framework**.
+Even though the output may look similar to a *t*-test, the comparison is now being computed **within the regression framework**.
 
 The means and the group comparison are both derived directly from the fitted regression model.
 
@@ -548,9 +566,9 @@ Conceptually this looks like:
 | Lecture | 0 | 1 |
 
 
-### Multiple t-tests Problem
+### Multiple *t*-tests Problem
 
-If we used t-tests, we would need three comparisons:
+If we used *t*-tests, we would need three comparisons:
 
 1. No distraction vs texting  
 2. No distraction vs lecture  
@@ -655,7 +673,7 @@ Texting = 1
 Lecture = 0
 
 $$
-RT = b_0 + b_1
+RT = b_0 + b_11 + b_20 
 $$
 
 Substituting the coefficients:
@@ -679,7 +697,7 @@ Texting = 0
 Lecture = 1
 
 $$
-RT = b_0 + b_2
+RT = b_0 + b_10 + b_21 
 $$
 
 Substituting the coefficients:
