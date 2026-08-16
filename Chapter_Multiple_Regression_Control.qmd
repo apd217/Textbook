@@ -29,7 +29,7 @@ People are complicated. When a student does well on an exam, is it because they 
 
 So far we've used **simple linear regression** (1 DV, 1 IV). But real prediction involves multiple factors at once. **Multiple regression** lets us predict an outcome from two or more predictors simultaneously.
 
-The key concept: **statistical control**---estimating the association between X and Y while *holding other measured variables constant*. This lets us ask not just "does studying predict performance?" but "does studying predict performance **above and beyond** what anxiety alone explains?"
+The key concept: **statistical control**: estimating the association between X and Y while *holding other measured variables constant*. This lets us ask not just "does studying predict performance?" but "does studying predict performance **above and beyond** what anxiety alone explains?"
 
 Without statistical control, you can't untangle those two things. With multiple regression, you can.
 
@@ -44,7 +44,7 @@ You recruit 100 undergraduate students and collect these measures before a major
 
 ### The Complication: Our Two Predictors Are Correlated
 
-Here is the twist. It turns out that Study Hours and Test Anxiety are **not independent of each other**. Students who study more tend to feel *less* anxious---perhaps because preparation builds confidence, or because anxious students have trouble sitting down to study in the first place.
+Here is the twist. It turns out that Study Hours and Test Anxiety are **not independent of each other**. Students who study more tend to feel *less* anxious, perhaps because preparation builds confidence, or because anxious students have trouble sitting down to study in the first place.
 
 This means:
 
@@ -124,9 +124,9 @@ The plot is compact because each variable takes a turn as both an x-axis and a y
 
 You can see all three correlations in the scatterplots:
 
-- **Bottom left:** Study Hours and Test Anxiety slope downward -- students who study more tend to be less anxious.
-- **Bottom middle:** Test Anxiety and Exam Score slope downward -- more anxious students tend to score lower.
-- **Bottom right:** Study Hours and Exam Score slope upward -- more studying is associated with higher scores.
+- **Bottom left:** Study Hours and Test Anxiety slope downward, so students who study more tend to be less anxious.
+- **Bottom middle:** Test Anxiety and Exam Score slope downward, so more anxious students tend to score lower.
+- **Bottom right:** Study Hours and Exam Score slope upward, so more studying is associated with higher scores.
 
 ## Understanding Overlapping Variance
 
@@ -134,9 +134,9 @@ Before we run the multiple regression, we need to understand *why* having two co
 
 ### The Venn Diagram Approach
 
-When you use simple regression with a single predictor, things are straightforward: X either predicts Y or it does not. We can visualize this as two circles --- one for X and one for Y --- where the *overlap* represents the shared variance between them. As you already know, that overlap, when squared, gives us $R^2$.
+When you use simple regression with a single predictor, things are straightforward: X either predicts Y or it does not. We can visualize this as two circles, one for X and one for Y, where the *overlap* represents the shared variance between them. As you already know, that overlap, when squared, gives us $R^2$.
 
-When we add a second predictor, things get more interesting. Now we have three circles---X1, X2, and Y---and some of the circles overlap with each other:
+When we add a second predictor, things get more interesting. Now we have three circles (X1, X2, and Y), and some of the circles overlap with each other:
 
 ```{r ballantine-overlap}
 #| fig-alt: "Three overlapping circles labelled Study Hours, Test Anxiety, and Exam Score. The overlaps between each predictor and the outcome are labelled a and b, and the region where all three overlap is labelled c."
@@ -176,7 +176,7 @@ In this diagram, we can label four distinct regions:
 
 - **Region a** = variance in Y that is **uniquely explained by X1** (Study Hours), above and beyond X2.
 - **Region b** = variance in Y that is **uniquely explained by X2** (Test Anxiety), above and beyond X1.
-- **Region c** = variance in Y that **both X1 and X2 share**---neither predictor can claim exclusive credit for this part.
+- **Region c** = variance in Y that **both X1 and X2 share**. Neither predictor can claim exclusive credit for this part.
 - **Region e** = variance in Y that is **unexplained** by either predictor (residual error).
 
 The total variance in Y explained by the model is $a + b + c$.
@@ -223,9 +223,9 @@ The equation looks very similar to simple regression. But the **interpretation o
 
 In simple regression, $B_1$ tells you: *"For each one-unit increase in X, how much does Y change?"*
 
-In multiple regression, $B_1$ tells you something more precise: *"For each one-unit increase in X1, how much does Y change---**among people who have the same value of X2**?"*
+In multiple regression, $B_1$ tells you something more precise: *"For each one-unit increase in X1, how much does Y change, **among people who have the same value of X2**?"*
 
-This is what **statistical control** means. The slope for Study Hours in our multiple regression model describes the Study Hours–Exam association *as if we were comparing students at the same anxiety level.* We are estimating that association after holding anxiety **constant** --- or equivalently, after **controlling for** anxiety.
+This is what **statistical control** means. The slope for Study Hours in our multiple regression model describes the Study Hours–Exam association *as if we were comparing students at the same anxiety level.* We are estimating that association after holding anxiety **constant**, or equivalently, after **controlling for** anxiety.
 
 Think of it this way: imagine sorting all 100 students into groups based on their anxiety score. Within the low-anxiety group, every student has roughly the same anxiety, so exam differences cannot be attributed to measured anxiety differences inside that group. They may be associated with study hours, or with other variables we did not measure. Now imagine doing the same thing for the medium-anxiety group and the high-anxiety group. Multiple regression performs a continuous version of this comparison for every value of Anxiety to isolate the unique predictive contribution of Study Hours.
 
@@ -233,7 +233,7 @@ Think of it this way: imagine sorting all 100 students into groups based on thei
 
 ## Running the Analysis in R
 
-Let's run the analysis step by step. We will start with simple regression for each predictor alone, then combine them. This approach lets you see exactly what changes---and why---when you add the second predictor.
+Let's run the analysis step by step. We will start with simple regression for each predictor alone, then combine them. This approach lets you see exactly what changes, and why, when you add the second predictor.
 
 ### Step 1: Study Hours Alone
 
@@ -274,7 +274,7 @@ summary(Model.3)
 
 Let's work through what changed when we added both predictors.
 
-### The Slopes Have Shrunk --- Why?
+### The Slopes Have Shrunk. Why?
 
 Compare the slope estimates across all three models:
 
@@ -285,7 +285,7 @@ Compare the slope estimates across all three models:
 
 **Both slopes are smaller in absolute value** when the two predictors are in the model together. This is exactly what the Venn diagram predicts. Here is why:
 
-When Study Hours was the *only* predictor (Model 1), its prediction included region $a$ *and* region $c$ --- its unique association with exam performance plus variance shared with Anxiety. Once both predictors enter Model 3, the Study Hours coefficient is based on Study Hours variation that Anxiety does not linearly predict. Region $c$ still contributes to the model's overall $R^2$, but neither coefficient can claim it as uniquely its own.
+When Study Hours was the *only* predictor (Model 1), its prediction included region $a$ *and* region $c$: its unique association with exam performance plus variance shared with Anxiety. Once both predictors enter Model 3, the Study Hours coefficient is based on Study Hours variation that Anxiety does not linearly predict. Region $c$ still contributes to the model's overall $R^2$, but neither coefficient can claim it as uniquely its own.
 
 The same logic applies in reverse: Anxiety's slope shrinks from `r round(Model.2$coefficients[2], 3)` to `r round(Model.3$coefficients[3], 3)` because some of its bivariate association with Exam Score overlaps with lower Study Hours.
 
@@ -345,7 +345,7 @@ cat("Model 3 (Both predictors):  R-squared =", round(r2_model3, 3), "\n")
 
 The full model ($R^2 =$ `r round(r2_model3, 3)`) explains more variance than either predictor alone. But notice something: the combined model does **not** explain as much as the simple sum of the two individual $R^2$ values (`r round(r2_model1, 3)` + `r round(r2_model2, 3)` = `r round(r2_model1 + r2_model2, 3)`). Why not?
 
-Go back to the Venn diagram. When Study Hours was the only predictor, it explained regions $a + c$. When Anxiety was the only predictor, it explained regions $b + c$. Together, they explain regions $a + b + c$. But notice that region $c$ was already counted in Model 1's $R^2$. Adding Anxiety on top of Study Hours can only add region $b$ to what was already explained --- it cannot double-count region $c$.
+Go back to the Venn diagram. When Study Hours was the only predictor, it explained regions $a + c$. When Anxiety was the only predictor, it explained regions $b + c$. Together, they explain regions $a + b + c$. But notice that region $c$ was already counted in Model 1's $R^2$. Adding Anxiety on top of Study Hours can only add region $b$ to what was already explained. It cannot double-count region $c$.
 
 This is why $R^2$ does not add up neatly when predictors are correlated. The combined model explains more than either predictor alone, but less than the naive sum of their individual $R^2$ values.
 
@@ -374,9 +374,9 @@ cat("Total R-squared:                 ", round(r2_model3, 3), "\n")
 
 In our data:
 
-- Study Hours has about `r round(region_a * 100, 1)`% unique variance in exam scores --- its unique predictive contribution after accounting for anxiety (region $a$).
-- Anxiety has about `r round(region_b * 100, 1)`% unique variance --- its unique predictive contribution after accounting for study hours (region $b$).
-- About `r round(region_c * 100, 1)`% of the variance in exam scores is shared between the two predictors --- variance that both contribute to together, but neither can claim exclusively (region $c$).
+- Study Hours has about `r round(region_a * 100, 1)`% unique variance in exam scores, its unique predictive contribution after accounting for anxiety (region $a$).
+- Anxiety has about `r round(region_b * 100, 1)`% unique variance, its unique predictive contribution after accounting for study hours (region $b$).
+- About `r round(region_c * 100, 1)`% of the variance in exam scores is shared between the two predictors: variance that both contribute to together, but neither can claim exclusively (region $c$).
 
 This numerical breakdown puts the Venn diagram concept in concrete terms. The **squared semi-partial correlations** correspond directly to regions $a$ and $b$. The regression slopes are based on the same unique predictor variation, but express the expected outcome change in Exam Score units.
 
@@ -388,9 +388,9 @@ You did not. A negative $c$ means the two predictors are doing something called 
 
 ### Adding Predictors Always Increases R^2
 
-There is an important quirk about $R^2$: it will **always increase** when you add another predictor to the model---even if that predictor is completely useless random noise. This is simply because any variable, no matter how irrelevant, will share at least a tiny sliver of variance with Y by chance in any given sample.
+There is an important quirk about $R^2$: it will **always increase** when you add another predictor to the model, even if that predictor is completely useless random noise. This is simply because any variable, no matter how irrelevant, will share at least a tiny sliver of variance with Y by chance in any given sample.
 
-This means if you kept piling more and more predictors into a model, $R^2$ would keep creeping upward---not because those predictors were genuinely meaningful, but just because of sampling variability.
+This means if you kept piling more and more predictors into a model, $R^2$ would keep creeping upward, not because those predictors were genuinely meaningful, but just because of sampling variability.
 
 ### Adjusted R^2
 
@@ -423,7 +423,7 @@ People commonly report **both** $R^2$ and adjusted $R^2$. Raw $R^2$ describes th
 
 Tables of numbers are useful, but plots help build intuition. Let's visualize what is happening.
 
-### The Study Hours Slope---Before and After Controlling
+### The Study Hours Slope Before and After Controlling
 
 This first pair of plots shows the predicted relationship between Study Hours and Exam Score in the two models. The key question is: how does the slope change when we control for Anxiety?
 
@@ -465,7 +465,7 @@ Be careful about what the controlled slope is, though. It answers the **conditio
 
 What it is *not* is more **precise**. Precision means the standard error, and here the controlled slope's standard error is slightly *larger* than the uncontrolled one. That is the normal pattern: correlated predictors share information, and the more of it they share, the less each one is separately pinned down. A later chapter measures exactly this with something called *variance inflation*.
 
-### The Anxiety Slope --- Before and After Controlling
+### The Anxiety Slope Before and After Controlling
 
 ```{r plot anxiety before, echo=TRUE, fig.width=9, fig.height=3.6}
 #| fig-cap: "The Anxiety slope, before and after controlling for Study Hours. Same y-axis again."
@@ -518,11 +518,11 @@ plot_model(
 
 Each line represents students at a different anxiety level: low anxiety (40), average anxiety (50), and high anxiety (60). Notice:
 
-- **More studying always helps** --- all three lines slope upward, regardless of anxiety level.
-- **Higher anxiety always hurts** --- the lines are shifted downward for higher-anxiety students.
-- **The lines are parallel** --- the predicted difference associated with each additional study hour is the same at every anxiety level. This is what it means for the terms to be **additive** in our model: the model contains separate Study Hours and Anxiety slopes but no interaction between them.
+- **More studying always helps**: all three lines slope upward, regardless of anxiety level.
+- **Higher anxiety always hurts**: the lines are shifted downward for higher-anxiety students.
+- **The lines are parallel**: the predicted difference associated with each additional study hour is the same at every anxiety level. This is what it means for the terms to be **additive** in our model: the model contains separate Study Hours and Anxiety slopes but no interaction between them.
 
-This plot gives you a visual intuition for what "controlling for" means: the slope of each line within one anxiety group represents the Study Hours association holding Anxiety constant --- exactly what the multiple regression coefficient estimates.
+This plot gives you a visual intuition for what "controlling for" means: the slope of each line within one anxiety group represents the Study Hours association holding Anxiety constant, exactly what the multiple regression coefficient estimates.
 
 ## A Note on What Did Not Change
 

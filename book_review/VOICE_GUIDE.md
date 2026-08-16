@@ -5,7 +5,10 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.7, 2026-08-15. **v1.7 adds §15, the chapter-opening spec, and §16, five moves
+> Status: v1.8, 2026-08-16. **v1.8 adds the em-dash density target to §14, after Alex read
+> chapters 10–13 and found them dash-heavy compared with Part 1. The "no new em-dashes" rule
+> was not enough on its own, because nobody was counting. There is now a script and a number.**
+> v1.7 added §15, the chapter-opening spec, and §16, five moves
 > and one register recovered from Alex's own edit pass on Chapter 10. This is the second
 > version calibrated against Alex rewriting the model's output, and the first calibrated
 > against him rewriting a whole chapter's headings.** v1.6 added §14, the punctuation and
@@ -537,6 +540,36 @@ the error is *doing* something. "more better" is doing something. "paid me visit
 Do not introduce `---` or `—` into new prose. Commas, colons, and full stops do the same work.
 Em-dashes already in Alex's own text stay; this is a rule about what you add, not a sweep.
 When a drafted fix in a review file contains an em-dash, translate it before using it.
+
+**Density target, added 2026-08-16 after Alex read Part 2.** The rule above was not enough.
+Chapters 11 through 13 each stayed "in voice" sentence by sentence and still drifted badly,
+because nobody was counting. Alex's read: "chapters use ALOT of m-dashs, much more than prior
+chapters." He was right, and the numbers are stark.
+
+Measure with `book_review/tools/check_render_safety.R`, which reports em-dashes per 1000 words
+of prose (code chunks and table rules excluded). Calibration from the book itself:
+
+| Chapter | per 1k | verdict |
+|---|---|---|
+| Power, Independent t, Paired t, Covariance | 0.47–0.72 | the mature voice |
+| One-Sample t | 1.20 | fine |
+| Multiple Regression *before* the fix | 6.32 | ten times the target |
+| Hierarchical Regression | 9.48 | worst in the book, still outstanding |
+
+**Target 1.2 or below. Treat anything above 1.5 as needing a pass.** After the 2026-08-16
+sweep, chapters 11, 12 and 13 sit at 0.85, 1.07 and 0.47.
+
+The house form is `---` (three hyphens), not the literal `—` character. Both count.
+
+**When you cut one, cut it to the right thing.** A colon when the second half explains the
+first ("statistical control: estimating the association..."). A comma when it is a simple
+aside. A full stop when the second half is really its own sentence, which it usually is. And
+in a heading, just delete it: "The Slopes Have Shrunk. Why?" beats "The Slopes Have Shrunk ---
+Why?".
+
+**One warning from doing this sweep.** A global dash replace will mangle hyphenated compounds:
+"texting-while-driving" became "texting---while-driving" in Chapter 12 and read as nonsense.
+Check 3 in the render-safety script looks for that specific shape.
 
 **"Bounce around" is the fixed term for sampling variability.** Estimates bounce around; they
 do not wobble, jump, waver, or drift. This was settled after "wobble" was tried and rejected,

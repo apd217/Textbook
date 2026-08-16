@@ -29,6 +29,17 @@ re-open those chapters except on Alex's instruction.
 **Chapters 10, 11, 12 and 13 are finished.** **Every item in `10`–`25` is approved** (Alex
 ticked them all on 2026-08-15), so approval is no longer the gate.
 
+**Chapters 10–13 have been through Alex's own edit pass and a follow-up cleanup** (2026-08-16):
+grammar, em-dash reduction, and a render-safety sweep. Treat them as done.
+
+**Two dash cleanups are outstanding and belong to whoever next opens those files:**
+
+- `Chapter_Hierarchical_Regression.qmd` is at **9.48** em-dashes per 1000 words, the worst in
+  the book. It is chapter 15, so the 14+15 session should fix it as part of that pass.
+- `Chapter_Distro_Moments.qmd` is at **6.69** and `Chapter_CatXCat_Interaction.qmd` at **5.60**.
+  Distro_Moments is Part 1 and finished, so leave it unless Alex asks; CatXCat is chapter 17
+  and should be fixed in the 16+17 session.
+
 **Remaining Part 2 work: chapters 14, 15, 16, 17, 18.** Suggested grouping, and the reasoning
 matters more than the grouping:
 
@@ -130,7 +141,41 @@ Never "fix" this by deleting `_freeze/`; that throws away every cached result in
 
 ## Hard rules
 
-0. **Read `VOICE_GUIDE.md` in this folder before writing a single sentence of prose.**
+0a. **Run the render-safety check before you finish any chapter. Alex asked for this by
+   name on 2026-08-16.**
+
+   ```bash
+   Rscript book_review/tools/check_render_safety.R
+   ```
+
+   It reports three things: characters that will silently vanish from the PDF, em-dash
+   density per chapter, and possible hyphenated compounds mangled by a dash replace. Fix
+   everything it finds in the chapter you are working on before you commit.
+
+   **Why this matters more than it sounds.** The book builds PDF with xelatex in CMU Serif
+   and CMU Sans, and those fonts are missing a handful of ordinary characters. xelatex does
+   not error on a missing glyph. It drops the character and carries on, so the HTML looks
+   perfect and the PDF quietly loses a symbol in the middle of a sentence. Alex caught this
+   by eye; nothing in the toolchain was going to tell us.
+
+   Verified against the book's own fonts by reading the xelatex log, not guessed:
+
+   | Status | Characters |
+   |---|---|
+   | **BREAKS the PDF** | `↔` U+2194, `⇒` U+21D2, `⁴` U+2074, `≠` U+2260, `≤` U+2264, `≥` U+2265, `≈` U+2248 |
+   | **Safe** | `→` `²` `³` `−` `×` `±` `•` `…` `Δ α β ρ σ μ`, smart quotes, en dash, em dash, `à é` |
+
+   Note the traps, because they are not intuitive: the **right** arrow is fine but the
+   **double-headed** arrow is not, and superscript **2 and 3** are fine but superscript
+   **4** is not. Never reason from one character to its neighbour, and never conclude a
+   character is safe because the HTML looked right.
+
+   Fixes, in order of preference: write it in words ("raised to the fourth power"); use
+   math mode (`$\neq$`, `$\leq$`, `$\approx$`, `$\leftrightarrow$`); or use plain ASCII
+   inside code comments (`<->`). If you need a character not on either list above, add it
+   to the test file and re-run xelatex rather than assuming.
+
+0b. **Read `VOICE_GUIDE.md` in this folder before writing a single sentence of prose.**
    It is the spec for how this book sounds, with calibration examples of the two standard
    failure modes. Every piece of new or rewritten prose must pass its §9 checklist. If an
    item requires new prose "in voice" and you are not confident, draft it as an HTML

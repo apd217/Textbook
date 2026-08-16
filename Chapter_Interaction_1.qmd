@@ -540,7 +540,8 @@ Here is a summary table to tie everything together:
 | Coefficient | Value | What it represents | What it tests |
 |---|---|---|---|
 | **Intercept** | `r round(coef(Model.2)[1], 2)` | Predicted friends for average-niceness, Stay-in student | Is this > 0? |
-| **BeingNice.C** | `r round(coef(Model.2)["BeingNice.C"], 2)` | Slope of Being Nice *for Stay-in group* (simple effect) | Is the Stay-in slope ≠ 0? |
+| **BeingNice.C** | `r round(coef(Model.2)["BeingNice.C"], 2)` | Slope of Being Nice *for Stay-in group* (simple effect) | Is the Stay-in slope $
+eq$ 0? |
 | **GoingOut (Go out)** | `r round(coef(Model.2)["GoingOut_Go out"], 2)` | Group gap at average niceness (main effect) | Is there a group difference at the mean? |
 | **BeingNice.C × GoingOut** | `r round(coef(Model.2)["BeingNice.C:GoingOut_Go out"], 2)` | Difference in slopes between groups | Are the two slopes significantly different? |
 

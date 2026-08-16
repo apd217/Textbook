@@ -27,7 +27,7 @@ The answer is that we translate the words into numbers, in a way specific enough
 
 ## Distracted Driving
 
-Driving requires constant attention. When something unexpected happens---such as a car braking suddenly—you must react quickly. Psychologists studying attention have shown that distractions slow reaction time. One of the most dangerous distractions is texting while driving.
+Driving requires constant attention. When something unexpected happens, such as a car braking suddenly, you must react quickly. Psychologists studying attention have shown that distractions slow reaction time. One of the most dangerous distractions is texting while driving.
 
 The data in this chapter are simulated. Do not reproduce the study by handing undergraduates phones, placing them in actual traffic, and chasing the car with a bat to improve ecological validity seen in city style road rage. Use a simulator and an ethics-approved protocol. The Institutional Review Board enjoys fewer surprises than the Probability Gods.
 
@@ -247,7 +247,7 @@ Drivers who texted while driving had significantly slower reaction times ($M =$ 
 **Small note**: the negative sign on $t$ simply reflects the order of subtraction (No Distraction minus Texting).
 
 ::: {.callout-warning title="A d of 2.6 Should Be Making You Suspicious"}
-By now you have read the power chapter, so that effect size should raise an eyebrow. Real texting---while-driving effects are large, which is exactly why it is illegal, but they are not science-fiction large. Published estimates sit closer to $d$ of 0.5 to 1.
+By now you have read the power chapter, so that effect size should raise an eyebrow. Real texting-while-driving effects are large, which is exactly why it is illegal, but they are not science-fiction large. Published estimates sit closer to $d$ of 0.5 to 1.
 
 I built this simulation to make the pictures come out clean. Simulated data lies politely, and it will happily calibrate your intuitions to a world that does not exist.
 :::

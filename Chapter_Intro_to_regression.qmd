@@ -20,7 +20,7 @@ library(ggplot2)
 
 ## The Number Correlation Refused to Give You
 
-The last chapter ended on a complaint. Correlation tells you that two things move together and how tightly they do it, and then don't to say anything further. It will not tell you *why*, which is a problem for theory. It also will not tell you *how much*, which is a problem for almost everything else.
+The last chapter ended on a complaint. Correlation tells you that two things move together and how tightly they do it, and then refuses to say anything more. It will not tell you *why*, which is a problem for theory. It also will not tell you *how much*, which is a problem for almost everything else.
 
 You can hear the gap the moment you ask a practical question. If a student studies one more hour a week, how many exam points does that buy? An $r$ of .45 cannot answer that, and not because it is being difficult. It threw the units away on purpose, back when we divided by both standard deviations to force the answer to sit politely between $-1$ and $+1$.
 
@@ -69,7 +69,7 @@ ggplot(dat, aes(x = Scoops, y = Happiness)) +
 
 ### Why not just use correlation?
 
-You can and correlation is often the first step. But correlation only handles **two variables at a time**. Regression lets us add more predictors: ice cream *plus* hot fudge *plus* cookie dough. In other words, regression scales up in ways correlation can't.
+You can, and correlation is often the first step. But correlation only handles **two variables at a time**. Regression lets us add more predictors: ice cream *plus* hot fudge *plus* cookie dough. In other words, regression scales up in ways correlation can't.
 
 Here's the correlation:
 
@@ -82,7 +82,7 @@ Strong positive correlation, as expected!
 
 ## Regression Theory
 
-Correlation and regression describe the **same linear relationship**---just differently.
+Correlation and regression describe the **same linear relationship**, just differently.
 
 - **Simple linear regression** = 1 DV and 1 IV. The relationship is a straight line representing the **expected mean of Y** for each value of X.
 - **Multiple regression** = 1 DV and 2+ IVs. (Coming later.)
@@ -164,7 +164,7 @@ The intercept is the predicted happiness **when ice cream = 0**.
 range(dat$Scoops)
 ```
 
-Nobody had zero scoops, so we can't actually interpret this directly. **Never predict outside the range of your data.** (We can fix this by centering X---more on that later.)
+Nobody had zero scoops, so we can't actually interpret this directly. **Never predict outside the range of your data.** (We can fix this by centering X, more on that later.)
 
 ### Slope
 
@@ -287,8 +287,8 @@ abline(h = 0, lty = 2, col = "#D55E00", lwd = 2)
 ```
 The **residuals-versus-fitted plot** asks whether the model is making similar kinds of errors across the range of values it predicts. Each dot represents one observation.
 
-- **X-axis --- Fitted values:** what the regression model **predicted** for each observation.
-- **Y-axis --- Residuals:** how wrong that prediction was: **observed - predicted**. A residual of 0 means the model predicted the observation perfectly. Positive residuals mean the observed value was higher than predicted; negative residuals mean it was lower than predicted.
+- **X-axis, Fitted values:** what the regression model **predicted** for each observation.
+- **Y-axis, Residuals:** how wrong that prediction was: **observed - predicted**. A residual of 0 means the model predicted the observation perfectly. Positive residuals mean the observed value was higher than predicted; negative residuals mean it was lower than predicted.
 
 Ideally, we want a fairly boring cloud of points scattered around zero, with roughly the same vertical spread from left to right. **Boring is good here.** It means the model is not making errors in an obvious, systematic way.
 
@@ -319,9 +319,9 @@ A **Q-Q plot** asks whether the residuals have roughly the shape we would expect
 - **X-axis:** where a residual *should fall* if the residuals followed a perfect normal distribution. These are called **theoretical quantiles**.
 - **Y-axis:** where the residual *actually falls* in our data. These are the **observed residuals** (or, depending on the software, standardized residuals).
 
-If the residuals are approximately normal, the observed values should line up with the values expected from a normal distribution, producing dots that fall roughly along a straight line. In other words, the x-axis says, ‘If these residuals were perfectly normal, how extreme should this observation be?’ and the y-axis says, ‘How extreme was it actually?’
+If the residuals are approximately normal, the observed values should line up with the values expected from a normal distribution, producing dots that fall roughly along a straight line. In other words, the x-axis says, “If these residuals were perfectly normal, how extreme should this observation be?” and the y-axis says, “How extreme was it actually?”
 
-Do not expect perfection. Small wiggles and deviations are normal---we collected data from humans, not from andriods or clones. What we care about are **systematic departures from the line**: strong curves can indicate a distribution with the wrong shape, while points breaking away at either end can indicate unusually heavy tails or potential outliers. One observation escaping toward Canada probably deserves investigation for that one person, all of them running for the border means there is something wrong with the whole model.
+Do not expect perfection. Small wiggles and deviations are normal, because we collected data from humans, not from androids or clones. What we care about are **systematic departures from the line**: strong curves can indicate a distribution with the wrong shape, while points breaking away at either end can indicate unusually heavy tails or potential outliers. One observation escaping toward Canada probably means something went wrong for that one person. All of them running for the border means something went wrong with the whole model.
 
 R can produce four standard diagnostic plots at once:
 
@@ -369,11 +369,11 @@ summary(std.reg)
 
 The **t-statistic and p-value** for the slope. These don't change under any *linear* rescaling: adding constants, multiplying by constants, z-scoring. Shift and stretch the axes all you like and the significance test is untouched.
 
-Nonlinear transformations are a different animal. Logs, square roots, and powers change the model itself, along with $t$, $p$, and what the slope even means. The correlation chapter showed this the hard way with ice-cream⁴, where a perfectly good relationship fell apart the moment we bent the scale.
+Nonlinear transformations are a different animal. Logs, square roots, and powers change the model itself, along with $t$, $p$, and what the slope even means. The correlation chapter showed this the hard way with ice cream raised to the fourth power, where a perfectly good relationship fell apart the moment we bent the scale.
 
 ### What changed?
 
-**The intercept** — it's now **zero**. When all variables are standardized (mean = 0), the regression line must pass through [0, 0]. And the slope changed numerically:
+**The intercept** is now **zero**. When all variables are standardized (mean = 0), the regression line must pass through [0, 0]. And the slope changed numerically:
 
 ```{r looking closer, echo=TRUE}
 print(summary(std.reg), digits = 6)
@@ -391,7 +391,7 @@ When everything is standardized, one unit = one SD. So the correlation tells us:
 
 $$B_1 = r \frac{sd_y}{sd_x} = \frac{Cov(x,y)}{Var(x)}$$
 
-Your slope is just the correlation times the ratio of SDs. Makes sense — slope is rise over run:
+Your slope is just the correlation times the ratio of SDs. Makes sense, since slope is rise over run:
 
 - Double Y → twice as much rise → $B_1$ doubles
 - Double X → twice as much run → $B_1$ is cut in half

@@ -34,7 +34,7 @@ set.seed(42)
 n   <- 100
 rY1 <-  0.45   # Study Hours → Exam Score
 rY2 <- -0.40   # Test Anxiety → Exam Score
-r12 <- -0.35   # Study Hours ↔ Test Anxiety
+r12 <- -0.35   # Study Hours <-> Test Anxiety
 
 Sigma <- matrix(c(
    1,   rY1, rY2,
