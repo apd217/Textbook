@@ -179,6 +179,46 @@ move this chapter earlier or split it so the Week-10 material sits at its curric
   figure is now colored by occasion with a straight-line fit per occasion, and the prose says
   what the trend is and why the chapter cannot fix it.
 
+### [CH18-U05] Check the Model rebuilt on DHARMa; the altitude warning Alex asked for
+- **Priority:** HIGH
+- **Perspective:** Student
+- **Raised by:** Alex, 2026-08-16, after reading the 2×2 draft
+- **Problem:** His words: *"check the model part is not exactly right... this is too high level
+  section for undergrads and even first time grad students."* The section did bespoke
+  residual-versus-fitted analysis and asked the reader to interpret it.
+- **Fix (implemented):** Rebuilt on **DHARMa**: `simulateResiduals()` then `plotQQunif()` and
+  `plotResiduals(form = occasion)`. Plus a `callout-warning` saying plainly that mixed models are
+  an enormous area, that their diagnostics are a research area rather than a checklist, that two
+  plots are the minimum and not the standard, and that the honest advice is a graduate course.
+  It also tells the reader the material is hard and that struggling is the material's fault.
+- **Approved:** [x] — IMPLEMENTED 2026-08-16.
+- **Do not use `plot(sim_res)` on a 2×2.** With only four distinct fitted values DHARMa
+  rank-transforms the predictions and labels the axis `0.145299145299145`. Call `plotQQunif()`
+  and `plotResiduals()` separately so both panels are legible. This is why the chapter does it
+  the long way; it is not a style preference.
+- **DHARMa seeds internally**, verified by simulating twice and comparing, so the printed test
+  values are stable across renders and safe to write prose about. Values: KS $p = .0541$,
+  dispersion $p = .216$, outlier $p = .41647$, all `n.s.`
+- **Alex then cut the interpretation of those tests** and replaced it with "ignore them for now",
+  and cut the list of things the section skips. Both deliberate: he is protecting the altitude.
+  The plot still prints the three *p*-values, so the text now shows numbers and says to ignore
+  them, which is his call and is consistent with the hand-waving register of the REML callout.
+- **Also his instruction:** "When Two Occasions Are Not Enough" became **"When Your Design
+  Outgrows This Chapter"**, carrying his concession that for balanced complete designs with
+  several within-subjects factors, old-school RM ANOVA is genuinely *easier* than the mixed
+  model, with the price named (complete data, and sphericity, which is vacuous at two occasions
+  and real from three up).
+
+### [CH18-F01] Link the RM ANOVA lecture when it ships
+- **Priority:** MED
+- **Perspective:** Publisher
+- **Status:** OPEN, waiting on Alex's file
+- Alex said he would put his repeated-measures ANOVA lecture into the advanced section. The last
+  paragraph of `Chapter_Mixed_Regression.qmd` already says "there is a review of it in the
+  advanced sections of this book" **with no hyperlink, on purpose**, because the chapter does not
+  exist yet and CH18-P01 in this same chapter was exactly that bug. **Add the link when it
+  ships.** Alex deleted the in-file `---Alex---` reminder, so this item is now the only record.
+
 ### [CH18-DUP01] `Chapter_Mixed_Designs.qmd` overlaps this chapter and is uncommitted
 - **Priority:** HIGH
 - **Perspective:** Publisher

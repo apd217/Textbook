@@ -587,9 +587,7 @@ sim_res <- simulateResiduals(mixed_model)
 plotQQunif(sim_res)
 ```
 
-The points follow the diagonal with a gentle bow, and all three tests come back `n.s.` The closest thing to a complaint is the KS test at $p =$ 0.054, which is the one that asks whether the overall shape is right.
-
-Do not over-read that. A *p*-value sitting just outside .05 is not a diagnosis, and with 200 observations these tests are sensitive enough to notice things that would not change a single conclusion. It is a reason to look at the picture, which is what the picture is for.
+The points follow the diagonal with a gentle bow, and the three tests printed on the plot are ones you can ignore for now.
 
 The second plot asks a different question: are the residuals equally well behaved everywhere, or does the model fit one part of the design better than another?
 
@@ -605,8 +603,6 @@ That is where we stop, and stopping here is a real choice rather than a complete
 
 ::: {.callout-warning title="This Is the Shallow End, and It Is a Very Deep Pool"}
 Mixed models are an enormous area of statistics, and their diagnostics are an active research area rather than a settled checklist. Two DHARMa plots are the minimum, not the standard.
-
-The things we have not done include checking whether the random effects themselves are plausibly normal, whether particular participants are dragging the fit around, whether the residual variance should be allowed to differ by group or occasion, and whether the random-effects structure is the right one in the first place. Some of those questions do not have agreed answers.
 
 If your design is bigger than the one in this chapter, you need more than this chapter. The honest advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.
 
@@ -625,12 +621,7 @@ The catch is what it demands in return. Repeated-measures ANOVA wants every pers
 
 So neither tool is the grown-up choice in all situations. The mixed model handles missing rows and unbalanced designs that ANOVA cannot touch. ANOVA handles complicated balanced within-subjects designs without the fight. We did not escape assumptions by learning mixed models. We traded a rigid set for a flexible set that has to be chosen thoughtfully.
 
-<!-- ---Alex--- You said you would drop your RM ANOVA lecture into the advanced section. The
-sentence below points at it WITHOUT a hyperlink on purpose, because the chapter does not exist
-yet and CH18-P01 in this same chapter was exactly this bug: a promise pointing at nothing. Add
-the link when it ships, and delete this comment. -->
-
-If a repeated-measures ANOVA is the right tool for your design, there is a treatment of it in the advanced sections of this book. Use whichever tool the design actually calls for, and say in your write-up which one you used and why.
+If a repeated-measures ANOVA is the right tool for your design, there is a review of it in the advanced sections of this book. Use whichever tool the design actually calls for, and say in your write-up which one you used and why.
 
 ## The Short Story
 
@@ -649,4 +640,4 @@ If a repeated-measures ANOVA is the right tool for your design, there is a treat
 - Mixed models can retain partially observed participants, but missingness can still bias the answer.
 - Never count rows and forget to count people. Two hundred observations from 100 people are not 200 independent humans, no matter how urgently the grant deadline approaches.
 
-The model is "mixed" because it combines fixed and random effects, not because we placed several statistical procedures into a blender and hoped the lid stayed on.
+The model is "mixed" because it combines **fixed** and **random** effects, not because we placed several statistical procedures into a blender and hoped the lid stayed on.

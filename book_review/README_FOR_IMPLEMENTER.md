@@ -21,10 +21,99 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## Status as of 2026-08-16, end of the Chapter 18 session (READ THIS FIRST)
+## START HERE: Part 3 session, opened 2026-08-17
 
-**Chapter 18 is done, and it was the last chapter. Every item in the review is now implemented.**
-One commit, on `review-implementation`, not merged to main. Alex has not read it yet.
+**Parts 1 and 2 are finished.** Chapters 1 through 18 are implemented, committed, and Alex has
+read and edited 14 through 18 himself. **Do not reopen any of them.** Everything below the
+"Chapter 18 session" heading is history, kept for the lessons, not for the task list.
+
+### Your job: Part 3, "Okay, But What If It's Complicated?"
+
+Three chapters, all currently active in `_quarto.yml`:
+
+| # | Chapter | Review file | Items | Notes |
+|---|---|---|---|---|
+| 19 | `Chapter_Advanced_Regression_Diagnostics.qmd` | `19_...md` | P01, P02, P03, B01 | ~1,350 words. YAML already clean, so it is the G01 template. |
+| 20 | `Chapter_Multiple_Comparisons.qmd` | `20_...md` | P01, U01, U02 | ~2,500 words. Reviewer called it one of the best chapters in the book. |
+| 21 | `Chapter_Advanced_Interactions.qmd` | `21_...md` | P01, P02, B01 | ~2,200 words. Grad-prep, maps onto Aiken & West. |
+
+**Ten items, all approved, none implemented.** Approval is not the gate; every item in 10 through
+26 was ticked on 2026-08-15.
+
+**These are the advanced chapters, and the audience changes.** Parts 1 and 2 serve undergraduates.
+These three are explicitly grad-prep and are labelled as such, so the altitude that got cut from
+Chapter 18 is allowed here. Do not flatten them the way Ch18's "Check the Model" was flattened.
+Chapter 18 is the one that had to stay gentle; these do not.
+
+**Suggested grouping:** 19 and 21 together (both are Advanced-labelled, both are "the sermon is
+preached but never demonstrated" items: CH19-P01, CH19-P02, CH19-P03 and CH21-P01, CH21-P02 all
+ask for code that shows a thing the text only describes). 20 can stand alone and is the lightest.
+
+### Before you touch anything
+
+1. `book_review/VOICE_GUIDE.md`, especially §9 (checklist), §14 (dashes, italic *t*/*F*),
+   §14b (show the simulation, name the package), §15 (openings), §17 (cold opens).
+2. `index.qmd`, the preface. It is a contract. Re-read it after each chapter too.
+3. The review file for the chapter you are on.
+4. **Check each chapter's opening against §15 before item work, and flag it rather than
+   rewriting.** Alex has said yes to a cold open three times running (15, 16, 18) when asked
+   first. He should not discover a voice pass in a diff.
+
+### Hard-won rules that keep paying off
+
+- **Run every number before writing prose about it.** This has caught something in five
+  consecutive sessions. In the Ch18 session it caught the chapter reporting its simulation's
+  *ingredients* as its *results* ("about $-1.2$" when the model returned $-1.03$).
+- **Look at rendered figures before writing `fig-alt` or captions.** The Ch18 diagnostic figure
+  took three attempts and a rejected hypothesis. Code cannot tell you what a plot looks like.
+- **Alex's altitude complaints are sometimes statistical facts.** "This jumps too fast" turned
+  out to mean "a random slope is not estimable on two occasions."
+- **Fix Alex's own slips.** He expects it. This session: a dropped-word clause in his DHARMa
+  edit. Distinguish slips from deliberate jokes using VOICE_GUIDE §13.
+- **One chapter per commit**, message `Review edits: <chapter> (<item IDs>)`. Never merge to
+  `main`; never commit to `main`.
+- **Render safety before every commit:**
+  `"C:/Program Files/R/R-4.6.0/bin/Rscript.exe" book_review/tools/check_render_safety.R`
+  Em-dash target is 1.2 or below, and 1 is the floor, not a finding.
+- **A single-chapter render triggers a full-book PDF pass.** Check `git status` before staging,
+  restore `_freeze/site_libs` if it shows deleted, and restore `_freeze/<other chapters>` too.
+  This happened every single render in the Ch18 session.
+
+### Loose ends that are not Part 3, listed so they are not lost
+
+1. **CH18-DUP01, the one that actually needs Alex.** `Chapter_Mixed_Designs.qmd` duplicates
+   Ch18's structure. It was rewritten on 2026-08-17 at 00:02 by something that was not the Ch18
+   session, reusing that session's prose verbatim. It is now committed **unreviewed and as-is**,
+   purely so it cannot be lost. It is still commented out of `_quarto.yml`. One of it and
+   `Chapter_Mixed_Change_Over_Time.qmd` has to be retired before either ships.
+2. **`Chapter_Mixed_Change_Over_Time.qmd`** is the verified 2×4 material, parked, not in
+   `_quarto.yml`, filename a guess.
+3. **CH18-F01:** link the RM ANOVA lecture from the end of Ch18 when Alex adds it.
+4. **G05b, the biggest outstanding cross-cutting item:** 28 invisible `library()` calls across
+   8 chapters. Worst: `Multiple_Regression_Control` (5), `Hierarchical_Regression` (5). The trap
+   is that first use is often inside a hidden chunk. **Alex has never answered** whether the
+   hidden top-of-file `load-libraries` block gets deleted afterwards or kept as a summary.
+5. **Also unanswered:** whether to extend the italic sweep to `p`, `r`, `M`, `SD`, `N`, `df`.
+6. **`Chapter_Advanced_Contrasts_ANOVA.qmd`** is written, 195 lines, and commented out. Ch17
+   points at it without a hyperlink. Add the link if it ships. Alex has grad material to fold in.
+7. **Two Part 1 chapters are above the em-dash target** and nobody is authorized to touch them:
+   `Chapter_Distro_Moments` (6.45) and `Chapter_Introduction` (3.16).
+8. **`R^2` outside math renders as a literal caret** in three headings of
+   `Chapter_Multiple_Regression_Control.qmd` (lines 329, 389, 395). Marked finished, so it needs
+   Alex's say-so.
+
+## Status as of 2026-08-16, end of the Chapter 18 session
+
+**Chapter 18 is done and Alex has read and edited it.** It took four commits rather than one,
+because he redirected the chapter twice mid-session. Not merged to main.
+
+**It is no longer "the last chapter" in the sense the rest of this file assumes.** Parts 1 and 2
+are complete; Part 3 is the next job. See the START HERE block at the top.
+
+**The chapter's final shape**, after his redirections: the chocolate paired-*t* identity as a cold
+open, then a mixed 2×2 (Baseline vs Week 6, by Control vs CBT), random intercept only, DHARMa for
+diagnostics, and a closing section conceding that RM ANOVA is easier for balanced complex designs.
+The 2×4 longitudinal material was cut out to `Chapter_Mixed_Change_Over_Time.qmd`.
 
 Implemented: CH18-U02, CH18-U01, CH18-P01, CH18-U03, CH18-P02, CH18-U04, plus G01 and G02.
 Details are on each item in `18_Mixed_Regression.md`.
