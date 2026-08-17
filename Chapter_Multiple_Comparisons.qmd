@@ -1,12 +1,5 @@
 ---
 title: "P-Values and Multiple Comparisons"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r}
@@ -132,6 +125,7 @@ There is about a 64% chance of at least one false positive. You did not change $
 ```{r}
 #| label: fig-fwer-growth
 #| fig-cap: "The probability of at least one false positive grows rapidly as more independent true null hypotheses are tested at alpha = .05. Simulated points sit on the theoretical curve."
+#| fig-alt: "Line graph with the number of tests in the family from 1 to 100 on the x axis and the probability of one or more false positives from 0 to 1 on the y axis. A dark blue curve starts at 0.05 for a single test, climbs steeply to about 0.40 by 10 tests and about 0.64 by 20, then flattens as it approaches 1, reaching about 0.92 at 50 tests and nearly 1 at 100. Six orange simulated points at 1, 5, 10, 20, 50 and 100 tests sit directly on the curve. A dashed grey horizontal line near the bottom marks the 5 percent reference level, which the curve leaves immediately."
 set.seed(343)
 
 alpha <- .05
@@ -298,16 +292,125 @@ A regression with many coefficients is also a collection of tests. The correct f
 
 If one coefficient was the preregistered primary hypothesis and the others were prespecified covariates, automatically correcting every coefficient together may not represent the design. If you added 84 predictors, 31 interactions, six subgroups, and the participant's astrological sign until something became significant, you have a multiple-testing problem plus a confession.
 
-Store the p-values you intend to treat as one family and adjust them directly:
+Store the p-values you intend to treat as one family and adjust them directly. Here is the kitchen-sink model described above, built small enough to inspect: 100 people, twelve predictors, and only the first two doing anything at all. The other ten are `rnorm()` with a job title.
 
 ```{r}
-# Example after fitting a model called model:
-# coefficient_p <- coef(summary(model))[, "Pr(>|t|)"]
-# p.adjust(coefficient_p, method = "holm")
-# p.adjust(coefficient_p, method = "BH")
+#| label: regression-family
+set.seed(343)
+
+n_people <- 100
+kitchen_sink <- as.data.frame(matrix(rnorm(n_people * 12), nrow = n_people))
+names(kitchen_sink) <- paste0("V", 1:12)
+
+# Only V1 and V2 are real. V3 through V12 are noise.
+kitchen_sink$Focus <-
+  0.45 * kitchen_sink$V1 -
+  0.38 * kitchen_sink$V2 +
+  rnorm(n_people)
+
+sink_model <- lm(Focus ~ ., data = kitchen_sink)
+
+coefficient_p <- coef(summary(sink_model))[-1, "Pr(>|t|)"]
+
+round(data.frame(
+  raw  = coefficient_p,
+  holm = p.adjust(coefficient_p, method = "holm"),
+  BH   = p.adjust(coefficient_p, method = "BH")
+), 4)
 ```
 
+Read the `raw` column first and pretend you do not know how the data were made. Three predictors clear $.05$: `r paste(names(coefficient_p)[coefficient_p <= .05], collapse = ", ")`. Two of them are real. The third, `r setdiff(names(coefficient_p)[coefficient_p <= .05], c("V1", "V2"))`, is a column of random numbers that happened to line up, at $p =$ `r round(coefficient_p[setdiff(names(coefficient_p)[coefficient_p <= .05], c("V1", "V2"))], 3)`.
+
+This was not arranged. Ten true nulls tested at $\alpha = .05$ give about a `r round(100 * (1 - .95^10))`% chance of at least one false positive, so meeting one here is the ordinary outcome rather than bad luck. Run this chunk with a different seed and you will sometimes get none and occasionally get two.
+
+Both corrections do their job. Holm and Benjamini-Hochberg each keep `r paste(names(coefficient_p)[p.adjust(coefficient_p, "holm") <= .05], collapse = " and ")`, the two real effects, and both kill the impostor. Notice also that BH is gentler than Holm on the survivors, which is the trade the previous section measured: it is buying power by promising less.
+
 For planned contrasts, use software that can adjust the contrast family explicitly. Always report the method, the family of tests, and whether the analyses were confirmatory or exploratory.
+
+## Where You Will Actually Meet This: emmeans
+
+Everything above is theory you will use once a year. This section is the thing you will type next month.
+
+In this book's pipeline, multiplicity arrives in exactly one place: `pairs(emmeans(...))` after a model with a categorical predictor. The [categorical predictors chapter](Chapter_Regression%20with%20Cat%20Variables.qmd) left a promise here. It ran three unadjusted comparisons behind a significant omnibus *F*, which is Fisher's protected LSD, and it warned that the protection expires at exactly three groups. So let us arrive with four.
+
+The study is the same distracted-driving design, with one more condition added and a deliberately modest sample, because a correction that never changes anything teaches nothing.
+
+```{r}
+#| label: emmeans-family
+library(emmeans)
+
+set.seed(343)
+n <- 20
+
+drive_data <- data.frame(
+  Condition = factor(
+    rep(c("No Distraction", "Podcast", "Lecture", "Texting"), each = n),
+    levels = c("No Distraction", "Podcast", "Lecture", "Texting")
+  ),
+  RT = c(
+    rnorm(n, 0.70, 0.25),
+    rnorm(n, 0.86, 0.25),
+    rnorm(n, 0.92, 0.25),
+    rnorm(n, 1.08, 0.25)
+  )
+)
+
+drive_model <- lm(RT ~ Condition, data = drive_data)
+anova(drive_model)
+```
+
+The omnibus test is significant, so under the old three-group rule we would now be entitled to look at pairs. With four groups there are six pairs, and the entitlement has expired.
+
+```{r}
+#| label: emmeans-default
+drive_means <- emmeans(drive_model, ~ Condition)
+
+pairs(drive_means)
+```
+
+**Read the last line of that output.** It says `P value adjustment: tukey method for comparing a family of 4 estimates`. You did not ask for that. `emmeans` decided that six all-pairwise comparisons constitute a family, applied Tukey, and mentioned it in a footnote below the table you were reading.
+
+This is the single most important fact in this section, and it cuts both ways. The default is defensible, because Tukey was built for precisely this situation. But a reader who does not know it is there will report Tukey-adjusted p-values while describing them as ordinary ones, and a reader who wanted something else will not get it by hoping.
+
+Here is the same comparison with the correction turned off, and with Holm instead.
+
+```{r}
+#| label: emmeans-adjust-menu
+pairs(drive_means, adjust = "none")
+
+pairs(drive_means, adjust = "holm")
+```
+
+Put the three side by side.
+
+```{r}
+#| label: emmeans-comparison
+adjust_column <- function(method) {
+  as.data.frame(pairs(drive_means, adjust = method))$p.value
+}
+
+data.frame(
+  contrast = as.data.frame(pairs(drive_means))$contrast,
+  none     = round(adjust_column("none"), 4),
+  tukey    = round(adjust_column("tukey"), 4),
+  holm     = round(adjust_column("holm"), 4)
+)
+```
+
+Five of the six comparisons say the same thing under all three methods, which is the usual and slightly boring result. The sixth does not. **Lecture versus Texting** is significant unadjusted at $p =$ `r round(as.data.frame(pairs(drive_means, adjust = "none"))$p.value[6], 4)`, and survives neither correction: Tukey puts it at `r round(as.data.frame(pairs(drive_means, adjust = "tukey"))$p.value[6], 3)` and Holm at `r round(as.data.frame(pairs(drive_means, adjust = "holm"))$p.value[6], 3)`.
+
+That single row is the entire chapter in miniature. "Texting is worse than listening to a lecture" is a claim you may publish if you looked at that pair alone, and may not publish if you looked at all six and picked this one. The data did not change. The number of chances you gave yourself did.
+
+Note also that Tukey and Holm disagree about *how* dead it is. Both control the familywise error rate over the six comparisons, and neither is uniformly the more powerful of the two; they distribute their power differently across contrasts. Choosing between them on the basis of which one gives you a smaller number for the comparison you like is not a choice. It is the same problem one level up.
+
+::: {.callout-tip title="Which `adjust=` Do I Want?"}
+- **All pairwise comparisons after an omnibus test?** Leave the default. Tukey was designed for exactly this family and `emmeans` is already applying it. Say so in the write-up.
+- **A few specific contrasts your theory named in advance?** `adjust = "holm"`. The family is your planned contrasts, not every pair the software can generate, and Holm is never less powerful than Bonferroni.
+- **Exactly three groups behind a significant omnibus *F*?** `adjust = "none"` is defensible, and only there. That is the protected LSD case from the [categorical predictors chapter](Chapter_Regression%20with%20Cat%20Variables.qmd). At four groups, as above, it is just the inflation problem wearing a lab coat.
+- **Screening many outcomes to decide what to study next?** `adjust = "fdr"`, and describe the results as exploratory, because that is what you have promised.
+
+Whatever you pick, name it and name the family in the write-up. "Pairwise comparisons were Tukey-adjusted across all six condition pairs" is one clause, and it is the difference between a reader trusting the table and a reader reconstructing it.
+:::
 
 ## The Point Is Not to Fear P-Values
 
@@ -323,3 +426,15 @@ A defensible statistical argument uses:
 - Replication, because one clever correction cannot make a single study carry an entire theory on its back.
 
 The dead salmon did not teach us that fMRI is fake. It taught us that if we give chance enough opportunities, eventually even dinner appears to think. Correct the tests, show the effects, admit the uncertainty, and please stop asking deceased seafood to perform social cognition without preregistration.
+
+## The Short Story
+
+- $p = P(\text{data this weird or weirder} \mid H_0 \text{ and the model})$. Never the reverse, and never the probability that your hypothesis is wrong.
+- **"Significant here, not significant there" is not a comparison.** If you want to claim two effects differ, test the difference.
+- **A family is defined by the claim**, and defined before you peek. Splitting twenty tests into twenty families of one after seeing the p-values is p-hacking with office supplies.
+- **FWER when any single false claim would be costly**, and prefer Holm to Bonferroni, since it is never less powerful. **BH-FDR when you are exploring** and false leads are survivable.
+- FDR of .05 is a promise about the long run, not a guarantee that 5% of *this* study's discoveries are false.
+- **`emmeans` already adjusted your pairwise comparisons.** It defaults to Tukey and says so in a footnote. Know what your software chose before you describe it in a sentence.
+- **Report the method and the family**, every time. One clause does it.
+- No correction rescues a study from bad measurement, and no correction is a substitute for replication.
+- The salmon was dead the whole time.
