@@ -286,9 +286,109 @@ c(
 
 The second and third numbers agree to every digit R will print, because they are the same quantity computed two ways. The standard error `lm()` reported is the standing-alone standard error multiplied by $\sqrt{VIF}$, and here that multiplier is `r round(sqrt(1 / (1 - summary(lm(Sessions ~ Baseline, data = TherapyData))$r.squared)), 3)`, which rounds to nothing at all.
 
-### What Trouble Actually Looks Like
+### The Extreme Case: Two Predictors That Are Secretly One
 
-Here is the same true effect measured four times. `X1` and `Y` are identical in every row; the only thing that changes is how strongly the *other* predictor correlates with `X1`.
+Before the interesting failures, look at the failure that cannot hide. Suppose we predict school achievement from the proportion of students on free lunch, and, because a paper told us they are distinct indicators of school poverty, we also enter the proportion on paid lunch.
+
+```{r perfect-collinearity-data}
+set.seed(343)
+n_schools <- 120
+
+SchoolData <- data.frame(FreeLunch = runif(n_schools, .05, .95))
+SchoolData$PaidLunch <- 1 - SchoolData$FreeLunch          # the whole problem
+
+SchoolData$Achievement <- 70 - 25 * SchoolData$FreeLunch + rnorm(n_schools, 0, 6)
+
+cor(SchoolData$FreeLunch, SchoolData$PaidLunch)
+```
+
+A correlation of exactly $-1$. Every school that is 30% free lunch is 70% paid lunch, necessarily, because the two proportions are the same fact written twice. Now put both in the model.
+
+```{r perfect-collinearity-both}
+BothModel <- lm(Achievement ~ FreeLunch + PaidLunch, data = SchoolData)
+
+summary(BothModel)
+```
+
+Read the line above the coefficient table: **`Coefficients: (1 not defined because of singularities)`**. `PaidLunch` came back `NA`. R did not average the two predictors, or split the credit, or pick the better one. It silently deleted a predictor from your model and carried on.
+
+That is the correct behavior, and the reason is worth stating precisely. The regression is asked to estimate the effect of raising free lunch *while holding paid lunch constant*, and there is no such thing. There is not one school in the data where free lunch moved and paid lunch did not, so the question has no answer, and no amount of sample size will produce one.
+
+R will even tell you the exact dependency it found:
+
+```{r perfect-collinearity-alias}
+alias(BothModel)
+```
+
+Read that as an equation: `PaidLunch` equals 1 minus `FreeLunch`. It has reconstructed the definition we used to build the variable.
+
+VIF cannot help here either, and it is honest about why:
+
+```{r perfect-collinearity-vif}
+#| error: true
+vif(BothModel)
+```
+
+$VIF_j = 1/(1-R_j^2)$ and $R_j^2$ is exactly 1, so the formula is dividing by zero. There is nothing to inflate; the predictor has no unique variance at all.
+
+### Now Enter Them One at a Time
+
+Here is the part that makes this worth showing rather than just warning about. Fit each predictor on its own and put the three models side by side.
+
+```{r perfect-collinearity-separate}
+FreeOnly <- lm(Achievement ~ FreeLunch, data = SchoolData)
+PaidOnly <- lm(Achievement ~ PaidLunch, data = SchoolData)
+
+Summarize <- function(Model, term) {
+  c(b  = unname(coef(Model)[term]),
+    SE = coef(summary(Model))[term, "Std. Error"],
+    t  = coef(summary(Model))[term, "t value"],
+    R2 = summary(Model)$r.squared)
+}
+
+round(rbind(
+  Both.in.FreeLunch = Summarize(BothModel, "FreeLunch"),
+  FreeLunch.alone   = Summarize(FreeOnly,  "FreeLunch"),
+  PaidLunch.alone   = Summarize(PaidOnly,  "PaidLunch")
+), 4)
+```
+
+Separately, each one is a perfectly respectable predictor. Free lunch predicts achievement going down; paid lunch predicts it going up. Either would sail through review on its own.
+
+But look at what the three rows share. The standard errors are **identical**. The *t* values are identical in size and differ only in sign. $R^2$ is `r round(summary(FreeOnly)$r.squared, 4)` in all three models, including the one where R threw a predictor away. And the two slopes are the same number with the sign flipped, `r round(coef(FreeOnly)["FreeLunch"], 2)` against `r round(coef(PaidOnly)["PaidLunch"], 2)`.
+
+They are not two findings. They are one finding, and the direction is a decision you made when you chose which proportion to name.
+
+### The Version That Does Not Warn You
+
+Perfect collinearity is the harmless case, because R stops. Now add a rounding error's worth of noise, so the two variables are merely *almost* the same fact.
+
+```{r near-perfect-collinearity}
+set.seed(343)
+
+# Same variable, plus measurement error with a standard deviation of 0.01.
+SchoolData$PaidLunch.Measured <- 1 - SchoolData$FreeLunch + rnorm(n_schools, 0, .01)
+
+NearlyBoth <- lm(Achievement ~ FreeLunch + PaidLunch.Measured, data = SchoolData)
+
+round(coef(summary(NearlyBoth)), 4)
+vif(NearlyBoth)
+```
+
+Nothing errored. Nothing was set to `NA`. No message appeared above the table. And the model is now a disaster:
+
+- The free-lunch slope was `r round(coef(FreeOnly)["FreeLunch"], 1)` on its own. It is now `r round(coef(NearlyBoth)["FreeLunch"], 1)`.
+- **Neither predictor is significant.** Free lunch sits at $p =$ `r round(coef(summary(NearlyBoth))["FreeLunch", 4], 3)` and paid lunch at $p =$ `r round(coef(summary(NearlyBoth))["PaidLunch.Measured", 4], 3)`, in data where the effect is real, enormous, and was significant a moment ago.
+- The VIFs are about `r round(car::vif(NearlyBoth)[1])`, so the standard errors are inflated by a factor of roughly `r round(sqrt(car::vif(NearlyBoth)[1]))`.
+- $R^2$ went from `r round(summary(FreeOnly)$r.squared, 4)` to `r round(summary(NearlyBoth)$r.squared, 4)`. The second predictor bought essentially nothing and cost you the first one.
+
+**This is what "they will eat each other" looks like in a coefficient table.** Two predictors carrying the same information cannot both be credited for it, so each is left holding whatever the other did not explain, which is nearly nothing. The variance is still there. The model simply cannot say whose it is.
+
+A student who ran only this model would conclude that school poverty does not predict achievement. The real effect they missed is about `r round(abs(coef(FreeOnly)["FreeLunch"]))` achievement points between a school where nobody qualifies for free lunch and one where everybody does.
+
+### What Trouble Actually Looks Like Across the Range
+
+The two cases above are the ends of a continuum. Here is the middle, using the same true effect measured four times. `X1` and `Y` are identical in every row; the only thing that changes is how strongly the *other* predictor correlates with `X1`.
 
 ```{r vif-demo}
 CollinearDemo <- function(r) {
@@ -321,13 +421,17 @@ The last row is the useful warning. A VIF of `r round(CollinearTable[4, "VIF"], 
 
 This is also the cost that the [Multiple Regression: Statistical Control chapter](Chapter_Multiple_Regression_Control.qmd) promised you would meet later, where the controlled slope came with a slightly larger standard error than the uncontrolled one. This is later, and this is the meter.
 
-::: {.callout-warning title="The 5-and-10 Rule Is Folklore, Not Law"}
+::: {.callout-warning title="The 5-and-10 Rule Is Folklore, Not Divine Law"}
 You will read that VIF above 5 is concerning and above 10 is serious. Nobody derived those numbers. They are round, they are memorable, and they have no distributional justification.
 
 The question that has an answer is narrower: **is the standard error on the coefficient I care about small enough to answer my question?** A VIF of 12 on a nuisance covariate you will never interpret is not a problem. A VIF of 3 on your primary predictor, in a study that was already underpowered, might be fatal. Look at the interval, not the threshold.
 :::
 
-Multicollinearity is also not a data-cleaning problem, and this is where people go wrong. Dropping one of two correlated predictors does make the VIF fall, but it changes the model into a different model that answers a different question, and the slope you are left with is no longer controlled for the thing you dropped. You have not fixed the collinearity. You have stopped asking the question that produced it.
+Multicollinearity is also not a data-cleaning problem, but it can be a theory problem.
+
+First, dropping one of two correlated predictors does make the VIF fall, but it changes the model into a different model that answers a different question, and the slope you are left with is no longer controlled for the thing you dropped. You have not fixed the collinearity. You have stopped asking the question that produced it.
+
+Second, and this is the one that actually happens: suppose you have two predictors, one is "free student lunch" and the second is whether the student is part of a school voucher program. You might enter both into the model cause some paper you read said they are independent and different predictors of SES. Well, the data say otherwise, cause of who the sample you collected happens to be. The theory may say X, but the data say Y. You cannot keep them both if they are the focal predictors, since they will eat each other, exactly as free lunch and paid lunch did above. If they were just covariates you needed to control for, that is okay.
 
 Multicollinearity is not repaired by staring harder at the output. Possible solutions include improving the design, collecting more informative cases, combining redundant measures when theory supports it, or narrowing the question.
 
@@ -381,7 +485,7 @@ The exact cutoffs are screening rules, not automatic deletion warrants. Inspect 
 
 Heteroscedasticity does not usually bias the OLS slope when the mean model is correct, but it can damage the ordinary standard errors. Possible responses include modeling the variance, transforming the outcome when scientifically sensible, using a model family that matches the outcome, or reporting heteroscedasticity-consistent standard errors. The picture tells you a problem exists; theory tells you which response makes sense.
 
-That last option is the one you will actually reach for, and it deserves more than a name. "Robust standard errors" and "the sandwich estimator" get used as incantations by people who could not say what is being made robust to what, so here is the machinery.
+That last option you will see some papers use has multiple names: "robust standard errors" and "the sandwich estimator". However, most people using them could not say what is being made robust to what, so here is the machinery.
 
 ### Where the Ordinary Standard Errors Come From
 
@@ -466,9 +570,7 @@ sapply(c("const", "HC0", "HC1", "HC2", "HC3"), function(type) {
 `const` is the classical assumption, and it is the smallest in every row. The four HC variants increase in the order the table above predicts, because each one leans a little harder on the leverage correction.
 
 ::: {.callout-note title="Be Honest About What the Sandwich Is Reacting To"}
-This dataset is not actually heteroscedastic. A Breusch-Pagan test on it returns $p =$ `r round(lmtest::bptest(TherapyModel)$p.value, 2)`, and the variance was built constant on purpose.
-
-So why did the standard errors grow? Participant 60, and now you have the formula to see exactly how.
+This dataset is not actually heteroscedastic. So why did the standard errors grow? Participant 60, and now you have the formula to see exactly how.
 
 The HC3 filling weights each observation by $e_i^2/(1-h_{ii})^2$. Participant 60 has a residual of about `r round(residuals(TherapyModel)[60], 1)` and a leverage of `r round(hatvalues(TherapyModel)[60], 3)`, against an average leverage of `r round(mean(hatvalues(TherapyModel)), 3)`. Squaring a residual that large is most of it; the leverage correction then multiplies that by a further `r round(1 / (1 - hatvalues(TherapyModel)[60])^2, 2)`.
 
@@ -499,7 +601,7 @@ This chapter used four packages, and it is worth knowing what each is for, becau
 |---|---|---|
 | **`car`** | `vif()`, and most of the regression diagnostics psychologists use | Companion to Fox and Weisberg's regression textbook [@fox2019] |
 | **`sandwich`** | `vcovHC()`, the robust covariance matrix itself | Zeileis's HC and HAC implementation [@zeileis2004] |
-| **`lmtest`** | `coeftest()` and `bptest()`, re-testing a model against a given covariance matrix | Zeileis and Hothorn's diagnostic-checking toolkit [@zeileis2002] |
+| **`lmtest`** | `coeftest()`, which re-tests a fitted model against any covariance matrix you hand it | Zeileis and Hothorn's diagnostic-checking toolkit [@zeileis2002] |
 | **`performance`** | `check_model()`, the all-in-one diagnostic panel | Part of the easystats project [@ludecke2021] |
 
 Note the division of labor between `sandwich` and `lmtest`, since it explains a call that otherwise looks fussy. `sandwich` *computes covariance matrices* and knows nothing about hypothesis tests. `lmtest` *runs tests* and does not care where the covariance matrix came from. That is why the robust *t*-test needs one function from each, and it is also why the same `vcovHC()` result can be handed to `confint()`, to `car::linearHypothesis()`, and to most other things that accept a `vcov` argument.

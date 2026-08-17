@@ -159,6 +159,62 @@ stop looking fussy. A `callout-tip` teaches `citation("sandwich")` and
 paper deriving every `HC` type ships *inside the installed package*. Ends on citing the packages
 you analyze with.
 
+---
+
+## Alex's edit pass + follow-up, 2026-08-17 (second round)
+
+**His request:** "for VIF, I like show side by side, an example that is perfectly collinear in the
+regression, then them one at a time and show what happens in estimates. I thought I had that in
+one of my lectures before you adapted it."
+
+**Answer on provenance: it was never in this repo.** Searched every `.qmd` (including the
+commented-out drafts) and `git log --all -S` for "perfectly collinear", "aliased", "singular",
+"rank deficient", "not defined because". Nothing. So it was not adapted away by any session; it
+lives in a lecture file outside the project.
+
+**Built it as three new subsections**, all verified before writing:
+- `### The Extreme Case: Two Predictors That Are Secretly One`. `FreeLunch` and
+  `PaidLunch = 1 - FreeLunch`, correlation exactly $-1$, chosen to match Alex's own free-lunch /
+  voucher paragraph further down so the demo and his theory point are the same example. `lm()`
+  prints **`Coefficients: (1 not defined because of singularities)`** and returns `NA`.
+  `alias(BothModel)` prints the dependency (`PaidLunch = 1 - FreeLunch`), which is a nice touch
+  most people have never seen. `vif()` **errors** with "there are aliased coefficients in the
+  model"; shown live using `#| error: true` so the reader sees the real message.
+- `### Now Enter Them One at a Time` — the side-by-side Alex asked for. Verified identities:
+  the two single-predictor models have **identical SE (2.0078), identical $|t|$ (12.1449), and
+  identical $R^2$ (0.5556)**, with slopes equal and opposite ($-24.38$ vs $+24.38$), and the
+  both-in model's $R^2$ is the same again. Fitted values agree to 1.4e-14. "They are not two
+  findings. They are one finding, and the direction is a decision you made."
+- `### The Version That Does Not Warn You` — the same pair with measurement error of sd $= 0.01$
+  added, so $r = -0.9993$. **Nothing errors.** Verified: free-lunch slope goes $-24.4 \to -95.2$,
+  **both predictors become nonsignificant** ($p = .088$ and $p = .202$) in data where the effect
+  is real and was overwhelming, VIF $= 762$, and $R^2$ barely moves ($.5556 \to .5617$). This is
+  the concrete version of Alex's "they will eat each other" and the text says so by name.
+- The existing $r = 0/.5/.9/.99$ table now follows as "the middle of the continuum" and its
+  heading changed to `What Trouble Actually Looks Like Across the Range`.
+
+**Alex's four edits to this chapter were read and kept.** The callout retitle ("Not Divine Law"),
+his new multicollinearity-as-theory-problem paragraph, his rewrite of the sandwich lead-in, and
+his deletion of the Breusch-Pagan sentence. **Genuine slips fixed in his new prose** (per §13,
+these were errors that were not *doing* anything): "be theory problem" → "be a theory problem";
+"Firs," → "First,"; "if you have to predictors" → "two predictors"; "the second is is the student
+part of" → "whether the student is part of"; "said they independent" → "said they are
+independent"; "who this sample" → "who the sample"; and the fragment "However, most people who
+could not say what is being made robust to what" → "most people using them could not say". Split
+his one long paragraph into three and linked it forward to the free-lunch demo. **The jokes and
+the casual register were left alone**, including "they will eat each other" and "cause".
+
+**Knock-on from his Breusch-Pagan deletion:** the packages table still advertised `bptest()`,
+which the chapter no longer calls. Cell rewritten to `coeftest()` only.
+
+**Bug found while verifying:** `` `PaidLunch` $= 1 - $ `FreeLunch` `` rendered as literal dollar
+signs, because pandoc will not parse inline math with a space immediately before the closing `$`.
+Rewrote in words. Swept both chapters for stray `$` in rendered prose afterwards: zero.
+
+Chapter is now **5,296 words**, em-dash density **0.19**.
+
+---
+
 **Five references added to `references.bib`**, all taken from each package's own `citation()`
 output rather than from memory: `white1980`, `longervin2000`, `fox2019`, `zeileis2004`,
 `zeileis2002`, `ludecke2021`. All verified to resolve in the rendered chapter.

@@ -158,6 +158,20 @@ chapter's own opener. Three new chunks, all verified:
 explicitly: reaching for Holm in a between-subjects pairwise design because it sounds more rigorous
 costs power exactly where the paper needs it. Four Short Story bullets added to match.
 
+**Read-through of Alex's edit pass, 2026-08-17.** His changes (italic *p* throughout, goat for
+goose, foam-bat for foam-chainsaw, "demand cookies", "a newer computer that can do a more powerful
+fancy test") were all kept. Two defects found and fixed:
+
+1. **`–––` rendered as literal triple en-dashes** in the nil-hypothesis sentence, line 80. His
+   em-dash cleanup had replaced `---` with three U+2013 characters, which is not a punctuation
+   mark and rendered visibly as "nil hypothesis–––a population difference". Converted to commas
+   per §14's "cut it to the right thing" (simple appositive aside). **Flagged rather than assumed:
+   revert to em-dashes if that was deliberate.** En dash itself is PDF-safe, so this was cosmetic
+   rather than a build risk.
+2. **A forward reference of mine pointed backwards.** The `adjust=` callout said "See the next
+   section for what FDR is actually good at", but the FDR section is *earlier* in the chapter.
+   Rewritten to point back at the dead-brain demonstration. My error, not his.
+
 **Bug found and fixed while verifying, worth knowing about.** Two inline `` `r signif(...)` ``
 expressions returning scientific notation rendered as literal **`5.99^{-10}`** in the HTML, not as
 math. Same family as the `R^2`-outside-math caret bug already logged in the README, but a different

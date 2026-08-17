@@ -77,7 +77,7 @@ Lane-Getaz documented thirteen recurring *p*-value misconceptions in statistics 
 
 ## Cohen's Complaint: The Ritual Ate the Science
 
-Cohen's title, *The Earth Is Round ($p < .05$)*, mocked the habit of testing a nearly certain or scientifically uninteresting null and then acting impressed when it was rejected [@cohen1994]. In much of psychology, an exact **nil hypothesis**–––a population difference or correlation of precisely zero–––is implausible. With a large enough sample, a trivial departure from zero can become statistically significant.
+Cohen's title, *The Earth Is Round ($p < .05$)*, mocked the habit of testing a nearly certain or scientifically uninteresting null and then acting impressed when it was rejected [@cohen1994]. In much of psychology, an exact **nil hypothesis**, a population difference or correlation of precisely zero, is implausible. With a large enough sample, a trivial departure from zero can become statistically significant.
 
 That produces two failures:
 
@@ -555,7 +555,7 @@ Pick by what the study is and what you are trying to learn, not by how many test
 - **Within-subjects or repeated measures?** `adjust = "holm"`. Tukey's studentized range assumes independent groups, which you do not have, and Holm stays valid under any dependence. The design has usually bought you the power to afford it.
 - **A handful of contrasts your theory named in advance?** `adjust = "holm"` again, and the family is those planned contrasts, not every pair the software is willing to generate.
 - **Exactly three groups behind a significant omnibus *F*?** `adjust = "none"` is defensible, and only there. That is the protected LSD case from the [categorical predictors chapter](Chapter_Regression%20with%20Cat%20Variables.qmd). At four groups, as above, it is the inflation problem wearing a lab coat.
-- **Screening a large pile of outcomes to decide what to study next?** `adjust = "fdr"`, and call the results exploratory, because that is what you have promised. See the next section for what FDR is actually good at.
+- **Screening a large pile of outcomes to decide what to study next?** `adjust = "fdr"`, and call the results exploratory, because that is what you have promised. The dead-brain demonstration earlier in this chapter is what that promise buys you.
 
 **The trap to avoid:** reaching for Holm in a between-subjects pairwise design because it sounds more rigorous than the default. On your strongest comparison Holm *is* Bonferroni, so that instinct costs you power at the exact place your paper needs it, and buys nothing Tukey was not already giving you.
 
