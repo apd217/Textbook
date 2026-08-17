@@ -21,30 +21,105 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## START HERE: status after the Part 3 session, 2026-08-17
+## START HERE: your job is chapters 22 through 26. Opened 2026-08-17.
 
-**Part 3 (chapters 19, 20, 21) is DONE and committed. Alex has not read it yet.** All ten items
-are implemented and marked, plus G01 and G02 where they applied. Three commits, one per chapter,
-on `review-implementation`. Not merged to main.
+### Correction first, because the previous version of this file was wrong
 
-| # | Chapter | Items | Commit |
-|---|---|---|---|
-| 19 | `Chapter_Advanced_Regression_Diagnostics.qmd` | P01, P02, P03, B01 + G02 | `684e754` |
-| 20 | `Chapter_Multiple_Comparisons.qmd` | P01, U01, U02 + G01, G02 | `2635bb5` |
-| 21 | `Chapter_Advanced_Interactions.qmd` | P01, P02, B01 + G02 | `94616c6` |
+**Earlier versions of this file claimed "Nothing in `10`–`25` is outstanding."** That is false and
+it was repeated for several sessions. **Chapters 22, 23, 24, 25 and 26 have never been
+implemented.** Verified 2026-08-17 by `git log` per file: apart from the book-wide italic *t*/*F*
+sweep touching `Chapter_ChiSquare.qmd`, none of those five files has been modified since the
+initial import. All **17 items are outstanding**, and G01 is still undone on three of them.
 
-**Alex approved cold opens for 19 and 21 before implementation.** That is now five chapters
-running (15, 16, 18, 19, 21) where flagging a §15 failure and asking produced a yes. **Keep
-flagging openings.** Chapter 20 was checked and deliberately left alone: the dead-salmon opener
-is the §15 target state.
+Alex's response on being shown this: *"I forgot about those. We need to do all of them."* So all
+five are the job. **Do not trust a status claim in this file that you have not checked against
+`git log`.**
 
-**Both chapters roughly doubled in length** (19: 1,350 to 3,078 words; 21: 2,200 to 3,124;
-20: 2,500 to 3,183). That is the altitude Alex explicitly authorized for the grad-prep chapters,
-spent on demonstrations rather than prose. Em-dash density is 0.32 / 0.94 / 0.32, all at or under
-target. **If Alex thinks these grew too much, the cold opens and the `---Alex---` comments mark
-the removable seams.**
+### The five chapters
 
-### What this session established, in priority order for whoever is next
+| # | Chapter | Review file | Items | Words | Dash/1k | Notes |
+|---|---|---|---|---|---|---|
+| 22 | `Chapter_ChiSquare.qmd` | `22_...md` | P01, P02, B01, B02, U01 | 3,492 | **2.00** | **Two HIGH items.** Biggest job of the five. YAML residue + injects `amsmath`. |
+| 23 | `Chapter_Nonparametric_Tests.qmd` | `23_...md` | P01, U01, U02 | 1,422 | **2.81** | Worst dash density outside Part 1. YAML residue. |
+| 24 | `Chapter_Bootstrapping.qmd` | `24_...md` | P01, U01, B01 | 2,419 | 0.41 | Grad-level. YAML already clean. |
+| 25 | `Chapter_Reporting.qmd` | `25_...md` | U01, U02, U03, B01 | 595 | **1.68** | Shortest chapter in the book. YAML clean. |
+| 26 | `Chapter_Tidyverse_Review.qmd` | `26_...md` | U01, B01 | 1,222 | 0.82 | YAML residue. Anchors the G06 pipe sweep. |
+
+**Every item is approved.** Approval is not the gate; they were all ticked on 2026-08-15.
+
+**Three of the five are above the 1.2 em-dash target** (22, 23, 25), and 23 at 2.81 is the worst
+in the book outside the two untouchable Part 1 chapters. Fix the density in the chapter you are
+working on, per VOICE_GUIDE §14: a colon when the second half explains the first, a comma for a
+simple aside, a full stop when it is really its own sentence, and in a heading just delete it.
+**Do not do a global dash replace** — it mangles hyphenated compounds, which is what Check 3 of
+`check_render_safety.R` exists to catch.
+
+**Suggested grouping, and the reasoning matters more than the grouping:**
+
+1. **22 on its own.** It is the largest, it has both HIGH items, and CH22-P01 is a wrong number
+   propagated three times, so the whole chapter needs its arithmetic re-run before any prose is
+   written. Do not tack it onto anything.
+2. **23 + 24 together.** Both live in "Other Statistical Creatures" and both are about what to do
+   when assumptions fail, so they share a register. CH24-P01 is *the same shape* as CH19-P03 from
+   the last session: the chapter is standing inside a demonstration of its own point and never says
+   so. That one is the highest-value item in the pair.
+3. **25 + 26 together.** They are the whole final part, they are the two shortest, and each carries
+   one item that is really a **book-level decision for Alex** (CH25-B01, the part title promises
+   troubleshooting and delivers a style guide; CH26-B01, the `%>%` versus `|>` sweep, which is
+   cross-cutting item G06). Ask both early.
+
+### Things this session learned that apply directly to 22 through 26
+
+1. **CH22-P01 is the sixth consecutive session's worth of evidence that you must run the numbers.**
+   The hand calculation gives 127.14, three write-ups say 124.14, and `chisq.test()` prints
+   ~127.13. Fix it by making the value **inline** (`` `r round(MCQ.chi$statistic, 2)` ``) so it
+   cannot drift again. Same for CH22-P02's 16.08-versus-15.57 Yates mismatch.
+2. **CH22-B01 is a direction problem, and the last session hit two of these.** The chapter believes
+   it comes *before* hypothesis testing and defers multiplicity to "the advanced chapter later in
+   this book" — but Multiple Comparisons is now **Chapter 20, earlier**. Check `_quarto.yml`, never
+   the item, for what "later" and "earlier" mean. Ch20 now has a lot this chapter can point at,
+   including a dead-brain FDR demonstration and a section on defining a family.
+3. **CH24-P01 has a known trap in its own Fix text.** It says "if the seed makes it underwhelming,
+   nudge the heteroscedasticity." Nudge the *design*, never the seed — see VOICE_GUIDE §17 and the
+   three-pass calibration of Ch20's demos last session.
+4. **CH25-U02 wants an APA formatting table** including the italics rules. Note that the book has
+   already swept `*t*` and `*F*` but deliberately left `p`, `r`, `M`, `SD`, `N`, `df` plain
+   (VOICE_GUIDE §14). **If that table is written, it will document a convention the book does not
+   yet follow.** Ask Alex whether writing it means committing to the sweep.
+5. **Check each chapter's opening against §15 and flag it.** Alex has now said yes to a cold open
+   five times running (15, 16, 18, 19, 21) when asked first, and no to touching Ch20's, which was
+   already right. He should never discover a voice pass in a diff.
+6. **Two rendering traps that will bite in a chi-square chapter**, both detailed in the Part 3
+   record below: never put scientific notation in an inline `` `r ` `` expression (it renders as
+   the literal string `5.99^{-10}`, and chi-square p-values will trigger it), and never leave a
+   space before the closing `$` of inline math (`$= 1 - $` renders as literal dollar signs).
+   Sweep the rendered HTML for stray `$` in prose, and for `\d\^\{-?\d+\}`, before committing.
+7. **Alex edits between sessions and his edits sometimes need repair.** Last session his new prose
+   carried six genuine slips and one broken sentence, and an em-dash cleanup left `–––` (three
+   literal en-dashes) rendering visibly in Ch20. Fix genuine slips; leave the jokes and the casual
+   register alone (VOICE_GUIDE §13). Re-render and re-read after he edits.
+
+### The Part 3 record (chapters 19, 20, 21), kept for the lessons
+
+**Part 3 is DONE, committed, and Alex has read and edited all three.** Do not reopen them.
+
+| # | Chapter | Items | Final size | Em-dash / 1k |
+|---|---|---|---|---|
+| 19 | `Chapter_Advanced_Regression_Diagnostics.qmd` | P01, P02, P03, B01 + G02 | 5,207 words | 0.19 |
+| 20 | `Chapter_Multiple_Comparisons.qmd` | P01, U01, U02 + G01, G02 | 4,885 words | 0.20 |
+| 21 | `Chapter_Advanced_Interactions.qmd` | P01, P02, B01 + G02 | 3,441 words | 0.29 |
+
+All three grew substantially past their reviewed size, because Alex asked twice for *more*
+explanation rather than less: VIF gained its standard-error derivation and a perfect-collinearity
+demo, the sandwich estimator gained a full bread/filling/bread derivation and the HC0–HC3 ladder,
+Tukey gained a studentized-range explanation with design-based guidance, and FDR gained a
+dead-brain calibration demo. **The altitude was explicitly authorized for these chapters. Do not
+assume the same licence for 22 through 26**, where ChiSquare and Tidyverse_Review serve
+undergraduates.
+
+Alex approved cold opens for 19 and 21 before implementation, which is five chapters running
+(15, 16, 18, 19, 21) where flagging a §15 failure produced a yes. Ch20's dead-salmon opener was
+checked and deliberately left alone.
 
 1. **Running the numbers caught something in a sixth consecutive session, and this time it
    caught the *review items* twice and my own draft prose twice.** CH19-P02's "optional"
@@ -91,18 +166,44 @@ the removable seams.**
 4. **Check each chapter's opening against §15 before item work, and flag it rather than
    rewriting.** Alex should not discover a voice pass in a diff.
 
-### What is left in the book
+### What is left in the book, verified 2026-08-17
 
-**No `CHnn` item in `01` through `26` is outstanding.** What remains:
+**Chapters 01 through 21 are implemented.** Every `CHnn` item in `01`–`21` is marked. Alex has
+read and edited 14 through 21 himself.
 
-- **Alex's reading pass on 19, 20 and 21.** Nothing else in Part 3 is blocked on anything.
-- **G05b, now unblocked** (see loose end 4 below): 28 invisible `library()` calls across 8
-  chapters. Alex answered the open question on 2026-08-17, so this is mechanical now.
-- **CH18-DUP01, now decided** (loose end 1): retire `Chapter_Mixed_Designs.qmd`. Not yet done.
+**Chapters 22 through 26 are the outstanding per-chapter work**, 17 items. See the table above.
+
+Beyond those:
+
+- **Alex's reading pass on 19, 20 and 21 is done**; his edits are committed.
+- **G05b, now unblocked:** 28 invisible `library()` calls across 8 chapters. Alex answered the
+  open question on 2026-08-17 (delete the hidden block), so this is mechanical now. None of
+  chapters 19–21 had such a block; some of 22–26 may.
+- **G01 is still outstanding on `ChiSquare`, `Nonparametric_Tests` and `Tidyverse_Review`.**
+  ChiSquare additionally injects `amsmath` into the PDF header; check whether anything still
+  needs it after the strip.
+- **G06 (the `%>%` → `|>` sweep) is anchored at CH26-B01** and should be settled while Ch26 is
+  open, since that chapter is where the book admits the inconsistency.
+- **CH18-DUP01, decided but not executed:** retire `Chapter_Mixed_Designs.qmd`.
 - **The commented-out draft chapters**, of which `Chapter_Advanced_Contrasts_ANOVA.qmd` is the
-  ripest and now the most natural next chapter, since Part 3's three active chapters are finished.
+  ripest.
 - **G03, G04, G07, G09** and the other cross-cutting items that were never per-chapter work.
 - **Two Part 1 chapters above the em-dash target**, which nobody is authorized to touch.
+
+### Decisions to put in front of Alex early in the next session
+
+1. **CH25-B01, the part title.** "When R Inevitably Betrays You" contains no troubleshooting; its
+   two chapters are Reporting and a Tidyverse review. Rename the part, or write the missing
+   troubleshooting appendix? His call, and it affects how Ch25 and Ch26 are framed.
+2. **CH26-B01 / G06, the pipe.** Sweep `%>%` → `|>` book-wide, or just move Ch26's "the old pipe
+   means the same thing" explanation into `R_Basics` so readers meet the explanation before the
+   inconsistency? The full sweep touches several finished chapters, which is why it needs a yes.
+3. **CH25-U02, the APA formatting table.** Writing it documents italics rules for `p`, `r`, `M`,
+   `SD`, `N`, `df` that the book deliberately does **not** yet follow (VOICE_GUIDE §14). Does
+   writing the table mean committing to that sweep?
+4. **CH22-B01's alternative.** The item notes ChiSquare could instead be *moved* to serve as an
+   early gentle intro to hypothesis testing, since its null-simulation build-up is self-contained.
+   Fixing the references in place is the cheap recommended path, but the move is Alex's to reject.
 
 ### Hard-won rules that keep paying off
 
@@ -124,7 +225,7 @@ the removable seams.**
   restore `_freeze/site_libs` if it shows deleted, and restore `_freeze/<other chapters>` too.
   This happened every single render in the Ch18 session.
 
-### Loose ends that are not Part 3, listed so they are not lost
+### Loose ends, listed so they are not lost
 
 1. **CH18-DUP01: ANSWERED by Alex, 2026-08-17. `Chapter_Mixed_Designs.qmd` is the one that
    retires.** `Chapter_Mixed_Change_Over_Time.qmd` wins: it is the verified 2×4 material,
