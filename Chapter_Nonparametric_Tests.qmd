@@ -1,12 +1,5 @@
 ---
 title: "Nonparametric Tests: When the Data Refuse to Behave"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r}
@@ -57,6 +50,7 @@ Pearson's chi-square uses an approximation that works well when expected counts 
 Suppose sixteen students volunteer for an escape-room study. Half receive calm-breathing instructions. Half are pursued by a research assistant holding a foam chainsaw and repeatedly yelling, "This was approved by the IRB!" The outcome is whether they escape before the timer expires.
 
 ```{r}
+#| label: escape-table
 escape_table <- matrix(
   c(1, 7,
     6, 2),
@@ -84,6 +78,7 @@ The **binomial test** handles a binary outcome when trials are independent and t
 Suppose 18 of 24 students report hearing colors after consuming a legally and ethically questionable quantity of caffeine. If "yes" and "no" were equally likely, the null probability would be $.50$.
 
 ```{r}
+#| label: binomial-test
 binom.test(
   x = 18,
   n = 24,
@@ -105,6 +100,7 @@ The **sign test** is a binomial test applied to paired differences. It ignores h
 Suppose students rate exam panic before and after receiving a one-page study guide. Lower scores are better.
 
 ```{r}
+#| label: sign-test
 panic_before <- c(8, 7, 9, 6, 8, 7, 9, 5, 8, 6, 7, 9, 8, 6, 7, 8)
 panic_after  <- c(5, 6, 7, 6, 4, 5, 6, 4, 7, 5, 7, 5, 6, 7, 5, 6)
 
@@ -121,13 +117,14 @@ The sign test is wonderfully stubborn: a one-point improvement and a seven-point
 
 Ranking replaces the original scores with their ordered positions. The smallest score gets the lowest rank, the next score gets the next rank, and tied scores share ranks. Extreme raw values therefore lose much of their power to terrorize the analysis.
 
-However, a rank test does not automatically become "a test of medians." Under additional assumptions—especially similarly shaped distributions—it may be interpreted as a location or median comparison. Without those assumptions, the safer question is whether scores from one condition tend to be higher or lower than scores from the other.
+However, a rank test does not automatically become "a test of medians." Under additional assumptions, especially similarly shaped distributions, it may be interpreted as a location or median comparison. Without those assumptions, the safer question is whether scores from one condition tend to be higher or lower than scores from the other.
 
 ### Two Independent Groups: Wilcoxon Rank-Sum
 
 The **Wilcoxon rank-sum test**, also called the **Mann--Whitney U test**, compares two independent groups.
 
 ```{r}
+#| label: rank-sum
 fear_data <- data.frame(
   training = factor(rep(c("Breathing", "Foam chainsaw"), each = 10)),
   fear = c(
@@ -146,7 +143,41 @@ wilcox.test(
 )
 ```
 
+`exact = FALSE` asks for the normal approximation. Psychology data tie constantly, and with tied ranks R cannot compute an exact p-value: it warns you and falls back to the approximation anyway. We are just telling it upfront so nobody panics at a red message. Every rank test in this chapter does the same thing for the same reason.
+
 The groups are independent because each student appears in only one training condition. If Alex secretly reuses the same students because recruitment is annoying, the design becomes paired and the analysis must change. Laziness is not a covariance structure.
+
+### Reading the Line Everyone Skips
+
+That output has a line labeled **difference in location**, and it is the most useful number on the page. It is the **Hodges--Lehmann estimate**, and it is defined by something you can do by hand: pair every Breathing score with every Foam chainsaw score, take all one hundred differences, and take the median of those.
+
+```{r}
+#| label: hodges-lehmann-by-hand
+breathing <- fear_data$fear[fear_data$training == "Breathing"]
+chainsaw  <- fear_data$fear[fear_data$training == "Foam chainsaw"]
+
+all_pairwise_differences <- outer(breathing, chainsaw, "-")
+
+c(
+  n_pairs = length(all_pairwise_differences),
+  hodges_lehmann = median(all_pairwise_differences)
+)
+```
+
+Same number R printed. A typical Breathing student sits about four fear points below a typical chainsaw student, and the confidence interval says the data are consistent with a shift somewhere between three and five points. That is an effect size **in the units of the thing you measured**, which is what item 4 of the reporting checklist below is asking for. Report it with the group medians and IQRs and you have satisfied items 3 and 4 in one breath.
+
+Note that this is a shift estimate, not a difference of the two medians. Here they happen to be close, but they are different quantities and only one of them comes with an interval.
+
+If a reviewer wants a standardized effect size instead, the rank-based analogue of a correlation is the **rank-biserial correlation**:
+
+```{r}
+#| label: rank-biserial
+library(effectsize)
+
+rank_biserial(fear ~ training, data = fear_data)
+```
+
+It runs from $-1$ to $1$ and answers "how often does a score from one group beat a score from the other." At $-0.98$ these two groups barely overlap, which you can see by looking at the raw numbers: the highest Breathing score is a 6 and the lowest chainsaw score is a 6. Standardized values are handy for meta-analysis and for reviewers who want a number they can compare across studies. For everyone else, four fear points is easier to understand than $-0.98$.
 
 ### Two Paired Conditions: Wilcoxon Signed-Rank
 
@@ -155,6 +186,7 @@ The **Wilcoxon signed-rank test** uses both the direction and rank of the absolu
 Use the two-vector interface in modern R:
 
 ```{r}
+#| label: signed-rank
 wilcox.test(
   x = panic_before,
   y = panic_after,
@@ -163,6 +195,8 @@ wilcox.test(
   conf.int = TRUE
 )
 ```
+
+This output labels its estimate **(pseudo)median** rather than "difference in location," which is R being fussy but correct. It is the same Hodges--Lehmann idea applied to one set of paired differences: average every difference with every other difference, including itself, and take the median of those averages. Read it the same way. Panic dropped by about a point and a half, and the interval runs from 1 to 2.5.
 
 Do **not** write `wilcox.test(score ~ condition, paired = TRUE)`. The formula method does not safely identify which observation should be paired with which. Giving the two aligned vectors makes the pairing explicit and prevents R from responding with the statistical equivalent of "I have no idea which student is which."
 
@@ -173,6 +207,7 @@ Do **not** write `wilcox.test(score ~ condition, paired = TRUE)`. The formula me
 The **Kruskal--Wallis test** extends rank-based comparison to three or more independent groups. It is the common nonparametric relative of a one-way independent-groups ANOVA.
 
 ```{r}
+#| label: kruskal-test
 coping_data <- data.frame(
   strategy = factor(rep(c("Breathing", "Pep talk", "Statistics ritual"), each = 8)),
   panic = c(
@@ -188,6 +223,7 @@ kruskal.test(panic ~ strategy, data = coping_data)
 A significant result says that the groups do not all behave alike. It does not say which pairs differ. Follow-up pairwise Wilcoxon tests need a multiple-comparison correction:
 
 ```{r}
+#| label: pairwise-wilcox
 pairwise.wilcox.test(
   x = coping_data$panic,
   g = coping_data$strategy,
@@ -203,6 +239,7 @@ Holm's method controls the familywise error rate and is generally preferable to 
 The **Friedman test** compares three or more repeated conditions. Each row below is one student; each column is something the student was asked to confront.
 
 ```{r}
+#| label: friedman-test
 fear_matrix <- matrix(
   c(
     2, 6, 9,
@@ -229,6 +266,7 @@ friedman.test(fear_matrix)
 The blocking variable is the student: every student contributes one score to every condition. Follow-up paired Wilcoxon tests can compare condition pairs, again with corrected p-values.
 
 ```{r}
+#| label: friedman-followups
 pair_names <- combn(colnames(fear_matrix), 2, simplify = FALSE)
 
 raw_p <- vapply(pair_names, function(pair) {
@@ -271,6 +309,15 @@ Report enough information for a reader to understand both the result and the dat
 
 The test is only one sentence in the argument. The data, design, effect size, uncertainty, and actual psychological question still have to show up for work.
 
+## The Short Story
+
+- **Nonparametric does not mean assumption-free.** It means fewer assumptions, or different ones. Independence, sampling, and measurement still apply, and no test has ever been forgiven for a broken design.
+- **These tests change the question.** Counts, signs, and ranks are not stand-ins for means. A rank test asks whether scores from one condition tend to be higher, which is a different sentence from "the means differ" and should be written as a different sentence.
+- **Pick by design and question, not by a normality test at 2 a.m.** Normality tests find harmless departures in big samples and miss serious ones in small samples, which is exactly backwards from what you wanted.
+- **The decision table above is the map.** Design and outcome type get you to the right test. They do not get you to a defensible study.
+- **Three or more conditions means follow-ups, and follow-ups mean a family.** Kruskal--Wallis and Friedman are omnibus tests. Correct the pairwise comparisons; Holm is the sensible default.
+- **Report medians and IQRs, the Hodges--Lehmann shift with its interval, and how you handled ties.** The shift is in the units you measured, which beats a standardized coefficient for everyone except a meta-analyst.
+
 ::: {.callout-warning title="Nonparametric Does Not Mean Assumption-Free"}
-Rank and exact tests make different assumptions and often answer different questions from their parametric cousins. Choose one because it fits the design, scale, and scientific question—not because the data offended a normality test at 2:00 a.m.
+Rank and exact tests make different assumptions and often answer different questions from their parametric cousins. Choose one because it fits the design, scale, and scientific question, not because the data offended a normality test at 2:00 a.m.
 :::
