@@ -48,7 +48,9 @@ book:
       #  - Chapter_GLM.qmd
       #  - Chapter_Mediation.qmd
       #  - Chapter_Moderated_Mediation.qmd
-
+  #  - part: "ANOVA is dead, Long Live ANOVA"
+  #    chapters:
+  
   #  - part: "Mixed Models: An Ultra Quick Tour of the Basics"
   #    chapters:
   #      - Chapter_Mixed_Foundations.qmd
@@ -61,7 +63,9 @@ book:
         - Chapter_Nonparametric_Tests.qmd
         - Chapter_Bootstrapping.qmd
      #  - Chapter_EFA.qmd
-    - part: "When R Inevitably Betrays You"
+    # Renamed from "When R Inevitably Betrays You" (CH25-B01): that title promised
+    # troubleshooting and the part contains a reporting guide and a tidyverse review.
+    - part: "The Paperwork"
       chapters:
         - Chapter_Reporting.qmd
         - Chapter_Tidyverse_Review.qmd

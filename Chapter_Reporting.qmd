@@ -76,6 +76,21 @@ knitr::kable(
 
 For mixed models, use `broom.mixed::tidy()` because fixed effects, random-effect parameters, and model components require more supervision.
 
+### The One-Line Version You Will Actually Use on a Poster
+
+`broom::tidy()` plus `kable()` is the version you should understand, because it shows you that a table is just a data frame you built on purpose. When you need a publication-ready table right now, `sjPlot` (already the plotting package for this course) does the whole thing in one line:
+
+```{r reporting-sjplot}
+#| eval: !expr knitr::is_html_output()
+# sjPlot: model tables and plots. tab_model() writes HTML, so this chunk only
+# runs for the web version of the book.
+library(sjPlot)
+
+tab_model(ReportModel)
+```
+
+It gives you estimates, confidence intervals, p-values, $R^2$, and $N$ without you typing a single number. Use it. Just remember that a beautiful table of a bad model is still a bad model: the checklist in the next section governs what belongs in the table, no matter who typeset it.
+
 ## What Belongs in a Regression Table?
 
 At minimum:
@@ -93,9 +108,32 @@ Standardized coefficients may supplement, not automatically replace, coefficient
 Stars can help scan a table. They do not describe magnitude, uncertainty, practical importance, or whether the model made sense. Never make the reader infer the entire conclusion from celestial punctuation.
 :::
 
+## The APA Formatting Rules Nobody Tells You
+
+Every chapter in this book has shown you an APA write-up. None of them stopped to say what the typographic rules actually are, and those rules are what you get points taken off for. Here they are in one place.
+
+| Rule | Wrong | Right |
+|---|---|---|
+| Statistical symbols are italic | t(176) = 11.28 | *t*(176) = 11.28 |
+| No leading zero when the number cannot exceed 1 | *p* = 0.067, *r* = 0.42 | *p* = .067, *r* = .42 |
+| Keep the leading zero when it can | *b* = .60, *M* = .48 | *b* = 0.60, *M* = 0.48 |
+| Two decimals for most statistics | *b* = 3.5997 | *b* = 3.60 |
+| Exact *p*, two or three decimals, with *p* < .001 as the floor | *p* < .05 | *p* = .067, or *p* < .001 |
+| Degrees of freedom in parentheses, attached to the symbol | *F* = 53.83, *df* = 3, 176 | *F*(3, 176) = 53.83 |
+| Spaces around =, < and > | *p*=.067 | *p* = .067 |
+| Confidence intervals in square brackets, comma between | CI = (2.97-4.23) | 95% CI [2.97, 4.23] |
+| Sample size travels with the statistic that needs it | $\chi^2 = 16.08$ | $\chi^2(1, N = 1379) = 16.08$ |
+
+The italic rule is the one people lose points on, and the logic is simpler than it looks: **a Latin letter standing in for a statistic leans; a Greek letter does not.** So *M*, *SD*, *SE*, *N*, *n*, *p*, *r*, *t*, *F*, *b*, *d*, *df*, *OR* and $R^2$ are all italic, while $\alpha$, $\beta$, $\chi^2$ and $\sigma$ stay upright. The one Latin exception worth memorizing is **CI**, which is an abbreviation of two English words rather than a symbol, and stays upright.
+
+Inside math it is handled for you: write `$t(98)$` or `$F(1, 97)$` and LaTeX italicizes the letter itself. Outside math you have to ask, which is why this book writes `*t*-test` rather than `t-test`.
+
+Every write-up example in this book follows these rules. When your poster does not, the TA will find it, and the TA will be correct.
+
 ## Plot Model-Based Predictions
 
 ```{r reporting-figure, fig.width=7, fig.height=4.8}
+#| fig-alt: "Scatterplot of memory score against hours of sleep, 180 faint grey points spread widely between about 36 and 87. Two straight prediction lines run across them, both climbing from left to right at the same slope: an orange Training line from about 51 to 73, and a blue Control line about five points below it throughout, from about 46 to 68. The lines are parallel because the model has no interaction term, and the vertical gap between them is the condition effect."
 PredictionData <- expand.grid(
   Sleep = seq(3, 9, length.out = 100),
   Caffeine = mean(ReportData$Caffeine),
@@ -125,9 +163,42 @@ Figures should show the comparison the model actually tested. Label axes in mean
 
 ## Example Write-Up
 
-> A multiple regression examined whether sleep, caffeine consumption, and training condition predicted memory scores. Holding caffeine and condition constant, each additional hour of sleep predicted an estimated increase in memory performance. Training participants also had higher predicted scores than control participants at the same sleep and caffeine values. Caffeine showed a small negative adjusted association with memory. We report unstandardized coefficients and 95% confidence intervals in Table X. Diagnostic plots did not reveal a consequential violation of linearity or constant residual variance.
+```{r reporting-inline-values}
+#| include: false
+# Scaffolding, not material. Every number in the paragraph below is pulled from
+# the fitted object, so the prose cannot drift away from the model.
+b     <- coef(ReportModel)
+ci    <- confint(ReportModel)
+tvals <- summary(ReportModel)$coefficients[, "t value"]
+pvals <- summary(ReportModel)$coefficients[, "Pr(>|t|)"]
+fstat <- summary(ReportModel)$fstatistic
 
-Replace that language with the actual numerical estimates from the model. The paragraph should interpret the most important coefficients rather than reciting every cell in the table aloud.
+# APA: two decimals by default, no leading zero on anything bounded by 1,
+# exact p down to .001. sprintf() rather than round() so trailing zeros survive.
+fmt     <- function(x, d = 2) sprintf(paste0("%.", d, "f"), x)
+no_zero <- function(x, d = 2) sub("^(-?)0", "\\1", fmt(x, d))
+apa_p   <- function(p) if (p < .001) "p < .001" else paste0("p = ", no_zero(p, 3))
+```
+
+> A multiple regression examined whether sleep, caffeine consumption, and training condition predicted memory scores, $R^2 =$ `r no_zero(summary(ReportModel)$r.squared)`, adjusted $R^2 =$ `r no_zero(summary(ReportModel)$adj.r.squared)`, $F(`r fstat[2]`, `r fstat[3]`) =$ `r fmt(fstat[1])`, $p < .001$. Holding caffeine and condition constant, each additional hour of sleep predicted an estimated `r fmt(b["Sleep"])`-point increase in memory performance, 95% CI [`r fmt(ci["Sleep", 1])`, `r fmt(ci["Sleep", 2])`], $t(`r ReportModel$df.residual`) =$ `r fmt(tvals["Sleep"])`, $p < .001$. Training participants scored `r fmt(b["ConditionTraining"])` points higher than control participants at the same sleep and caffeine values, 95% CI [`r fmt(ci["ConditionTraining", 1])`, `r fmt(ci["ConditionTraining", 2])`], $t(`r ReportModel$df.residual`) =$ `r fmt(tvals["ConditionTraining"])`, $p < .001$. Caffeine showed a small negative adjusted association that was not statistically distinguishable from zero, $b =$ `r fmt(b["Caffeine"], 3)` points per milligram, or about `r fmt(abs(b["Caffeine"]) * 100, 1)` points lower per 100 mg, 95% CI [`r fmt(ci["Caffeine", 1], 3)`, `r fmt(ci["Caffeine", 2], 3)`], $t(`r ReportModel$df.residual`) =$ `r fmt(tvals["Caffeine"])`, `r apa_p(pvals["Caffeine"])`. Unstandardized coefficients and 95% confidence intervals appear in Table 2.
+
+Every number in that paragraph was computed inline from `ReportModel`. Nothing was typed. If the model changes, the paragraph changes with it, which is the entire trick.
+
+Underneath the numbers there is a template you can reuse for any coefficient: **claim in units, then the statistics in parentheses, then what it does and does not support.** Interpret the coefficients that answer the research question rather than reciting every cell of the table aloud.
+
+Notice what the caffeine sentence does. The estimate is negative, and it is also compatible with zero, so the sentence says both things and does not promote a non-significant coefficient to a finding by describing it confidently. That sentence is the one reviewers read most carefully.
+
+A real write-up also ends with a sentence about diagnostics: what you checked, and whether anything you found changed the interpretation. See the Advanced Regression Diagnostics chapter for what belongs in it.
+
+<!-- ---Alex--- The old version of this paragraph ended with "Diagnostic plots did not
+     reveal a consequential violation of linearity or constant residual variance." I cut
+     that clause rather than filling it in, because it is not true of this model: the
+     errors are simulated homoscedastic, but `lmtest::bptest(ReportModel)` returns
+     p = .003 on this particular draw. Rather than assert a diagnostic the chapter never
+     runs, or bolt a diagnostics section onto a chapter whose brevity the review says is
+     right, I replaced it with a pointer to Ch19. Say the word if you would rather the
+     chapter actually ran the diagnostics here. -->
+
 
 ## Reproducibility Checklist
 
@@ -145,4 +216,9 @@ Future You will not remember why `Model.Final.2.REAL.useThisOne` excludes partic
 
 ## The Short Story
 
-Report the scientific result, estimate, uncertainty, effect size, model fit, and limitations. Generate output from model objects, use figures to clarify relationships, and leave a reproducible trail for readers and Future You.
+- **Lead with the scientific result, not the software.** "Each additional hour of sleep predicted about 3.6 more memory points" is a finding. "The regression was significant" is a status update.
+- **Report the estimate, its uncertainty, an effect size or model fit, and the limits.** A coefficient with no interval is half a result.
+- **Generate every number from the fitted object.** Inline code and `broom::tidy()` cost less than one round of manual transcription, and they cannot report Model 4's coefficient beside Model 6's p-value.
+- **Say what the result does not support.** A coefficient compatible with zero gets described as compatible with zero.
+- **Follow the formatting rules above.** Italics, leading zeros, exact *p*, df in parentheses. They are free points.
+- **Leave a reproducible trail**, because Future You is an unreliable collaborator who will not remember why participant 88 is missing.
