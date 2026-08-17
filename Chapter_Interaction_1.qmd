@@ -1,17 +1,5 @@
 ---
 title: "Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another"
-geometry: margin=.5in
-fontsize: 10pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
-  html:
-    toc: true
-    toc-depth: 1
-    number-sections: true
-    df-print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -30,8 +18,59 @@ library(ggplot2)
 library(GGally)
 library(emmeans)
 library(gridExtra)
+library(sjPlot)
 ```
 
+```{r simulate-data, include=FALSE}
+set.seed(42)
+n <- 200
+X <- runif(n, 0, 10)
+Z <- rbinom(n, 1, 0.5)
+Y <- 0.05 * X + 0 * Z + 5 * X * Z + 15 + rnorm(n, sd = 7)
+Friend.Data <- data.frame(BeingNice = X, GoingOut = Z, Closeness = Y)
+Friend.Data$GoingOut_ <- factor(Friend.Data$GoingOut,
+                                levels = c(0, 1),
+                                labels = c("Stay in", "Go out"))
+```
+
+<!-- ---Alex--- New cold open, replacing the recap that used to sit at the top. The
+     old "Where We Are and Where We Are Going" section is still here, just demoted
+     below it, which is the same shape Ch15 ended up with. The demonstration is the
+     two separate regressions the chapter already described in the abstract further
+     down ("Imagine, for a moment..."); making it real up front means the abstract
+     version could be cut, and B3 becomes a payoff instead of a new fact. -->
+
+## Two Slopes, and Nothing That Compares Them
+
+Here is a study you could run tomorrow. Follow 200 first-semester students. Have a trained panel rate how warm and agreeable each one is, 0 to 10. Note whether they actually went out to parties and social events, or stayed home all semester. At the end of the term, ask each student how close a friendship they formed with one particular person they met in week one, on a 0 to 100 thermometer.
+
+Then split them into the ones who went out and the ones who stayed in, and run an ordinary regression in each half predicting closeness from niceness. Two groups, two regressions, nothing you have not already done a dozen times.
+
+```{r cold-open-two-regressions, echo=TRUE}
+Stay.In <- subset(Friend.Data, GoingOut_ == "Stay in")
+Go.Out  <- subset(Friend.Data, GoingOut_ == "Go out")
+
+coef(summary(lm(Closeness ~ BeingNice, data = Stay.In)))
+coef(summary(lm(Closeness ~ BeingNice, data = Go.Out)))
+```
+
+```{r cold-open-store, include=FALSE}
+cold_stay <- coef(lm(Closeness ~ BeingNice, data = Stay.In))[2]
+cold_go   <- coef(lm(Closeness ~ BeingNice, data = Go.Out))[2]
+cold_p_stay <- coef(summary(lm(Closeness ~ BeingNice, data = Stay.In)))[2, 4]
+```
+
+Read the two slopes. Among students who stayed in, each point of niceness buys `r round(cold_stay, 2)` points of closeness, which is nothing, and the *p*-value of `r round(cold_p_stay, 2)` agrees that it is nothing. Among students who went out, each point of niceness buys `r round(cold_go, 2)` points, and its *p*-value has run off the bottom of the printout. Same trait, same outcome, same semester, same campus. Being nice appears to be worth something to one group and nothing at all to the other.
+
+Great. Being nice only pays off if you leave the house. Write it up, submit it, wait.
+
+Now defend it. A reviewer asks the one question anybody would ask: are those two slopes *actually* different, or did two numbers just bounce apart the way numbers do? Go find that test in the output above.
+
+It is not there. You have two intercepts, two slopes, four standard errors and four *p*-values, and every single one of them is a statement about one group considered entirely on its own. The first table has never heard of the second table. The comparison the whole study was built to make is the one comparison neither regression performed, and no amount of staring at `0.35` and `<.001` will conjure it, because a small *p*-value and a large one are not a test of the distance between them.
+
+That missing test is what this chapter is for. The tool is called an **interaction**, and by the end of it you will have these exact two slopes back, `r round(cold_stay, 2)` and `r round(cold_go, 2)`, living inside one model that also hands you a significance test for the gap between them.
+
+*You cannot test a difference with two analyses that have never met.*
 
 ## Where We Are and Where We Are Going
 
@@ -67,7 +106,7 @@ In everyday conversation, "it depends" can sound like an evasion, a way of refus
 
 Let's make this concrete. There are two fundamentally different ways the world could work in our friendship study.
 
-**Possibility 1: Being nice always helps (no interaction).** Whether you stay in or go out, being a nicer person leads to a closer friendship. The social opportunities provided by going out matter too: going out gives you more friends overall, but the *benefit of being nice* is the same either way.
+**Possibility 1: Being nice always helps (no interaction).** Whether you stay in or go out, being a nicer person leads to a closer friendship. The social opportunities provided by going out matter too: going out raises closeness overall, but the *benefit of being nice* is the same either way.
 
 **Possibility 2: Being nice only pays off if you go out (interaction).** For students who stay in all semester, niceness makes little difference; they simply do not have enough social contact for their personality to matter. For students who go out, however, being nice is powerful: it turns those social opportunities into genuine close friendships.
 
@@ -77,11 +116,14 @@ These two possibilities predict completely different patterns in the data. Befor
 
 One of the most useful habits in data analysis is to draw a picture of what you *expect* your results to look like before you run a single model. This keeps your hypotheses honest: you cannot accidentally convince yourself you predicted something after the fact. It also gives you an intuition for what you are looking for.
 
-In our study, we want to predict *New Friends* (Y) from *Being Nice* (X) separately for people who *Stay in* and *Go out* (Z). This naturally produces two lines on a plot: one for each group. The question is what those two lines look like relative to each other.
+In our study, we want to predict *Friendship Closeness* (Y) from *Being Nice* (X) separately for people who *Stay in* and *Go out* (Z). This naturally produces two lines on a plot: one for each group. The question is what those two lines look like relative to each other.
 
 Here are our two competing hypotheses, visualized:
 
 ```{r hypothesis-plots, fig.width=7, fig.height=3.25, echo=FALSE}
+#| fig-cap: "The two hypotheses drawn before any data are analysed. Left: the additive world, where both groups gain the same amount from being nice. Right: the interaction world, where only the Go out group gains anything."
+#| fig-alt: "Two side-by-side line graphs, each with Being Nice from 0 to 10 on the x axis and predicted closeness from 0 to 75 on the y axis. In the left panel, labelled Hypothesis A No Interaction, two straight lines rise in parallel: the Stay in line from 15 to 35 and the Go out line from 40 to 60. In the right panel, labelled Hypothesis B Interaction Present, both lines start together near 15, but the Stay in line stays almost flat, ending near 17, while the Go out line climbs steeply to about 67."
+
 ## Hypothesis A: No interaction (parallel lines)
 hyp_A <- data.frame(
   BeingNice = c(0, 10, 0, 10),
@@ -98,7 +140,7 @@ p_A <- ggplot(hyp_A, aes(x = BeingNice, y = Predicted,
   scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
   labs(title = "Hypothesis A: No Interaction",
        subtitle = "Parallel lines: same slope for both groups",
-       x = "Being Nice (0-10)", y = "Predicted New Friends",
+       x = "Being Nice (0-10)", y = "Predicted Closeness (0-100)",
        color = NULL) +
   theme_bw() +
   theme(legend.position = "top",
@@ -120,7 +162,7 @@ p_B <- ggplot(hyp_B, aes(x = BeingNice, y = Predicted,
   scale_color_manual(values = c("Stay in" = "#5b8db8", "Go out" = "#e07b54")) +
   labs(title = "Hypothesis B: Interaction Present",
        subtitle = "Different slopes: being nice matters more for one group",
-       x = "Being Nice (0-10)", y = "Predicted New Friends",
+       x = "Being Nice (0-10)", y = "Predicted Closeness (0-100)",
        color = NULL) +
   theme_bw() +
   theme(legend.position = "top",
@@ -131,7 +173,7 @@ gridExtra::grid.arrange(p_A, p_B, ncol = 2)
 
 Look at the difference between these two pictures:
 
-- In **Hypothesis A**, the two lines are **parallel**. The "Go out" line is higher than the "Stay in" line (going out gives you more friends overall), but the *slope* of both lines is the same. Being nice helps by about the same amount whether you go out or not. This is what a **main effects only** world looks like: each variable has an independent, additive effect.
+- In **Hypothesis A**, the two lines are **parallel**. The "Go out" line is higher than the "Stay in" line (going out raises closeness overall), but the *slope* of both lines is the same. Being nice helps by about the same amount whether you go out or not. This is what a **main effects only** world looks like: each variable has an independent, additive effect.
 
 - In **Hypothesis B**, the two lines are **not parallel**. For people who *stay in*, the line is almost flat: being nice barely moves the needle. For people who *go out*, the line is steep: being nice strongly predicts closeness. The slope for "Go out" is much steeper than the slope for "Stay in." This is an **interaction**: the slope of Being Nice *depends on* whether you go out.
 
@@ -141,20 +183,18 @@ We will use this visual intuition throughout this chapter to interpret the outpu
 
 ### The Two-Regressions Intuition
 
-Here is another way to think about what an interaction model is doing, which many students find helpful.
+You have already met this idea, in the first thing we did in this chapter. Splitting the data by group and running a separate regression in each half gives you a slope per group:
 
-Imagine, for a moment, that instead of running one regression on the full dataset, you split the data in half: one dataset with only the students who *stay in*, and one with only the students who *go out*. You then run a separate simple regression (Niceness → Friends) in each half.
-
-- **Regression for Stay-in students:** You get a slope for Being Nice. Let's call it $b_{stay}$.
-- **Regression for Go-out students:** You get a slope for Being Nice. Let's call it $b_{go}$.
+- **Regression for Stay-in students:** a slope for Being Nice. Call it $b_{stay}$.
+- **Regression for Go-out students:** a slope for Being Nice. Call it $b_{go}$.
 
 If there is no interaction, $b_{stay} \approx b_{go}$: the two slopes are about the same. If there is an interaction, $b_{stay} \neq b_{go}$: the slopes differ.
 
-This approach would *show* you the interaction, but it has a critical weakness: **you cannot formally test whether the two slopes are significantly different from each other.** You have two estimates, each with its own standard error, from two different analyses that are not connected. There is no built-in test of the gap between them.
+That approach *shows* you an interaction and cannot *test* one, for the reason the cold open ran into: two estimates from two disconnected analyses, and no standard error anywhere for the quantity you care about, which is the gap.
 
-This is exactly what an interaction model in regression solves. It fits both slopes simultaneously in a single model and includes a formal significance test for the **difference** between those slopes. That test is the interaction term. When the interaction coefficient is statistically significant, it means the slopes genuinely differ more than sampling variability would predict. When it is not significant, the data do not support the claim that the slopes differ.
+An interaction model fits both slopes simultaneously in a single model and attaches a significance test to the **difference** between them. That test is the interaction term. When it is significant, the slopes differ by more than sampling variability would predict. When it is not, the data do not support the claim that the slopes differ at all.
 
-So an interaction model is essentially a formalized, simultaneous, significance-tested version of running separate regressions for each group. Keep that image in mind as we work through the math.
+So an interaction model is a formalized, simultaneous, significance-tested version of the two regressions you already ran. Hold onto that image; when we get to $B_3$ it stops being an analogy and starts being literally the same numbers.
 
 
 ## Before We Run the Models: Two Concepts You Need First
@@ -165,7 +205,7 @@ You have seen the intercept in every regression model we have run in this book, 
 
 In our friendship study, *Being Nice* is measured on a 0–10 scale. Zero means "not nice at all," a real value technically, but one that describes an essentially sociopathic person who presumably does not exist in our sample. When our regression model reports an intercept, it is making a prediction for a hypothetical person with zero niceness. That is not a very interesting or useful prediction.
 
-Now consider what happens when we build an interaction model. The intercept will be the predicted friendship score for a person with zero niceness *who also stays in*. The coefficient for Going Out will be the gap between the two groups *at zero niceness*. These values are anchored to a strange and artificial point that nobody in our data actually occupies.
+Now consider what happens when we build an interaction model. The intercept will be the predicted closeness score for a person with zero niceness *who also stays in*. The coefficient for Going Out will be the gap between the two groups *at zero niceness*. These values are anchored to a strange and artificial point that nobody in our data actually occupies.
 
 **Centering** solves this by shifting the scale of a continuous variable so that zero has a meaningful interpretation: **the average person in the sample.**
 
@@ -189,24 +229,7 @@ $$Z = \frac{X - M}{S}$$
 
 Standardizing changes the units of the variable: a standardized coefficient represents the change in Y for a one-standard-deviation increase in X. Centering does **not** change the units: a centered coefficient still represents the change in Y for a one-unit increase in X. In this chapter, we will only center, not standardize. We want to preserve the original units of our scale (a one-point increase in niceness = one point) while simply making zero mean "the average person."
 
-### How to Center in R
-
-Centering in R is straightforward. We use the `scale()` function with `center = TRUE` and `scale = FALSE`. Setting `scale = FALSE` tells R to subtract the mean *without* dividing by the standard deviation, so we get the shift without the rescaling.
-
-```{r centering-demo, echo=TRUE}
-# Suppose BeingNice has a mean of 5.22
-# After centering: a person with a raw score of 5.22 gets a centered score of 0
-
-# The scale() function with center=TRUE and scale=FALSE does exactly this:
-# data$BeingNice.C <- scale(data$BeingNice, center = TRUE, scale = FALSE)
-
-# To check that it worked: the centered variable should have a mean of (essentially) zero
-# mean(BeingNice.C)  # Should be ~0
-```
-
-When we center *Being Nice*, the intercept in our interaction model will represent the predicted friendship score for a person of **average niceness who stays in**. That is a real, interpretable, meaningful prediction; a much better anchor than "a person with zero niceness."
-
-We will center our continuous variable before building any models. This is standard practice whenever you include an interaction term with a continuous variable.
+When we center *Being Nice*, the intercept in our interaction model will represent the predicted closeness score for a person of **average niceness who stays in**. That is a real, interpretable, meaningful prediction; a much better anchor than "a person with zero niceness." We will do it to our data in a moment, as soon as the data exist.
 
 ### Dummy Coding: A Quick Review
 
@@ -224,34 +247,20 @@ We will see exactly how this plays out, and how centering changes the interpreta
 
 We collected data from 200 first-semester university students. Each student's friendship closeness with one person they met at the start of the semester was recorded at the end of the semester using a 0–100 feelings thermometer. Their agreeableness and warmth was rated by a trained panel on a 0–10 scale, and we noted whether they regularly attended social events and parties throughout the semester.
 
-```{r simulate-data, include=FALSE}
-set.seed(42)
-n <- 200
-X <- runif(n, 0, 10)
-Z <- rbinom(n, 1, 0.5)
-Y <- 0.05 * X + 0 * Z + 5 * X * Z + 15 + rnorm(n, sd = 7)
-Friend.Data <- data.frame(BeingNice = X, GoingOut = Z, NewFriends = Y)
-Friend.Data$GoingOut_ <- factor(Friend.Data$GoingOut,
-                                levels = c(0, 1),
-                                labels = c("Stay in", "Go out"))
-Friend.Data$BeingNice.C <- scale(Friend.Data$BeingNice,
-                                 center = TRUE, scale = FALSE)
-```
-
 Here is a summary of the sample broken down by social engagement:
 
 ```{r descriptives, echo=TRUE}
 Friend.Data %>%
   group_by(GoingOut_) %>%
   summarise(
-    n          = n(),
-    M_Nice     = round(mean(BeingNice), 2),
-    M_Friends  = round(mean(NewFriends), 2),
-    SD_Friends = round(sd(NewFriends), 2)
+    n         = n(),
+    M_Nice    = round(mean(BeingNice), 2),
+    M_Close   = round(mean(Closeness), 2),
+    SD_Close  = round(sd(Closeness), 2)
   )
 ```
 
-The "Go out" group has far more close friends on average. This makes sense: going out creates more social contact. But the standard deviations are large and similar across groups, meaning there is substantial individual variability within each group. Something beyond just whether you go out is driving that spread. That is what we will investigate.
+The "Go out" group sits far higher on the closeness thermometer on average. This makes sense: going out creates more social contact. But the standard deviations are large and similar across groups, meaning there is substantial individual variability within each group. Something beyond just whether you go out is driving that spread. That is what we will investigate.
 
 The mean of *Being Nice* in our sample is:
 
@@ -259,30 +268,52 @@ The mean of *Being Nice* in our sample is:
 round(mean(Friend.Data$BeingNice), 2)
 ```
 
-So when we center *Being Nice* (which we will do before running the models), a centered value of 0 will correspond to a person who scored approximately `r round(mean(Friend.Data$BeingNice), 2)` on the original 0–10 scale.
+### How to Center in R
+
+Now that the data exist, we can center. We use the `scale()` function with `center = TRUE` and `scale = FALSE`. Setting `scale = FALSE` tells R to subtract the mean *without* dividing by the standard deviation, so we get the shift without the rescaling.
+
+```{r centering-demo, echo=TRUE}
+# as.numeric() matters here; see the warning below
+Friend.Data$BeingNice.C <- as.numeric(scale(Friend.Data$BeingNice,
+                                            center = TRUE, scale = FALSE))
+
+# Always check it worked: a centered variable has a mean of (essentially) zero
+mean(Friend.Data$BeingNice.C)
+```
+
+That is zero with a rounding error's worth of dust on it, which is exactly what centering is supposed to produce. R prints it in scientific notation to be annoying; `1.78e-16` is a decimal point followed by fifteen zeros and then a rounding error. A centered value of 0 now corresponds to a person who scored approximately `r round(mean(Friend.Data$BeingNice), 2)` on the original 0–10 scale.
+
+Two things in that one line are waiting to bite you.
+
+**Watch the `scale = FALSE`.** Leave it out and `scale()` helpfully divides by the standard deviation as well, so you have silently z-scored instead of centered. Nothing errors. Your model runs, your plot draws, and every slope you report afterwards is in units nobody asked for.
+
+**Watch the `as.numeric()`.** `scale()` does not return a vector; it returns a one-column *matrix* with the mean bolted on as an attribute. `lm()` does not care, which is the problem, because it means you will not find out until three sections from now when some plotting package refuses to draw your model and says something incomprehensible about `nmatrix.1`. Wrap it in `as.numeric()` and the column is an ordinary number like everything else in your data frame.
 
 ## A First Look at the Data
 
 Before running any models, let's visualize the relationships in the data. This is always step one.
 
 ```{r ggpairs-plot, fig.width=5.5, fig.height=5, message=FALSE}
+#| fig-cap: "The standard first look: every variable against every other variable. The Being Nice by Closeness scatterplot in particular has far more scatter than a correlation of .41 alone would suggest."
+#| fig-alt: "A three-by-three matrix of panels for Being Nice, Closeness, and Going Out. The Being Nice by Closeness scatterplot shows a weak upward trend with very wide vertical scatter, correlation about .41. The Closeness histogram is strongly right skewed, piling up near 15 with a long tail out past 70. The boxplots against Going Out show the Go out group sitting far higher on Closeness than the Stay in group, with a much taller box."
+
 # We use the original (uncentered) niceness score for the diagnostic plot
 # so the axes are on the interpretable 0-10 scale
 GGally::ggpairs(
-  Friend.Data[, c("BeingNice", "NewFriends", "GoingOut_")],
+  Friend.Data[, c("BeingNice", "Closeness", "GoingOut_")],
   lower = list(continuous = "smooth", combo = "box_no_facet"),
   diag  = list(continuous = "barDiag"),
-  columnLabels = c("Being Nice", "New Friends", "Going Out")
+  columnLabels = c("Being Nice", "Closeness", "Going Out")
 ) + theme_bw()
 ```
 
 A few things stand out immediately:
 
-- **Being Nice and New Friends** have a moderate positive correlation overall. More agreeable people tend to form closer friendships.
-- **Going Out and New Friends** show a clear difference: students who go out have many more close friends on average.
-- The **overall correlation between Being Nice and New Friends** is moderate, but look at the scatterplot: there is a lot of spread around the trend line. Something else might be going on.
+- **Being Nice and Closeness** have a moderate positive correlation overall. More agreeable people tend to form closer friendships.
+- **Going Out and Closeness** show a clear difference: students who go out score much higher on the thermometer on average.
+- The **overall correlation between Being Nice and Closeness** is moderate, but look at the scatterplot: there is a lot of spread around the trend line. Something else might be going on.
 
-The key question is whether the relationship between Being Nice and New Friends looks *the same* for both groups. The pairs plot makes this hard to see directly. That is what the interaction model is for.
+The key question is whether the relationship between Being Nice and Closeness looks *the same* for both groups. The pairs plot makes this hard to see directly. That is what the interaction model is for.
 
 
 ## Building the Models
@@ -291,31 +322,34 @@ The key question is whether the relationship between Being Nice and New Friends 
 
 We start with the simpler model: the one that says each variable has its own independent effect, with no interaction. This is our **main effects model** or **additive model**.
 
-$$\widehat{NewFriends} = B_0 + B_1 \cdot BeingNice_C + B_2 \cdot GoingOut + \varepsilon$$
+$$\widehat{Closeness} = B_0 + B_1 \cdot BeingNice_C + B_2 \cdot GoingOut + \varepsilon$$
 
 Note two things about how we set this up:
 
-1. We use the **centered** version of Being Nice (`BeingNice.C`), so the intercept will be the predicted friendship score for an average-niceness person.
+1. We use the **centered** version of Being Nice (`BeingNice.C`), so the intercept will be the predicted closeness score for an average-niceness person.
 2. We use the **factored** GoingOut variable (`GoingOut_`), with *Stay in* as the reference group, so R handles the dummy coding automatically.
 
 ```{r additive-model, echo=TRUE}
-Model.1 <- lm(NewFriends ~ BeingNice.C + GoingOut_, data = Friend.Data)
+Model.1 <- lm(Closeness ~ BeingNice.C + GoingOut_, data = Friend.Data)
 summary(Model.1)
 ```
 
 ### What do the coefficients mean?
 
-- **Intercept:** The predicted number of new friends for a person of *average niceness* (BeingNice.C = 0, i.e., roughly a `r round(mean(Friend.Data$BeingNice), 1)` on the original scale) who *stays in* (GoingOut = reference group). This is a real, interpretable prediction: someone who is neither particularly nice nor antisocial, and who mostly stays home.
+- **Intercept:** The predicted closeness score for a person of *average niceness* (BeingNice.C = 0, i.e., roughly a `r round(mean(Friend.Data$BeingNice), 1)` on the original scale) who *stays in* (GoingOut = reference group). This is a real, interpretable prediction: someone who is neither particularly nice nor antisocial, and who mostly stays home.
 
-- **BeingNice.C:** Controlling for whether the student goes out or not, each additional point of niceness (above the average) is associated with about `r round(coef(Model.1)["BeingNice.C"], 2)` more friends. This is averaged across both groups.
+- **BeingNice.C:** Controlling for whether the student goes out or not, each additional point of niceness (above the average) is associated with about `r round(coef(Model.1)["BeingNice.C"], 2)` more points of closeness. This is averaged across both groups.
 
-- **GoingOut_Go out:** Controlling for how nice the student is, going out is associated with about `r round(coef(Model.1)["GoingOut_Go out"], 1)` more friends than staying in. This is the overall main effect of social engagement.
+- **GoingOut_Go out:** Controlling for how nice the student is, going out is associated with about `r round(coef(Model.1)["GoingOut_Go out"], 1)` more points of closeness than staying in. This is the overall main effect of social engagement.
 
 ### Visualizing the additive model
 
 The critical test of the additive model is whether it produces parallel lines when we plot the predicted values.
 
 ```{r additive-plot, fig.width=4.5, fig.height=3.75}
+#| fig-cap: "The additive model's predictions, with the raw data underneath. The lines are parallel because the model has no way to make them anything else."
+#| fig-alt: "A scatterplot with Being Nice from 0 to 10 on the x axis and predicted closeness on the y axis, with two parallel rising prediction lines and confidence bands. The blue Stay in line runs from about 5 to about 25; the orange Go out line runs from about 31 to about 50, at the same angle. The faint raw data disagree with the lines: the blue points sit in a flat band near 15 across the whole x range, while the orange points fan steeply upward from about 15 on the left to about 70 on the right."
+
 Min.BN <- ceiling(min(Friend.Data$BeingNice.C))
 Max.BN <- floor(max(Friend.Data$BeingNice.C))
 
@@ -331,7 +365,7 @@ Add.Plot$BeingNice.orig <- Add.Plot$BeingNice.C + mean.BN
 ggplot(Add.Plot, aes(x = BeingNice.orig, y = emmean,
                      color = GoingOut_, group = GoingOut_)) +
   geom_point(data = Friend.Data,
-             aes(x = BeingNice, y = NewFriends,
+             aes(x = BeingNice, y = Closeness,
                  color = GoingOut_, group = GoingOut_),
              alpha = 0.3, size = 0.9) +
   geom_line(linewidth = 1.1) +
@@ -342,7 +376,7 @@ ggplot(Add.Plot, aes(x = BeingNice.orig, y = emmean,
   scale_x_continuous(breaks = seq(0, 10, 2)) +
   labs(title    = "Additive Model: Parallel Lines",
        x        = "Being Nice (original scale)",
-       y        = "Predicted New Friends",
+       y        = "Predicted Closeness (0-100)",
        color    = NULL, fill = NULL) +
   theme_bw() +
   theme(legend.position = "top")
@@ -355,6 +389,9 @@ But does this model actually fit the data? Look at the raw data points (the fain
 And there is one more diagnostic concern with the additive model. Let's look at the residuals:
 
 ```{r additive-residuals, fig.width=6, fig.height=3.25}
+#| fig-cap: "Diagnostics for the additive model. Left: residuals against fitted values, with a loess curve. Right: a normal quantile-quantile plot of the standardized residuals."
+#| fig-alt: "Two diagnostic panels for the additive model. On the left, residuals from about negative 21 to positive 28 are plotted against fitted values from about 5 to 52, and the red loess curve is clearly bowed rather than flat: it rises above zero at low fitted values, dips well below zero in the middle, and climbs again at the right. On the right, a quantile-quantile plot whose points bend away from the reference line at both ends."
+
 diag_additive <- data.frame(
   fitted = fitted(Model.1),
   residual = resid(Model.1),
@@ -383,12 +420,12 @@ The residual plot on the left shows a clear curved pattern, a classic sign that 
 
 Now we add the interaction term. The equation becomes:
 
-$$\widehat{NewFriends} = B_0 + B_1 \cdot BeingNice_C + B_2 \cdot GoingOut + B_3 \cdot BeingNice_C \times GoingOut + \varepsilon$$
+$$\widehat{Closeness} = B_0 + B_1 \cdot BeingNice_C + B_2 \cdot GoingOut + B_3 \cdot BeingNice_C \times GoingOut + \varepsilon$$
 
 The new term, $B_3 \cdot BeingNice_C \times GoingOut$, is the product of our two predictors. This is what allows the slope of Being Nice to be *different* for each group. In R, we use the `*` operator, which automatically includes both main effects and the interaction:
 
 ```{r interaction-model, echo=TRUE}
-Model.2 <- lm(NewFriends ~ BeingNice.C * GoingOut_, data = Friend.Data)
+Model.2 <- lm(Closeness ~ BeingNice.C * GoingOut_, data = Friend.Data)
 summary(Model.2)
 ```
 
@@ -419,6 +456,9 @@ The interaction model explains substantially more variance than the additive mod
 Let's also check the residuals from the interaction model:
 
 ```{r interaction-residuals, fig.width=6, fig.height=3.25}
+#| fig-cap: "The same two diagnostics for the interaction model. Compare the loess curve on the left with the bowed one from the additive model."
+#| fig-alt: "Two diagnostic panels for the interaction model. On the left, residuals from about negative 18 to positive 18 are plotted against fitted values from about 15 to 64, and the red loess curve is close to flat along zero across the whole range, with none of the bowing seen in the additive model. On the right, a quantile-quantile plot whose points follow the reference line closely."
+
 diag_interaction <- data.frame(
   fitted = fitted(Model.2),
   residual = resid(Model.2),
@@ -451,6 +491,9 @@ The residual pattern is now much healthier: the curved structure is gone, and th
 Before reading the numbers, look at the picture. The plot below shows the predicted values from the interaction model:
 
 ```{r interaction-plot, fig.width=4.5, fig.height=3.75}
+#| fig-cap: "The interaction model's predictions on the same data. The model is now allowed to give each group its own slope, and it uses that freedom immediately."
+#| fig-alt: "A scatterplot with Being Nice from 0 to 10 on the x axis and predicted closeness on the y axis, showing two clearly non-parallel prediction lines with confidence bands. The blue Stay in line is almost flat, running from about 15 to about 17 across the whole range. The orange Go out line starts near 16 on the left and climbs steeply to about 61 on the right. The faint raw points follow each line closely."
+
 Inter.Em <- emmeans(Model.2,
                     ~ BeingNice.C | GoingOut_,
                     at = list(BeingNice.C = seq(Min.BN, Max.BN, 0.5)))
@@ -460,7 +503,7 @@ Inter.Plot$BeingNice.orig <- Inter.Plot$BeingNice.C + mean.BN
 ggplot(Inter.Plot, aes(x = BeingNice.orig, y = emmean,
                        color = GoingOut_, group = GoingOut_)) +
   geom_point(data = Friend.Data,
-             aes(x = BeingNice, y = NewFriends,
+             aes(x = BeingNice, y = Closeness,
                  color = GoingOut_, group = GoingOut_),
              alpha = 0.3, size = 0.9) +
   geom_line(linewidth = 1.1) +
@@ -471,7 +514,7 @@ ggplot(Inter.Plot, aes(x = BeingNice.orig, y = emmean,
   scale_x_continuous(breaks = seq(0, 10, 2)) +
   labs(title = "Interaction Model: Non-Parallel Lines",
        x     = "Being Nice (original scale)",
-       y     = "Predicted New Friends",
+       y     = "Predicted Closeness (0-100)",
        color = NULL, fill = NULL) +
   theme_bw() +
   theme(legend.position = "top")
@@ -493,18 +536,18 @@ summary(Model.2)
 
 ### The Intercept
 
-**The intercept** ($B_0$) is the predicted friendship score when *both* predictors equal zero.
+**The intercept** ($B_0$) is the predicted closeness score when *both* predictors equal zero.
 
 With our setup:
 
 - `BeingNice.C = 0` means a person of **average niceness** (the mean of `r round(mean.BN, 2)` on the original scale)
 - `GoingOut = "Stay in"` is the reference group (value = 0)
 
-So the intercept is the predicted number of new friends for **an average-niceness person who stays in**. Looking at our model output, the intercept is approximately `r round(coef(Model.2)[1], 1)`.
+So the intercept is the predicted closeness score for **an average-niceness person who stays in**. Looking at our model output, the intercept is approximately `r round(coef(Model.2)[1], 1)`.
 
-On the plot, this is the point on the blue "Stay in" line directly above the center of the x-axis (average niceness). It should be around 15–16 friends, enough to form one decent friendship even without going out, if you happen to live near someone.
+On the plot, this is the point on the blue "Stay in" line directly above the center of the x-axis (average niceness). It sits around `r round(coef(Model.2)[1], 0)` on the 0–100 thermometer: not strangers exactly, but nowhere near best friends. About what proximity alone buys you when you never leave the building.
 
-The p-value on the intercept tests whether this value is significantly different from zero (i.e., do average-niceness, stay-at-home students form *any* friendship at all?). Yes: they form about 15 friends on average, significantly more than zero.
+The intercept also comes with a *p*-value, testing whether that predicted value differs from zero. It does. But "average students have a nonzero opinion of the person they sat next to" is not a finding anybody will publish. Intercept *p*-values are usually ignorable; the slope tests are where the questions live.
 
 ### $B_1$: The Slope of Being Nice for the Stay-In Group
 
@@ -520,35 +563,55 @@ Looking at the output, this slope is small and non-significant ($p \approx$ `r r
 
 **`GoingOut_Go out`** ($B_2 =$ `r round(coef(Model.2)["GoingOut_Go out"], 1)`) tells you the predicted difference between the "Go out" and "Stay in" groups **at the centering point of Being Nice**, that is, at average niceness (BeingNice.C = 0).
 
-This is a **main effect** in the sense that it is evaluated at the mean of the continuous variable (thanks to centering). It tells you: for a person of average niceness, how many more friends do they get by going out versus staying in?
+This is a **main effect** in the sense that it is evaluated at the mean of the continuous variable (thanks to centering). It tells you: for a person of average niceness, how much more closeness do they get by going out versus staying in?
 
-On the plot, this is the vertical gap between the two lines at the center of the x-axis (average niceness). Students who go out have about `r round(coef(Model.2)["GoingOut_Go out"], 0)` more close friends than students who stay in, when both groups are at average niceness. This gap is highly significant.
+On the plot, this is the vertical gap between the two lines at the center of the x-axis (average niceness). Students who go out score about `r round(coef(Model.2)["GoingOut_Go out"], 0)` points higher on the thermometer than students who stay in, when both groups are at average niceness. This gap is highly significant.
 
 ### $B_3$: The Interaction Term
 
 **`BeingNice.C:GoingOut_Go out`** ($B_3 =$ `r round(coef(Model.2)["BeingNice.C:GoingOut_Go out"], 2)`) is the heart of the analysis. This coefficient represents **how much steeper the "Go out" slope is compared to the "Stay in" slope.**
 
-Think of it as the answer to: *by how many additional friends, per niceness point, does the "Go out" group outpace the "Stay in" group?*
+Think of it as the answer to: *by how many extra points of closeness, per niceness point, does the "Go out" group outpace the "Stay in" group?*
 
 - The slope for the "Stay in" group is $B_1 =$ `r round(coef(Model.2)["BeingNice.C"], 2)` (essentially flat)
 - The slope for the "Go out" group is $B_1 + B_3 =$ `r round(coef(Model.2)["BeingNice.C"], 2)` $+$ `r round(coef(Model.2)["BeingNice.C:GoingOut_Go out"], 2)` $=$ `r round(coef(Model.2)["BeingNice.C"] + coef(Model.2)["BeingNice.C:GoingOut_Go out"], 2)`
 
-That is a very steep slope for the "Go out" group. The p-value for the interaction tests whether this difference in slopes is statistically significant. It is, emphatically.
+Look at those two numbers, then scroll back to the two regressions we ran at the top of the chapter before we knew what an interaction was. They are the same numbers. `r round(cold_stay, 2)` and `r round(cold_go, 2)`, recovered to the last decimal place, because splitting the data by group and letting an interaction term do the splitting for you are the same arithmetic wearing different clothes.
+
+What is new is $B_3$ itself. Two separate regressions could hand you both slopes and then shrug. This model hands you the *distance* between them, `r round(coef(Model.2)["BeingNice.C:GoingOut_Go out"], 2)` points of closeness per point of niceness, with a standard error attached and a *p*-value underneath. That is the test the reviewer asked for, and it is emphatically significant.
 
 Here is a summary table to tie everything together:
 
 | Coefficient | Value | What it represents | What it tests |
 |---|---|---|---|
-| **Intercept** | `r round(coef(Model.2)[1], 2)` | Predicted friends for average-niceness, Stay-in student | Is this > 0? |
-| **BeingNice.C** | `r round(coef(Model.2)["BeingNice.C"], 2)` | Slope of Being Nice *for Stay-in group* (simple effect) | Is the Stay-in slope $
-eq$ 0? |
+| **Intercept** | `r round(coef(Model.2)[1], 2)` | Predicted closeness for average-niceness, Stay-in student | Is this > 0? |
+| **BeingNice.C** | `r round(coef(Model.2)["BeingNice.C"], 2)` | Slope of Being Nice *for Stay-in group* (simple effect) | Is the Stay-in slope $\neq$ 0? |
 | **GoingOut (Go out)** | `r round(coef(Model.2)["GoingOut_Go out"], 2)` | Group gap at average niceness (main effect) | Is there a group difference at the mean? |
 | **BeingNice.C × GoingOut** | `r round(coef(Model.2)["BeingNice.C:GoingOut_Go out"], 2)` | Difference in slopes between groups | Are the two slopes significantly different? |
 
 
+### The One-Line Version
+
+The plot above was built by hand, and we will build a fully polished one at the end of the chapter. That is the right amount of effort when a figure is going into a manuscript. It is far too much effort when you are sitting in front of a model at 11pm wanting to know what shape it is.
+
+For that, `sjPlot` does the whole thing in one line:
+
+```{r sjplot-quick, echo=TRUE, fig.width=4.5, fig.height=3.5}
+#| fig-cap: "The same interaction, drawn by `plot_model()` with no formatting work at all. Non-parallel lines, same story, one line of code."
+#| fig-alt: "A line graph titled Predicted values of Closeness, with centered Being Nice running from about negative 6.6 to positive 6.6 on the x axis and predicted closeness on the y axis. Two lines with confidence bands: the Stay in line is nearly flat, running from about 14 to 17 across the whole range, while the Go out line climbs steeply from about 9 on the left to about 73 on the right. The two lines cross near the left edge and diverge sharply."
+
+plot_model(Model.2, type = "int")
+```
+
+This is the exploratory version, and exploratory code is allowed to be fast and slightly ugly. Notice what it gives you and what it does not. The x-axis is *centered* niceness, running from about $-6.6$ to $+6.6$ rather than the original 0 to 10, so the reader has to know what centering is before the axis means anything. It labels the variable "Being Nice C", because it is reading your column name and has no idea what you meant. And it does not show the raw data underneath, so nothing on this plot tells you how much spread those confidence bands are hiding.
+
+The hand-built version buys back the original axis, the raw points, and control over everything a reviewer will complain about.
+
+Learn both. Use the fast one until the figure actually matters.
+
 ## Simple Slopes: Testing Each Group's Slope Separately
 
-The interaction term tells us that the two slopes *differ significantly*. But we also want to know, for each group separately: **is the relationship between Being Nice and New Friends significantly different from zero?**
+The interaction term tells us that the two slopes *differ significantly*. But we also want to know, for each group separately: **is the relationship between Being Nice and Closeness significantly different from zero?**
 
 We already have the answer for the "Stay in" group: the `BeingNice.C` coefficient is the "Stay in" slope, and it is non-significant. Being nice does not predict friendship closeness for students who stay in.
 
@@ -579,7 +642,9 @@ This output gives us what we need:
 
 - **Stay in group:** The slope of Being Nice is approximately `r b_stay`, which is *not* significantly different from zero ($p =$ `r round(p_stay, 3)`). For students who stay in, being nicer does not predict how close a friendship they form.
 
-- **Go out group:** The slope of Being Nice is approximately `r b_go`, which is *significantly* positive ($p <$ .001). For students who go out, every additional point of niceness is associated with about `r round(b_go, 0)` more close friends.
+- **Go out group:** The slope of Being Nice is approximately `r b_go`, which is *significantly* positive ($p <$ .001). For students who go out, every additional point of niceness is associated with about `r round(b_go, 0)` more points of closeness.
+
+Notice that `emtrends()` has handed back the same two slopes for the third time: once from the separate regressions at the top of the chapter, once as $B_1$ and $B_1 + B_3$, and now here. The estimates never move. What the interaction model buys you is not a better slope, it is one pooled error term across all 200 students instead of two error terms estimated from 116 and 84, and the ability to put a standard error on the *gap*. That gap is the only quantity in this chapter that the separate regressions could not produce at all.
 
 This completes the picture. The effect of Being Nice on friendship closeness is **conditional**: it only emerges among students who are out there meeting people. For students who stay home, personality differences do not seem to matter much for friendship formation. Going out is what activates the effect of being a warm and agreeable person.
 
@@ -612,13 +677,13 @@ delta_df2 <- aov_comp$Res.Df[2]   # residual df in full model
 # b_stay, se_stay, t_stay, p_stay, b_go, se_go, t_go, p_go already computed above
 
 # --- Descriptives by group ---
-m_stay  <- round(mean(Friend.Data$NewFriends[Friend.Data$GoingOut_ == "Stay in"]), 1)
-sd_stay <- round(sd(Friend.Data$NewFriends[Friend.Data$GoingOut_  == "Stay in"]), 1)
-m_go    <- round(mean(Friend.Data$NewFriends[Friend.Data$GoingOut_ == "Go out"]), 1)
-sd_go   <- round(sd(Friend.Data$NewFriends[Friend.Data$GoingOut_  == "Go out"]), 1)
+m_stay  <- round(mean(Friend.Data$Closeness[Friend.Data$GoingOut_ == "Stay in"]), 1)
+sd_stay <- round(sd(Friend.Data$Closeness[Friend.Data$GoingOut_  == "Stay in"]), 1)
+m_go    <- round(mean(Friend.Data$Closeness[Friend.Data$GoingOut_ == "Go out"]), 1)
+sd_go   <- round(sd(Friend.Data$Closeness[Friend.Data$GoingOut_  == "Go out"]), 1)
 ```
 
-Prior to the main analysis, descriptive statistics were examined by group. Students who stayed in formed fewer close friendships on average (*M* = `r m_stay`, *SD* = `r sd_stay`) compared with students who went out regularly (*M* = `r m_go`, *SD* = `r sd_go`).
+Prior to the main analysis, descriptive statistics were examined by group. Students who stayed in reported lower friendship closeness on average (*M* = `r m_stay`, *SD* = `r sd_stay`) than students who went out regularly (*M* = `r m_go`, *SD* = `r sd_go`).
 
 A hierarchical multiple regression was conducted to examine whether going out moderated the relationship between agreeableness and friendship closeness. Being Nice (centered at the sample mean) and Going Out (dummy coded, *Stay in* as reference group) were entered in Step 1 as main effects; their product (the interaction term) was entered in Step 2. The additive model (Step 1) was statistically significant, $F(`r m1.df1`, `r m1.df2`) =$ `r m1.F`, $p < .001$, $R^2 =$ `r round(R2.1, 3)`. Adding the interaction term (Step 2) produced a statistically significant improvement in model fit, $\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`, $F(`r delta_df1`, `r delta_df2`) =$ `r delta_F`, $p < .001$, indicating that the effect of agreeableness on friendship closeness differed significantly between students who stayed in and those who went out.
 
@@ -641,6 +706,8 @@ A well-constructed figure is often the clearest way to communicate an interactio
 *Figure 1.* Predicted friendship closeness as a function of agreeableness and social engagement. Lines represent predicted values from the interaction model; shaded bands represent 95% confidence intervals; points represent raw data. Among students who regularly went out (*Go out*; orange), agreeableness was a strong positive predictor of friendship closeness. Among students who stayed in (*Stay in*; blue), agreeableness was not significantly associated with friendship closeness.
 
 ```{r apa-figure, fig.width=5, fig.height=4, echo=TRUE}
+#| fig-alt: "A publication-style figure with Agreeableness Rating 0 to 10 on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel prediction lines with shaded 95 percent confidence bands, over faint raw data points. The blue Stay in line is essentially flat near 15 to 17 across the full range. The orange Go out line rises steeply from about 16 at the left to about 61 at the right. The legend, titled Social Engagement, sits above the plot."
+
 # --- APA-Style Interaction Plot ---
 
 # Step 1: Get predicted values from the model using emmeans
@@ -661,7 +728,7 @@ ggplot(Fig.Data, aes(x    = BeingNice.orig,
                      group = GoingOut_)) +
   # Raw data points (faint, for context)
   geom_point(data  = Friend.Data,
-             aes(x = BeingNice, y = NewFriends,
+             aes(x = BeingNice, y = Closeness,
                  color = GoingOut_, group = GoingOut_),
              alpha = 0.25, size = 0.8) +
   # Confidence ribbons
@@ -690,5 +757,18 @@ ggplot(Fig.Data, aes(x    = BeingNice.orig,
 ```
 
 ::: {.callout-warning title="Do Not Diagnose an Interaction by Staring at Two P-Values"}
-One simple slope being significant while the other is not does **not** prove that the slopes differ. The interaction coefficient is the direct test of that difference. The plot and simple slopes explain the interaction after it has been tested.
+One simple slope being significant while the other is not does **not** prove that the slopes differ. That was the whole problem the chapter opened with: two separate regressions handed us a significant slope and a non-significant one, and between them there was no test at all. The interaction coefficient is the direct test of that difference. The plot and simple slopes explain the interaction after it has been tested.
 :::
+
+## The Short Story
+
+If you remember six things from this chapter, make it these.
+
+- **An interaction means the slopes differ.** "The effect of X depends on Z" is not a hedge, it is the claim that X's slope is not the same at every level of Z. Non-parallel lines are the visual signature.
+- **Center the continuous predictor so that zero is a person who exists.** Centering does not change the slope, the fit, or the $R^2$. It changes what the intercept and $B_2$ are *about*, from a hypothetical zero-niceness person to the average person in your sample.
+- **$B_1$ is the reference group's slope, not an average.** It is a simple effect. In a model with an interaction, it describes exactly one group, the one coded 0.
+- **$B_2$ is the group gap at the mean of the centered predictor**, not the group gap in general. Move the centering point and this number moves with it.
+- **$B_3$ is the difference between the slopes, and it is the test.** It is the one quantity that running two separate regressions cannot give you.
+- **Test first, explain second.** The $\Delta R^2$ *F*-test asks whether an interaction exists. Simple slopes and the plot describe what it looks like. Doing this in the other order is how people talk themselves into interactions that are not there.
+
+And the reporting order, which is the same every time: **model comparison test, then the interaction coefficient, then the simple slopes, then the figure.** The test establishes that there is something to explain. Everything after it is the explanation.
