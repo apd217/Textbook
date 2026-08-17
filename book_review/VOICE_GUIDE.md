@@ -635,6 +635,48 @@ anything that explains or extends it. That is what made both the receipts discla
 penguin-essay tail clunk: the punchline had already landed and a second beat arrived to
 explain it. A tag has to be *inside* the sentence (Ch2's skibidi line) or not present.
 
+## 14b. Code visibility: show the simulation, name the package once (set 2026-08-16 by Alex)
+
+Alex's instruction, in his words: *"in all chapters, we should SHOW them the simulation;
+otherwise, they cannot run my lecture on their own."* These chapters are lecture materials.
+A student who downloads the `.qmd` and hits a hidden `include=FALSE` block where the data
+came from cannot follow along, and cannot re-run the chapter line by line.
+
+**Rule 1: the simulation chunk is always visible.** Any chunk that creates the chapter's
+dataset gets `echo=TRUE`. Not `include=FALSE`. The reader must be able to see where the
+numbers came from, including the `set.seed()`. Give it a line of lead-in prose so it does
+not arrive as a bare wall of code ("Here is the simulation, including the filter that does
+the damage").
+
+A useful side effect: an echoed simulation is honest about the data being invented, which
+the preface already promises. Chapter 16's now shows `5 * X * Z` sitting in the generating
+model, so the reader can see the interaction was built in on purpose.
+
+**Rule 2: `library()` goes at first use, once.** Alex: *"we should call the packages for
+them when we first use them so they know which packages to use. If we use the same code
+later, no need to reload the library."* So `library(emmeans)` sits at the top of the first
+chunk that calls `emmeans()`, and never again in that chapter. This is instead of, or in
+addition to, the silent `load-libraries` block at the top; the point is that the reader
+meets the package name attached to the function that needs it.
+
+**The trap in rule 2, and it is easy to hit:** the first use of a package is often inside a
+*hidden* chunk, and a `library()` call in a hidden chunk teaches nobody anything. Put the
+visible `library()` call at the first use the **reader can see**. The file still runs either
+way, because `echo` only controls display, so this costs nothing except attention.
+
+**Rule 3: hidden code is still allowed, and should be named as such.** Alex: *"for the
+purposes of the book some code is hidden since it's didactic and they don't need to learn
+it, they just need to see the plots we are generating."* Plotting boilerplate, the fifteen
+lines of `theme()` fiddling, and store-values-for-inline chunks stay hidden. The test is
+whether the reader is expected to *write* that code. If yes, show it. If they only need to
+*see the result*, hide it. This refines G05 in `00_OVERVIEW.md` rather than replacing it:
+G05's "show the statistics, hide the plumbing" is the same instinct, and the simulation is
+hereby reclassified as statistics, not plumbing.
+
+**Rule 4: tell them the files are downloadable.** The Introduction chapter should say, once,
+that the `.qmd` files can be downloaded and run line by line in R, and that some chunks are
+hidden on purpose because they are scaffolding rather than material.
+
 ## 15. How a chapter opens (set 2026-08-15, after Chapter 10 failed this test)
 
 **A chapter never opens on a bulleted definition list.** Chapter 10 did, and Alex's diagnosis

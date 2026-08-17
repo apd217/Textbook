@@ -218,7 +218,11 @@ Doing this to *real* continuous data is a different matter. Median splits and ex
 The rule is simple. **If your variable is continuous, use the previous chapter's model.** Categorize when the variable is genuinely categorical, or when someone else already categorized it before you arrived, not because a 2 × 2 is easier to explain in a talk.
 :::
 
-```{r simulate-data, include=FALSE}
+Here is the simulation, including the filter that does the damage. This is the same 200 students and the same seed as the prior chapter, so `Friend.Data.Full` below is identical to the dataset we used there:
+
+```{r simulate-data, echo=TRUE}
+library(tidyverse)
+
 set.seed(42)
 n <- 200
 X <- runif(n, 0, 10)
@@ -470,6 +474,8 @@ We use `pairs()` from the `emmeans` package to test each pairwise comparison wit
 ### Simple Effects of Niceness within Each Going-Out Group
 
 ```{r simple-effects, echo=TRUE}
+library(emmeans)
+
 Fit.2 <- emmeans(Model.2, ~ NiceGroup_ | GoingOut_)
 pairs(Fit.2, adjust = "none") %>% summary(infer = TRUE)
 ```
@@ -563,6 +569,8 @@ In the full interaction model ($R^2 =$ `r round(R2.2, 3)`, adjusted $R^2 =$ `r r
 #| fig-alt: "A publication-style figure with Agreeableness Group, Low Nice and High Nice, on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel lines connect model-estimated cell means with 95 percent confidence error bars, over faint jittered raw data. The blue Stay in line is nearly flat from about 16 to 19; the orange Go out line rises steeply from about 23 to about 60. The legend, titled Social Engagement, sits above the plot."
 
 # APA interaction plot: categorical × categorical
+library(ggplot2)
+
 Fig.Data <- as.data.frame(emmeans(Model.2, ~ NiceGroup_ | GoingOut_))
 
 ggplot(Fig.Data, aes(x = NiceGroup_, y = emmean,
@@ -633,7 +641,9 @@ Earlier I promised you would meet Type III sums of squares. Here it is, and our 
 `anova()` computes **Type I** (sequential) sums of squares: each term is tested after the terms above it. The `car` package computes **Type II**, where each main effect is tested after the other main effect. With balanced cells these give identical answers and nobody argues. Our cells are not balanced.
 
 ```{r anova-types, echo=TRUE}
-car::Anova(Model.2, type = 2)
+library(car)
+
+Anova(Model.2, type = 2)
 ```
 
 Compare the two tables:

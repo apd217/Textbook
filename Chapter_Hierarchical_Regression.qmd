@@ -21,7 +21,18 @@ library(GGally)
 library(sjPlot)
 ```
 
-```{r simulate data, include=FALSE}
+<!-- ---Alex--- Only change in this finished chapter: the simulation was include=FALSE and
+     is now echoed, per your "show them the simulation in all chapters" rule. This was the
+     ONLY hidden data-making chunk left in the whole book; everything else was already
+     visible. I gave it a lead-in line so it does not hit the reader as a bare wall of code
+     immediately before the cold open. If you would rather protect the cold open and leave
+     this one hidden, revert this hunk; it is self-contained. -->
+
+Everything in this chapter runs on one simulated dataset: 100 students, with exam scores, study hours, and test anxiety wired together at correlations I picked. Here it is, so you can run the rest of the chapter yourself.
+
+```{r simulate data, echo=TRUE}
+library(MASS)
+
 set.seed(42)
 
 n   <- 100

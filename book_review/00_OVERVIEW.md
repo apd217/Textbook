@@ -179,6 +179,31 @@ overlap and should stay.
 - Chapters disagree about `echo`: R_Basics shows everything; Probability and Standard_Error hide *everything* — including the `sample()`/`replicate()` simulations that ARE the lesson (CH03-U01, CH05-U01, CH10-U04, CH13-U02 are the specific fixes). Adopt the Power chapter's explicit policy and its reader-facing callout ("Some of Today's Code Is Not Your Problem"): echo every chunk teaching a function students must use; hide pure plotting boilerplate; when hiding, occasionally say so.
 - **Approved:** [ X]
 
+### [G05b] `library()` at first *visible* use, in every chapter
+- **Priority:** HIGH | **Effort:** M (8 chapters, mechanical but needs eyes)
+- **Set by Alex directly on 2026-08-16**, alongside the show-the-simulation rule. His words:
+  "we should call the packages for them when we first use them so they know which packages
+  to use. If we use the same code later, no need to reload the library." Written up as
+  VOICE_GUIDE §14b, which also carries the show-the-simulation half.
+- **Current state, measured 2026-08-16:** **28 of the book's 61 `library()` calls are in
+  chunks the reader never sees**, across 8 chapters. Nearly all are the hidden
+  `load-libraries` block at the top of a file, so a student reading the rendered book is
+  never told which packages the chapter needs. Worst offenders by invisible calls:
+  `Multiple_Regression_Control` (5), `Hierarchical_Regression` (5), `Intro_to_regression` (2),
+  `Power_Effect_Size` (2), `Independent_t_test` (2), `Standard_Error` (1). Chapters 16 and 17
+  are partly converted already (Alex did three by hand in 16; the rest were done in that session).
+- **The trap:** it is not enough to move `library()` next to first use, because first use is
+  often inside a hidden chunk, and a `library()` call in a hidden chunk teaches nobody
+  anything. It must be the first use the **reader can see**. Chapter 16 has a live example:
+  Alex's `library(GGally)` landed in the `ggpairs-plot` chunk, which inherits `echo=FALSE`,
+  so it is still invisible. Flagged to him rather than fixed, because echoing that chunk is
+  a reading-experience decision, not a mechanical one.
+- **Open question for Alex:** whether the hidden top-of-file `load-libraries` block should
+  then be deleted, or kept as a belt-and-braces "here is everything this chapter needs".
+  Keeping both is redundant but harmless; he has not said which he wants.
+- **Approved:** [x] — instruction given directly, 2026-08-16. Chapters 16, 17 done; Ch15's
+  simulation echoed. The other 8 chapters are outstanding.
+
 ### [G06] Standardize on the native pipe `|>`
 - **Priority:** LOW | **Effort:** M (mechanical + verify)
 - 7 chapters use `%>%`; the Tidyverse appendix teaches `|>` and admits the inconsistency. Sweep `%>%` → `|>` (verify each renders), and move the "old pipe means the same thing" note into R_Basics (CH26-B01).

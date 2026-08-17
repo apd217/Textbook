@@ -21,7 +21,13 @@ library(gridExtra)
 library(sjPlot)
 ```
 
-```{r simulate-data, include=FALSE}
+## Two Slopes, and Nothing That Compares Them
+
+Here is a study you could run tomorrow. Closely follow 200 first-semester students wherever they go and video record all their social interactions for an entire semester, while you yell "*IGNORE ME*" every 30 seconds to ensure they know not to have their behaviors affected by you observing them 24/7 with a camera. Next, have a trained panel of clinical psychologists review all their interactions and rate how warm and agreeable each one is on a 0 to 10 scale. Since we know what they are doing at all times, we would also note whether they actually went out to parties and social events, or stayed home all semester. At the end of the semester we ask each victim, I mean each student who agreed to participate and signed all the IRB forms and waived all rights to their videos, how close a friendship they formed with one particular person they met in week one of the study, on a 0 to 100 "feelings" thermometer.
+
+Below is the simulation of that study. 
+
+```{r simulate-data, echo = TRUE}
 set.seed(42)
 n <- 200
 X <- runif(n, 0, 10)
@@ -33,27 +39,18 @@ Friend.Data$GoingOut_ <- factor(Friend.Data$GoingOut,
                                 labels = c("Stay in", "Go out"))
 ```
 
-<!-- ---Alex--- New cold open, replacing the recap that used to sit at the top. The
-     old "Where We Are and Where We Are Going" section is still here, just demoted
-     below it, which is the same shape Ch15 ended up with. The demonstration is the
-     two separate regressions the chapter already described in the abstract further
-     down ("Imagine, for a moment..."); making it real up front means the abstract
-     version could be cut, and B3 becomes a payoff instead of a new fact. -->
+Next, you then split the students into the ones who went out and the ones who stayed in, and run an ordinary regression in each half predicting closeness from niceness. Two groups, two regressions, nothing you have not already done a dozen times.
 
-## Two Slopes, and Nothing That Compares Them
-
-Here is a study you could run tomorrow. Follow 200 first-semester students. Have a trained panel rate how warm and agreeable each one is, 0 to 10. Note whether they actually went out to parties and social events, or stayed home all semester. At the end of the term, ask each student how close a friendship they formed with one particular person they met in week one, on a 0 to 100 thermometer.
-
-Then split them into the ones who went out and the ones who stayed in, and run an ordinary regression in each half predicting closeness from niceness. Two groups, two regressions, nothing you have not already done a dozen times.
-
-```{r cold-open-two-regressions, echo=TRUE}
+Stay in People:
+```{r cold-open-stay-in, echo=TRUE}
 Stay.In <- subset(Friend.Data, GoingOut_ == "Stay in")
-Go.Out  <- subset(Friend.Data, GoingOut_ == "Go out")
-
 coef(summary(lm(Closeness ~ BeingNice, data = Stay.In)))
+```
+Go out People:
+```{r cold-open-go-out, echo=TRUE}
+Go.Out  <- subset(Friend.Data, GoingOut_ == "Go out")
 coef(summary(lm(Closeness ~ BeingNice, data = Go.Out)))
 ```
-
 ```{r cold-open-store, include=FALSE}
 cold_stay <- coef(lm(Closeness ~ BeingNice, data = Stay.In))[2]
 cold_go   <- coef(lm(Closeness ~ BeingNice, data = Go.Out))[2]
@@ -64,13 +61,11 @@ Read the two slopes. Among students who stayed in, each point of niceness buys `
 
 Great. Being nice only pays off if you leave the house. Write it up, submit it, wait.
 
-Now defend it. A reviewer asks the one question anybody would ask: are those two slopes *actually* different, or did two numbers just bounce apart the way numbers do? Go find that test in the output above.
+Now defend it. A reviewer asks the one question anybody would ask: are those two slopes *actually* different, or did two numbers just bounce apart the way numbers sometimes do by chance? Now, go find that test in the output above. I will wait...
 
-It is not there. You have two intercepts, two slopes, four standard errors and four *p*-values, and every single one of them is a statement about one group considered entirely on its own. The first table has never heard of the second table. The comparison the whole study was built to make is the one comparison neither regression performed, and no amount of staring at `0.35` and `<.001` will conjure it, because a small *p*-value and a large one are not a test of the distance between them.
+What, it is not there? Weird. You have two intercepts, two slopes, four standard errors and four *p*-values, and every single one of them is a statement about one group considered entirely on its own. You drew an inference based on two separate tables that have nothing to do with each other. You inferred, because the stay-in slope was smaller than the go-out slope, that being nice clearly does more for the people who go out. The comparison the whole study was built to make was never performed, and no amount of staring at `p = .35` and `p < .001` will conjure it, because a small *p*-value next to a large one is not a test of the difference between them. <!-- ---Alex--- Your sentence here read "You infered cause the slope of stay in group was < go out group of Being Nice scale (0-10) that clearly those go our are nicer people." I fixed the spelling, but I also changed the *claim*, so please check I read you right. As written it said the reader concluded the go-out students **are nicer people**, which is a claim about group means on X. The inference the cold open actually sets up, two paragraphs earlier, is "being nice only pays off if you leave the house", which is a claim about the two **slopes**. I went with the slopes reading, since that is the one the missing test would have tested. Revert me if you meant the other. -->  *You cannot test a difference with two analyses that have never met.*
 
 That missing test is what this chapter is for. The tool is called an **interaction**, and by the end of it you will have these exact two slopes back, `r round(cold_stay, 2)` and `r round(cold_go, 2)`, living inside one model that also hands you a significance test for the gap between them.
-
-*You cannot test a difference with two analyses that have never met.*
 
 ## Where We Are and Where We Are Going
 
@@ -84,7 +79,7 @@ Before we touch any data, we need to build the concept carefully. That is where 
 
 ## The Friendship Study
 
-You have probably heard the expression "right place, right time." It turns out that this is not just a saying; it is backed by social psychological research. A classic study by Back, Schmukle, and Egloff (2008) found that the friendships people form in university are driven, in large part, by seating proximity. Literally, the people you end up sitting next to on the first day of class are the people most likely to become your close friends by the end of the semester. Chance determines who you sit near. Geography becomes destiny.
+You have probably heard the expression "right place, right time." It turns out that this is not just a saying; it is backed by social psychological research. A classic study by Back, Schmukle, and Egloff (2008) found that the friendships people form in university are driven, in large part, by seating proximity. Literally, the people you end up sitting next to on the first day of class are the people most likely to become your close friends by the end of the semester. Chance determines who you sit near. *Geography becomes destiny*.
 
 You decide to replicate and extend this work. You follow 200 first-semester students throughout their first semester, recording how close of a friendship they formed with one particular person (measured on a 0–100 feelings thermometer, where 0 = complete strangers and 100 = best friends). You also measure two things that might predict the quality of that friendship:
 
@@ -96,7 +91,6 @@ The intuition behind your study is this: being a warm, friendly person should he
 That is your hypothesis. And testing it is the focus of this chapter.
 
 > Back, M. D., Schmukle, S. C., & Egloff, B. (2008). Becoming friends by chance. *Psychological Science, 19*(5), 439–440.
-
 
 ## What Is an Interaction? The Concept Before the Math
 
@@ -196,14 +190,13 @@ An interaction model fits both slopes simultaneously in a single model and attac
 
 So an interaction model is a formalized, simultaneous, significance-tested version of the two regressions you already ran. Hold onto that image; when we get to $B_3$ it stops being an analogy and starts being literally the same numbers.
 
-
 ## Before We Run the Models: Two Concepts You Need First
 
 ### Centering: Making Zero Meaningful
 
 You have seen the intercept in every regression model we have run in this book, and you know it means "the predicted value of Y when X = 0." That definition is simple enough. The problem is that zero is not always a meaningful value.
 
-In our friendship study, *Being Nice* is measured on a 0–10 scale. Zero means "not nice at all," a real value technically, but one that describes an essentially sociopathic person who presumably does not exist in our sample. When our regression model reports an intercept, it is making a prediction for a hypothetical person with zero niceness. That is not a very interesting or useful prediction.
+In our friendship study, *Being Nice* is measured on a 0–10 scale. Zero means "not nice at all," a real value technically, but one that describes an essentially sociopathic person who presumably does not exist in our sample. When our regression model reports an intercept, it is making a prediction for a hypothetical person with zero niceness. That is not a very useful prediction.
 
 Now consider what happens when we build an interaction model. The intercept will be the predicted closeness score for a person with zero niceness *who also stays in*. The coefficient for Going Out will be the gap between the two groups *at zero niceness*. These values are anchored to a strange and artificial point that nobody in our data actually occupies.
 
@@ -215,7 +208,7 @@ $$X_c = X - M$$
 
 After centering:
 
-- A score of $X_c = 0$ means this person is exactly average on Being Nice.
+- A score of $X_c = 0$ means this person is exactly average on Being Nice (relative to this sample).
 - A score of $X_c = 2$ means this person is 2 points *above* the average.
 - A score of $X_c = -3$ means this person is 3 points *below* the average.
 
@@ -250,6 +243,8 @@ We collected data from 200 first-semester university students. Each student's fr
 Here is a summary of the sample broken down by social engagement:
 
 ```{r descriptives, echo=TRUE}
+library(tidyverse)
+
 Friend.Data %>%
   group_by(GoingOut_) %>%
   summarise(
@@ -280,7 +275,6 @@ Friend.Data$BeingNice.C <- as.numeric(scale(Friend.Data$BeingNice,
 # Always check it worked: a centered variable has a mean of (essentially) zero
 mean(Friend.Data$BeingNice.C)
 ```
-
 That is zero with a rounding error's worth of dust on it, which is exactly what centering is supposed to produce. R prints it in scientific notation to be annoying; `1.78e-16` is a decimal point followed by fifteen zeros and then a rounding error. A centered value of 0 now corresponds to a person who scored approximately `r round(mean(Friend.Data$BeingNice), 2)` on the original 0–10 scale.
 
 Two things in that one line are waiting to bite you.
@@ -299,7 +293,8 @@ Before running any models, let's visualize the relationships in the data. This i
 
 # We use the original (uncentered) niceness score for the diagnostic plot
 # so the axes are on the interpretable 0-10 scale
-GGally::ggpairs(
+library(GGally)
+ggpairs(
   Friend.Data[, c("BeingNice", "Closeness", "GoingOut_")],
   lower = list(continuous = "smooth", combo = "box_no_facet"),
   diag  = list(continuous = "barDiag"),
@@ -599,13 +594,13 @@ For that, `sjPlot` does the whole thing in one line:
 ```{r sjplot-quick, echo=TRUE, fig.width=4.5, fig.height=3.5}
 #| fig-cap: "The same interaction, drawn by `plot_model()` with no formatting work at all. Non-parallel lines, same story, one line of code."
 #| fig-alt: "A line graph titled Predicted values of Closeness, with centered Being Nice running from about negative 6.6 to positive 6.6 on the x axis and predicted closeness on the y axis. Two lines with confidence bands: the Stay in line is nearly flat, running from about 14 to 17 across the whole range, while the Go out line climbs steeply from about 9 on the left to about 73 on the right. The two lines cross near the left edge and diverge sharply."
-
-plot_model(Model.2, type = "int")
+library(sjPlot)
+plot_model(Model.2, type = "int")+theme_bw()
 ```
 
-This is the exploratory version, and exploratory code is allowed to be fast and slightly ugly. Notice what it gives you and what it does not. The x-axis is *centered* niceness, running from about $-6.6$ to $+6.6$ rather than the original 0 to 10, so the reader has to know what centering is before the axis means anything. It labels the variable "Being Nice C", because it is reading your column name and has no idea what you meant. And it does not show the raw data underneath, so nothing on this plot tells you how much spread those confidence bands are hiding.
+This is the exploratory version, and exploratory code is allowed to be fast and slightly ugly. Notice what it gives you and what it does not. The x-axis is *centered* niceness, running from about $-6.6$ to $+6.6$ rather than the original 0 to 10, so the reader has to know what centering is before the axis means anything. It labels the variable "Being Nice C", because it is reading your column name and has no idea what you meant. 
 
-The hand-built version buys back the original axis, the raw points, and control over everything a reviewer will complain about.
+The hand-built version buys back the original axis and control over everything a reviewer will complain about.
 
 Learn both. Use the fast one until the figure actually matters.
 
@@ -620,6 +615,7 @@ But what about the "Go out" group? We know the "Go out" slope ($B_1 + B_3 \appro
 We use the `emtrends()` function from the `emmeans` package, which extracts and tests the slope of Being Nice *separately within each level* of Going Out:
 
 ```{r simple-slopes, echo=TRUE}
+library(emmeans)
 simple.slopes <- emtrends(Model.2, "GoingOut_", var = "BeingNice.C")
 # infer = TRUE shows both confidence intervals and significance tests in one table
 summary(simple.slopes, infer = TRUE)
@@ -701,14 +697,15 @@ In the full interaction model ($R^2 =$ `r round(R2.2, 3)`, adjusted $R^2 =$ `r r
 
 ## APA-Style Figure
 
-A well-constructed figure is often the clearest way to communicate an interaction. Below is a publication-ready interaction plot that you can adapt for your own write-ups. This figure shows the predicted values from the interaction model, with 95% confidence bands, and the raw data displayed in the background for transparency.
+A well-constructed figure is often the clearest way to communicate an interaction. Below is a publication-ready interaction plot that you can adapt for your own write-ups. This figure shows the predicted values from the interaction model with 95% confidence bands, and nothing else.
 
-*Figure 1.* Predicted friendship closeness as a function of agreeableness and social engagement. Lines represent predicted values from the interaction model; shaded bands represent 95% confidence intervals; points represent raw data. Among students who regularly went out (*Go out*; orange), agreeableness was a strong positive predictor of friendship closeness. Among students who stayed in (*Stay in*; blue), agreeableness was not significantly associated with friendship closeness.
+*Figure 1.* Predicted friendship closeness as a function of agreeableness and social engagement. Lines represent predicted values from the interaction model; shaded bands represent 95% confidence intervals. Among students who regularly went out (*Go out*; orange), agreeableness was a strong positive predictor of friendship closeness. Among students who stayed in (*Stay in*; blue), agreeableness was not significantly associated with friendship closeness.
 
 ```{r apa-figure, fig.width=5, fig.height=4, echo=TRUE}
-#| fig-alt: "A publication-style figure with Agreeableness Rating 0 to 10 on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel prediction lines with shaded 95 percent confidence bands, over faint raw data points. The blue Stay in line is essentially flat near 15 to 17 across the full range. The orange Go out line rises steeply from about 16 at the left to about 61 at the right. The legend, titled Social Engagement, sits above the plot."
+#| fig-alt: "A publication-style figure with Agreeableness Rating 0 to 10 on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel prediction lines with shaded 95 percent confidence bands. The blue Stay in line is essentially flat near 15 to 17 across the full range. The orange Go out line rises steeply from about 16 at the left to about 61 at the right. The legend, titled Social Engagement, sits above the plot."
 
 # --- APA-Style Interaction Plot ---
+library(ggplot2)
 
 # Step 1: Get predicted values from the model using emmeans
 Inter.Em.Fig <- emmeans(Model.2,
@@ -726,11 +723,6 @@ ggplot(Fig.Data, aes(x    = BeingNice.orig,
                      color = GoingOut_,
                      fill  = GoingOut_,
                      group = GoingOut_)) +
-  # Raw data points (faint, for context)
-  geom_point(data  = Friend.Data,
-             aes(x = BeingNice, y = Closeness,
-                 color = GoingOut_, group = GoingOut_),
-             alpha = 0.25, size = 0.8) +
   # Confidence ribbons
   geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL),
               alpha = 0.15, color = NA) +
@@ -755,6 +747,8 @@ ggplot(Fig.Data, aes(x    = BeingNice.orig,
         axis.title        = element_text(size = 10),
         panel.grid.minor  = element_blank())
 ```
+
+**Note:** *I removed the raw data points here. In larger, more complex models where you have lots of controls, the raw points can conflict with the plotted slopes and confuse the reader.*
 
 ::: {.callout-warning title="Do Not Diagnose an Interaction by Staring at Two P-Values"}
 One simple slope being significant while the other is not does **not** prove that the slopes differ. That was the whole problem the chapter opened with: two separate regressions handed us a significant slope and a non-significant one, and between them there was no test at all. The interaction coefficient is the direct test of that difference. The plot and simple slopes explain the interaction after it has been tested.

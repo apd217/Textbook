@@ -407,6 +407,14 @@ Skip the guts and the opposite happens. Every new method arrives as an unrelated
 
 Learn the guts. It costs more now and less every week after.
 
+::: {.callout-tip title="You Can Download This Book and Run It"}
+Every chapter in this book is a `.qmd` file, which is a plain text file containing all the prose you are reading plus every line of R code that produced the numbers and figures around it. You can download them and open them in RStudio, and then run the chapter line by line, one chunk at a time, and watch each result appear.
+
+Do that. Especially with the simulations. The whole argument of the section above is that you learn more from data you built than from data you were handed, and that only works if you actually run it and start changing numbers to see what breaks.
+
+One thing that will confuse you if nobody warns you: **some of the code in the files does not appear in the book.** That is deliberate. If a chunk is fifteen lines of fiddling with axis labels and legend positions, you do not need to learn it, you just need to see the plot it made, so I hid it. Everything you are actually meant to be able to write yourself is shown. If you open the `.qmd` and find extra code that was never printed in the chapter, it is scaffolding, not a secret.
+:::
+
 ## The Short Story
 
 - Statistics is not decorative math bolted onto the end of a study. It is the logic connecting the design, the measurement, the analysis, and the claim you are allowed to make.

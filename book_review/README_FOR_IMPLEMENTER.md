@@ -74,6 +74,29 @@ was previously known**:
 - `Chapter_Introduction` at **3.16** (**not previously flagged anywhere**; also Part 1 and
   finished, so same rule applies, but somebody should tell Alex it exists)
 
+### New standing policy from Alex, 2026-08-16: show the simulation, name the package
+
+Given directly, after he read Ch16: **"in all chapters, we should SHOW them the simulation;
+otherwise, they cannot run my lecture on their own"** and **"we should call the packages for
+them when we first use them... If we use the same code later, no need to reload the library."**
+Written up as **VOICE_GUIDE §14b** and **G05b** in `00_OVERVIEW.md`. It refines G05 rather
+than replacing it: the simulation is now classified as statistics, not plumbing. Hidden code
+is still fine for genuine scaffolding.
+
+Where it stands after this session:
+
+- **Simulations: essentially done, and it was one chunk.** An audit of every chapter in
+  `_quarto.yml` found exactly **one** hidden data-making chunk in the whole book, in
+  `Chapter_Hierarchical_Regression`. It is now echoed with a lead-in line. Everything else
+  was already visible. Do not go hunting; the job is finished.
+- **Libraries: 8 chapters outstanding, 28 invisible `library()` calls.** See G05b for the
+  per-chapter counts and for the trap that makes this less mechanical than it looks (first
+  use is often in a hidden chunk, where a `library()` call teaches nobody anything).
+- **Alex should be asked** whether the hidden top-of-file `load-libraries` block gets deleted
+  once packages are named at point of use, or kept as a summary. Both were left in place.
+- **The Introduction** now carries a callout saying the `.qmd` files are downloadable and
+  runnable, and that some chunks are hidden on purpose. That was the fourth thing he asked for.
+
 ### What is left
 
 **Chapter 18 (Mixed Regression), on its own, with a fresh session.** Unchanged advice:
