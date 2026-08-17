@@ -23,6 +23,63 @@ the diff and merges into `main` themselves — do not merge or push to `main`.
 
 ## Status as of 2026-08-16, end of the 16+17 session (READ THIS FIRST)
 
+**Chapters 16 and 17 are DONE, committed, and Alex has read and edited both.** Do not reopen
+them. **Chapter 18 (Mixed Regression) is the last chapter, and it is your whole job.**
+
+### Chapter 18: everything already verified for you, so you do not redo it
+
+Groundwork was run at the end of the 16+17 session specifically so the next session starts
+from facts instead of assumptions. All of the following was **executed, not assumed**:
+
+- **`lme4`, `lmerTest`, `glmmTMB` and `emmeans` are all installed.** The CH18-U01 conversion
+  is not blocked on anything.
+- **CH18-U02's central claim is TRUE and the numbers are these.** Rebuilding the paired-t
+  chapter's chocolate data (`set.seed(343)`, `n <- 48`, objects `paired_wide` / `paired_long`,
+  factor levels "No chocolate" / "Chocolate") and fitting
+  `lmer(fixation ~ condition + (1 | participant))` reproduces the paired *t*-test **exactly**:
+
+  | | paired `t.test` | `lmer` + lmerTest |
+  |---|---|---|
+  | *t* | 4.336614 | 4.336614 |
+  | df | 47 | 47 |
+  | *p* | 7.5972e-05 | 7.5972e-05 |
+  | estimate | 0.78524 | 0.78524 |
+
+  Identical to six decimals, Satterthwaite df included. **Write the section around these
+  numbers, but re-run them yourself before you publish prose about them.** Note the estimate
+  is the mean *difference*, so the fixed effect is the chocolate effect in seconds.
+- **The paired-t chapter already routes here** (`Chapter_Paired_t_test.qmd:317` links to
+  `Chapter_Mixed_Regression.qmd`), so CH18-U02 lands exactly where a reader arrives.
+- **The chapter has 7 `glmmTMB` calls, 0 `fig-alt`, and full YAML residue** (`geometry`,
+  `fontsize`, `format: pdf:`). So G01 and G02 are both outstanding here.
+- **`Chapter_Mixed_Inference.qmd` is still commented out of `_quarto.yml`**, so CH18-P01's
+  broken forward reference is real.
+
+### Chapter 18: how to run the session
+
+1. **Do CH18-U02 first, not CH18-U01.** It is additive, it is the highest-value thing in the
+   file, its numbers are already verified above, and doing it first means you have read the
+   chapter properly before you start rewriting its engine.
+2. **CH18-U01 is DECIDED, not open.** Alex, 2026-08-16: *"I think I want to go back to LMER for
+   this chapter to keep it easier."* `lmer()` + `lmerTest` is the primary engine. Do not
+   re-argue it, and do not build a long glmmTMB comparison; he is optimising for the
+   undergraduate, so glmmTMB shrinks to a short aside or leaves for `Mixed_Inference`.
+   **CH18-U01 changes every number in the chapter.** Seven `glmmTMB` calls become `lmer`.
+   Run the new models, read the actual output, and rewrite the surrounding prose to match.
+   Do not port sentences across and assume they still hold. The z-versus-t difference is the
+   whole point of the item, so every "z = " in prose is a defect after the swap.
+3. **Alex reviews the diff before commit.** CH18-U02 is Tier 3.
+4. Then CH18-P01, CH18-U03, CH18-P02, plus G01 and G02.
+
+### One open question for Alex, which he has not yet answered
+
+The review file's **ordering note**: the curriculum needs this chapter's first half in Week 10,
+*before* the interaction chapters, but the book puts it last in Part 2. The options are to move
+the chapter earlier, or to split it so the new paired-t on-ramp sits at the Week-10 position
+while the CBT longitudinal material stays as the finale. **Ask before implementing either.**
+The parallel decision in the 14+15 session (the Part 2 reorder) is the precedent for how much
+this can churn.
+
 **Chapters 16 and 17 are done and committed, one commit each, not merged to main.**
 Every item in both files is implemented and marked. Alex has not read them yet.
 
