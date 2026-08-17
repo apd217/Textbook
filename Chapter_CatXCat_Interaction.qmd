@@ -602,7 +602,7 @@ ggplot(Fig.Data, aes(x = NiceGroup_, y = emmean,
         panel.grid.minor  = element_blank())
 ```
 
-## The ANOVA Costume
+## The ANOVA Costume: A Sheep in Wolf's Clothing
 
 I have been rude about ANOVA (Analysis of Variance) since the preface, so it is only fair to introduce you properly, once, so you know what it is when someone inflicts it on you.
 
@@ -706,7 +706,7 @@ That `contrasts = list(NiceGroup_ = contr.sum, ...)` argument was doing real wor
 
 **Anything bigger than a 2 × 2.** Everything in this chapter leaned on both variables having exactly two levels, which is what let a single coefficient $B_3$ *be* the interaction. Go to a 3 × 2 and that stops being true. A three-level factor enters as two columns, not one; the interaction becomes two coefficients, not one, with $(a-1)(b-1)$ degrees of freedom; there is no single "difference of differences" number to report; and your follow-up comparisons multiply fast enough that you have to start controlling for how many you ran.
 
-Both live in the advanced contrasts chapter. If you are an undergraduate in 343, you are done here and you may leave happy.
+Both live in the advanced contrasts chapter. If you are an undergraduate, you are done here and you may leave happy.
 :::
 
 ## Comparison: Continuous × Categorical (the prior chapter) vs. Categorical × Categorical (This chapter)
