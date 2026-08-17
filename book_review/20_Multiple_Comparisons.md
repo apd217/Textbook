@@ -94,9 +94,77 @@ image, the statistical problem arriving only after the reader is already inside 
 that the line visually cuts through the bottom of the text. Legible, but slightly untidy.
 One-line fix if Alex wants it: raise the y to about `.10`.
 
-**Chapter length** grew from ~2,500 to 3,183 words; em-dash density fell 1.40 to **0.94**, under
-the 1.2 target, with no dashes added. The two real ones left are Alex's own, in the nil-hypothesis
-sentence, and were left alone per the standing rule.
+**Chapter length** grew from ~2,500 to 3,183 words, then to **4,881** after Alex's follow-up
+(below); em-dash density fell 1.40 to **0.20**, with no dashes added. The two real ones left are
+Alex's own, in the nil-hypothesis sentence, and were left alone per the standing rule.
+
+---
+
+## Alex's follow-up, 2026-08-17: explain Tukey properly, and give design-based guidance
+
+His instruction: Tukey is very common and needs more explanation; it is best for **between-subjects**
+designs when exploring. **Holm** tends to be better for **within** designs, because you probably
+have the power to handle it, but in between designs it kills power like Bonferroni. **FDR** is
+excellent for pure exploratory work, or for "is there any activity in my dead brain" — and if the
+test works properly, it will not declare activity.
+
+**Three new subsections, all verified before writing.**
+
+**1. `### What Tukey Actually Is`.** The chapter used Tukey without ever saying what it is.
+It now explains the studentized range: Tukey asks how far apart the largest and smallest of $k$
+means would drift by chance, so protecting the biggest gap protects every smaller one, because
+six comparisons among four means are six views of four numbers rather than six questions. Names
+the payoff (exact FWER control under equal $n$ and equal variances, not merely conservative) and
+the assumption that earns it (**independent groups with one common error variance**, i.e. a
+between-subjects design). That is what makes Alex's between-subjects rule a statistical fact
+rather than a preference.
+
+**2. `### Where Holm Helps and Where It Does Not`.** This section exists because the chapter's own
+comparison table would otherwise contradict the advice: **Holm gives the smaller p in five of the
+six rows.** Ignoring that would have been indefensible, so the section explains it.
+**Alex's "Holm kills power like Bonferroni" is exactly right, and sharper than it sounds.** Holm is
+step-down, so its first step multiplies the smallest *p* by the full family size, which *is*
+Bonferroni. Verified: raw $5.991865\times10^{-10}$, $6\times$ raw, Holm, and Bonferroni all return
+$3.595119\times10^{-9}$, identical to every printed digit. New `holm-is-bonferroni` chunk shows all
+four side by side. The improvement over Bonferroni is entirely in the *later* comparisons, which is
+why Holm hurts most when your headline is the strongest contrast, which is the usual case.
+**One claim was deliberately softened after checking.** "Tukey is more powerful for between-subjects
+pairwise" is true only at the top of the sorted list, and by a modest margin here: Bonferroni/Tukey
+is **1.03**, because four groups offer little dependence to exploit. The text says so, and notes
+the advantage grows with more groups (8 groups gives 28 comparisons on 7 df). Below the top row,
+Holm's step-down beats Tukey. Framing is therefore "which reference distribution matches your
+design", not "which gives smaller numbers".
+Within-subjects rationale is stated as Alex gave it plus the mechanism: Tukey's studentized range
+assumes independence and repeated measures are not independent, so Holm's indifference to
+dependence stops being a concession; and within designs remove between-person variance, so they
+usually have the power to absorb the conservatism.
+
+**3. `### What FDR Is Actually For`, with the dead-brain demo.** This is the one that pays off the
+chapter's own opener. Three new chunks, all verified:
+- **`dead-brain`:** 10,000 pure-null voxels. Uncorrected $p<.05$ finds **542** active voxels in a
+  corpse; at the salmon paper's own $p<.001$ threshold it still finds **10**. **BH finds 0. Holm
+  finds 0.**
+- **`dead-brain-repeated`:** 2,000 dead brains, BH declares at least one discovery **4.45%** of the
+  time. Under a global null, FDR control implies FWER control, so this is the guarantee working.
+- **`live-brain`:** 10,000 voxels, 200 real. Uncorrected finds 690 (492 false). Holm finds 58 with
+  **0** false but misses 142 real effects. BH finds 166, recovering **154 of 200** for **12** false.
+  Observed FDP is 0.072, slightly above .05, which incidentally demonstrates the "expectation over
+  repeated uses" point the section already made.
+- Closing `callout-note` reframes the salmon as a **calibration check** rather than an fMRI joke:
+  hand a procedure data with nothing in it and confirm it says nothing. Lands on Alex's line, that
+  FDR is permissive about *which* discoveries pass, not about *whether* anything is there.
+
+**The `adjust=` callout was rebuilt around design instead of test count**, and now carries the trap
+explicitly: reaching for Holm in a between-subjects pairwise design because it sounds more rigorous
+costs power exactly where the paper needs it. Four Short Story bullets added to match.
+
+**Bug found and fixed while verifying, worth knowing about.** Two inline `` `r signif(...)` ``
+expressions returning scientific notation rendered as literal **`5.99^{-10}`** in the HTML, not as
+math. Same family as the `R^2`-outside-math caret bug already logged in the README, but a different
+trigger: knitr formats small numbers for math context, and inline R output is not in math context.
+Fixed by moving the values into a chunk, where verbatim output is safe. A scan of the rendered
+chapters found no other instances. **Do not put `signif()`/`format(scientific=)` results in inline
+R;** print them in a chunk or round them into ordinary decimals.
 
 **Cross-references to coordinate:** CH03-P01 (Probability chapter's salmon aside should cite
 @bennett2010 and point here — the citation already exists in references.bib per this chapter);

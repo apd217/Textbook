@@ -74,6 +74,13 @@ the removable seams.**
 6. **Linking to the two space-containing filenames needs URL encoding** in the `.qmd` source:
    `](Chapter_Regression%20with%20Cat%20Variables.qmd)`. Quarto resolves it to
    `./Chapter_Regression with Cat Variables.html`, matching its own sidebar nav. Verified.
+7. **Never put scientific notation in an inline `` `r ` `` expression.** A `signif()` result of
+   `5.99e-10` renders as the literal string **`5.99^{-10}`** in the HTML, because knitr formats
+   small numbers for a math context that inline output does not provide. This is the same caret
+   bug as `R^2` typed outside math, with a different trigger, and it is invisible unless you read
+   the rendered page. Print such values in a **chunk**, where output is verbatim, or round them
+   into ordinary decimals. Found and fixed twice in this session (Ch20, Ch21). To sweep for it:
+   search the rendered HTML for `\d\^\{-?\d+\}` outside math spans.
 
 ### Before you touch anything
 
