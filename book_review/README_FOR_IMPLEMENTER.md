@@ -81,18 +81,25 @@ ask for code that shows a thing the text only describes). 20 can stand alone and
 
 ### Loose ends that are not Part 3, listed so they are not lost
 
-1. **CH18-DUP01, the one that actually needs Alex.** `Chapter_Mixed_Designs.qmd` duplicates
-   Ch18's structure. It was rewritten on 2026-08-17 at 00:02 by something that was not the Ch18
-   session, reusing that session's prose verbatim. It is now committed **unreviewed and as-is**,
-   purely so it cannot be lost. It is still commented out of `_quarto.yml`. One of it and
-   `Chapter_Mixed_Change_Over_Time.qmd` has to be retired before either ships.
+1. **CH18-DUP01: ANSWERED by Alex, 2026-08-17. `Chapter_Mixed_Designs.qmd` is the one that
+   retires.** `Chapter_Mixed_Change_Over_Time.qmd` wins: it is the verified 2×4 material,
+   self-contained, renders clean, every number re-checked against the original run.
+   `Chapter_Mixed_Designs.qmd` was rewritten on 2026-08-17 at 00:02 by something that was not
+   the Ch18 session, reused that session's prose verbatim, and was committed unreviewed purely
+   so it could not be lost. **Nobody has retired it yet** — the Part 3 session recorded the
+   decision but did not act on it, since it is not Part 3 work. Whoever picks this up: check
+   `Chapter_Mixed_Designs.qmd` for anything worth salvaging into `Mixed_Change_Over_Time`
+   first, then delete it, and leave a line in the commit message saying it was CH18-DUP01.
 2. **`Chapter_Mixed_Change_Over_Time.qmd`** is the verified 2×4 material, parked, not in
-   `_quarto.yml`, filename a guess.
+   `_quarto.yml`, **filename still a guess**. Now that DUP01 is settled it is the survivor, so
+   naming it properly and adding it to `_quarto.yml` is a real next step rather than a blocked one.
 3. **CH18-F01:** link the RM ANOVA lecture from the end of Ch18 when Alex adds it.
 4. **G05b, the biggest outstanding cross-cutting item:** 28 invisible `library()` calls across
    8 chapters. Worst: `Multiple_Regression_Control` (5), `Hierarchical_Regression` (5). The trap
-   is that first use is often inside a hidden chunk. **Alex has never answered** whether the
-   hidden top-of-file `load-libraries` block gets deleted afterwards or kept as a summary.
+   is that first use is often inside a hidden chunk. **ANSWERED by Alex, 2026-08-17: the hidden
+   top-of-file `load-libraries` block gets DELETED**, not kept as a summary. Move the calls to
+   first visible use, verify the chapter still runs, *then* delete the block. See G05b in
+   `00_OVERVIEW.md` for the full wording. The 8 chapters themselves are still outstanding.
 5. **Also unanswered:** whether to extend the italic sweep to `p`, `r`, `M`, `SD`, `N`, `df`.
 6. **`Chapter_Advanced_Contrasts_ANOVA.qmd`** is written, 195 lines, and commented out. Ch17
    points at it without a hyperlink. Add the link if it ships. Alex has grad material to fold in.

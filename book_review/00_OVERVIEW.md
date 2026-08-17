@@ -198,9 +198,13 @@ overlap and should stay.
   Alex's `library(GGally)` landed in the `ggpairs-plot` chunk, which inherits `echo=FALSE`,
   so it is still invisible. Flagged to him rather than fixed, because echoing that chunk is
   a reading-experience decision, not a mechanical one.
-- **Open question for Alex:** whether the hidden top-of-file `load-libraries` block should
-  then be deleted, or kept as a belt-and-braces "here is everything this chapter needs".
-  Keeping both is redundant but harmless; he has not said which he wants.
+- **ANSWERED by Alex, 2026-08-17: delete the hidden block.** Once a chapter's packages are
+  named at first *visible* use, the hidden top-of-file `load-libraries` chunk goes away. There
+  is then exactly one place a reader learns a package is needed, and it is the place they can
+  see. Do not keep it as a belt-and-braces summary. **Order of operations matters:** move every
+  `library()` call to its first visible use *first*, confirm the chapter still runs top to
+  bottom, and only then delete the block. Deleting first will break the file, because some
+  first uses are inside hidden chunks that were silently relying on it.
 - **Approved:** [x] — instruction given directly, 2026-08-16. Chapters 16, 17 done; Ch15's
   simulation echoed. The other 8 chapters are outstanding.
 
