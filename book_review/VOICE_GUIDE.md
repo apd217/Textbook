@@ -575,9 +575,10 @@ top of that. A file with genuinely zero em-dashes now reports 1, not 0: the open
 no newline in front of it and survives the strip. **Treat 1 as the floor, not as a finding.**
 If you are comparing against a number written before that date, subtract about 2.
 
-The two remaining offenders are `Chapter_Distro_Moments` at 6.45 (Part 1, finished, leave it
-unless Alex asks) and `Chapter_CatXCat_Interaction` at 5.35 (chapter 17, belongs to the 16+17
-session).
+`Chapter_CatXCat_Interaction` was fixed in the 16+17 session, 5.35 to 0.20, which finished the
+outstanding list. Two chapters remain above target and **only one was previously known**:
+`Chapter_Distro_Moments` at 6.45 and `Chapter_Introduction` at 3.16. Both are Part 1 and
+finished, so leave them unless Alex asks, but the Introduction one had never been flagged.
 
 The house form is `---` (three hyphens), not the literal `—` character. Both count.
 
@@ -767,6 +768,21 @@ section runs the simulation *before* the formula and then puts the two numbers s
 $p = .0036$ from five thousand models, $p = .0037$ from the arithmetic. The line that does the
 teaching is "the histogram is what the formula is a shortcut *for*." This is the single most
 reusable move from the pass, and it fits anywhere the book introduces a test.
+
+**A cold open can be built out of an absence, not just a demonstration.** Chapter 16 (2026-08-16)
+opens by running two perfectly ordinary regressions, one per group, and then asking the reader to
+find the test of the difference between them. It is not there. The chapter is the missing test.
+This is a variant of the indict-the-tool move: instead of showing the tool being fooled, show the
+tool *declining to answer the question the study was built to ask*. It works for the same reason,
+which is that the reader watches the problem happen instead of being promised one.
+
+**The strongest payoff is an identity, not a callback.** Ch15's junk predictors return as a
+device. Ch16's two slopes return as *the same numbers*: the separate regressions give `0.1998`
+and `4.9042`, and $B_1$ and $B_1 + B_3$ give `0.1998` and `4.9042`, with $B_3$ exactly the gap.
+Nothing you can write is as persuasive as the reader recognising a number. Look for these before
+inventing a callback, and **verify the identity holds to the printed precision before you build
+prose on it.** A related trap, which nearly landed in Ch17: if the value you are squaring or
+comparing was rounded in an earlier chunk, the identity will miss by 0.01 and read as a mistake.
 
 **What Alex changed, which is calibration data.** He kept the whole structure and every joke.
 He added a plain-English model-by-model setup *before* the graph, because he wanted the reader

@@ -21,7 +21,71 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## Status as of 2026-08-16, end of the 14+15 session (READ THIS FIRST)
+## Status as of 2026-08-16, end of the 16+17 session (READ THIS FIRST)
+
+**Chapters 16 and 17 are done and committed, one commit each, not merged to main.**
+Every item in both files is implemented and marked. Alex has not read them yet.
+
+**The shared DV bug is fixed in both, the same way.** The variable is now literally called
+`Closeness`, not `NewFriends`, so the printed model output agrees with the prose instead of
+contradicting it. Alex chose the rename over the prose-only option. If you touch either
+chapter, the two must stay identical: they share a simulate chunk and a story.
+
+**Chapter 16 got a cold open** (Alex approved it mid-session). It runs the two separate
+regressions the chapter used to only imagine, and lands on the absence of any test of the
+gap between them. The device pays off twice more, at $B_3$ and at `emtrends()`, because the
+separate-regression slopes `0.1998` / `4.9042` are *identical* to $B_1$ and $B_1 + B_3$.
+**Chapter 17 got a light touch instead**, by Alex's explicit choice: its "what changes /
+what stays the same" scaffolding is deliberate and is untouched; only the recap paragraphs
+moved out of first position.
+
+### Things that bit us this session, for the next one
+
+1. **Items are still wrong about their own numbers, and now so is the prose.** Two claims in
+   Ch17 were false and were not in the review at all: "both around 15" for cell means that
+   are 16.0 and 22.6 (a gap the chapter itself later reports as significant), and "$d = 0.45$,
+   a negligible effect". Both were caught by running the chapter's code before writing about
+   it. **Keep doing that. It has now paid off in three consecutive sessions.**
+
+2. **Rounded intermediates will silently break an identity you are trying to demonstrate.**
+   Ch17's `t3` was already rounded to 2 dp in an earlier chunk. Squaring it gives 126.91
+   against an $F$ of 126.90, which would have quietly undercut the whole "same test" point.
+   Square the raw value. There is a comment in the chunk saying so.
+
+3. **`scale()` returns a one-column matrix, and `lm()` accepts it without complaint.** That
+   is what makes it dangerous: nothing fails until some package downstream refuses the model
+   with an incomprehensible `nmatrix.1` error, which is exactly what `sjPlot::plot_model()`
+   did. Ch16 now centers with `as.numeric(scale(...))`. **Check other chapters that center.**
+
+4. **A single-chapter `quarto render` can trigger a full-book PDF pass.** It rewrote
+   `execute-results/tex.json` and `figure-pdf/*` for about fifteen chapters nobody touched,
+   deleted `_freeze/site_libs/`, and left an `index.tex` behind. None of that was committed:
+   only the two edited chapters' freeze artifacts went in. **Check `git status` before you
+   stage, and restore `_freeze/site_libs` if it shows as deleted.** Those unrelated `_freeze`
+   modifications are still sitting uncommitted in the working tree.
+
+### Em-dashes: the list is finished, but two chapters are still high
+
+`Chapter_CatXCat_Interaction` went **5.35 to 0.20**, the floor. That was the last chapter on
+the outstanding list. Current standings put two chapters above target, and **only one of them
+was previously known**:
+
+- `Chapter_Distro_Moments` at **6.45** (known; Part 1, finished, leave unless Alex asks)
+- `Chapter_Introduction` at **3.16** (**not previously flagged anywhere**; also Part 1 and
+  finished, so same rule applies, but somebody should tell Alex it exists)
+
+### What is left
+
+**Chapter 18 (Mixed Regression), on its own, with a fresh session.** Unchanged advice:
+CH18-U01 is a real code conversion (glmmTMB → lmer, which changes every output) and CH18-U02
+is Tier 3 narrative. Do not tack it onto the end of anything.
+
+One thing Ch18 can now reuse: the preface's ANOVA promise is **paid** as of this session, in
+Ch17's "The ANOVA Costume". `Chapter_Advanced_Contrasts_ANOVA.qmd` is still commented out of
+`_quarto.yml`, so that section is currently the book's only ANOVA appearance. If that chapter
+ever ships, cross-reference rather than duplicate.
+
+## Status as of 2026-08-16, end of the 14+15 session
 
 **Chapters 14 and 15 are finished and Alex has read and edited both.** Every item is
 implemented or marked as needing no change: CH14-B01, P01, U01 and CH15-P01, P02, U01.
