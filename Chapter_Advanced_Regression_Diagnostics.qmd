@@ -523,7 +523,6 @@ The `HC` family is a set of choices about what exactly to put on that diagonal:
 | `HC2` | $\dfrac{e_i^2}{1-h_{ii}}$ | Corrects for the fact that high-leverage points have artificially small residuals. |
 | `HC3` | $\dfrac{e_i^2}{(1-h_{ii})^2}$ | Approximates leaving each case out and refitting. The conservative default. |
 
-**That $h_{ii}$ is the same leverage from the hat matrix**, three sections ago. This is the point where the two halves of the chapter meet, and it explains something that otherwise looks like a coincidence. A high-leverage point pulls the line toward itself, which shrinks its own residual and makes it look better behaved than it is. HC2 and HC3 divide that shrinkage back out. HC3 divides by it twice, which is why it is the most conservative of the four and why it reacts hardest to influential cases.
 
 Long and Ervin tested these on thousands of simulated small samples and recommend **HC3 as the default whenever $n$ is below about 250**, which is most of psychology [@longervin2000]. Use HC3 unless you have a specific reason not to.
 
