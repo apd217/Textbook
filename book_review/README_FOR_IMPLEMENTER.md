@@ -97,6 +97,29 @@ Where it stands after this session:
 - **The Introduction** now carries a callout saying the `.qmd` files are downloadable and
   runnable, and that some chunks are hidden on purpose. That was the fourth thing he asked for.
 
+### Type III sums of squares: the trap, written down once
+
+Ch17 originally used Type II. Alex corrected it to Type III on 2026-08-16 and was right:
+psychology's ANOVA tables are Type III because SPSS `GLM` defaults to Type III. Switching
+introduced two defects that anything in this book reaching for Type III will hit again:
+
+1. **`car::Anova(type = 3)` inserts an `(Intercept)` row.** Every positional index shifts by
+   one and nothing errors. Index by row name, always.
+2. **Type III is invalid under R's default dummy coding.** `contr.treatment` is right for the
+   rest of these chapters, because it is what makes $B_1$ and $B_2$ readable as simple effects.
+   Ask for Type III on such a model and you silently get the simple-effect *t*-tests back,
+   squared. Fit a **separate** model with `contr.sum` for the Type III table and leave the
+   original alone. Ch17 now has a `callout-warning` teaching exactly this.
+
+### Advanced material: the chapter you want probably already exists
+
+Before writing new advanced content, **check `Chapter_Advanced_Contrasts_ANOVA.qmd`**. It is
+195 lines, already written, and merely commented out of `_quarto.yml`. It covers dummy coding,
+planned contrasts, effect coding via `contr.sum`, contrast weights as hypotheses, and
+estimability, on a three-level example. Ch17 now points at it (without a hyperlink, since it
+is not in the book, **so add the link when it ships**). Alex has graduate lecture material to
+fold into it. It deserves its own session, and CH17-U04 lists the duplication to resolve.
+
 ### What is left
 
 **Chapter 18 (Mixed Regression), on its own, with a fresh session.** Unchanged advice:

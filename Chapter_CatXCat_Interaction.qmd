@@ -20,13 +20,6 @@ library(gridExtra)
 ```
 
 
-<!-- ---Alex--- Light-touch opening, per your call. The "what changes / what stays the
-     same" scaffolding is untouched because the review file calls it deliberate; only the
-     recap paragraphs that used to open the chapter have moved into second position. The
-     new opening also plants the dichotomization problem so that CH17-P01's callout is a
-     payoff rather than a fresh interruption. The 119 is real, not a round number: the
-     filter keeps 81 of 200. -->
-
 ## The Design Psychology Cannot Stop Running
 
 Open a psychology journal to a random page. There is a very good chance the analysis you land on is a 2 × 2: two variables, two levels each, four groups, and one figure with two lines that either are or are not parallel. Drug versus placebo crossed with young versus old. Threat crossed with reassurance. Word lists crossed with sleep. It is the most-run design in the field, and if you go to graduate school in this discipline you will run one within the year.
@@ -35,7 +28,7 @@ So let us run one. Same friendship study as the prior chapter, same hypothesis, 
 
 There is one obstacle. A 2 × 2 needs two categorical variables, and Being Nice is not categorical. It is a perfectly good continuous rating from 0 to 10. So we are going to keep the least agreeable students, keep the most agreeable students, throw the 119 people in the middle of the scale directly into the bin, and call what survives **Low Nice** and **High Nice**.
 
-Yes, that is roughly as bad as it sounds. We will come back to exactly how bad, and to why this book is allowed to do it and you mostly are not, at the moment we actually do it.
+Yes, that is roughly as bad as it sounds. We will come back to exactly how bad, and to why this book is allowed to do it and you are not, at the moment we actually do it.
 
 ## Where We Are and Where We Are Going
 
@@ -71,6 +64,15 @@ The interaction question is: **is the difference between High Nice and Low Nice 
 
 Both questions ask the same thing. The answer is the interaction.
 
+::: {.callout-note title="Same Two IVs, Same One DV, Still Nobody Measured Twice"}
+A quick inventory, since the parts have been renamed but not replaced.
+
+The **DV** (the outcome) is still friendship closeness, 0 to 100. The **IVs** (the predictors) are still two: Niceness Group and Going Out. Two IVs is what makes an interaction possible; that has not changed. What changed is only that both IVs are now categorical.
+
+Both are still **between subjects**: one row per student, one cell per student, nobody measured twice. A 2 × 2 in which the same people turn up in more than one cell is a repeated-measures design, which is a different model and a later chapter.
+
+And it is still true that **regression does not care whether an IV was randomly assigned or merely observed.** Neither of ours was assigned. We did not randomly allocate students to be agreeable, and we did not send half of them out to parties. The 2 × 2 table you are about to see will look exactly like a table from a real experiment, the *F* values are computed exactly the same way, and none of that buys you a causal claim. The design decides what you may conclude. The arithmetic never does.
+:::
 
 ## The Core Concept: The "Difference of Differences"
 
@@ -210,10 +212,10 @@ We return to our 200 first-semester students. Recall that we measured friendship
 
 For this analysis, we focus on the **extremes of the niceness distribution**: students who scored below 2 on the agreeableness scale (near 0 = **Low Nice**) and students who scored above 8 (**High Nice**). Everyone in the middle of the scale is dropped, which is most of the sample, and we keep only the contrast between the most and least agreeable people in it.
 
-::: {.callout-warning title="Why We Are Allowed to Do This, and You Are Mostly Not"}
+::: {.callout-warning title="Why We Are Allowed to Do This, and You Are Not"}
 I am about to butcher a perfectly good continuous variable, on purpose, in front of you. I am doing it because the 2 × 2 is how a large share of psychology structures its experiments, and you need to be able to read, run, and interpret one.
 
-Doing this to *real* continuous data is a different matter. Median splits and extreme-groups designs throw away information you paid to collect, shrink your statistical power, and can manufacture effects that are not there [@maccallum2002]. Notice what happens below: 200 participants become 81. We are discarding well over half the study to make a picture that is easier to draw.
+Doing this to *real* continuous data is a different matter. Median splits and extreme-groups designs throw away information you paid to collect, shrink your statistical power, and can manufacture effects that are not there [@maccallum2002]. Never do this or I will chase you with my Nerf bat.  Notice what happens below: 200 participants become 81. We are discarding well over half the study to make a picture that is easier to draw.
 
 The rule is simple. **If your variable is continuous, use the previous chapter's model.** Categorize when the variable is genuinely categorical, or when someone else already categorized it before you arrived, not because a 2 × 2 is easier to explain in a talk.
 :::
@@ -495,7 +497,7 @@ se_goout  <- round(se_df$SE[se_df$GoingOut_ == "Go out"],  2)
 
 - **Stay-in group:** The difference between High Nice and Low Nice students is `r b_stayin` points, which is **not** statistically significant ($p =$ `r round(p_stayin, 3)`). For students who stay in, agreeableness does not significantly predict friendship closeness.
 
-- **Go-out group:** The difference between High Nice and Low Nice students is `r b_goout` points, which is **highly** significant ($p <$ .001). Among students who go out, being highly agreeable is associated with substantially closer friendships than being low in agreeableness.
+- **Go-out group:** The difference between High Nice and Low Nice students is `r b_goout` points, which is **highly** significant ($p < .001$). Among students who go out, being highly agreeable is associated with substantially closer friendships than being low in agreeableness.
 
 ### Effect Sizes: Cohen's *d*
 
@@ -565,8 +567,10 @@ In the full interaction model ($R^2 =$ `r round(R2.2, 3)`, adjusted $R^2 =$ `r r
 
 ## APA-Style Figure
 
+*Figure 1.* Predicted friendship closeness as a function of agreeableness group and social engagement. Points represent model-estimated cell means; error bars represent 95% confidence intervals. Among students who went out (*Go out*; orange), highly agreeable students formed substantially closer friendships than less agreeable students (*d* = `r d_go`). Among students who stayed in (*Stay in*; blue), agreeableness group was not significantly associated with friendship closeness (*d* = `r d_stay`).
+
 ```{r apa-figure, fig.width=5, fig.height=4, echo=TRUE}
-#| fig-alt: "A publication-style figure with Agreeableness Group, Low Nice and High Nice, on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel lines connect model-estimated cell means with 95 percent confidence error bars, over faint jittered raw data. The blue Stay in line is nearly flat from about 16 to 19; the orange Go out line rises steeply from about 23 to about 60. The legend, titled Social Engagement, sits above the plot."
+#| fig-alt: "A publication-style figure with Agreeableness Group, Low Nice and High Nice, on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel lines connect model-estimated cell means with 95 percent confidence error bars. The blue Stay in line is nearly flat from about 16 to 19; the orange Go out line rises steeply from about 23 to about 60. The legend, titled Social Engagement, sits above the plot."
 
 # APA interaction plot: categorical × categorical
 library(ggplot2)
@@ -575,11 +579,6 @@ Fig.Data <- as.data.frame(emmeans(Model.2, ~ NiceGroup_ | GoingOut_))
 
 ggplot(Fig.Data, aes(x = NiceGroup_, y = emmean,
                      color = GoingOut_, group = GoingOut_)) +
-  # Raw data (faint)
-  geom_point(data = Friend.Data,
-             aes(x = NiceGroup_, y = Closeness, color = GoingOut_),
-             alpha = 0.20, size = 1,
-             position = position_jitter(width = 0.12)) +
   # Confidence intervals
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL),
                 width = 0.08, linewidth = 0.8) +
@@ -603,12 +602,9 @@ ggplot(Fig.Data, aes(x = NiceGroup_, y = emmean,
         panel.grid.minor  = element_blank())
 ```
 
-*Figure 1.* Predicted friendship closeness as a function of agreeableness group and social engagement. Points represent model-estimated cell means; error bars represent 95% confidence intervals; faint points represent raw data. Among students who went out (*Go out*; orange), highly agreeable students formed substantially closer friendships than less agreeable students (*d* = `r d_go`). Among students who stayed in (*Stay in*; blue), agreeableness group was not significantly associated with friendship closeness (*d* = `r d_stay`).
-
-
 ## The ANOVA Costume
 
-I have been rude about ANOVA since the preface, so it is only fair to introduce you properly, once, so you know what it is when someone inflicts it on you.
+I have been rude about ANOVA (Analysis of Variance) since the preface, so it is only fair to introduce you properly, once, so you know what it is when someone inflicts it on you.
 
 Everything we just did has a second name. Run the exact same model through `anova()` and it comes back dressed as a two-way factorial ANOVA:
 
@@ -620,45 +616,98 @@ That is the table a paper means when it says "a 2 × 2 ANOVA revealed a signific
 
 ```{r anova-costume-store, include=FALSE}
 aov_tab <- anova(Model.2)
-F_int   <- round(aov_tab$`F value`[3], 2)
+F_int   <- round(aov_tab["NiceGroup_:GoingOut_", "F value"], 2)
 # Square the UNROUNDED t, or this lands 0.01 away from F and ruins the point
 t3_raw  <- summary(Model.2)$coefficients["NiceGroup_High Nice:GoingOut_Go out", "t value"]
 t3_sq   <- round(t3_raw^2, 2)
-carAov  <- car::Anova(Model.2, type = 2)
-F_nice_I  <- round(aov_tab$`F value`[1], 2)
-F_nice_II <- round(carAov$`F value`[1], 2)
-F_go_I    <- round(aov_tab$`F value`[2], 2)
-F_go_II   <- round(carAov$`F value`[2], 2)
-F_int_II  <- round(carAov$`F value`[3], 2)
+
+# Type III needs effect coding. Fit a second copy of the same model with contr.sum
+# rather than disturbing Model.2, which every coefficient interpretation above depends on.
+Model.2.sum <- lm(Closeness ~ NiceGroup_ * GoingOut_, data = Friend.Data,
+                  contrasts = list(NiceGroup_ = contr.sum,
+                                   GoingOut_  = contr.sum))
+carAov_II  <- car::Anova(Model.2, type = 2)
+carAov_III <- car::Anova(Model.2.sum, type = 3)
+# Index by NAME, never position: Anova(type = 3) inserts an (Intercept) row and
+# every positional index silently shifts by one.
+F_nice_I   <- round(aov_tab["NiceGroup_", "F value"], 2)
+F_go_I     <- round(aov_tab["GoingOut_",  "F value"], 2)
+F_nice_II  <- round(carAov_II["NiceGroup_",  "F value"], 2)
+F_go_II    <- round(carAov_II["GoingOut_",   "F value"], 2)
+F_nice_III <- round(carAov_III["NiceGroup_", "F value"], 2)
+F_go_III   <- round(carAov_III["GoingOut_",  "F value"], 2)
+F_int_III  <- round(carAov_III["NiceGroup_:GoingOut_", "F value"], 2)
+
+# What Type III returns if you forget contr.sum, for the warning callout
+carAov_bad <- car::Anova(Model.2, type = 3)
+F_nice_bad <- round(carAov_bad["NiceGroup_", "F value"], 2)
+F_go_bad   <- round(carAov_bad["GoingOut_",  "F value"], 2)
+t1_sq      <- round(summary(Model.2)$coefficients["NiceGroup_High Nice", "t value"]^2, 2)
+t2_sq      <- round(summary(Model.2)$coefficients["GoingOut_Go out", "t value"]^2, 2)
 ```
 
 Look at the interaction row. $F =$ `r F_int`. Now square the *t* for $B_3$ from the regression output: $t =$ `r round(t3_raw, 3)`, and $t^2 =$ `r t3_sq`. These are the same number, because they are the same test. The ANOVA table is not giving you a second opinion. It is giving you the first opinion in a different font.
 
-### The Sums of Squares Fight, Live
+### The Sums of Squares Fight, and Why Everyone Says "Type III"
 
 Earlier I promised you would meet Type III sums of squares. Here it is, and our unequal cells are what make it visible.
 
-`anova()` computes **Type I** (sequential) sums of squares: each term is tested after the terms above it. The `car` package computes **Type II**, where each main effect is tested after the other main effect. With balanced cells these give identical answers and nobody argues. Our cells are not balanced.
+When cells are unbalanced, the predictors share variance, and "how much variance does Niceness Group explain?" stops having one answer. It has three, depending on what you insist the other terms get credit for first.
+
+- **Type I** (sequential) is what `anova()` gave you above. Terms are tested in the order you typed them, and each one is adjusted only for the terms above it. The first term listed gets first claim on any shared variance. Type the predictors in a different order and you get a different table, which should tell you everything you need to know about relying on it.
+- **Type II** adjusts each main effect for the other main effect, but ignores the interaction when testing main effects.
+- **Type III** adjusts every effect for *every* other effect in the model, interaction included. Each term is asked what it contributes last, after everybody else has already taken what they wanted.
+
+**Type III is the one psychology uses, and it is worth knowing why.** For about thirty years the discipline ran its analyses in SPSS, whose `GLM` procedure defaults to Type III and does not make a fuss about it. Most researchers never chose Type III; SPSS chose it for them, and nobody was told there had been a decision. That default is now baked into the literature: when you read "*F*(1, 76) = 4.31" in a psychology paper from roughly 1990 onward, it is almost certainly Type III, and the paper will almost certainly not say so. R makes you ask for it out loud, which feels like R being difficult but is really R declining to make a methodological choice on your behalf.
+
+::: {.callout-warning title="Type III Without Effect Coding Is Nonsense, and R Will Not Warn You"}
+This is the trap that catches nearly everyone, including me, earlier in this very chapter.
+
+Type III main-effect tests are only meaningful if your categorical predictors use **effect coding** (`contr.sum`), where the levels are coded $-1$ and $+1$ around a midpoint. R's default is **dummy coding** (`contr.treatment`), coded 0 and 1, which is what makes $B_1$ and $B_2$ interpretable as simple effects, and which is exactly what we have wanted all chapter.
+
+Run `Anova(model, type = 3)` on a dummy-coded model and R returns a table without complaint. The numbers are simply not main effects. On our data it reports Niceness Group at $F =$ `r F_nice_bad` and Going Out at $F =$ `r F_go_bad`, which look like a null result and a small effect. They are neither. They are the *simple effects* $B_1$ and $B_2$ in disguise: square the $t$ values from the regression output and you get `r t1_sq` and `r t2_sq`, the same two numbers. Type III asked "what does niceness do at zero on the other variable", and with dummy coding zero means the Stay-in group, not the average.
+
+So refit with `contr.sum` before asking for Type III. The interaction row is unaffected either way, because the interaction is already the last term in and has nothing left to be adjusted for.
+:::
 
 ```{r anova-types, echo=TRUE}
 library(car)
 
-Anova(Model.2, type = 2)
+# Type III needs effect coding (-1/+1), not R's default dummy coding (0/1)
+Model.2.sum <- lm(Closeness ~ NiceGroup_ * GoingOut_, data = Friend.Data,
+                  contrasts = list(NiceGroup_ = contr.sum,
+                                   GoingOut_  = contr.sum))
+
+Anova(Model.2.sum, type = 3)
 ```
 
-Compare the two tables:
+All three types, side by side:
 
-| Term | Type I (`anova`) | Type II (`car::Anova`) |
-|---|---|---|
-| NiceGroup | `r F_nice_I` | `r F_nice_II` |
-| GoingOut | `r F_go_I` | `r F_go_II` |
-| NiceGroup × GoingOut | `r F_int` | `r F_int_II` |
+| Term | Type I (`anova`) | Type II | Type III (psychology's default) |
+|---|---|---|---|
+| NiceGroup | `r F_nice_I` | `r F_nice_II` | `r F_nice_III` |
+| GoingOut | `r F_go_I` | `r F_go_II` | `r F_go_III` |
+| NiceGroup × GoingOut | `r F_int` | `r F_int` | `r F_int_III` |
 
-The interaction is identical, `r F_int` both times. So is Going Out, because it was entered second and was therefore already adjusted for Niceness Group. The one that moves is Niceness Group, from `r F_nice_I` down to `r F_nice_II`, purely because Type I tested it first and handed it credit for variance it shares with Going Out.
+Two things to take from that table.
 
-Both numbers are correct answers. They are answers to different questions. That is the entire fight, and it exists only because the cells are unequal, which happened only because we dichotomized. The regression coefficients never had this problem: $B_1$ was always the niceness gap within the Stay-in group, unambiguously, and nobody had to pick a Roman numeral.
+**The interaction never moves.** `r F_int` in all three columns, and it would be `r F_int` under any other scheme somebody invents next year. The highest-order term is always adjusted for everything below it, so there is nothing left to argue about. The entire sums-of-squares fight is a fight about main effects, and it has never once touched the test you actually came here for.
+
+**The main effects move.** Niceness Group is `r F_nice_I` under Type I, `r F_nice_II` under Type II, and `r F_nice_III` under Type III. Same data, same model, same software, three answers. Notice that they do not fan out neatly: Type I and Type III land close together here while Type II sits well below both, and that ordering is a fact about this particular unbalanced dataset rather than a rule you can carry to the next one. All three are arithmetically correct. They are answers to three different questions about who gets credit for shared variance, and which question you asked is invisible in a published table that says only "*F* = " and a number.
+
+The regression coefficients never had this problem. $B_1$ was always the niceness gap within the Stay-in group, unambiguously, and nobody had to pick a Roman numeral or set a contrast option to find that out.
 
 *This is what I mean when I say regression scales and ANOVA does not. It is the same model either way; one of them just makes you argue about it.*
+
+::: {.callout-note title="Two Doors We Are Walking Past, On Purpose"}
+That `contrasts = list(NiceGroup_ = contr.sum, ...)` argument was doing real work, and I handed it to you without explaining it. Two things sit behind it, and both are graduate material rather than 343 material.
+
+**Coding schemes.** Dummy coding (0/1) and effect coding ($-1$/$+1$) are two members of a family. You can hand a regression *any* set of contrast weights, which lets you test specific theoretical comparisons directly as coefficients instead of running an omnibus test and then fishing through pairwise follow-ups. That is how ANOVA's "planned contrasts" work, and it is all just regression with a different design matrix.
+
+**Anything bigger than a 2 × 2.** Everything in this chapter leaned on both variables having exactly two levels, which is what let a single coefficient $B_3$ *be* the interaction. Go to a 3 × 2 and that stops being true. A three-level factor enters as two columns, not one; the interaction becomes two coefficients, not one, with $(a-1)(b-1)$ degrees of freedom; there is no single "difference of differences" number to report; and your follow-up comparisons multiply fast enough that you have to start controlling for how many you ran.
+
+Both live in the advanced contrasts chapter. If you are an undergraduate in 343, you are done here and you may leave happy.
+:::
 
 ## Comparison: Continuous × Categorical (the prior chapter) vs. Categorical × Categorical (This chapter)
 

@@ -45,7 +45,13 @@ cameo (preface: "ANOVA gets a brief appearance") still never happens.
 - **Fix:** Add a short section or collapsible callout "The ANOVA Costume": run `anova(Model.2)` (or `car::Anova` if Alex prefers — note the unequal-n caveat from CH17-P03), show the two main-effect Fs and the interaction F, and point out the interaction F here equals the t² of B3 from the regression. Three sentences of prose: "When a paper reports a 2×2 ANOVA, this is the table they mean. Same model, same data, same interaction test — regression just hands you the cell means and comparisons with less ceremony. Now you know what it is when someone inflicts it on you." (Coordinate with whether Advanced_Contrasts_ANOVA eventually ships; if it does, cross-reference instead of duplicating.)
 - **Approved:** [x] — IMPLEMENTED 2026-08-16 as `## The ANOVA Costume`, placed before the Comparison section. Confirmed `Chapter_Advanced_Contrasts_ANOVA.qmd` is still commented out of `_quarto.yml`, so this is currently the book's only ANOVA appearance and the preface's promise is otherwise unpaid.
 - **Verified, not asserted:** interaction $F = 126.9$ and $t_3^2 = 126.9$ render as the same number. An early draft would have missed by 0.01 because the `t3` already in scope is pre-rounded to 2 dp; the chunk now squares the unrounded *t*, with a comment saying why.
-- **Went beyond the item, deliberately: added "### The Sums of Squares Fight, Live".** Because the cells are unequal, `anova()` (Type I) and `car::Anova(type = 2)` genuinely disagree here, and the disagreement is instructive rather than hypothetical: NiceGroup is $F = 174.7$ sequentially but $139.83$ under Type II, while GoingOut is $246.88$ under both (it was entered second, so it was already adjusted) and the interaction is $126.9$ under both. That turns CH17-P03's parenthetical into a demonstration the reader watches happen, and it lands on the preface's actual thesis about regression versus ANOVA. **Judgment call flagged for Alex:** this uses `car::` (namespaced, no new `library()` call, and `car` is already installed), which is a package the chapter did not previously touch. The item explicitly offered `car::Anova` as an option, so this is within scope, but it is worth a look.
+- **CORRECTED 2026-08-16, same day, on Alex's instruction: this section used Type II and should have used Type III.** He was right, and the reason is the whole point of the section: psychology's ANOVA tables are Type III, because SPSS `GLM` defaults to Type III and the discipline ran on SPSS for thirty years. Type II was the statistically tidier choice and the pedagogically wrong one, since a student reading a real paper is looking at Type III. The section now teaches all three types, says explicitly that Type III is what psychology uses and why, and keeps Type II only as the middle column of the comparison table.
+- **Alex changed `type = 2` to `type = 3` in the code, which introduced two defects that had to be caught.** Recording both, because they will recur anywhere in this book that reaches for Type III:
+  1. **`car::Anova(type = 3)` inserts an `(Intercept)` row**, so every positional index silently shifts by one. The inline values were pulling `[1]`, `[2]`, `[3]` and would have printed the Intercept's *F* as NiceGroup's, NiceGroup's as GoingOut's, and GoingOut's as the interaction's. Every number in the comparison table would have been wrong, and nothing would have errored. All indexing is now **by row name**, with a comment saying why.
+  2. **Type III is invalid with R's default dummy coding.** `Model.2` uses `contr.treatment`, which is exactly what makes $B_1$ and $B_2$ readable as simple effects and is correct for the rest of the chapter. Ask `Anova(type = 3)` for main effects on that model and R answers without complaint, but the answers are not main effects: it returned $F = 2.27$ for NiceGroup and $F = 9.24$ for GoingOut, which are just $B_1^2$ and $B_2^2$, the simple-effect *t*-tests in disguise (verified: $t^2 = 2.27$ and $9.24$). Fixed by fitting `Model.2.sum` with `contr.sum` purely for the Type III table, leaving `Model.2` untouched so nothing else in the chapter moves. There is now a `callout-warning` teaching this trap, since it is the single most common way people get Type III wrong.
+  - Correct values, verified: Type I / II / III are 174.70 / 139.83 / **175.40** for NiceGroup, 246.88 / 246.88 / **242.94** for GoingOut, and 126.90 in all three for the interaction.
+  - **Note for the prose, which nearly got oversold:** Type I and Type III land close together here while Type II sits well below both. That ordering is a fact about this dataset, not a rule, and the text now says so rather than claiming the estimates "fan out".
+- **Went beyond the item, deliberately: added the sums-of-squares section.** Because the cells are unequal, `anova()` (Type I) and `car::Anova(type = 2)` genuinely disagree here, and the disagreement is instructive rather than hypothetical: NiceGroup is $F = 174.7$ sequentially but $139.83$ under Type II, while GoingOut is $246.88$ under both (it was entered second, so it was already adjusted) and the interaction is $126.9$ under both. That turns CH17-P03's parenthetical into a demonstration the reader watches happen, and it lands on the preface's actual thesis about regression versus ANOVA. **Judgment call flagged for Alex:** this uses `car::` (namespaced, no new `library()` call, and `car` is already installed), which is a package the chapter did not previously touch. The item explicitly offered `car::Anova` as an option, so this is within scope, but it is worth a look.
 
 ### [CH17-U02] No Short Story
 - **Priority:** LOW
@@ -63,6 +69,59 @@ cameo (preface: "ANOVA gets a brief appearance") still never happens.
 - Neither was in the original review. Both were caught by running the chapter's own code before writing about it.
 - **(a) "Low Nice students have similar friendship scores whether they go out or not (both around 15)."** They are not both around 15. The cell means are **16.0 (stay in) and 22.6 (go out)**, and that gap is $B_2 = 6.65$, $p = .003$, which the chapter itself reports as significant two sections later. The sentence contradicted the chapter's own $B_2$ interpretation. Rewritten to give all four real cell means (about 16 and 23 for Low Nice, about 19 and 60 for High Nice) and to point out that the difference of differences is already visible in the raw means.
 - **(b) "$d = 0.45$ — a negligible effect."** By Cohen's conventions 0.45 is small-to-medium, not negligible, and calling a non-significant result "negligible" conflates *not detected* with *not there*. Rewritten to separate the two claims and to make the underpowered stay-in cell ($n = 46$) the concrete cost of the dichotomization from CH17-P01. The go-out $d = 5.52$ was labelled "a large effect"; it is over five standard deviations, so the text now says so and warns that effects like this come from simulated data, not personality research.
+
+### [CH17-U04] Contrast coding and designs beyond 2 × 2: pointer here, content in the advanced chapter
+- **Priority:** MED | **Effort:** S here, L in the advanced chapter | **Perspective:** Professor
+- **Alex's question, 2026-08-16:** should Ch17 gain an advanced section teaching ANOVA coding
+  schemes and how to pass them into `lm()` via `contrasts`, plus a warning about designs
+  bigger than 2 × 2? Or should that live in an advanced chapter with only a pointer here?
+- **DECIDED: pointer here, content in the advanced chapter.** Agreed with Alex's own instinct,
+  and there is a stronger reason than either of us had at the time: **`Chapter_Advanced_Contrasts_ANOVA.qmd`
+  already exists.** It is 195 lines, titled "Advanced: Contrasts and ANOVA as Regression Wearing
+  an Older Hat", and it is commented out of `_quarto.yml` rather than unwritten. It already has
+  `## Dummy Coding`, `## Planned Contrasts`, `## Deviation or Effect Coding` (which already
+  demonstrates `contrasts(x) <- contr.sum(3)`, exactly the mechanic Alex wanted taught), plus
+  `## Contrast Weights Are a Hypothesis` and `## Estimability`. Its running example is a
+  **three-level** factor, so it is already the natural home for the beyond-2 × 2 warning too.
+  The job is finishing and un-commenting that chapter, not writing a new one.
+- **Implemented here:** a `callout-note`, "Two Doors We Are Walking Past, On Purpose", placed
+  immediately after the Type III section because that is where `contrasts = list(...)` appears
+  and is otherwise handed to the reader unexplained. It names the two doors (coding schemes as
+  a family; anything bigger than 2 × 2) and dismisses undergraduates explicitly.
+- The beyond-2 × 2 warning is specific rather than vague, because the specifics are the point:
+  a three-level factor enters as two columns, the interaction becomes $(a-1)(b-1)$ coefficients
+  instead of one, there is no single "difference of differences" number to report, and
+  follow-up comparisons need multiplicity control.
+- **Deliberately no hyperlink**, because the target is commented out of `_quarto.yml` and a
+  cross-reference to a chapter not in the book will not resolve. **When that chapter ships,
+  turn the last line of the callout into a real link.**
+- **Also check for duplication when it ships:** the advanced chapter has a `## Why $F=t^2$`
+  section that overlaps with this chapter's "The ANOVA Costume". Ch17's version is the
+  concrete one ($t^2 = 126.9 = F$ on real output) and should probably stay; the advanced
+  chapter's should become the general proof. Note the advanced file also has a literal em-dash
+  in that heading and has never been through the dash sweep, since it is not in the book.
+- **Alex has offered his prior graduate lecture material for this.** It should go into
+  `Chapter_Advanced_Contrasts_ANOVA.qmd`, and it is expansion material rather than a starting
+  point. That chapter deserves its own session.
+
+### [CH17-U03] IV/DV inventory and the quasi-experimental caveat (added and implemented 2026-08-16)
+- **Priority:** MED | **Effort:** S | **Perspective:** Student + Professor
+- **Alex's instruction**, covering Chapters 16 and 17 together: the chapters never say the
+  designs are **between subjects**, never re-establish the **IV/DV** distinction now that
+  there are two IVs, and never make the point that **regression does not care whether an IV
+  was randomly assigned or merely observed** while the causal interpretation cares enormously.
+- **Fix as implemented:** a parallel `callout-note` in each chapter, matching the structural
+  parallelism the review asks future edits to preserve. Ch16 gets "Two IVs, One DV, and Nobody
+  Measured Twice" after the study description; Ch17 gets "Same Two IVs, Same One DV, Still
+  Nobody Measured Twice" after the 2 × 2 design table, written as a shorter callback.
+- Both make the same three points: one DV and two IVs, with two IVs named as the precondition
+  for an interaction existing at all; every student contributing exactly one row, with
+  repeated measures pointed forward to a later chapter; and the causal point, made concrete
+  by the fact that **neither IV in this study was assigned**. Nobody was randomised into
+  being agreeable and nobody was sent to parties, so this is a quasi-experiment whose
+  arithmetic is identical to an experiment's. Both callouts land on that: the design decides
+  what you may conclude, the arithmetic never does.
+- This also sets up Chapter 18 (Mixed Regression), where "nobody measured twice" stops being true.
 
 ---
 

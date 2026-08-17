@@ -63,7 +63,7 @@ Great. Being nice only pays off if you leave the house. Write it up, submit it, 
 
 Now defend it. A reviewer asks the one question anybody would ask: are those two slopes *actually* different, or did two numbers just bounce apart the way numbers sometimes do by chance? Now, go find that test in the output above. I will wait...
 
-What, it is not there? Weird. You have two intercepts, two slopes, four standard errors and four *p*-values, and every single one of them is a statement about one group considered entirely on its own. You drew an inference based on two separate tables that have nothing to do with each other. You inferred, because the stay-in slope was smaller than the go-out slope, that being nice clearly does more for the people who go out. The comparison the whole study was built to make was never performed, and no amount of staring at `p = .35` and `p < .001` will conjure it, because a small *p*-value next to a large one is not a test of the difference between them. <!-- ---Alex--- Your sentence here read "You infered cause the slope of stay in group was < go out group of Being Nice scale (0-10) that clearly those go our are nicer people." I fixed the spelling, but I also changed the *claim*, so please check I read you right. As written it said the reader concluded the go-out students **are nicer people**, which is a claim about group means on X. The inference the cold open actually sets up, two paragraphs earlier, is "being nice only pays off if you leave the house", which is a claim about the two **slopes**. I went with the slopes reading, since that is the one the missing test would have tested. Revert me if you meant the other. -->  *You cannot test a difference with two analyses that have never met.*
+What, it is not there? Weird. You have two intercepts, two slopes, four standard errors and four *p*-values, and every single one of them is a statement about one group considered entirely on its own. You drew an inference based on two separate tables that have nothing to do with each other. You inferred, because the stay-in slope was smaller than the go-out slope, that being nice clearly does more for the people who go out. The comparison the whole study was built to make was never performed, and no amount of staring at `p = .35` and `p < .001` will conjure it, because a small *p*-value next to a large one is not a test of the difference between them. *You cannot test a difference with two analyses that have never met.*
 
 That missing test is what this chapter is for. The tool is called an **interaction**, and by the end of it you will have these exact two slopes back, `r round(cold_stay, 2)` and `r round(cold_go, 2)`, living inside one model that also hands you a significance test for the gap between them.
 
@@ -89,6 +89,18 @@ You decide to replicate and extend this work. You follow 200 first-semester stud
 The intuition behind your study is this: being a warm, friendly person should help you make a close friend. But being nice in your apartment, alone, does not do much for your social life. To turn niceness into friendship, you have to actually be around people. **The effect of being nice might depend on whether you go out.**
 
 That is your hypothesis. And testing it is the focus of this chapter.
+
+::: {.callout-note title="Two IVs, One DV, and Nobody Measured Twice"}
+Worth naming the parts before we model them, because from here on there is more than one of some of them.
+
+The **DV** (dependent variable, the outcome) is friendship closeness, 0 to 100. There is exactly one.
+
+The **IVs** (independent variables, the predictors) are Being Nice and Going Out. Two of them. That is what makes an interaction possible in the first place: you need two IVs before you can ask whether the effect of one depends on the other.
+
+Both IVs are **between subjects**. Each student contributes one row, sits in one Going Out group, and is measured once. Nobody appears twice. That is worth saying out loud because it is not always true, and when the same person is measured repeatedly the model has to change to account for it. That is a later chapter.
+
+One more thing, and it matters more than it looks. **Regression does not care whether an IV was randomly assigned or merely observed.** The arithmetic is identical either way. We did not assign anybody to be nice, and we certainly did not assign anybody to go to parties; we watched and wrote it down. So this is a quasi-experiment, the math will run exactly as if it were not, and every causal word you are tempted to write in the discussion section is on you, not on the model.
+:::
 
 > Back, M. D., Schmukle, S. C., & Egloff, B. (2008). Becoming friends by chance. *Psychological Science, 19*(5), 439–440.
 
