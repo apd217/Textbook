@@ -245,6 +245,13 @@ Never "fix" this by deleting `_freeze/`; that throws away every cached result in
    Rscript book_review/tools/check_render_safety.R
    ```
 
+   **`Rscript` is not on PATH on Alex's machine.** Call it by full path instead, adjusting the
+   version if R has been updated since 2026-08-16:
+
+   ```bash
+   "C:/Program Files/R/R-4.6.0/bin/Rscript.exe" book_review/tools/check_render_safety.R
+   ```
+
    It reports three things: characters that will silently vanish from the PDF, em-dash
    density per chapter, and possible hyphenated compounds mangled by a dash replace. Fix
    everything it finds in the chapter you are working on before you commit.
