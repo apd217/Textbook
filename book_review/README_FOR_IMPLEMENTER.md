@@ -21,7 +21,41 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## Status as of 2026-08-16, end of the 16+17 session (READ THIS FIRST)
+## Status as of 2026-08-16, end of the Chapter 18 session (READ THIS FIRST)
+
+**Chapter 18 is done, and it was the last chapter. Every item in the review is now implemented.**
+One commit, on `review-implementation`, not merged to main. Alex has not read it yet.
+
+Implemented: CH18-U02, CH18-U01, CH18-P01, CH18-U03, CH18-P02, plus G01 and G02. Details are on
+each item in `18_Mixed_Regression.md`. The four things worth carrying forward:
+
+1. **Alex answered the ordering question: neither move nor split, for now.** Ch18 stays last as
+   one chapter, and the CH18-U02 on-ramp was written self-contained so it can be lifted into its
+   own Week-10 chapter later without a rewrite. Moving the whole chapter earlier was rejected on
+   a dependency, since Week × Group is a continuous-by-categorical interaction and that is
+   Interaction_1's material. The split is still available and the item records exactly which
+   block would move.
+2. **He approved a cold open, again, when asked.** That is now three chapters running (15, 16,
+   18) where flagging a §15 failure produced a yes. The device here is §17's identity payoff:
+   the paired *t*-test and `lmer(fixation ~ condition + (1 | participant))` return the same
+   *t*, df, *p* and estimate, and the chapter prints them side by side. **Keep flagging openings.**
+3. **Running the code caught two more wrong numbers, one of them in the book's own prose.** The
+   chapter claimed the interaction was "about $-1.2$", which is the value baked into the
+   `rnorm()` call, not the value the model returns ($-1.03$). This is a **new failure mode worth
+   naming: prose that reports the simulation's ingredients as if they were its results.** It is
+   invisible unless you fit the model. Worth a grep in any chapter that simulates an effect and
+   then describes it. Separately, `lmer` throws a convergence warning where `glmmTMB` did not,
+   fixed with `bobyqa` and explained rather than hidden.
+4. **Write `fig-alt` against the rendered PNG, not against the plotting code.** The alt text
+   drafted from the code said the diagnostic smoother lay flat. Looking at the actual figure, it
+   droops to about $-1.3$ at the left edge, on two data points. The code could not have told you
+   that. Read the image.
+
+**Nothing in `10`–`25` is outstanding.** What remains for the book is Alex's own reading pass,
+the still-commented-out draft chapters (`Advanced_Contrasts_ANOVA` is the ripest; see below),
+and the two Part 1 em-dash chapters nobody has been authorized to touch.
+
+## Status as of 2026-08-16, end of the 16+17 session
 
 **Chapters 16 and 17 are DONE, committed, and Alex has read and edited both.** Do not reopen
 them. **Chapter 18 (Mixed Regression) is the last chapter, and it is your whole job.**

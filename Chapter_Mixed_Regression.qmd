@@ -1,12 +1,5 @@
 ---
 title: "Mixed Regression: Between People and Within People"
-geometry: margin=.5in
-fontsize: 11pt
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -22,15 +15,159 @@ knitr::opts_chunk$set(
 )
 ```
 
-::: {.callout-warning title="Advanced Chapter: Several Things Are Happening at Once"}
-A mixed design combines a **between-subjects** variable with a **within-subjects** variable. That creates fixed effects, an interaction, repeated observations, and random effects. It is not impossible. It is merely statistics arriving with all its relatives and expecting you to provide chairs.
+<!-- ---Alex--- This cold open is new (CH18-U02) and it replaced the old opening, which was
+the "Advanced Chapter" callout plus a recap paragraph. You approved rebuilding it against
+VOICE_GUIDE 15. The device is the identity payoff from 17: the paired t-test and the lmer
+give the same t, df, p and estimate, verified to six significant digits before any of this
+prose was written. The old callout's definition and the "all its relatives / provide chairs"
+joke both survive, in the softened callout at the end of this section (that softening is
+CH18-U03 item 1). -->
 
-Our strategy is to ask one question at a time: Where are the repeated observations? What does each fixed coefficient mean? How are people allowed to differ? What comparison answers the research question?
+## Your Paired *t*-Test Was a Mixed Model All Along
+
+The [paired-samples *t*-test chapter](Chapter_Paired_t_test.qmd) gave 48 students one lecture with chocolate and one without, then measured how long their eyes stayed on the screen. Here is that study again, same seed and same 48 students, so this chapter runs from the top without sending you back a chapter to fetch the data.
+
+```{r simulate-chocolate-data}
+set.seed(343)
+
+n <- 48
+
+# Each student has a personal tendency to stare that follows them into BOTH
+# conditions. That shared tendency is the entire reason pairing works.
+participant_effect <- rnorm(n, mean = 0, sd = 1.20)
+
+paired_wide <- data.frame(
+  participant  = factor(seq_len(n)),
+  no_chocolate = 5.00 + participant_effect + rnorm(n, 0, 0.80),
+  chocolate    = 5.75 + participant_effect + rnorm(n, 0, 0.80)
+)
+
+paired_wide$difference <-
+  paired_wide$chocolate - paired_wide$no_chocolate
+
+# 48 rows become 96: one row per measurement instead of one row per person.
+paired_long <- tidyr::pivot_longer(
+  paired_wide,
+  cols      = c(no_chocolate, chocolate),
+  names_to  = "condition",
+  values_to = "fixation"
+)
+
+paired_long$condition <- factor(
+  paired_long$condition,
+  levels = c("no_chocolate", "chocolate"),
+  labels = c("No chocolate", "Chocolate")
+)
+```
+
+There are two ways to analyze this. The first is the one you already know. Collapse each student down to a single difference score and ask whether those differences average to zero:
+
+```{r chocolate-paired-t}
+paired_result <- t.test(
+  paired_wide$chocolate,
+  paired_wide$no_chocolate,
+  paired = TRUE
+)
+
+paired_result
+```
+
+The second way never computes a difference at all. It hands R all 96 measurements in long format, plus one piece of information the *t*-test was only ever told indirectly, through the row order: which measurements came from the same human.
+
+```{r chocolate-lmer}
+library(lme4)      # fits the mixed model
+library(lmerTest)  # adds degrees of freedom and p-values to the fixed effects
+
+chocolate_model <- lmer(
+  fixation ~ condition + (1 | participant),
+  data = paired_long
+)
+
+summary(chocolate_model)
+```
+
+Find the `conditionChocolate` row in that output. Then look back at the *t*-test.
+
+```{r chocolate-identity}
+choc_fixed <- summary(chocolate_model)$coefficients
+
+comparison <- data.frame(
+  method   = c("paired t-test", "lmer"),
+  t        = c(unname(paired_result$statistic),
+               choc_fixed["conditionChocolate", "t value"]),
+  df       = c(unname(paired_result$parameter),
+               choc_fixed["conditionChocolate", "df"]),
+  p        = c(paired_result$p.value,
+               choc_fixed["conditionChocolate", "Pr(>|t|)"]),
+  estimate = c(unname(paired_result$estimate),
+               choc_fixed["conditionChocolate", "Estimate"])
+)
+
+print(comparison, digits = 6, row.names = FALSE)
+```
+
+Those are not two answers that happen to agree. They are one answer, printed twice.
+
+The degrees of freedom are worth a second look, because the two rows got to 47 by completely different routes. The *t*-test knows it has 48 differences and subtracts one. `lmer` has no idea what a difference score is; `lmerTest` works out how much independent information the 96 rows actually contain, using an approximation called **Satterthwaite's method**, and arrives at 47 anyway. It will not always land on a whole number, and later in this chapter it does not.
+
+### What `(1 | participant)` Actually Did
+
+That term is the whole difference between the two calls. It tells R that rows sharing a participant number came from the same person, and that people arrive at a study with their own resting level of staring. Some students watch the screen. Some students watch the door.
+
+It handles this without estimating 48 separate student coefficients. It estimates the *spread* of the students, a single number, and treats each person's own level as a draw from it:
+
+```{r chocolate-variance}
+print(VarCorr(chocolate_model), comp = c("Variance", "Std.Dev."))
+```
+
+The `participant` line is how much students differ from each other. The `Residual` line is how much one student bounces around their own level from one measurement to the next. Those are the two piles the 96 numbers get sorted into, and we can ask what fraction of the variance sits in the first pile:
+
+```{r chocolate-icc}
+choc_var <- as.data.frame(VarCorr(chocolate_model))
+icc <- choc_var$vcov[1] / sum(choc_var$vcov)
+
+icc
+```
+
+So roughly `r round(icc * 100)` percent of the variation in fixation time is students being different students, before chocolate enters the discussion. The paired *t*-test dealt with that variation by subtracting it away and never mentioning it again. The mixed model estimates it and prints it.
+
+That proportion is also the model's answer to a question the paired *t*-test chapter asked directly: how much do a person's two measurements agree? That chapter measured the agreement head-on, as a plain correlation of `r round(cor(paired_wide$chocolate, paired_wide$no_chocolate), 2)`, and called it the $r$ in the $-2rS_1S_2$ term that everything depended on. The two numbers are close without being identical, because they are two different estimates of the same thing: one computed directly from the pairs, one implied by the variances the model fit. The point is that the quantity has stopped being a term in a formula and become a parameter with a variance attached.
+
+"Each person is their own control" is a sentence from a methods lecture. `(1 | participant)` is that sentence written as an equation.
+
+### The Fixed Effect Is the Chocolate Effect
+
+The **fixed effects** are the part of the model that answers the research question, and there are only two:
+
+- `(Intercept)`, `r round(fixef(chocolate_model)[1], 2)` seconds, is average fixation time with no chocolate.
+- `conditionChocolate`, `r round(fixef(chocolate_model)[2], 2)` seconds, is what chocolate adds on top of that.
+
+The second one is not merely close to the *t*-test's mean difference. It is the mean difference, `r round(mean(paired_wide$difference), 2)` seconds, reached from the opposite direction: the *t*-test computed 48 differences and averaged them, while the model never computed a single difference and got there anyway.
+
+Fixed effects answer the research question. Random effects are how the model earns the right to answer it using 96 rows that came from 48 people.
+
+### So Why Not Just Keep Using Difference Scores?
+
+Because a difference score needs exactly two numbers to subtract, and real designs break that requirement constantly:
+
+- **Three or more occasions.** Measure at baseline, week 2, week 4, and week 6, and there is no such thing as *the* difference.
+- **A missing row.** A student who skipped the second session has no difference score at all, so the *t*-test deletes the entire student. The mixed model keeps the session they did attend.
+- **A between-person predictor.** Treatment group, age, baseline severity. Subtracting within a person throws the person away, and those variables live on the person.
+- **People who change at different *rates*,** not merely by different amounts. A difference score has nowhere to put a slope.
+
+The rest of this chapter is what happens when several of those arrive together in a trench coat.
+
+::: {.callout-note title="Where This Chapter Gets Harder, and Where It Does Not"}
+Everything through "Follow Up the Interaction" is the required equipment: what a random effect is, what each fixed coefficient means, how to test the interaction, and how to follow it up. That half starts where the paired *t*-test stopped and is not optional.
+
+After it comes an **Advanced Topics** break. Continuous versus categorical time, missing occasions, and model checking are genuinely useful and genuinely harder, and nobody needs them to survive a homework. The Short Story at the very end covers both halves.
+
+The reason the second half exists is that a mixed design combines a **between-subjects** variable with a **within-subjects** variable, which summons fixed effects, an interaction, repeated observations, and random effects all at once. It is not impossible. It is merely statistics arriving with all its relatives and expecting you to provide chairs.
 :::
 
-The [paired-samples *t*-test chapter](Chapter_Paired_t_test.qmd) handled one clean comparison between two measurements from the same person. This chapter begins when the design grows up and acquires complications: more occasions, a between-person group, individual trajectories, missing observations, or several of these problems arriving together in a trench coat.
-
 ## The Design
+
+Chocolate is finished. Here is a study that breaks all four of those rules at once.
 
 Suppose researchers compare cognitive behavioral therapy (**CBT**) with a control condition for reducing depression symptoms. Participants are randomly assigned to CBT or control, then complete a depression inventory at baseline and after 2, 4, and 6 weeks.
 
@@ -90,6 +227,8 @@ The data are **long**: one row per person per occasion. The participant identifi
 ## First Look: Means and People
 
 ```{r mixed-design-plot}
+#| fig-cap: "Every faint line is one participant measured four times. The two heavy lines are the group means at each week. The whole chapter is about whether those two heavy lines have different slopes."
+#| fig-alt: "A line plot with Week on the x axis, at 0, 2, 4 and 6, and depression score on the y axis running from about 8 to about 54. One hundred faint lines, one per participant, fan out across that whole range, colored salmon for Control and teal for CBT. Two heavy lines with round markers at each week show the group means. The Control mean drifts down gently from about 36 to about 34. The CBT mean falls steeply from about 34 to about 26. The two heavy lines start close together and end far apart."
 library(ggplot2)
 
 ggplot(
@@ -176,26 +315,26 @@ Y_{ij}=b_0+b_1\text{Week}_{ij}+b_2\text{CBT}_i
 $$
 
 ```{r random-intercept-model}
-random_intercept_model <- glmmTMB::glmmTMB(
+random_intercept_model <- lmer(
   depression ~ week * group + (1 | participant),
-  data = mixed_data,
-  REML = TRUE
+  data = mixed_data
 )
 
 summary(random_intercept_model)
 ```
 
-The expression `(1 | participant)` means “give participants different intercepts.” It does not estimate 100 unrelated participant coefficients. Instead, it estimates the variance of the participant intercepts.
+This is the same `(1 | participant)` that reproduced the paired *t*-test at the top of the chapter, doing the same job on a larger design: give participants different intercepts, by estimating the variance of those intercepts rather than 100 unrelated participant coefficients.
+
+`lmer()` fits with REML by default, which is what we want while we are looking at the random effects. That default becomes important, and gets deliberately switched off, when we start comparing fixed effects.
 
 ### Random Slopes
 
 People may also change at different rates. A random-slope model allows each person to have their own Week slope:
 
 ```{r random-slope-model}
-random_slope_model <- glmmTMB::glmmTMB(
+random_slope_model <- lmer(
   depression ~ week * group + (1 + week | participant),
-  data = mixed_data,
-  REML = TRUE
+  data = mixed_data
 )
 
 summary(random_slope_model)
@@ -214,7 +353,7 @@ The random-effects structure should reflect the design and theory, while remaini
 ## Read the Model Without Panic
 
 ```{r fixed-effects-table}
-fixed_effects <- summary(random_slope_model)$coefficients$cond
+fixed_effects <- summary(random_slope_model)$coefficients
 round(fixed_effects, 3)
 ```
 
@@ -225,9 +364,27 @@ Read the rows in order:
 3. `groupCBT` estimates the CBT-minus-Control baseline difference.
 4. `week:groupCBT` estimates how much the CBT slope differs from the Control slope.
 
-Suppose the interaction estimate is about $-1.2$. That means the CBT group's depression score declines roughly 1.2 points **more per week** than the Control group's score, on average. It does not mean CBT lowers every participant's score by exactly 1.2 points each week. Fixed effects describe an average pattern while the random effects document the inconvenient existence of individuals.
+The interaction estimate is `r round(fixed_effects["week:groupCBT", "Estimate"], 2)`. That means the CBT group's depression score declines about `r abs(round(fixed_effects["week:groupCBT", "Estimate"], 2))` points **more per week** than the Control group's score, on average. It does not mean CBT lowers every participant's score by exactly that much each week. Fixed effects describe an average pattern while the random effects document the inconvenient existence of individuals.
 
-`glmmTMB` reports Wald z statistics and p-values for the fixed effects. These rely on the fitted likelihood and a large-sample approximation; they do not create an infinite number of participants merely because the output prints a z. Report the method and inspect confidence intervals. If a field specifically requires ANOVA-style denominator degrees of freedom for a **Gaussian** mixed model, the later inference chapter shows the deliberate `lmerTest` detour. “R produced a number and I felt hopeful” is not an inferential method.
+<!-- ---Alex--- The paragraph below is new, not in the review item. The old text said
+"suppose the interaction estimate is about -1.2", which was the value baked into the
+simulation, not the value the model returns (it returns -1.03). While fixing that I noticed
+the Control slope is significant and nothing in the chapter mentioned it. Cut the paragraph
+if you think it distracts from the interaction. -->
+
+Notice that the Control slope, `week`, is doing something too: `r round(fixed_effects["week", "Estimate"], 2)` points per week, and significant. People in the control condition also improved. If we had run a one-group study we would have congratulated ourselves. This is why the interaction is the research question and the Control slope is the reason we needed a control group.
+
+::: {.callout-warning title="The p-Values Are Approximations, and This Is Not Your Engine's Fault"}
+Every column in that table except the estimate itself rests on an approximation. There is no exact sampling distribution waiting for a model like this one, so the numbers in the `df` column were not counted, they were **estimated**, using Satterthwaite's method. That is why they are free to come out fractional: the categorical-time model later in this chapter reports degrees of freedom like 252.97, which is not a number of anything.
+
+<!-- ---Alex--- This callout is where the chapter's old Wald-z paragraph went (CH18-U01 asked
+for exactly that shrink), and it is also the only surviving mention of glmmTMB in the file.
+The dead pointer to "the later inference chapter" is gone with it, which closes CH18-P01. -->
+
+This is a property of mixed models, not of `lmer`. Change engines and the approximation changes costume rather than disappearing: `glmmTMB`, which you will meet in graduate school, fits the same model and reports Wald *z* statistics with no degrees of freedom at all. Same model, different plumbing, and the same honest uncertainty underneath.
+
+So say which method you used, look at the confidence intervals, and do not treat a *p*-value from a mixed model as a measurement taken with calipers. "R produced a number and I felt hopeful" is not an inferential method.
+:::
 
 ## Test the Interaction Directly
 
@@ -236,16 +393,16 @@ To test whether the interaction improves the model, compare two models with the 
 - a reduced model without Week × Group;
 - a full model with Week × Group.
 
-When comparing **fixed effects**, refit both models with maximum likelihood (`REML = FALSE`).
+When comparing **fixed effects**, refit both models with maximum likelihood. This is the moment `lmer()`'s REML default has to be switched off by hand, in both models, or the comparison is not a legal one.
 
 ```{r compare-fixed-effects}
-reduced_ml <- glmmTMB::glmmTMB(
+reduced_ml <- lmer(
   depression ~ week + group + (1 + week | participant),
   data = mixed_data,
   REML = FALSE
 )
 
-full_ml <- glmmTMB::glmmTMB(
+full_ml <- lmer(
   depression ~ week * group + (1 + week | participant),
   data = mixed_data,
   REML = FALSE
@@ -287,23 +444,35 @@ estimated_means <- emmeans::emmeans(
 estimated_means
 ```
 
-Do not automatically test every possible pair at every possible week because the software makes it easy. That is how a sensible research question becomes 28 tests and a dead salmon. Choose comparisons that answer the theory, and adjust for multiplicity when you conduct a family of tests.
+Do not automatically test every possible pair at every possible week because the software makes it easy. That is how a sensible research question becomes 28 tests and a dead [salmon](Chapter_Multiple_Comparisons.qmd) [@bennett2010]. Choose comparisons that answer the theory, and adjust for multiplicity when you conduct a family of tests.
+
+# Advanced Topics {.unnumbered}
+
+That is the required equipment. What follows is the part that makes a mixed model worth the trouble on real data: choosing how to represent time, keeping people who missed a session, and checking whether the model you fit is the model you should have fit. The Short Story at the end summarizes both halves, so you are not skipping the summary by stopping here.
 
 ## Should Time Be Continuous or Categorical?
 
 Treating Week as numeric assumes a straight-line average trajectory. That is a strong but efficient summary: one slope per group.
 
-If change may be nonlinear—perhaps treatment helps rapidly and then levels off—treat occasion as categorical:
+If change may be nonlinear, perhaps because treatment helps rapidly and then levels off, treat occasion as categorical:
 
 ```{r categorical-time-model}
-categorical_time_model <- glmmTMB::glmmTMB(
+categorical_time_model <- lmer(
   depression ~ occasion * group + (1 + week | participant),
   data = mixed_data,
-  REML = TRUE
+  control = lmerControl(optimizer = "bobyqa")
 )
 
-summary(categorical_time_model)$coefficients$cond
+round(summary(categorical_time_model)$coefficients, 3)
 ```
+
+::: {.callout-warning title="Why That `control =` Argument Is There"}
+It is not decoration. Fit this model with `lmer()`'s default optimizer and it reports that it failed to converge, by a margin small enough to be irritating rather than informative.
+
+This is the situation the random-effects section warned about, and `bobyqa` is the ordinary first thing to try: a different optimizer hunting for the same maximum. It finds it, and the estimates agree with the default fit to three decimals, which is how you know the complaint was about the search and not about the model.
+
+What you may not do is make the warning go away by not looking at it.
+:::
 
 Categorical time estimates separate deviations at Weeks 2, 4, and 6. It is flexible but uses more parameters. Numeric time is compact but imposes shape. Neither coding is morally superior. The choice depends on the research question, plausible change process, timing, and amount of data.
 
@@ -325,9 +494,11 @@ At minimum, examine:
 - the distribution and influence of clusters;
 - convergence and singular-fit warnings;
 - whether variance changes across time or groups;
-- whether enough participants—not merely enough rows—support the model.
+- whether enough participants, not merely enough rows, support the model.
 
 ```{r mixed-diagnostics, fig.width=6, fig.height=3}
+#| fig-cap: "Residuals from the random-slope model plotted against its fitted values. We want a shapeless cloud sitting on the red zero line. Through the middle, that is what we get. The black smoother bends at both ends, where it has almost no data to average."
+#| fig-alt: "A scatterplot of residuals against fitted values, with fitted values running from about 10 to 51 and residuals from about -6 to +4. The points form a wide, even band centered on zero, densest between fitted values of 25 and 40, with no funnel shape. A dashed red horizontal line marks zero. A black smoothed line lies on zero through the dense middle, but dips to about -1.3 at the far left and rises to about +0.6 at the far right, where only a handful of points exist."
 diagnostic_data <- data.frame(
   fitted = fitted(random_slope_model),
   residual = resid(random_slope_model)
@@ -341,18 +512,21 @@ ggplot(diagnostic_data, aes(x = fitted, y = residual)) +
   theme_minimal(base_size = 11)
 ```
 
+The band is even across the range and centered on zero, with no funnel and no arc, which is what we were hoping for. The smoother's droop at the far left is worth naming rather than worrying about: below a fitted value of 15 there are exactly two observations, and the black line is drawing a conclusion from them. A loess line will always find something to say at the edges of your data, whether or not there is anything there.
+
 Traditional repeated-measures ANOVA emphasizes **sphericity**. A mixed model does not require that single sphericity assumption, but it does require a defensible covariance/random-effects structure. We did not escape assumptions. We traded one rigid assumption for a model that must be specified thoughtfully.
 
 ## Reporting the Result
 
 A compact results paragraph could read:
 
-> Depression scores were analyzed with a linear mixed-effects model containing fixed effects of Week, Group, and their interaction, plus correlated participant random intercepts and Week slopes. The Week × Group interaction was negative, $b =$ `r round(fixed_effects["week:groupCBT", "Estimate"], 2)`, $SE =$ `r round(fixed_effects["week:groupCBT", "Std. Error"], 2)`, $z =$ `r round(fixed_effects["week:groupCBT", "z value"], 2)`, $p$ `r ifelse(fixed_effects["week:groupCBT", "Pr(>|z|)"] < .001, "< .001", paste("=", round(fixed_effects["week:groupCBT", "Pr(>|z|)"], 3)))`, indicating that depression declined more rapidly in CBT than in the control condition. The p-value used the Wald z approximation reported by `glmmTMB`.
+> Depression scores were analyzed with a linear mixed-effects model containing fixed effects of Week, Group, and their interaction, plus correlated participant random intercepts and Week slopes. The model was fit by restricted maximum likelihood using `lmer()` from the lme4 package, and *p*-values were obtained from lmerTest using Satterthwaite's approximation to the denominator degrees of freedom. The Week × Group interaction was negative, $b =$ `r round(fixed_effects["week:groupCBT", "Estimate"], 2)`, $SE =$ `r round(fixed_effects["week:groupCBT", "Std. Error"], 2)`, $t(`r round(fixed_effects["week:groupCBT", "df"], 1)`) =$ `r round(fixed_effects["week:groupCBT", "t value"], 2)`, $p$ `r ifelse(fixed_effects["week:groupCBT", "Pr(>|t|)"] < .001, "< .001", paste("=", round(fixed_effects["week:groupCBT", "Pr(>|t|)"], 3)))`, indicating that depression declined more rapidly in CBT than in the control condition.
 
 A real report should also provide confidence intervals, descriptive/model-implied means, the exact random-effects structure, software, missing-data handling, and theoretically planned follow-ups. The paragraph above is the skeleton. Please give it organs before submitting it to Reviewer 2.
 
 ## The Short Story
 
+- A paired *t*-test is a mixed model with one two-level within-subjects predictor and a random intercept. Same *t*, same df, same *p*, same estimate.
 - A mixed design contains at least one between-subjects predictor and one within-subjects predictor.
 - Repeated occasions are nested within people, so ordinary independent-error regression is incomplete.
 - Fixed effects describe average intercepts, slopes, group differences, and interactions.
@@ -365,4 +539,4 @@ A real report should also provide confidence intervals, descriptive/model-implie
 - Mixed models can retain partially observed participants, but missingness can still bias the answer.
 - Never count rows and forget to count people. Four hundred observations from 100 people are not 400 independent humans, no matter how urgently the grant deadline approaches.
 
-The model is “mixed” because it combines fixed and random effects—not because we placed several statistical procedures into a blender and hoped the lid stayed on.
+The model is “mixed” because it combines fixed and random effects, not because we placed several statistical procedures into a blender and hoped the lid stayed on.
