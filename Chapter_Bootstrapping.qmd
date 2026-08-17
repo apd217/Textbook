@@ -84,6 +84,7 @@ c(
 ```
 
 ```{r jackknife-plot, fig.width=7, fig.height=4.4}
+#| fig-alt: "Twelve points, one for each observation dropped, against a horizontal orange line at the full-sample mean of 45.8. Eleven of them drift gently downward between 48.9 and 44.1, all hugging the line within a few points. The twelfth, labeled as the 190-minute student, sits alone at 32.7, more than ten points below the line and nowhere near the rest."
 plot(
   seq_along(JackMeans), JackMeans,
   pch = 19, col = "#0072B2",
@@ -92,7 +93,9 @@ plot(
   main = "The jackknife exposes influential observations"
 )
 abline(h = OriginalMean, lwd = 3, col = "#D55E00")
-text(12, JackMeans[12], labels = "190-minute student removed", pos = 3, cex = .8)
+# pos = 2 puts the label to the LEFT of the point. At pos = 3 it sat above the
+# last point, which is hard against the right edge, and got clipped.
+text(12, JackMeans[12], labels = "190-minute student removed", pos = 2, cex = .8)
 ```
 
 The last leave-one-out estimate moves far more than the others. The jackknife therefore does more than generate a standard error. It also shows which observations are carrying the estimate around like exhausted undergraduate research assistants.
@@ -208,6 +211,7 @@ c(
 Now repeat the resampling process $B=5{,}000$ times.
 
 ```{r bootstrap-median, fig.width=7, fig.height=4.5}
+#| fig-alt: "Histogram of 5,000 bootstrapped medians, x axis running 20 to 50, with a vertical orange line at the observed median of 30. This is not a smooth bell. A spike of about 1,900 resamples lands exactly at 30, a bar of about 1,000 just above it, a smaller cluster around 26 to 28 below, and a separate lumpy group spread across 35 to 40 with a stray bar near 42. The gaps between the clumps are real: the median of 55 whole-number delays can only land on a limited menu of values."
 set.seed(345)
 B <- 5000
 BootMedian <- replicate(
@@ -328,7 +332,7 @@ A nominal 95% interval should miss the true value about 2.5% of the time below a
 :::
 
 ::: {.callout-warning title="A 95% Confidence Interval Is Not a 95% Probability Statement About This Finished Interval"}
-After a frequentist interval has been calculated, the fixed population parameter is either inside it or outside it. The 95% refers to the long-run success rate of the procedure across repeated samples. Hoekstra and colleagues gave six false interpretations of confidence intervals to 442 first-year students, 34 master's students, and 118 researchers. Only 2%, 0%, and 3%, respectively, rejected all six false statements [@hoekstra2014]. Confidence intervals are useful, but the word *confidence* apparently encourages our brains to manufacture meanings.
+The long-run-procedure interpretation applies to bootstrap intervals too, and the evidence says almost nobody holds onto it: see the Standard Error chapter for the depressing Hoekstra et al. numbers [@hoekstra2014]. Reread that callout if the word *confidence* has started whispering probability statements to you.
 :::
 
 ## Bootstrapping a Regression Slope
@@ -342,7 +346,7 @@ RegressionData <- data.frame(
 )
 RegressionData$Memory <-
   42 + 4 * RegressionData$Sleep +
-  rnorm(90, 0, 3 + RegressionData$Sleep)
+  rnorm(90, 0, RegressionData$Sleep^3 / 30)
 
 OriginalModel <- lm(Memory ~ Sleep, data = RegressionData)
 OriginalSlope <- coef(OriginalModel)["Sleep"]
@@ -358,6 +362,8 @@ c(
   quantile(BootSlopes, c(.025, .975))
 )
 ```
+
+Look closely at that `rnorm()` call before we go on. The standard deviation of the noise is `Sleep^3 / 30`, which is about 1 point for a student who slept three hours and about 24 points for one who slept nine. **I built the heteroscedasticity in on purpose**, and it is aggressive on purpose too. Everything that follows is a demonstration rather than a catalog: watch what that one design choice does to each flavor of bootstrap.
 
 The row bootstrap is not the only regression bootstrap.
 
@@ -408,6 +414,30 @@ WildSlopes <- replicate(3000, {
 
 sd(WildSlopes)
 ```
+
+### The Three Flavors, Side by Side
+
+Three standard errors for the same slope in the same data. Put them next to the ordinary `lm()` standard error, and next to the HC3 sandwich estimator from the diagnostics chapter, which is designed for exactly this disease:
+
+```{r bootstrap-se-comparison}
+# sandwich: heteroscedasticity-robust covariance. See the Advanced Regression
+# Diagnostics chapter, where HC3 is derived.
+library(sandwich)
+
+round(c(
+  `Ordinary lm() SE`   = summary(OriginalModel)$coefficients["Sleep", "Std. Error"],
+  `HC3 sandwich SE`    = sqrt(vcovHC(OriginalModel, type = "HC3")["Sleep", "Sleep"]),
+  `Case bootstrap`     = sd(BootSlopes),
+  `Residual bootstrap` = sd(ResidualSlopes),
+  `Wild bootstrap`     = sd(WildSlopes)
+), 3)
+```
+
+The three bootstraps do not disagree by accident, and they do not disagree at random. **The case and wild bootstraps land next to HC3. The residual bootstrap lands on the ordinary `lm()` standard error**: `r round(sd(ResidualSlopes), 3)` against `r round(summary(OriginalModel)$coefficients["Sleep", "Std. Error"], 3)`. Three thousand resamples bought a number we already had, which is a slightly humiliating result for a method whose whole job was to improve on it.
+
+That is the communal bucket doing exactly what we said it would do. Resampling centered residuals and reattaching them to arbitrary rows destroys the link between where a case sits on $X$ and how noisy it is; every case ends up with the same average noise, which is the homoscedasticity assumption sneaking back in through a side door. The case bootstrap keeps each residual welded to its own row because it resamples whole rows. The wild bootstrap keeps it welded by flipping the residual's sign in place instead of moving it.
+
+So the flavor is not a stylistic preference. Under heteroscedasticity, one of these three will quietly report the wrong uncertainty, and it will do it with exactly the same calm confidence as the other two.
 
 ### Parametric Bootstrap
 
@@ -474,4 +504,12 @@ Efron called attention to both the power and the limits of the plug-in principle
 
 ## The Short Story
 
-The jackknife removes one observation at a time and is useful for studying bias, standard errors, and influence. The bootstrap samples with replacement from the empirical distribution and can approximate the sampling distribution of a much wider range of statistics. Choose the resampling unit to match the design, choose the interval to match the estimator, use enough replications for stability, and remember that computation is not forgiveness.
+- **The jackknife is leave-one-out.** Remove observation $i$, recompute, repeat. It gives you bias, a standard error, and a picture of which cases are carrying the estimate. It fails on statistics that jump when a case is removed, and the median is the standing example.
+- **The bootstrap is resample-with-replacement**, treating the sample as a stand-in for the population. That buys you a sampling distribution for statistics that never came with a formula.
+- **Resample the unit that was sampled.** Rows if rows were sampled, clusters if clusters were sampled, blocks if the data are a time series. Getting this wrong manufactures a fictional sample size.
+- **Pick the interval flavor to fit the estimator.** Percentile is intuitive, BCa is usually better, normal assumes a symmetry you may not have.
+- **Pick the regression flavor to fit the errors.** Under heteroscedasticity the residual bootstrap will hand you back the ordinary standard error you were trying to escape. Case and wild will not.
+- **$B$ controls Monte Carlo error, not information.** More replications stabilize the calculation. They do not add participants, fix a biased sample, or repair a resampling plan that ignores the design.
+- **Estimation is not null-hypothesis testing.** A bootstrap distribution is centered on your estimate, not on the null. To test, first make the null true, then resample.
+
+And remember that computation is not forgiveness.
