@@ -37,9 +37,15 @@ Details are on each item in `18_Mixed_Regression.md`.
    23:28 Ch18 commit, and it reuses Ch18 prose from that day verbatim, so it postdates and drew
    on this session's work but was not produced by it. Logged as **CH18-DUP01**. It is not in git,
    so it can be lost. Do not build on it or commit it without asking.
-2. The 2×4 material now has no home in the active book. It exists only in that uncommitted file
-   and in this session's history. If the future mixed-models chapter is wanted, that file is the
-   raw material, pending item 1.
+2. **The 2×4 material is now a real file: `Chapter_Mixed_Change_Over_Time.qmd`.** Extracted from
+   the Ch18 history, made self-contained, renders clean, every number re-verified against the
+   original run (interaction $-1.02796$, $SE = 0.11021$, $df = 98.001$, $t = -9.328$; LRT
+   $\chi^2(1) = 63.539$; `emtrends` Control $-0.295$ against CBT $-1.322$). It is **not** in
+   `_quarto.yml`, matching the other drafts. It carries a `bibliography: references.bib` line of
+   its own so the Bennett citation resolves on a standalone render, which it does not without it.
+   Its own `---Alex---` header lists what is still missing. **The filename is a guess and the
+   CH18-DUP01 overlap with `Chapter_Mixed_Designs.qmd` is unresolved**, so do not add it to
+   `_quarto.yml` until one of the two files wins.
 
 The five things worth carrying forward:
 
