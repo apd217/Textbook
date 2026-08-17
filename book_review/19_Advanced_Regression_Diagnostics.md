@@ -106,9 +106,64 @@ PNGs rather than the plotting code, per the standing rule. The three chunks were
 `Chapter_CatXCat_Interaction` and `Chapter_Control`. Chunk labels are unchanged, so figure
 filenames and the freeze cache are unaffected.
 
-**Chapter length roughly doubled**, ~1,350 words to 3,078. That is the cold open plus three
-demonstrations the chapter previously only described. Flagged because it is a big change in a
-chapter the review called short; the em-dash density is 0.32, at the floor.
+**Chapter length**, ~1,350 words to 3,078 after the first pass, then to **4,516** after Alex's
+2026-08-17 follow-up (below). Em-dash density 0.22, at the floor.
+
+---
+
+## Alex's follow-up, 2026-08-17: "add the formula for VIF", "sandwich and HC3 need a lot more explanation", "explain the packages and tell them each contains the references"
+
+All three done in one pass. Every formula was verified numerically against R before prose was
+written about it.
+
+**1. VIF now has the formula that makes it matter.** The chapter already had
+$VIF_j = 1/(1-R_j^2)$, which says how it is computed and not why anyone cares. Added the
+standard-error decomposition that shows where VIF actually lives:
+
+$$SE(b_j)=\frac{\widehat\sigma}{\sqrt{\sum_i (X_{ij}-\overline X_j)^2}}\times\sqrt{\frac{1}{1-R_j^2}}$$
+
+with the two factors read separately: the left one is the SE you would earn if $X_j$ stood alone
+(and is the algebraic reason restricted range hurts), the right one is $\sqrt{VIF_j}$, never less
+than 1. **Verified exactly on two models:** $0.2178867 \times \sqrt{1.013679} = 0.2193719$, which
+is `lm()`'s printed SE to the last digit; and on the $r = .9$ demo
+$0.333999 \times \sqrt{5.132198} = 0.7566531$, also exact.
+Added two chunks: `vif-by-hand` (auxiliary regression, $R^2_j$, divide, matched against
+`car::vif()`) and `vif-se-decomposition` (the identity above, printed three ways).
+**Consequence: the later $\sqrt{VIF}$ paragraph was rewritten.** It used to announce "a tidy
+identity hiding in that table," which is now backwards, since the formula arrives first. It now
+reads as prediction-then-check, and picks up the $r = .99$ row as the warning ($VIF = 50$, a
+$\sqrt{}$ tax of 7.1, same true effect of exactly 2).
+
+**2. The sandwich is now derived rather than named.** New subsections: *Where the Ordinary
+Standard Errors Come From*, *Estimating the Filling*, *Building It Yourself*. The spine is that
+$\widehat\sigma^2(\mathbf X'\mathbf X)^{-1}$ **is** the sandwich with the homoscedasticity
+assumption still in it, so the classical and robust SEs are one formula, not two theories. The
+bread/filling/bread labels are on the general form, so the name is explained. The `HC0`–`HC3`
+table gives each diagonal entry, and **the $h_{ii}$ in HC2/HC3 is explicitly named as the same
+leverage from the hat-matrix section**, which is where the two halves of the chapter meet.
+`sandwich-by-hand` builds `Bread %*% Filling %*% Bread` from `model.matrix()` and matches
+`vcovHC()` exactly (7.5973832, 0.2895539, 0.1306439). `hc-ladder` prints const/HC0/HC1/HC2/HC3
+and they increase monotonically as the table predicts. HC3-by-default is now attributed to
+Long & Ervin's simulations rather than asserted.
+**The participant-60 callout is now mechanical instead of hand-wavy.** New `hc3-weights` chunk:
+participant 60 supplies **37%** of the total HC3 filling, against 8.5% for the next largest and
+1.7% if everyone contributed equally. That is *why* the robust SEs grew on data that is not
+heteroscedastic, and it makes the callout's claim checkable.
+
+**3. Packages explained, with their bibliographies.** New section *The Four Packages, and Where
+the Real Derivations Live*: a table of `car` / `sandwich` / `lmtest` / `performance` saying what
+each does here and where it came from, plus a paragraph on the `sandwich`-versus-`lmtest`
+division of labor, which is what makes the two-function `coeftest(m, vcov = vcovHC(m))` call
+stop looking fussy. A `callout-tip` teaches `citation("sandwich")` and
+`vignette(package = "sandwich")` as the general move, with the point that the Zeileis (2004)
+paper deriving every `HC` type ships *inside the installed package*. Ends on citing the packages
+you analyze with.
+
+**Five references added to `references.bib`**, all taken from each package's own `citation()`
+output rather than from memory: `white1980`, `longervin2000`, `fox2019`, `zeileis2004`,
+`zeileis2002`, `ludecke2021`. All verified to resolve in the rendered chapter.
+Note `ludecke2021` carries `ü`; that is safe, because `references.bib` already contains `ä`
+(Mächler, in the glmmTMB entry) which ships in the Mixed Regression chapter today.
 
 **Not flagged (deliberate):** "Residuals should not organize a protest" and "driving the
 statistical bus" as plot titles; the hat-matrix section placed at the end where only the

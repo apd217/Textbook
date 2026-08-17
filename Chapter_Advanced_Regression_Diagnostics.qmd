@@ -16,7 +16,7 @@ damage, not the existence of an outlier. Second, the refit now happens twice on
 purpose: here as the hook, and again under Cook's distance as the disciplined
 version with SEs and p-values. Delete either half if that reads as repetitive. -->
 
-## A Deeply Responsible Therapy Study
+## An Unusually Responsible Therapy Study
 
 We predict symptom improvement from therapy attendance and baseline symptom severity. Sixty people, two predictors, nothing exotic.
 
@@ -43,7 +43,7 @@ TherapyModel <- lm(Improvement ~ Sessions + Baseline, data = TherapyData)
 summary(TherapyModel)
 ```
 
-That is a good-looking model. Attendance predicts improvement, the coefficient is nowhere near zero, the p-value turned up in scientific notation, and the model accounts for `r round(100 * summary(TherapyModel)$r.squared)`% of the variance in improvement. Write it up, thank the undergraduates, go home.
+That is a good-looking model. Attendance predicts improvement, the coefficient is nowhere near zero, the *p*-value turned up in scientific notation, and the model accounts for `r round(100 * summary(TherapyModel)$r.squared)`% of the variance in improvement. Write it up, thank the undergraduates, go home.
 
 Now fit the same model to the same study with participant 60 removed. Not a suspicious subgroup, not a condition, not a wave of attrition. One row out of sixty.
 
@@ -55,7 +55,6 @@ round(rbind(
   Without60 = c(coef(TherapyModel.60), R2 = summary(TherapyModel.60)$r.squared)
 ), 4)
 ```
-
 Three things moved, and none of them is the thing you were watching.
 
 The baseline coefficient **changed sign**. With everyone in, higher baseline severity predicts slightly less improvement. With one person out, it predicts slightly more. Neither version is significant, which is its own kind of embarrassing: the direction of that effect was never being decided by the other fifty-nine people.
@@ -77,7 +76,7 @@ This chapter is for graduate students and advanced undergraduates who already kn
 Regression will always give you coefficients if the mathematics permits it. It does not pause to ask whether one participant entered a reaction time of 94 years or whether the residuals resemble a startled squid.
 
 ::: {.callout-warning title="A Significant Model Can Still Be a Bad Model"}
-A small p-value does not certify linearity, equal residual variance, independence, honest measurement, or sensible causal reasoning. It only answers a narrower question under the model's assumptions.
+A small *p*-value does not certify linearity, equal residual variance, independence, honest measurement, or sensible causal reasoning. It only answers a narrower question under the model's assumptions.
 :::
 
 ## Residuals: What the Model Failed to Explain
@@ -95,7 +94,6 @@ The ordinary linear model assumes:
 $$
 Y_i=\beta_0+\beta_1X_{1i}+\cdots+\beta_kX_{ki}+\epsilon_i,
 $$
-
 where the errors have an expected value of zero, are independent, and have approximately constant variance. Normality matters primarily for conventional small-sample inference, not because every raw variable must form a perfect bell.
 
 ```{r}
@@ -184,7 +182,7 @@ abline(h = 4 / n, lty = 2, col = "#D55E00", lwd = 2)
 text(60, CookD[60], "60", pos = 3)
 ```
 
-Rules such as $D_i>4/N$ are screening devices. They tell us where to look, not whom to throw into the statistical volcano.
+Rules such as $D_i>4/N$ are screening devices. They tell us where to look, not whom to throw into the volcano.
 
 Notice that the $4/N$ line flags `r sum(cooks.distance(TherapyModel) > 4 / n)` people here, not one. Participants `r paste(setdiff(which(cooks.distance(TherapyModel) > 4 / n), 60), collapse = " and ")` are over the line too, and they are fine. Participant 60's Cook's distance is `r round(cooks.distance(TherapyModel)[60], 2)`, which is roughly `r round(cooks.distance(TherapyModel)[60] / max(cooks.distance(TherapyModel)[setdiff(which(cooks.distance(TherapyModel) > 4 / n), 60)]))` times the next largest. A screening rule hands you a short list of people to think about. It does not rank them, and it does not tell you which ones changed anything.
 
@@ -231,15 +229,62 @@ $$
 
 where $R_j^2$ comes from predicting $X_j$ with the other predictors. A large VIF means the other predictors nearly reconstruct that predictor.
 
-In R this is one line, and it is the line you will actually use:
+That definition tells you how VIF is computed but not why anyone cares. For that, look at where it actually lives, which is inside the standard error of the coefficient:
+
+$$
+SE(b_j)=
+\underbrace{\frac{\widehat\sigma}{\sqrt{\sum_i\left(X_{ij}-\overline X_j\right)^2}}}_{\text{what you would get if } X_j \text{ stood alone}}
+\times
+\underbrace{\sqrt{\frac{1}{1-R_j^2}}}_{\sqrt{VIF_j}}
+$$
+
+Read the two halves separately, because they answer different questions.
+
+The **left factor** is the standard error you would earn in a world where $X_j$ were unrelated to every other predictor. It improves in the three ways you would expect: a smaller $\widehat\sigma$ (less unexplained noise), a larger sample, or more spread in $X_j$ itself. That last one is worth pausing on, since it is the algebraic reason a restricted range hurts you. If everyone in your study scored between 4 and 6 on the predictor, the sum in that denominator is small and nothing can rescue the standard error.
+
+The **right factor** is the tax. It is exactly $\sqrt{VIF_j}$, it is never less than 1, and it is the entire contribution of multicollinearity to your uncertainty. When $R_j^2=0$ the tax is $\sqrt{1}=1$ and you pay nothing. When $R_j^2=.75$ the tax is $\sqrt{4}=2$ and your standard error doubles.
+
+So VIF is not a diagnostic that sits beside the model commenting on it. It is a multiplier already inside every standard error the model printed.
+
+In R the whole thing is one line, and it is the line you will actually use:
 
 ```{r vif-therapy}
+# car (Companion to Applied Regression) supplies vif(), plus most of the
+# regression diagnostics psychologists reach for.
 library(car)
 
 vif(TherapyModel)
 ```
 
-Both come back at `r round(car::vif(TherapyModel)[1], 2)`, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at $r =$ `r round(cor(TherapyData$Sessions, TherapyData$Baseline), 2)`, and with only two predictors the VIF is exactly $1/(1-r^2)$, so you can check that by hand. This is what fine looks like, and it is worth seeing once so that trouble is recognizable by contrast.
+Both come back at `r round(car::vif(TherapyModel)[1], 2)`, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at $r =$ `r round(cor(TherapyData$Sessions, TherapyData$Baseline), 2)`. This is what fine looks like, and it is worth seeing once so that trouble is recognizable by contrast.
+
+### Doing It By Hand, Because It Is Two Regressions
+
+`vif()` is not consulting an oracle. It is running the auxiliary regression named in the definition, taking the $R^2$, and dividing. Here is the whole thing, plus a check that the standard-error formula above is not decoration.
+
+```{r vif-by-hand}
+# Step 1: predict the predictor from the other predictors.
+AuxModel <- lm(Sessions ~ Baseline, data = TherapyData)
+R2j <- summary(AuxModel)$r.squared
+
+# Step 2: that is it. That is the whole formula.
+c(R2j = R2j, VIF.by.hand = 1 / (1 - R2j), VIF.from.car = unname(vif(TherapyModel)[1]))
+```
+
+```{r vif-se-decomposition}
+SigmaHat <- summary(TherapyModel)$sigma
+SSj <- sum((TherapyData$Sessions - mean(TherapyData$Sessions))^2)
+
+StandingAlone <- SigmaHat / sqrt(SSj)
+
+c(
+  if.Sessions.stood.alone = StandingAlone,
+  times.sqrt.VIF          = StandingAlone * sqrt(1 / (1 - R2j)),
+  actual.SE.from.lm       = unname(coef(summary(TherapyModel))["Sessions", "Std. Error"])
+)
+```
+
+The second and third numbers agree to every digit R will print, because they are the same quantity computed two ways. The standard error `lm()` reported is the standing-alone standard error multiplied by $\sqrt{VIF}$, and here that multiplier is `r round(sqrt(1 / (1 - summary(lm(Sessions ~ Baseline, data = TherapyData))$r.squared)), 3)`, which rounds to nothing at all.
 
 ### What Trouble Actually Looks Like
 
@@ -268,7 +313,13 @@ round(CollinearTable, 4)
 
 Nothing about the relationship between `X1` and `Y` changed down that table. The effect is genuinely there in all four rows, built by the same line of code from the same numbers. What changed is our ability to see it: at $r = .9$ the effect scrapes past significance at $p =$ `r round(CollinearTable[3, "p.X1"], 3)`, and at $r = .99$ it is gone entirely, at $p =$ `r round(CollinearTable[4, "p.X1"], 2)`.
 
-The mechanism is not mysterious, and there is a tidy identity hiding in that table. **The square root of the VIF is the factor by which the standard error is inflated.** A VIF of `r round(CollinearTable[3, "VIF"], 1)` means the standard error is about `r round(sqrt(CollinearTable[3, "VIF"]), 1)` times larger than it would have been with uncorrelated predictors, and the table confirms it: `SE.X1` climbs from `r round(CollinearTable[1, "SE.X1"], 3)` to `r round(CollinearTable[3, "SE.X1"], 3)`, a factor of `r round(CollinearTable[3, "SE.X1"] / CollinearTable[1, "SE.X1"], 2)`. This is exactly the cost that the [Multiple Regression: Statistical Control chapter](Chapter_Multiple_Regression_Control.qmd) promised you would meet later, where the controlled slope came with a slightly larger standard error than the uncontrolled one. This is later, and this is the meter.
+Nothing mysterious is happening, and you already have the formula that predicts it. The $\sqrt{VIF_j}$ tax is doing all of the work, and the table lets you check it.
+
+At $r = .9$ the VIF is `r round(CollinearTable[3, "VIF"], 2)`, so the formula says the standard error should be $\sqrt{`r round(CollinearTable[3, "VIF"], 2)`} =$ `r round(sqrt(CollinearTable[3, "VIF"]), 2)` times the standing-alone version. The table says `SE.X1` climbed from `r round(CollinearTable[1, "SE.X1"], 3)` to `r round(CollinearTable[3, "SE.X1"], 3)`, a ratio of `r round(CollinearTable[3, "SE.X1"] / CollinearTable[1, "SE.X1"], 2)`. Prediction and observation, agreeing to two decimals, on a table generated before anyone mentioned the formula.
+
+The last row is the useful warning. A VIF of `r round(CollinearTable[4, "VIF"], 0)` is a $\sqrt{}$ tax of about `r round(sqrt(CollinearTable[4, "VIF"]), 1)`, which means that predictor is being measured with roughly `r round(sqrt(CollinearTable[4, "VIF"]), 1)` times less precision than the design nominally bought. The effect is still exactly 2. You just paid your entire sample size to the other predictor.
+
+This is also the cost that the [Multiple Regression: Statistical Control chapter](Chapter_Multiple_Regression_Control.qmd) promised you would meet later, where the controlled slope came with a slightly larger standard error than the uncontrolled one. This is later, and this is the meter.
 
 ::: {.callout-warning title="The 5-and-10 Rule Is Folklore, Not Law"}
 You will read that VIF above 5 is concerning and above 10 is serious. Nobody derived those numbers. They are round, they are memorable, and they have no distributional justification.
@@ -330,32 +381,108 @@ The exact cutoffs are screening rules, not automatic deletion warrants. Inspect 
 
 Heteroscedasticity does not usually bias the OLS slope when the mean model is correct, but it can damage the ordinary standard errors. Possible responses include modeling the variance, transforming the outcome when scientifically sensible, using a model family that matches the outcome, or reporting heteroscedasticity-consistent standard errors. The picture tells you a problem exists; theory tells you which response makes sense.
 
-<!-- ---Alex--- CH19-P03 deviation, and I think it is a real improvement, but it is
-your call. The item drafted the sentence "same slopes, more honest SEs when the
-spread misbehaves." That sentence would be FALSE here: I ran Breusch-Pagan and this
-data is not heteroscedastic (p = .19), because the chapter built it with constant
-variance. The SEs grow anyway, and the reason is participant 60. So the demo keeps
-the one-liner the item asked for but tells the truth about what it is reacting to,
-which turns an accident into the chapter's best callback. If you want the shorter
-version, cut the callout and keep the code plus the first paragraph. -->
+That last option is the one you will actually reach for, and it deserves more than a name. "Robust standard errors" and "the sandwich estimator" get used as incantations by people who could not say what is being made robust to what, so here is the machinery.
 
-That last option is the one you will reach for most often, and it is two lines:
+### Where the Ordinary Standard Errors Come From
+
+Every standard error `lm()` printed came out of one matrix:
+
+$$
+\widehat{Var}(\mathbf b)=\widehat\sigma^{2}\left(\mathbf X'\mathbf X\right)^{-1}.
+$$
+
+Take the square roots of its diagonal and you have the `Std. Error` column. Notice the single $\widehat\sigma^{2}$ standing outside the matrix. That is the whole homoscedasticity assumption, written down: **one** error variance, the same for every observation, so it factors out and one number can be estimated by pooling all the residuals.
+
+The general expression, which does not assume that, is:
+
+$$
+Var(\mathbf b)=
+\underbrace{\left(\mathbf X'\mathbf X\right)^{-1}}_{\text{bread}}
+\underbrace{\left(\mathbf X'\boldsymbol\Omega\mathbf X\right)}_{\text{filling}}
+\underbrace{\left(\mathbf X'\mathbf X\right)^{-1}}_{\text{bread}}
+$$
+
+where $\boldsymbol\Omega$ is the diagonal matrix of individual error variances $\sigma_i^2$. **That is the sandwich, and the name is descriptive rather than whimsical:** the same bread on both sides, something else in the middle.
+
+The two formulas are not rivals. Set every $\sigma_i^2$ equal to a common $\sigma^2$, so $\boldsymbol\Omega=\sigma^2\mathbf I$, and the filling collapses to $\sigma^2\mathbf X'\mathbf X$, which cancels one of the breads and leaves $\sigma^2(\mathbf X'\mathbf X)^{-1}$ exactly. **The ordinary standard errors are the sandwich, under the assumption that every observation is equally noisy.** Robust standard errors are not a different theory. They are the same expression with the assumption removed.
+
+### Estimating the Filling
+
+The problem is that $\boldsymbol\Omega$ contains one variance per person and we have one observation per person, so it cannot be estimated the usual way. White's insight was that we never need $\boldsymbol\Omega$ itself, only the sandwiched product $\mathbf X'\boldsymbol\Omega\mathbf X$, and that squared residuals are good enough for that job even though $e_i^2$ is a hopeless estimate of any individual $\sigma_i^2$ [@white1980]. The errors average out inside the product.
+
+The `HC` family is a set of choices about what exactly to put on that diagonal:
+
+| Type | Diagonal entry | What it is doing |
+|---|---|---|
+| `HC0` | $e_i^2$ | White's original. Biased low in small samples. |
+| `HC1` | $\frac{n}{n-p}\,e_i^2$ | HC0 with the degrees-of-freedom correction `lm()` already applies. |
+| `HC2` | $\dfrac{e_i^2}{1-h_{ii}}$ | Corrects for the fact that high-leverage points have artificially small residuals. |
+| `HC3` | $\dfrac{e_i^2}{(1-h_{ii})^2}$ | Approximates leaving each case out and refitting. The conservative default. |
+
+**That $h_{ii}$ is the same leverage from the hat matrix**, three sections ago. This is the point where the two halves of the chapter meet, and it explains something that otherwise looks like a coincidence. A high-leverage point pulls the line toward itself, which shrinks its own residual and makes it look better behaved than it is. HC2 and HC3 divide that shrinkage back out. HC3 divides by it twice, which is why it is the most conservative of the four and why it reacts hardest to influential cases.
+
+Long and Ervin tested these on thousands of simulated small samples and recommend **HC3 as the default whenever $n$ is below about 250**, which is most of psychology [@longervin2000]. Use HC3 unless you have a specific reason not to.
+
+### Building It Yourself
+
+Three lines of matrix algebra, and no package:
+
+```{r sandwich-by-hand}
+X <- model.matrix(TherapyModel)   # the design matrix, intercept column included
+e <- residuals(TherapyModel)
+h <- hatvalues(TherapyModel)      # the same leverages as before
+
+Bread <- solve(t(X) %*% X)
+Filling <- t(X) %*% diag(e^2 / (1 - h)^2) %*% X   # HC3
+
+HC3.by.hand <- Bread %*% Filling %*% Bread
+
+sqrt(diag(HC3.by.hand))
+```
+
+Now the package version:
 
 ```{r sandwich-se}
-library(lmtest)
+# sandwich: robust and clustered covariance matrices.
+# lmtest: re-tests a fitted model against any covariance matrix you hand it.
 library(sandwich)
+library(lmtest)
 
 coeftest(TherapyModel, vcov = vcovHC(TherapyModel, type = "HC3"))
 ```
 
-Same slopes, different standard errors. The estimates are untouched, to the last decimal, because HC3 does not re-fit anything. It recomputes the uncertainty around the fit you already have, using the observed residuals instead of a promise that their variance is constant. `HC3` is the sensible default at psychology sample sizes; the other types differ in how hard they lean on high-leverage cases.
+Identical, which is the point of showing both. `vcovHC()` returns the covariance matrix, and `coeftest()` takes your model plus that matrix and re-runs the *t*-tests with it. They are two separate jobs from two separate packages, which is why the call looks the way it does.
 
-Here that costs the attendance slope a standard error of `r round(coef(summary(TherapyModel))["Sessions", "Std. Error"], 2)` rising to `r round(sqrt(diag(sandwich::vcovHC(TherapyModel, type = "HC3")))["Sessions"], 2)`, so *t* falls from `r round(coef(summary(TherapyModel))["Sessions", "t value"], 2)` to about `r round(coef(TherapyModel)["Sessions"] / sqrt(diag(sandwich::vcovHC(TherapyModel, type = "HC3")))["Sessions"], 2)`. The conclusion does not change, which is the usual outcome and is not a reason to skip it.
+**The estimates are untouched, to the last decimal.** Nothing was refit. The slope of `Sessions` is the same number it always was, because the sandwich changes only the second formula, the one about uncertainty. The standard error rises from `r round(coef(summary(TherapyModel))["Sessions", "Std. Error"], 2)` to `r round(sqrt(diag(sandwich::vcovHC(TherapyModel, type = "HC3")))["Sessions"], 2)`, so *t* falls from `r round(coef(summary(TherapyModel))["Sessions", "t value"], 2)` to about `r round(coef(TherapyModel)["Sessions"] / sqrt(diag(sandwich::vcovHC(TherapyModel, type = "HC3")))["Sessions"], 2)`. The conclusion does not change, which is the usual outcome and is not a reason to skip it.
+
+You can watch the ladder climb, too:
+
+```{r hc-ladder}
+sapply(c("const", "HC0", "HC1", "HC2", "HC3"), function(type) {
+  sqrt(diag(vcovHC(TherapyModel, type = type)))
+}) |> round(4)
+```
+
+`const` is the classical assumption, and it is the smallest in every row. The four HC variants increase in the order the table above predicts, because each one leans a little harder on the leverage correction.
 
 ::: {.callout-note title="Be Honest About What the Sandwich Is Reacting To"}
 This dataset is not actually heteroscedastic. A Breusch-Pagan test on it returns $p =$ `r round(lmtest::bptest(TherapyModel)$p.value, 2)`, and the variance was built constant on purpose.
 
-So why did the standard errors grow? Participant 60. Robust standard errors are robust to non-constant variance, and they are also *responsive* to a single large residual sitting at high leverage. Refit without participant 60 and the attendance standard error barely moves at all: the HC3 and ordinary versions land within `r round(100 * abs(1 - sqrt(diag(sandwich::vcovHC(TherapyModel.60, type = "HC3")))["Sessions"] / coef(summary(TherapyModel.60))["Sessions", "Std. Error"]))`% of each other.
+So why did the standard errors grow? Participant 60, and now you have the formula to see exactly how.
+
+The HC3 filling weights each observation by $e_i^2/(1-h_{ii})^2$. Participant 60 has a residual of about `r round(residuals(TherapyModel)[60], 1)` and a leverage of `r round(hatvalues(TherapyModel)[60], 3)`, against an average leverage of `r round(mean(hatvalues(TherapyModel)), 3)`. Squaring a residual that large is most of it; the leverage correction then multiplies that by a further `r round(1 / (1 - hatvalues(TherapyModel)[60])^2, 2)`.
+
+```{r hc3-weights}
+HC3weights <- residuals(TherapyModel)^2 / (1 - hatvalues(TherapyModel))^2
+
+round(c(
+  share.participant.60 = unname(HC3weights[60] / sum(HC3weights)),
+  share.next.largest   = unname(sort(HC3weights, decreasing = TRUE)[2] / sum(HC3weights)),
+  share.if.all.equal   = 1 / length(HC3weights)
+), 3)
+```
+
+**One row out of sixty supplies `r round(100 * (residuals(TherapyModel)[60]^2 / (1 - hatvalues(TherapyModel)[60])^2) / sum(residuals(TherapyModel)^2 / (1 - hatvalues(TherapyModel))^2))`% of the filling.** If everyone contributed equally each would supply about `r round(100 / nobs(TherapyModel), 1)`%. Refit without participant 60 and the effect vanishes: the HC3 and ordinary attendance standard errors then land within `r round(100 * abs(1 - sqrt(diag(sandwich::vcovHC(TherapyModel.60, type = "HC3")))["Sessions"] / coef(summary(TherapyModel.60))["Sessions", "Std. Error"]))`% of each other.
 
 The lesson is not that the sandwich lied. It is that "my robust standard errors are much larger than my ordinary ones" is itself a diagnostic finding, and the thing it most often points at is influence rather than spread. Go look at the case before you congratulate yourself for being rigorous.
 :::
@@ -363,6 +490,33 @@ The lesson is not that the sandwich lied. It is that "my robust standard errors 
 Finally, a shortcut worth knowing about now that you have built these plots by hand. `performance::check_model(TherapyModel)` produces most of this chapter's diagnostics as one annotated panel, with reference bands showing what the plots should look like when nothing is wrong. Use it. It is genuinely good, and it is much faster than what we just did.
 
 The hand-built versions still teach better, for the reason this whole chapter exists: a bundled panel tells you which plot looks unusual, and you still have to be the person who decides whether that matters, checks the case against the original records, and reports what changed. The software is obedient. You still have to be the adult in the room.
+
+## The Four Packages, and Where the Real Derivations Live
+
+This chapter used four packages, and it is worth knowing what each is for, because they are not interchangeable and their names do not tell you much.
+
+| Package | What it does here | Where it came from |
+|---|---|---|
+| **`car`** | `vif()`, and most of the regression diagnostics psychologists use | Companion to Fox and Weisberg's regression textbook [@fox2019] |
+| **`sandwich`** | `vcovHC()`, the robust covariance matrix itself | Zeileis's HC and HAC implementation [@zeileis2004] |
+| **`lmtest`** | `coeftest()` and `bptest()`, re-testing a model against a given covariance matrix | Zeileis and Hothorn's diagnostic-checking toolkit [@zeileis2002] |
+| **`performance`** | `check_model()`, the all-in-one diagnostic panel | Part of the easystats project [@ludecke2021] |
+
+Note the division of labor between `sandwich` and `lmtest`, since it explains a call that otherwise looks fussy. `sandwich` *computes covariance matrices* and knows nothing about hypothesis tests. `lmtest` *runs tests* and does not care where the covariance matrix came from. That is why the robust *t*-test needs one function from each, and it is also why the same `vcovHC()` result can be handed to `confint()`, to `car::linearHypothesis()`, and to most other things that accept a `vcov` argument.
+
+::: {.callout-tip title="Every Package Is Carrying Its Own Bibliography"}
+Everything in this chapter has a proper derivation somewhere, and R will tell you where. Run `citation("sandwich")` and you get the three papers the package implements, formatted and ready to paste. This works for **any** installed package.
+
+```{r package-citation, eval=FALSE}
+citation("sandwich")
+vignette(package = "sandwich")          # list what is bundled
+vignette("sandwich")                    # open the HC and HAC paper
+```
+
+The `sandwich` package ships the full Zeileis (2004) paper as a vignette, so the actual derivation of every `HC` type in that table is sitting on your hard drive right now. `lmtest` ships its own. This is not documentation in the "list of arguments" sense; these are peer-reviewed journal articles that happen to be installed alongside the code.
+
+Two habits follow. **Cite the packages you analyze with**, since somebody wrote and maintains them for free and citation is the only currency involved. And when you want the argument behind a method rather than the syntax, look in the package before you look on the internet. The derivation for this chapter's robust standard errors is `vignette("sandwich")`, and it is better than anything a search will hand you.
+:::
 
 ## The Short Story
 
