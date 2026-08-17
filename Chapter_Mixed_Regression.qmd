@@ -234,7 +234,7 @@ mixed_data$occasion <- factor(
 
 The data are **long**: one row per person per occasion, 200 rows from 100 people. The participant identifier repeats because the person repeats. If your participant column disappears, stop. Do not proceed directly to the ritual sacrifice.
 
-Notice that the simulation gave every person their own `person_slope`, so the invented humans genuinely do improve at different rates. Hold onto that. It matters at the end of the chapter, where it turns out this model cannot see it.
+Notice that the simulation gave every person their own `person_slope`, so the invented humans genuinely do improve at different rates, not merely by different amounts. Measured twice, nobody can tell the difference. The last section of this chapter is about designs where you would want to.
 
 ### Look at the Four Cells First
 
@@ -344,7 +344,8 @@ That $u_{0i}$ is the same `(1 | participant)` that reproduced the paired *t*-tes
 ```{r mixed-model}
 mixed_model <- lmer(
   depression ~ occasion * group + (1 | participant),
-  data = mixed_data
+  data = mixed_data,
+  REML=TRUE
 )
 
 summary(mixed_model)
@@ -364,21 +365,6 @@ For now, the practical rule is simple:
 That is intentionally an oversimplification. Future Us will deal with the details when Future Us actually needs them.
 :::
 
-### Why There Is No Random Slope in That Formula
-
-The obvious next thought is to let people change at different *rates*, not merely start at different levels, by writing `(1 + week | participant)`. Try it on this data and `lmer` refuses:
-
-```
-number of observations (=200) <= number of random effects (=200) for
-term (1 + week | participant); the random-effects parameters and the
-residual variance are probably unidentifiable
-```
-
-This is not a bug and it is not fixable by trying a different optimizer. With two measurements per person, a line through each person's two points is *exactly determined*: two points, one line, nothing left over. There is no information left to tell "this person changed unusually fast" apart from "this measurement was unusually noisy," so the model cannot estimate both.
-
-The individual differences in change are real. We put them in the simulation ourselves. They are simply invisible to a two-occasion design, and they get absorbed into the residual variance, where they inflate it. Three occasions is the price of seeing them, and that is a later chapter.
-
-
 ## Read the Model Without Panic
 
 ```{r fixed-effects-table}
@@ -395,24 +381,12 @@ Read the rows in order, and check each one against the table of four coefficient
 
 So CBT scores fell about `r abs(round(fixed_effects["occasionWeek 6:groupCBT", "Estimate"], 2))` points further than Control scores over the same six weeks. That is the treatment effect. It does not mean CBT lowered every participant's score by that amount. Fixed effects describe an average pattern while the random effects document the inconvenient existence of individuals.
 
-<!-- ---Alex--- The paragraph below is new, not in any review item. The old 2x4 version of this
-section said "suppose the interaction estimate is about -1.2", which was the value baked into
-the rnorm() call rather than the value the model returns. While fixing that I noticed nothing in
-the chapter mentioned that the control group also improved, which seemed like a wasted teaching
-moment in a chapter about interactions. Cut it if it distracts. -->
-
 Notice that Control changed too, and significantly, $p$ `r ifelse(fixed_effects["occasionWeek 6", "Pr(>|t|)"] < .001, "< .001", paste("=", round(fixed_effects["occasionWeek 6", "Pr(>|t|)"], 3)))`. People in the control condition got better over six weeks. If we had run a one-group study, measured twice, and found that, we would have congratulated ourselves and possibly written a press release. This is the entire reason the control group exists, and the reason the interaction, not the change, is the research question.
 
 ::: {.callout-warning title="The p-Values Are Approximations, and This Is Not Your Engine's Fault"}
-Every column in that table except the estimate itself rests on an approximation. There is no exact sampling distribution waiting for a model like this one, so the numbers in the `df` column were not counted, they were **estimated**, using Satterthwaite's method. They are free to come out fractional, and in models with more occasions they usually do.
-
-<!-- ---Alex--- This callout is where the chapter's old Wald-z paragraph went (CH18-U01 asked
-for exactly that shrink), and it is the only surviving mention of glmmTMB in the file. The dead
-pointer to "the later inference chapter" went with it, which closes CH18-P01. -->
+Every column in that table except the estimate itself rests on an approximation. There is no exact sampling distribution waiting for a model like this one, so the numbers in the `df` column were not counted, they were **estimated**, using Satterthwaite's method, like you saw with Welch's *t*-test. They often come out fractional.
 
 This is a property of mixed models, not of `lmer`. Change engines and the approximation changes costume rather than disappearing: `glmmTMB`, which you will meet in graduate school, fits the same model and reports Wald *z* statistics with no degrees of freedom at all. Same model, different plumbing, and the same honest uncertainty underneath.
-
-So say which method you used, look at the confidence intervals, and do not treat a *p*-value from a mixed model as a measurement taken with calipers. "R produced a number and I felt hopeful" is not an inferential method.
 :::
 
 ## How Much Did the Random Intercept Actually Buy You?
@@ -519,14 +493,10 @@ full_ml <- lmer(
 anova(reduced_ml, full_ml)
 ```
 
-This likelihood-ratio test asks whether allowing the groups to change by different amounts improves model fit. It is not the only defensible test; coefficient tests and other approximations are also used. The important point is to match the test to the question and identify the method, not to collect p values like cursed trading cards.
+This likelihood-ratio test asks whether allowing the groups to change by different amounts improves model fit. It is not the only defensible test; coefficient tests and other approximations are also used. The important point is to match the test to the question and identify the method, not to collect *p*-values like cursed trading cards.
 
 ::: {.callout-note title="`anova()` Would Have Caught Us, but Only `anova()`"}
-Hand two REML fits to `anova()` and it refits them with maximum likelihood itself, printing `refitting model(s) with ML (instead of REML)` on its way past. So the `REML = FALSE` above is belt-and-braces: it makes the decision visible in your code instead of leaving it to a message you might scroll past.
-
-The protection stops there, though. Ask for `AIC()` on two REML fits and nothing refits and nothing warns: you get a gap of 52.33 where the honest ML answer is 51.78. Subtract two REML log-likelihoods by hand and you get 54.33 where the correct likelihood-ratio statistic is 53.78. Neither is a disaster here, and both are wrong.
-
-`anova()` is being the adult in the room. Do not assume the rest of the room joined in.
+Hand two REML fits to `anova()` and it refits them with maximum likelihood itself, printing `refitting model(s) with ML (instead of REML)` on its way past. It makes the decision visible in your code instead of leaving it to a message you might scroll past. `anova()` is being the adult in the room. 
 :::
 
 After model comparison, report estimates from the final model fit with REML when appropriate.
@@ -538,7 +508,8 @@ The interaction says the two changes differ. It does not say what either change 
 ```{r simple-effects}
 library(emmeans)
 
-cell_means <- emmeans(mixed_model, ~ occasion | group)
+cell_means <- emmeans(mixed_model, ~ occasion | group,
+                      lmer.df = "satterthwaite")
 
 contrast(
   cell_means,
@@ -565,9 +536,9 @@ A compact results paragraph could read:
 
 A real report should also provide confidence intervals, the cell means, the exact random-effects structure, software, missing-data handling, and theoretically planned follow-ups. The paragraph above is the skeleton. Please give it organs before submitting it to Reviewer 2.
 
-# Advanced Topics {.unnumbered}
+## Advanced Topics 
 
-That is the required chapter. What follows is the part that matters once the data are real rather than simulated: people miss appointments, models need checking, and two occasions eventually stop being enough. The Short Story at the end covers the whole chapter, both halves.
+What follows is the part that matters once the data are real rather than simulated: people miss appointments, models need checking, and designs eventually outgrow the one this chapter can handle. The Short Story at the end covers the whole chapter, both halves.
 
 ## Missing Repeated Observations
 
@@ -600,69 +571,66 @@ However, "the model ran" does not mean missing data ceased to matter. Standard l
 
 ## Check the Model
 
-At minimum, examine:
+Every model in this book has arrived with a diagnostic ritual attached. This one does too, except the ritual is harder, and I am going to be honest with you about how much of it we are skipping.
 
-- whether the cell means are represented sensibly;
-- residual-versus-fitted patterns;
-- severe residual outliers;
-- the distribution and influence of clusters;
-- convergence and singular-fit warnings;
-- whether variance changes across occasions or groups;
-- whether enough participants, not merely enough rows, support the model.
+Here is the problem. A mixed model has more places for an assumption to hide than a regression does: the residuals, the random effects, and the relationship between them. Worse, the ordinary residuals a mixed model hands you are not the clean, independent, interchangeable things `lm()` produces, so the plots you learned to read in the diagnostics chapter do not mean quite the same thing here. The assumptions **rhyme** with the ones you already know. Checking them does not.
 
-```{r mixed-diagnostics, fig.width=6, fig.height=3.4}
-#| fig-cap: "Residuals against fitted values, with a straight-line summary fit separately within each occasion. A well-behaved residual plot has no relationship at all, which is roughly what Baseline shows. Week 6 slopes upward, and that is not noise. It is the individual differences in rate of change that a two-occasion model is not allowed to estimate, sitting in the residuals instead."
-#| fig-alt: "A scatterplot of residuals against fitted values, fitted values from about 10 to 51 and residuals from about -4.3 to +4.3, with points colored by occasion and a straight trend line drawn within each. Both clouds are wide and centered on zero, and a dashed red horizontal line marks zero. The Baseline trend line is nearly horizontal. The Week 6 trend line rises clearly from left to right."
-diagnostic_data <- data.frame(
-  fitted   = fitted(mixed_model),
-  residual = resid(mixed_model),
-  occasion = mixed_data$occasion
-)
+So we use a package that does the hard part for us. **DHARMa** takes your fitted model, simulates a few hundred fresh datasets from it, and then asks, for each of your real observations, where it falls inside its own simulated crowd. If the model is telling the truth, those positions should be spread evenly between 0 and 1. That is the trick: no matter how strange the raw residuals look, the *simulated* residuals should always be uniform when the model is right, so there is one picture to learn instead of one per situation.
 
-ggplot(diagnostic_data, aes(x = fitted, y = residual, color = occasion)) +
-  geom_point(alpha = 0.35) +
-  geom_hline(yintercept = 0, linetype = 2, color = "firebrick") +
-  # a straight line, not a loess: the question here is whether there is a
-  # linear trend, and a wiggly smoother invites you to over-read its ends
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Fitted value", y = "Residual", color = NULL) +
-  theme_minimal(base_size = 11)
+```{r dharma-qq, fig.width=5.5, fig.height=4.6}
+#| fig-cap: "DHARMa's QQ plot. If the model is right, the points sit on the red diagonal. The three tests printed on the plot check the overall shape, the spread, and whether there are more extreme points than the model expects."
+#| fig-alt: "A QQ plot with Expected on the x axis and Observed on the y axis, both from 0 to 1. About two hundred small triangles form a line that follows a red diagonal reference line closely, bowing slightly above it in the lower half and slightly below it in the upper half. Three test results are printed on the plot: KS test p = 0.0541, Dispersion test p = 0.216, Outlier test p = 0.41647, each labeled Deviation n.s."
+library(DHARMa)
+
+sim_res <- simulateResiduals(mixed_model)
+
+plotQQunif(sim_res)
 ```
 
-The two occasions are not telling the same story, so measure them separately rather than squinting at the lines:
+The points follow the diagonal with a gentle bow, and all three tests come back `n.s.` The closest thing to a complaint is the KS test at $p =$ 0.054, which is the one that asks whether the overall shape is right.
 
-```{r residual-trend-by-occasion}
-round(
-  c(
-    Baseline = cor(diagnostic_data$residual[diagnostic_data$occasion == "Baseline"],
-                   diagnostic_data$fitted[diagnostic_data$occasion == "Baseline"]),
-    `Week 6` = cor(diagnostic_data$residual[diagnostic_data$occasion == "Week 6"],
-                   diagnostic_data$fitted[diagnostic_data$occasion == "Week 6"])
-  ),
-  3
-)
+Do not over-read that. A *p*-value sitting just outside .05 is not a diagnosis, and with 200 observations these tests are sensitive enough to notice things that would not change a single conclusion. It is a reason to look at the picture, which is what the picture is for.
+
+The second plot asks a different question: are the residuals equally well behaved everywhere, or does the model fit one part of the design better than another?
+
+```{r dharma-occasion, fig.width=5.5, fig.height=4.2}
+#| fig-cap: "DHARMa residuals split by occasion. Both boxes should straddle 0.5 with similar spread, which they do. This is where unequal variance across conditions would show up."
+#| fig-alt: "Two boxplots of DHARMa scaled residuals, one for Baseline and one for Week 6, on a y axis from 0 to 1. Both boxes are centered close to 0.5 and have very similar heights, with whiskers reaching nearly 0 and 1 in both. Dashed horizontal reference lines mark 0.25, 0.5 and 0.75. Printed above: Levene Test for homogeneity of variance n.s., Within-group deviation from uniformity n.s."
+plotResiduals(sim_res, form = mixed_data$occasion)
 ```
 
-At baseline there is essentially no relationship between how high the model expects a score to be and how wrong it is, which is what a residual plot is supposed to look like. At Week 6 there is a clear one: the people the model expects to score high are also the people it under-predicts.
+Two boxes, both centered near 0.5, both about the same height, and both tests `n.s.` The model is not doing noticeably worse at Week 6 than at baseline. Swap `occasion` for `group` and you can ask the same question about CBT versus Control.
 
-We know exactly what that is, because we put it in the simulation ourselves. Every person got their own `person_slope`, so these invented humans genuinely improve at different rates. At baseline that does nothing, because each person's rate of change has had zero weeks to act. By Week 6 it has had six, and the model has no random slope to keep it in, so it goes into the residual and drags it around. The residuals correlate `r round(cor(resid(mixed_model), mixed_data$person_slope * mixed_data$week), 2)` with each person's rate of change multiplied by week, which is the culprit holding a sign.
+That is where we stop, and stopping here is a real choice rather than a complete answer.
 
-This is not something a better two-occasion model can fix, and the earlier callout is the reason why. It is the cost of the design, made visible. Report it, keep the model, and notice that the residual plot just told you what a third measurement occasion would buy.
+::: {.callout-warning title="This Is the Shallow End, and It Is a Very Deep Pool"}
+Mixed models are an enormous area of statistics, and their diagnostics are an active research area rather than a settled checklist. Two DHARMa plots are the minimum, not the standard.
 
-Traditional repeated-measures ANOVA emphasizes **sphericity**, and with exactly two occasions that assumption is not merely satisfied, it is vacuous: there is only one difference, so there are no differences whose variances could disagree. Sphericity becomes a real problem at three occasions and up. A mixed model does not require that assumption at any number of occasions, but it does require a defensible covariance and random-effects structure. We did not escape assumptions. We traded a rigid one for a model that must be specified thoughtfully.
+The things we have not done include checking whether the random effects themselves are plausibly normal, whether particular participants are dragging the fit around, whether the residual variance should be allowed to differ by group or occasion, and whether the random-effects structure is the right one in the first place. Some of those questions do not have agreed answers.
 
-## When Two Occasions Are Not Enough
+If your design is bigger than the one in this chapter, you need more than this chapter. The honest advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.
 
-Everything in this chapter rested on each person appearing exactly twice. That is what made the difference score possible, the interaction a difference of differences, and the random slope unavailable.
+This is also, genuinely, hard material. First-time graduate students meet it and struggle. If it feels like a lot, that is the material, not you.
+:::
 
-Add a third occasion and all of it changes:
+## When Your Design Outgrows This Chapter
 
-- There is no longer *the* difference, so change has to be described by a slope or by one estimate per occasion.
-- The interaction becomes a difference between two **slopes** rather than between two changes.
-- A random slope becomes estimable, so people can finally be allowed to change at different rates. They are humans, not synchronized microwave clocks.
-- Sphericity starts to matter, and so does whether nearby occasions resemble each other more than distant ones.
+Everything here rested on the simplest possible repeated-measures design: each person measured twice, on one within-subjects factor, crossed with one between-subjects factor. For that design, what this chapter showed you works, and it works well.
 
-That is a chapter of its own, and it is coming later in the book. Note what it is *not*: a reason to reach for complexity here. A random slope you cannot estimate is not a more sophisticated analysis. R will accept many bad ideas with the serene indifference of a vending machine, and this is one of the few times it declines.
+Push past it and the difficulty does not increase gently. Two within-subjects factors, or measurements at four or six occasions over time, and you are immediately making decisions this chapter never had to make. Which random effects should the model include? What happens when the maximal model refuses to converge, or converges to a variance of exactly zero? Should occasions close together be allowed to resemble each other more than occasions far apart? Those are real questions with contested answers, and getting them wrong changes your results rather than merely annoying you.
+
+Here is the part I am obliged to admit. For a **balanced, complete** repeated-measures design with several within-subjects factors, old-school repeated-measures ANOVA is often *easier* than the mixed model. It was built for exactly that shape of data, it will fit without an argument, and it will not ask you to choose a random-effects structure. You know how I feel about ANOVA. It is still true.
+
+The catch is what it demands in return. Repeated-measures ANOVA wants every person to have every observation, so one missed session deletes the whole participant, and it leans on **sphericity**: the assumption that the variances of all the pairwise differences between occasions are equal. With exactly two occasions, as in this chapter, sphericity is not merely satisfied, it is vacuous, because there is only one difference and nothing for it to disagree with. From three occasions up it becomes a real constraint, and a violated one costs you.
+
+So neither tool is the grown-up choice in all situations. The mixed model handles missing rows and unbalanced designs that ANOVA cannot touch. ANOVA handles complicated balanced within-subjects designs without the fight. We did not escape assumptions by learning mixed models. We traded a rigid set for a flexible set that has to be chosen thoughtfully.
+
+<!-- ---Alex--- You said you would drop your RM ANOVA lecture into the advanced section. The
+sentence below points at it WITHOUT a hyperlink on purpose, because the chapter does not exist
+yet and CH18-P01 in this same chapter was exactly this bug: a promise pointing at nothing. Add
+the link when it ships, and delete this comment. -->
+
+If a repeated-measures ANOVA is the right tool for your design, there is a treatment of it in the advanced sections of this book. Use whichever tool the design actually calls for, and say in your write-up which one you used and why.
 
 ## The Short Story
 
@@ -674,8 +642,10 @@ That is a chapter of its own, and it is coming later in the book. Note what it i
 - With Baseline as the reference, the Group coefficient is the baseline group difference, which randomization should have made boring.
 - The Occasion by Group coefficient is the difference between the two groups' changes.
 - With exactly two occasions, that interaction is also an independent-samples *t*-test on change scores.
-- Random intercepts let people start at different levels. Random *slopes* let them change at different rates, and they need at least three occasions to exist.
+- Random intercepts let people start at different levels, which is all a two-occasion design can support.
 - Compare fixed-effects structures using models fit with maximum likelihood, not REML.
+- Check a mixed model with **simulated** residuals, from DHARMa, rather than by reading raw residual plots the way you would for an ordinary regression. Two plots is the minimum, not the standard.
+- This chapter covers the simplest repeated-measures design there is. More within-subjects factors, or more occasions, gets hard quickly, and for balanced complete designs old-school repeated-measures ANOVA is often the easier tool.
 - Mixed models can retain partially observed participants, but missingness can still bias the answer.
 - Never count rows and forget to count people. Two hundred observations from 100 people are not 200 independent humans, no matter how urgently the grant deadline approaches.
 

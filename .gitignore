@@ -14,3 +14,6 @@
 /_book/
 /site_libs/
 *.knit.md
+
+# base-R graphics devices left behind by the PDF render pass (DHARMa plots)
+Rplots.pdf
