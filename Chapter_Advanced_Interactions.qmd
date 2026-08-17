@@ -6,15 +6,6 @@ title: "Advanced: Continuous and Higher-Order Interactions"
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
 ```
 
-<!-- ---Alex--- Cold open (VOICE_GUIDE 15/17), which you approved on 2026-08-17.
-The chapter previously opened on "It Depends, Again" plus a Fast Review recap,
-which is the same first-position-recap failure as Ch10/15/16. The simulation
-chunk moved up here so the demonstration can happen before any definition; the
-old "Simulating Sleep, Caffeine, and Questionable Judgment" heading is now
-"Does the Interaction Earn Its Place?" and keeps the additive-vs-interaction
-comparison, since it no longer simulates anything. Every number below was run
-first. The sign flip and the three identities are real and not tuned. -->
-
 ## Two Models, One Dataset, Opposite Headlines
 
 We asked 240 students how much they slept, how much caffeine they drank, and how well they could concentrate. Here is the whole study, invented on the spot, with the interaction built in on purpose so you can see it sitting in the generating model.
@@ -80,7 +71,7 @@ So what changed? Only the location of zero. In the first model, the caffeine coe
 
 The rest of this chapter is about choosing that place on purpose, saying which one you chose, and noticing when software has quietly chosen for you.
 
-## Advanced Topic: It Depends, Again
+## It Depends, Again
 
 The earlier interaction chapters asked whether a slope differs across categories. Here both predictors can be continuous. This produces a model that is compact to write and remarkably easy to explain badly [@aiken1991].
 
@@ -136,7 +127,7 @@ AdditiveModel <- lm(Concentration ~ Sleep.C + Caffeine.C, data = InterData)
 anova(AdditiveModel, InteractionModel)
 ```
 
-It did. Adding the product term improves fit at $p <$ .001, so the claim that caffeine's slope depends on sleep is doing real work rather than decorating the model. Had this comparison come back nonsignificant, the honest move would be to say so and report the additive model, not to hunt for a subgroup in which the interaction reappears.
+It did. Adding the product term improves fit at $p < .001$, so the claim that caffeine's slope depends on sleep is doing real work rather than decorating the model. Had this comparison come back nonsignificant, the honest move would be to say so and report the additive model, not to hunt for a subgroup in which the interaction reappears.
 
 Centering places zero at the sample mean. It changes the interpretation of the intercept and lower-order slopes. It does **not** change fitted values, residuals, $R^2$, or the interaction coefficient.
 
@@ -580,6 +571,49 @@ box()
 Notice that the confidence band is narrowest near the middle of the sleep distribution and flares at both ends. That is not a quirk of this dataset. A conditional slope is estimated most precisely where you have the most data, and the $\pm1SD$ points are convenient partly because they are still in the crowded part of the moderator.
 
 Johnson-Neyman regions can be useful when the moderator is truly continuous. Do not report a region far outside the observed values of $Z$. The equation is willing to extrapolate into space; your data did not go there. A boundary at `r round(JNHours[2], 1)` hours of sleep, with `r sum(InterData$Sleep > JNHours[2])` people beyond it, is a finding. A boundary at 22 hours of sleep is a rounding error with ambitions.
+
+
+### The Package That Does All of That in One Call
+
+Here is an R package that will also do this with less code.
+
+```{r}
+#| label: johnson-neyman-package
+#| fig-width: 7.5
+#| fig-height: 5
+#| fig-alt: "Johnson-Neyman plot with centered sleep on the x axis from about minus 5.5 to 4.5 and the slope of centered caffeine on the y axis from about minus 0.10 to 0.075. A straight line falls from about 0.045 at the left to about minus 0.07 at the right, inside a confidence band that is narrowest in the middle. Two vertical dashed lines at about minus 3.2 and minus 0.8 cut the plot into three parts. Between them the line and band are shaded pink and labelled n.s.; outside them they are shaded blue-green and labelled p less than .05. A horizontal line marks a slope of zero, and a thick black bar along it spans roughly minus 4 to 3, marking the range of sleep values actually observed."
+library(interactions)
+
+# Calculate the J-N intervals and generate the plot
+jn_result <- johnson_neyman(
+  model = InteractionModel,
+  pred = Caffeine.C,
+  modx = Sleep.C,
+  alpha = 0.05,          # Significance threshold (default is 0.05)
+  control.fdr = FALSE    # Set to TRUE to control False Discovery Rate if desired
+)
+
+# Print the text output containing the precise cut-off points
+print(jn_result)
+```
+
+**Check its boundaries against the ones we solved for by hand.** The package reports the interval on the centered scale, because `Sleep.C` is what is actually in the model, so it prints `r sprintf("%.2f", jn_result$bounds[1])` and `r sprintf("%.2f", jn_result$bounds[2])` where we reported `r sprintf("%.2f", JNHours[1])` and `r sprintf("%.2f", JNHours[2])` hours. Add the mean of `r sprintf("%.2f", mean(InterData$Sleep))` back and they are the same two numbers. Not close. The same:
+
+```{r}
+#| label: jn-package-matches-manual
+c(
+  manual.lower  = unname(JNRoots[1]),
+  package.lower = unname(jn_result$bounds[1]),
+  manual.upper  = unname(JNRoots[2]),
+  package.upper = unname(jn_result$bounds[2])
+)
+```
+
+That agreement is the reason for doing it by hand first. The package is not performing a technique you have not already performed with `vcov()` and the quadratic formula. It is doing the same arithmetic faster and drawing a better plot. Use it, now that you could check it.
+
+The plot is worth reading closely, because it makes the shading do the work our hand-built version did with a grey rectangle: pink where the caffeine slope is not distinguishable from zero, blue-green where it is. Note also the thick black bar lying along zero. That marks the range of sleep values **actually observed**, and the plot deliberately draws the line and band past both ends of it. The package is showing you exactly the extrapolation this section just warned about, and trusting you to notice the bar.
+
+Two of its arguments are worth knowing about. `alpha` moves the significance threshold that defines the boundaries, so a stricter alpha widens the middle region where the slope cannot be distinguished from zero. And `control.fdr` switches to an interval that accounts for the fact that a Johnson-Neyman region is quietly an enormous family of simple-slope tests, one at every value of the moderator. Turning it on here pushes the boundaries outward, which is the multiple-comparisons problem from the [multiple comparisons chapter](Chapter_Multiple_Comparisons.qmd) turning up somewhere almost nobody looks for it.
 
 ## Centering Cannot Remove the Interaction
 

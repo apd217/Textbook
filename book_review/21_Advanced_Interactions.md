@@ -99,7 +99,49 @@ Structural consequence: the simulation chunk moved to the top, so
 `## Does the Interaction Earn Its Place?` and holds the additive-vs-interaction `anova()`
 comparison, which the chapter previously ran without commenting on.
 
-**Chapter length grew** from ~2,200 words to 3,124; em-dash density dropped 1.20 to 0.32.
+**Chapter length grew** from ~2,200 words to 3,124, then to 3,441 after Alex's edit pass below;
+em-dash density 0.29.
+
+---
+
+## Alex's edit pass, 2026-08-17: he installed `interactions` and added the package call
+
+**`interactions` is now installed** (it was not when CH21-P01 was implemented, which is why the
+manual route was chosen). Alex added a `johnson_neyman()` block at the end of the J-N section and
+made three other edits.
+
+**His edits, all kept:** deleted the `---Alex---` cold-open note (his standard signal that the
+prose is accepted); `## Advanced Topic: It Depends, Again` → `## It Depends, Again`;
+`$p <$ .001` → `$p < .001$`, which is better math markup.
+
+**The package call was verified rather than trusted, and it is correct.** All argument names he
+used are real (`model`, `pred`, `modx`, `alpha`, `control.fdr` are all in `formals()`), and
+**the package reproduces the hand-solved boundaries exactly**: manual $-3.2158656$ / $-0.8036323$
+against package $-3.2158656$ / $-0.8036323$. Added a chunk printing all four side by side, because
+that agreement is the payoff for having built the quadratic by hand two sections earlier, and it
+is the §17 identity move for free.
+Also confirmed `control.fdr = TRUE` genuinely changes the answer (bounds move outward to
+$-3.57$ / $-0.74$), so his comment about it is accurate. Added a sentence explaining *why*: a J-N
+region is an enormous implicit family of simple-slope tests, which links back to the multiple
+comparisons chapter.
+
+**Fixes applied to his block:**
+- "will also this with less code" → "will also **do** this with less code" (dropped verb).
+- **The chunk was unnamed and produces a figure.** Named it `johnson-neyman-package` and gave it
+  `fig-alt`, written against the rendered PNG (G02, plus the standing rule about anonymous chunks
+  shifting figure filenames and silently invalidating the freeze cache).
+- Added a `###` heading so it is not an orphan block hanging off the previous section.
+- Added a note that the package reports on the **centered** scale ($-3.22$, $-0.80$) while the
+  manual section reports **hours** ($3.35$, $5.77$), since a reader comparing the two numbers
+  would otherwise think they disagree.
+- Added a paragraph reading the plot: pink is n.s., blue-green is $p < .05$, and the thick black
+  bar along zero marks the **observed** range while the line and band are deliberately drawn past
+  both ends of it. That is the extrapolation the section warns about, drawn by the package itself.
+
+**Flagged, not changed:** Ch21 no longer says "Advanced Topic" in that heading, but
+`Chapter_Advanced_Regression_Diagnostics.qmd:70` still has `## Advanced Topic: Who Is This For?`
+and `Chapter_Multiple_Comparisons.qmd:19` still has a `## Advanced topic` callout. Either the
+label is being retired book-wide or Ch21 is now the odd one out. Alex's call.
 
 **Not flagged (deliberate):** The derivative-as-the-whole-interaction framing; "hear colors
 at a higher frame rate"; the essential-vs-nonessential multicollinearity distinction
