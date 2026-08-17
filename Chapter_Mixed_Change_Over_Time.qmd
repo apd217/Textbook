@@ -216,7 +216,12 @@ summary(random_intercept_model)
 
 This is the same `(1 | participant)` that reproduced the paired *t*-test in the previous chapter, doing the same job on a larger design: give participants different intercepts, by estimating the variance of those intercepts rather than 100 unrelated participant coefficients.
 
-`lmer()` fits with REML by default, which is what we want while we are looking at the random effects. That default becomes important, and gets deliberately switched off, when we start comparing fixed effects.
+`lmer()` fits with REML by default, which is what we want while we are looking at the random effects. The [previous chapter](Chapter_Mixed_Regression.qmd) has the deliberately oversimplified version of what REML is doing and why. The practical rule is unchanged: REML while we are estimating the random-effects structure, REML switched off when we compare models that differ in their fixed effects.
+
+<!-- ---Alex--- Pointer rather than a copy, so your REML callout lives in exactly one place.
+If this chapter ends up NOT following Mixed_Regression in the running order, paste the callout
+in here instead, because the forward promise it makes is paid off in this chapter too. -->
+
 
 ### Random Slopes
 

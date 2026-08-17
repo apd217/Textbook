@@ -15,13 +15,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-<!-- ---Alex--- This cold open is new (CH18-U02) and it replaced the old opening, which was
-the "Advanced Chapter" callout plus a recap paragraph. You approved rebuilding it against
-VOICE_GUIDE 15. The device is the identity payoff from 17: the paired t-test and the lmer
-give the same t, df, p and estimate, verified to six significant digits before any of this
-prose was written. The old callout's definition and the "all its relatives / provide chairs"
-joke both survive, in the callout at the end of this section. -->
-
 ## Your Paired *t*-Test Was a Mixed Model All Along
 
 The [paired-samples *t*-test chapter](Chapter_Paired_t_test.qmd) gave 48 students one lecture with chocolate and one without, then measured how long their eyes stayed on the screen. Here is that study again, same seed and same 48 students, so this chapter runs from the top without sending you back a chapter to fetch the data.
@@ -160,8 +153,6 @@ The rest of this chapter does the first two. The last two need a bigger model th
 
 ::: {.callout-note title="Where This Chapter Goes, and Where It Stops"}
 Two stops, and you just finished the first. Next is the **mixed 2-by-2**: one within-subjects factor, one between-subjects factor, four cells, one interaction. That is the design most repeated-measures studies in psychology actually run, and it is where this chapter stops.
-
-After it there is an Advanced Topics break for missing occasions and model checking, then a short section on what three or more occasions require and why this chapter cannot give it to you.
 
 A mixed design combines a **between-subjects** variable with a **within-subjects** variable, which summons fixed effects, an interaction, repeated observations, and random effects all at once. It is not impossible. It is merely statistics arriving with all its relatives and expecting you to provide chairs.
 :::
@@ -310,8 +301,8 @@ $$
 
 The levels are:
 
-- Level 1: repeated occasions;
-- Level 2: participants.
+- Level 1: repeated occasions ($j$);
+- Level 2: participants ($i$).
 
 Group belongs to Level 2 because it does not change within a person. Occasion belongs to Level 1 because it does.
 
@@ -348,7 +339,7 @@ Y_{ij}=b_0+b_1\text{Week 6}_{ij}+b_2\text{CBT}_i
 +b_3(\text{Week 6}_{ij}\times\text{CBT}_i)+u_{0i}+e_{ij}
 $$
 
-That $u_{0i}$ is the same `(1 | participant)` that reproduced the paired *t*-test at the top of the chapter, doing the same job on a bigger design.
+That $u_{0i}$ is the same `(1 | participant)` that reproduced the paired *t*-test at the top of the chapter, doing the same job on a larger design: give participants different intercepts, by estimating the variance of those intercepts rather than 100 unrelated participant coefficients.
 
 ```{r mixed-model}
 mixed_model <- lmer(
@@ -359,10 +350,23 @@ mixed_model <- lmer(
 summary(mixed_model)
 ```
 
-`lmer()` fits with REML by default, which is what we want while we are looking at the random effects. That default becomes important, and gets deliberately switched off, when we start comparing fixed effects.
+::: {.callout-note title="REML: The Deliberately Oversimplified Version"}
+By default, `lmer()` uses **REML** (*restricted maximum likelihood*) to estimate the model. I am going to hand-wave aggressively here because understanding exactly how REML works requires considerably more statistical machinery than we need.
 
-::: {.callout-warning title="With Two Occasions, a Random Slope Is Not Available"}
-The obvious next thought is to let people change at different *rates*, not just start at different levels, by writing `(1 + week | participant)`. Try it on this data and `lmer` refuses:
+You already know **OLS**, which chooses regression coefficients to make the residual errors as small as possible. Mixed-effects models have an additional problem: they also have to estimate **variances**, such as how much participant intercepts vary from person to person.
+
+REML is a method designed to get better estimates of those variance components. Very loosely, it tries to estimate the variance **after accounting for the fact that we already used the data to estimate the fixed effects**. That correction matters especially when samples are not enormous.
+
+For now, the practical rule is simple:
+
+**When we care about estimating the random-effects structure, we generally use REML. When we later compare models that differ in their fixed effects, we will switch REML off.**
+
+That is intentionally an oversimplification. Future Us will deal with the details when Future Us actually needs them.
+:::
+
+### Why There Is No Random Slope in That Formula
+
+The obvious next thought is to let people change at different *rates*, not merely start at different levels, by writing `(1 + week | participant)`. Try it on this data and `lmer` refuses:
 
 ```
 number of observations (=200) <= number of random effects (=200) for
@@ -373,7 +377,7 @@ residual variance are probably unidentifiable
 This is not a bug and it is not fixable by trying a different optimizer. With two measurements per person, a line through each person's two points is *exactly determined*: two points, one line, nothing left over. There is no information left to tell "this person changed unusually fast" apart from "this measurement was unusually noisy," so the model cannot estimate both.
 
 The individual differences in change are real. We put them in the simulation ourselves. They are simply invisible to a two-occasion design, and they get absorbed into the residual variance, where they inflate it. Three occasions is the price of seeing them, and that is a later chapter.
-:::
+
 
 ## Read the Model Without Panic
 
@@ -497,7 +501,7 @@ The mixed model is what keeps working when the design stops being complete and b
 
 Coefficient tests are not the only way to ask about the interaction. We can also compare two models: one that lets the groups change differently, and one that does not.
 
-When comparing **fixed effects**, refit both with maximum likelihood. This is the moment `lmer()`'s REML default has to be switched off by hand, in both models, or the comparison is not a legal one.
+When comparing **fixed effects**, refit both with maximum likelihood. This is the switch the REML callout promised, and this is where we throw it, in both models.
 
 ```{r compare-fixed-effects}
 reduced_ml <- lmer(
@@ -516,6 +520,14 @@ anova(reduced_ml, full_ml)
 ```
 
 This likelihood-ratio test asks whether allowing the groups to change by different amounts improves model fit. It is not the only defensible test; coefficient tests and other approximations are also used. The important point is to match the test to the question and identify the method, not to collect p values like cursed trading cards.
+
+::: {.callout-note title="`anova()` Would Have Caught Us, but Only `anova()`"}
+Hand two REML fits to `anova()` and it refits them with maximum likelihood itself, printing `refitting model(s) with ML (instead of REML)` on its way past. So the `REML = FALSE` above is belt-and-braces: it makes the decision visible in your code instead of leaving it to a message you might scroll past.
+
+The protection stops there, though. Ask for `AIC()` on two REML fits and nothing refits and nothing warns: you get a gap of 52.33 where the honest ML answer is 51.78. Subtract two REML log-likelihoods by hand and you get 54.33 where the correct likelihood-ratio statistic is 53.78. Neither is a disaster here, and both are wrong.
+
+`anova()` is being the adult in the room. Do not assume the rest of the room joined in.
+:::
 
 After model comparison, report estimates from the final model fit with REML when appropriate.
 
