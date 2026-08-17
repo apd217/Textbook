@@ -6,19 +6,21 @@ title: "Advanced: Regression Diagnostics and Influential Weirdos"
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
 ```
 
-## Advanced Topic: Who Is This For?
-
-This chapter is for graduate students and advanced undergraduates who already know how to fit and interpret a regression model. We now ask a more alarming question: **Should we trust the model we just fit?**
-
-Regression will always give you coefficients if the mathematics permits it. It does not pause to ask whether one participant entered a reaction time of 94 years or whether the residuals resemble a startled squid.
-
-::: {.callout-warning title="A Significant Model Can Still Be a Bad Model"}
-A small p-value does not certify linearity, equal residual variance, independence, honest measurement, or sensible causal reasoning. It only answers a narrower question under the model's assumptions.
-:::
+<!-- ---Alex--- Cold open (CH19-P01 + VOICE_GUIDE 15/17), which you approved on
+2026-08-17. Two judgment calls inside it. First, the simulation is echoed with the
+participant-60 lines visible, so the reader knows the outlier is planted before the
+reveal. That follows 14b rule 1 and the Ch16 precedent (showing 5*X*Z in the
+generating model); the alternative was hiding it for surprise, which the book's
+honesty rule outranks. The drama survives because the shock is the SIZE of the
+damage, not the existence of an outlier. Second, the refit now happens twice on
+purpose: here as the hook, and again under Cook's distance as the disciplined
+version with SEs and p-values. Delete either half if that reads as repetitive. -->
 
 ## A Deeply Responsible Therapy Study
 
-Suppose we predict symptom improvement from therapy attendance and baseline symptom severity. Most participants behave normally. Participant 60 attends nearly every session and reports a suspiciously enormous improvement, possibly because they misunderstood the scale or wanted the research assistant to stop calling.
+We predict symptom improvement from therapy attendance and baseline symptom severity. Sixty people, two predictors, nothing exotic.
+
+One of those sixty is a problem, and we are going to build the problem on purpose so you can watch what it does. Participant 60 attends nearly every session and reports a suspiciously enormous improvement, possibly because they misunderstood the scale or wanted the research assistant to stop calling. Here is the whole simulation, including the three lines at the bottom that do the damage.
 
 ```{r diagnostic-data}
 set.seed(343)
@@ -41,6 +43,43 @@ TherapyModel <- lm(Improvement ~ Sessions + Baseline, data = TherapyData)
 summary(TherapyModel)
 ```
 
+That is a good-looking model. Attendance predicts improvement, the coefficient is nowhere near zero, the p-value turned up in scientific notation, and the model accounts for `r round(100 * summary(TherapyModel)$r.squared)`% of the variance in improvement. Write it up, thank the undergraduates, go home.
+
+Now fit the same model to the same study with participant 60 removed. Not a suspicious subgroup, not a condition, not a wave of attrition. One row out of sixty.
+
+```{r cold-open-refit}
+TherapyModel.60 <- update(TherapyModel, data = TherapyData[-60, ])
+
+round(rbind(
+  Everyone  = c(coef(TherapyModel),    R2 = summary(TherapyModel)$r.squared),
+  Without60 = c(coef(TherapyModel.60), R2 = summary(TherapyModel.60)$r.squared)
+), 4)
+```
+
+Three things moved, and none of them is the thing you were watching.
+
+The baseline coefficient **changed sign**. With everyone in, higher baseline severity predicts slightly less improvement. With one person out, it predicts slightly more. Neither version is significant, which is its own kind of embarrassing: the direction of that effect was never being decided by the other fifty-nine people.
+
+The intercept stopped being significant, going from $p =$ `r round(coef(summary(TherapyModel))[1, 4], 3)` to $p =$ `r round(coef(summary(TherapyModel.60))[1, 4], 3)`. If you had a hypothesis about the intercept, you no longer have a result.
+
+And $R^2$ went **up**, from `r round(summary(TherapyModel)$r.squared, 3)` to `r round(summary(TherapyModel.60)$r.squared, 3)`. This surprises people, so it is worth saying plainly: deleting participant 60 took proportionally more out of the unexplained pile than out of the total. The residual standard error fell from `r round(summary(TherapyModel)$sigma, 2)` to `r round(summary(TherapyModel.60)$sigma, 2)`. The model did not get better. It got easier.
+
+Notice what did *not* warn you. Nothing errored. Nothing printed a message. The first model is not missing a step, and no amount of rereading its output would have told you that one row was steering it. R fit exactly what you asked for, with the serene indifference of a vending machine.
+
+*A model cannot tell you that one person wrote its conclusion. That is the job you are about to learn.*
+
+## Advanced Topic: Who Is This For?
+
+In the [Intro to Regression chapter](Chapter_Intro_to_regression.qmd) we asked five questions about the line: linearity, independence, constant variance, approximately normal residuals, and whether one strange person is steering everything while the others watch. This chapter is those five questions with a magnifying glass. You have just seen question five win.
+
+This chapter is for graduate students and advanced undergraduates who already know how to fit and interpret a regression model. We now ask a more alarming question: **Should we trust the model we just fit?**
+
+Regression will always give you coefficients if the mathematics permits it. It does not pause to ask whether one participant entered a reaction time of 94 years or whether the residuals resemble a startled squid.
+
+::: {.callout-warning title="A Significant Model Can Still Be a Bad Model"}
+A small p-value does not certify linearity, equal residual variance, independence, honest measurement, or sensible causal reasoning. It only answers a narrower question under the model's assumptions.
+:::
+
 ## Residuals: What the Model Failed to Explain
 
 For person $i$,
@@ -59,7 +98,11 @@ $$
 
 where the errors have an expected value of zero, are independent, and have approximately constant variance. Normality matters primarily for conventional small-sample inference, not because every raw variable must form a perfect bell.
 
-```{r residual-fitted, fig.width=7, fig.height=4.5}
+```{r}
+#| label: residual-fitted
+#| fig-width: 7
+#| fig-height: 4.5
+#| fig-alt: "Scatterplot with fitted improvement from about 10 to 34 on the x axis and standardized residual from about minus 2.3 to 4.7 on the y axis. A solid horizontal line marks zero and dashed orange lines mark plus and minus 2. Most of the sixty blue points form a shapeless cloud between minus 1.5 and 1.5 with no funnel or curve. One point sits alone in the far upper right, labelled 60, at a standardized residual of about 4.7, more than twice as far from zero as anything else in the plot."
 plot(
   fitted(TherapyModel), rstandard(TherapyModel),
   pch = 19, col = "#0072B2",
@@ -69,7 +112,9 @@ plot(
 )
 abline(h = 0, lwd = 2)
 abline(h = c(-2, 2), lty = 2, col = "#D55E00")
-text(fitted(TherapyModel)[60], rstandard(TherapyModel)[60], "60", pos = 4)
+# pos = 2 puts the label to the LEFT: participant 60 sits against the right
+# edge, so labelling to the right runs the text off the plot.
+text(fitted(TherapyModel)[60], rstandard(TherapyModel)[60], "60", pos = 2)
 ```
 
 Look for curves, funnels, clusters, and isolated points. A random cloud around zero is comforting. A visible pattern means the model has left information lying on the floor.
@@ -92,7 +137,11 @@ Heteroscedasticity does not automatically bias ordinary least-squares slopes, bu
 
 ## Normality of the Errors
 
-```{r residual-qq, fig.width=6.5, fig.height=4.5}
+```{r}
+#| label: residual-qq
+#| fig-width: 6.5
+#| fig-height: 4.5
+#| fig-alt: "Normal Q-Q plot with theoretical quantiles from about minus 2.4 to 2.4 on the x axis and sample quantiles from about minus 2.3 to 4.7 on the y axis, with a straight orange reference line. The middle two thirds of the points sit tightly on the line. Above about the 80th percentile the points drift steadily above it, and one point at the far top right sits at about 4.7 where the line is near 1.9, far away from every other point. The lowest point also falls slightly below the line."
 qqnorm(rstandard(TherapyModel), pch = 19, col = "#0072B2",
        main = "Q-Q plot of standardized residuals")
 qqline(rstandard(TherapyModel), col = "#D55E00", lwd = 2)
@@ -118,11 +167,17 @@ $$
 
 where $p$ is the number of fitted coefficients and $h_{ii}$ is leverage.
 
-```{r influence-plot, fig.width=7, fig.height=4.5}
+```{r}
+#| label: influence-plot
+#| fig-width: 7
+#| fig-height: 4.5
+#| fig-alt: "Spike plot with participant number 1 to 60 on the x axis and Cook's distance from 0 to about 1 on the y axis, with a dashed orange reference line at 4 divided by 60, roughly 0.067. Almost every spike is a stub near zero. One spike at participant 60 towers over the plot at about 0.88, labelled 60. A second spike at participant 26 reaches about 0.20, and a third at participant 40 just clears the dashed line. Everyone else falls below it."
 CookD <- cooks.distance(TherapyModel)
 plot(
   CookD, type = "h", lwd = 2, col = "#0072B2",
   xlab = "Participant", ylab = "Cook's distance",
+  # headroom so the "60" label above the tallest spike is not clipped
+  ylim = c(0, max(CookD) * 1.15),
   main = "Which participant is driving the statistical bus?"
 )
 abline(h = 4 / n, lty = 2, col = "#D55E00", lwd = 2)
@@ -130,6 +185,39 @@ text(60, CookD[60], "60", pos = 3)
 ```
 
 Rules such as $D_i>4/N$ are screening devices. They tell us where to look, not whom to throw into the statistical volcano.
+
+Notice that the $4/N$ line flags `r sum(cooks.distance(TherapyModel) > 4 / n)` people here, not one. Participants `r paste(setdiff(which(cooks.distance(TherapyModel) > 4 / n), 60), collapse = " and ")` are over the line too, and they are fine. Participant 60's Cook's distance is `r round(cooks.distance(TherapyModel)[60], 2)`, which is roughly `r round(cooks.distance(TherapyModel)[60] / max(cooks.distance(TherapyModel)[setdiff(which(cooks.distance(TherapyModel) > 4 / n), 60)]))` times the next largest. A screening rule hands you a short list of people to think about. It does not rank them, and it does not tell you which ones changed anything.
+
+### The Sensitivity Refit, Done Properly
+
+The opening of this chapter refit the model without participant 60 as a stunt, to show you that it mattered. This is the same comparison written the way you would actually report it, with the standard errors and p-values attached, because "the coefficient moved" is not a finding until the reader can see how much of that movement is noise.
+
+```{r sensitivity-refit}
+SideBySide <- cbind(
+  b.all    = coef(TherapyModel),
+  SE.all   = coef(summary(TherapyModel))[, "Std. Error"],
+  p.all    = coef(summary(TherapyModel))[, "Pr(>|t|)"],
+  b.drop   = coef(TherapyModel.60),
+  SE.drop  = coef(summary(TherapyModel.60))[, "Std. Error"],
+  p.drop   = coef(summary(TherapyModel.60))[, "Pr(>|t|)"]
+)
+
+round(SideBySide, 4)
+```
+
+Read it one row at a time.
+
+**Sessions** is the conclusion of the study, and it survives. The slope drops from `r round(coef(TherapyModel)["Sessions"], 2)` to `r round(coef(TherapyModel.60)["Sessions"], 2)`, about a `r round(100 * (coef(TherapyModel)["Sessions"] - coef(TherapyModel.60)["Sessions"]) / coef(TherapyModel)["Sessions"])`% reduction, and stays overwhelmingly significant either way. That is what a robust result looks like: the number moves, because every number moves, and the claim does not.
+
+**Baseline** does not survive, and it never had anything to survive with. Its sign depends entirely on participant 60, and it is nowhere near significant in either model. This is the honest version of a null result: not "baseline severity does not predict improvement," but "this study could not tell you, and one person was setting the direction."
+
+The rule that follows is short, and it is the whole reason the comparison exists. **Report both.** Put the sensitivity refit in the paper, or in the supplement, and say what changed. Do not run this comparison, notice that one version is friendlier to your hypothesis, and report only that one. That is not a sensitivity analysis. That is shopping with extra steps.
+
+::: {.callout-note title="What to Say When the Refit Disagrees With You"}
+"Excluding one influential case (Cook's $D =$ `r round(cooks.distance(TherapyModel)[60], 2)`), the attendance slope fell from `r round(coef(TherapyModel)["Sessions"], 2)` to `r round(coef(TherapyModel.60)["Sessions"], 2)` and remained significant, while the baseline coefficient reversed sign and was nonsignificant in both models."
+
+One sentence. It costs you nothing, it is more informative than the result it qualifies, and it is much cheaper than having a reader discover it for you.
+:::
 
 ## Multicollinearity
 
@@ -143,20 +231,69 @@ $$
 
 where $R_j^2$ comes from predicting $X_j$ with the other predictors. A large VIF means the other predictors nearly reconstruct that predictor.
 
+In R this is one line, and it is the line you will actually use:
+
+```{r vif-therapy}
+library(car)
+
+vif(TherapyModel)
+```
+
+Both come back at `r round(car::vif(TherapyModel)[1], 2)`, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at $r =$ `r round(cor(TherapyData$Sessions, TherapyData$Baseline), 2)`, and with only two predictors the VIF is exactly $1/(1-r^2)$, so you can check that by hand. This is what fine looks like, and it is worth seeing once so that trouble is recognizable by contrast.
+
+### What Trouble Actually Looks Like
+
+Here is the same true effect measured four times. `X1` and `Y` are identical in every row; the only thing that changes is how strongly the *other* predictor correlates with `X1`.
+
+```{r vif-demo}
+CollinearDemo <- function(r) {
+  set.seed(343)
+  X1 <- rnorm(200)
+  X2 <- r * X1 + sqrt(1 - r^2) * rnorm(200)
+  Y  <- 2 * X1 + rnorm(200, 0, 4)
+
+  Model <- lm(Y ~ X1 + X2)
+  c(
+    r     = r,
+    VIF   = unname(vif(Model)[1]),
+    SE.X1 = coef(summary(Model))["X1", "Std. Error"],
+    p.X1  = coef(summary(Model))["X1", "Pr(>|t|)"]
+  )
+}
+
+CollinearTable <- t(sapply(c(0, .5, .9, .99), CollinearDemo))
+
+round(CollinearTable, 4)
+```
+
+Nothing about the relationship between `X1` and `Y` changed down that table. The effect is genuinely there in all four rows, built by the same line of code from the same numbers. What changed is our ability to see it: at $r = .9$ the effect scrapes past significance at $p =$ `r round(CollinearTable[3, "p.X1"], 3)`, and at $r = .99$ it is gone entirely, at $p =$ `r round(CollinearTable[4, "p.X1"], 2)`.
+
+The mechanism is not mysterious, and there is a tidy identity hiding in that table. **The square root of the VIF is the factor by which the standard error is inflated.** A VIF of `r round(CollinearTable[3, "VIF"], 1)` means the standard error is about `r round(sqrt(CollinearTable[3, "VIF"]), 1)` times larger than it would have been with uncorrelated predictors, and the table confirms it: `SE.X1` climbs from `r round(CollinearTable[1, "SE.X1"], 3)` to `r round(CollinearTable[3, "SE.X1"], 3)`, a factor of `r round(CollinearTable[3, "SE.X1"] / CollinearTable[1, "SE.X1"], 2)`. This is exactly the cost that the [Multiple Regression: Statistical Control chapter](Chapter_Multiple_Regression_Control.qmd) promised you would meet later, where the controlled slope came with a slightly larger standard error than the uncontrolled one. This is later, and this is the meter.
+
+::: {.callout-warning title="The 5-and-10 Rule Is Folklore, Not Law"}
+You will read that VIF above 5 is concerning and above 10 is serious. Nobody derived those numbers. They are round, they are memorable, and they have no distributional justification.
+
+The question that has an answer is narrower: **is the standard error on the coefficient I care about small enough to answer my question?** A VIF of 12 on a nuisance covariate you will never interpret is not a problem. A VIF of 3 on your primary predictor, in a study that was already underpowered, might be fatal. Look at the interval, not the threshold.
+:::
+
+Multicollinearity is also not a data-cleaning problem, and this is where people go wrong. Dropping one of two correlated predictors does make the VIF fall, but it changes the model into a different model that answers a different question, and the slope you are left with is no longer controlled for the thing you dropped. You have not fixed the collinearity. You have stopped asking the question that produced it.
+
 Multicollinearity is not repaired by staring harder at the output. Possible solutions include improving the design, collecting more informative cases, combining redundant measures when theory supports it, or narrowing the question.
 
 ## Independence and Clustering
 
 Ordinary regression assumes residuals are independent. Repeated observations from one person, students within classrooms, siblings within families, and responses to the same stimulus are not independent simply because the spreadsheet gave them separate rows.
 
-If residuals share a source, use a design-aware method such as a mixed-effects model. We will do that in the graduate mixed-model section.
+If residuals share a source, use a design-aware method such as a mixed-effects model. The [mixed regression chapter](Chapter_Mixed_Regression.qmd) does exactly that: it tells the model which rows belong to the same person, instead of letting it believe it met a room full of strangers.
+
+This is the one assumption on the list that a diagnostic plot will not rescue you from. Non-independence is a fact about how the data were collected, and you know it before you fit anything. No residual plot reliably reveals clustering you have not told the model about, and no robust standard error repairs it.
 
 ## A Diagnostic Workflow
 
 1. Plot the raw data.
 2. Fit the theoretically justified model.
 3. Plot residuals against fitted values.
-4. inspect Q–Q behavior and residual tails.
+4. Inspect Q–Q behavior and residual tails.
 5. Examine leverage and influence.
 6. Check predictor redundancy.
 7. Ask whether observations are independent.
@@ -193,6 +330,46 @@ The exact cutoffs are screening rules, not automatic deletion warrants. Inspect 
 
 Heteroscedasticity does not usually bias the OLS slope when the mean model is correct, but it can damage the ordinary standard errors. Possible responses include modeling the variance, transforming the outcome when scientifically sensible, using a model family that matches the outcome, or reporting heteroscedasticity-consistent standard errors. The picture tells you a problem exists; theory tells you which response makes sense.
 
+<!-- ---Alex--- CH19-P03 deviation, and I think it is a real improvement, but it is
+your call. The item drafted the sentence "same slopes, more honest SEs when the
+spread misbehaves." That sentence would be FALSE here: I ran Breusch-Pagan and this
+data is not heteroscedastic (p = .19), because the chapter built it with constant
+variance. The SEs grow anyway, and the reason is participant 60. So the demo keeps
+the one-liner the item asked for but tells the truth about what it is reacting to,
+which turns an accident into the chapter's best callback. If you want the shorter
+version, cut the callout and keep the code plus the first paragraph. -->
+
+That last option is the one you will reach for most often, and it is two lines:
+
+```{r sandwich-se}
+library(lmtest)
+library(sandwich)
+
+coeftest(TherapyModel, vcov = vcovHC(TherapyModel, type = "HC3"))
+```
+
+Same slopes, different standard errors. The estimates are untouched, to the last decimal, because HC3 does not re-fit anything. It recomputes the uncertainty around the fit you already have, using the observed residuals instead of a promise that their variance is constant. `HC3` is the sensible default at psychology sample sizes; the other types differ in how hard they lean on high-leverage cases.
+
+Here that costs the attendance slope a standard error of `r round(coef(summary(TherapyModel))["Sessions", "Std. Error"], 2)` rising to `r round(sqrt(diag(sandwich::vcovHC(TherapyModel, type = "HC3")))["Sessions"], 2)`, so *t* falls from `r round(coef(summary(TherapyModel))["Sessions", "t value"], 2)` to about `r round(coef(TherapyModel)["Sessions"] / sqrt(diag(sandwich::vcovHC(TherapyModel, type = "HC3")))["Sessions"], 2)`. The conclusion does not change, which is the usual outcome and is not a reason to skip it.
+
+::: {.callout-note title="Be Honest About What the Sandwich Is Reacting To"}
+This dataset is not actually heteroscedastic. A Breusch-Pagan test on it returns $p =$ `r round(lmtest::bptest(TherapyModel)$p.value, 2)`, and the variance was built constant on purpose.
+
+So why did the standard errors grow? Participant 60. Robust standard errors are robust to non-constant variance, and they are also *responsive* to a single large residual sitting at high leverage. Refit without participant 60 and the attendance standard error barely moves at all: the HC3 and ordinary versions land within `r round(100 * abs(1 - sqrt(diag(sandwich::vcovHC(TherapyModel.60, type = "HC3")))["Sessions"] / coef(summary(TherapyModel.60))["Sessions", "Std. Error"]))`% of each other.
+
+The lesson is not that the sandwich lied. It is that "my robust standard errors are much larger than my ordinary ones" is itself a diagnostic finding, and the thing it most often points at is influence rather than spread. Go look at the case before you congratulate yourself for being rigorous.
+:::
+
+Finally, a shortcut worth knowing about now that you have built these plots by hand. `performance::check_model(TherapyModel)` produces most of this chapter's diagnostics as one annotated panel, with reference bands showing what the plots should look like when nothing is wrong. Use it. It is genuinely good, and it is much faster than what we just did.
+
+The hand-built versions still teach better, for the reason this whole chapter exists: a bundled panel tells you which plot looks unusual, and you still have to be the person who decides whether that matters, checks the case against the original records, and reports what changed. The software is obedient. You still have to be the adult in the room.
+
 ## The Short Story
 
-Diagnostics ask whether the model's leftovers behave as expected and whether a few observations control the conclusion. Plot residuals, inspect influence, respect clustering, and do not allow a significant coefficient to distract you from a visibly terrible model.
+- Diagnostics ask two questions: do the model's leftovers behave as assumed, and is a small number of observations writing the conclusion?
+- **Leverage is not influence.** Leverage is an unusual predictor pattern; influence is when removing the case moves the fit. A point needs both to matter.
+- **Screening thresholds are for finding cases, not deleting them.** $D_i > 4/N$ flagged three people here and only one of them changed anything.
+- **Refit without the influential case and report both models.** If one person reverses the result, that instability *is* the result. Reporting only the friendlier version is shopping with extra steps.
+- **A VIF is a precision meter, not a pass/fail test.** $\sqrt{VIF}$ is how much your standard error was inflated; the 5-and-10 rule is folklore.
+- **Independence is a design fact, not a residual pattern you can patch.** Clustered data needs a design-aware model, not a robust standard error and some optimism.
+- A significant coefficient is not a certificate. It is one number from a model that has not yet been checked.
