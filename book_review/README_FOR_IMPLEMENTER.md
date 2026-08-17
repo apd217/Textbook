@@ -21,33 +21,59 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## START HERE: Part 3 session, opened 2026-08-17
+## START HERE: status after the Part 3 session, 2026-08-17
 
-**Parts 1 and 2 are finished.** Chapters 1 through 18 are implemented, committed, and Alex has
-read and edited 14 through 18 himself. **Do not reopen any of them.** Everything below the
-"Chapter 18 session" heading is history, kept for the lessons, not for the task list.
+**Part 3 (chapters 19, 20, 21) is DONE and committed. Alex has not read it yet.** All ten items
+are implemented and marked, plus G01 and G02 where they applied. Three commits, one per chapter,
+on `review-implementation`. Not merged to main.
 
-### Your job: Part 3, "Okay, But What If It's Complicated?"
+| # | Chapter | Items | Commit |
+|---|---|---|---|
+| 19 | `Chapter_Advanced_Regression_Diagnostics.qmd` | P01, P02, P03, B01 + G02 | `684e754` |
+| 20 | `Chapter_Multiple_Comparisons.qmd` | P01, U01, U02 + G01, G02 | `2635bb5` |
+| 21 | `Chapter_Advanced_Interactions.qmd` | P01, P02, B01 + G02 | `94616c6` |
 
-Three chapters, all currently active in `_quarto.yml`:
+**Alex approved cold opens for 19 and 21 before implementation.** That is now five chapters
+running (15, 16, 18, 19, 21) where flagging a §15 failure and asking produced a yes. **Keep
+flagging openings.** Chapter 20 was checked and deliberately left alone: the dead-salmon opener
+is the §15 target state.
 
-| # | Chapter | Review file | Items | Notes |
-|---|---|---|---|---|
-| 19 | `Chapter_Advanced_Regression_Diagnostics.qmd` | `19_...md` | P01, P02, P03, B01 | ~1,350 words. YAML already clean, so it is the G01 template. |
-| 20 | `Chapter_Multiple_Comparisons.qmd` | `20_...md` | P01, U01, U02 | ~2,500 words. Reviewer called it one of the best chapters in the book. |
-| 21 | `Chapter_Advanced_Interactions.qmd` | `21_...md` | P01, P02, B01 | ~2,200 words. Grad-prep, maps onto Aiken & West. |
+**Both chapters roughly doubled in length** (19: 1,350 to 3,078 words; 21: 2,200 to 3,124;
+20: 2,500 to 3,183). That is the altitude Alex explicitly authorized for the grad-prep chapters,
+spent on demonstrations rather than prose. Em-dash density is 0.32 / 0.94 / 0.32, all at or under
+target. **If Alex thinks these grew too much, the cold opens and the `---Alex---` comments mark
+the removable seams.**
 
-**Ten items, all approved, none implemented.** Approval is not the gate; every item in 10 through
-26 was ticked on 2026-08-15.
+### What this session established, in priority order for whoever is next
 
-**These are the advanced chapters, and the audience changes.** Parts 1 and 2 serve undergraduates.
-These three are explicitly grad-prep and are labelled as such, so the altitude that got cut from
-Chapter 18 is allowed here. Do not flatten them the way Ch18's "Check the Model" was flattened.
-Chapter 18 is the one that had to stay gentle; these do not.
-
-**Suggested grouping:** 19 and 21 together (both are Advanced-labelled, both are "the sermon is
-preached but never demonstrated" items: CH19-P01, CH19-P02, CH19-P03 and CH21-P01, CH21-P02 all
-ask for code that shows a thing the text only describes). 20 can stand alone and is the lightest.
+1. **Running the numbers caught something in a sixth consecutive session, and this time it
+   caught the *review items* twice and my own draft prose twice.** CH19-P02's "optional"
+   simulation was mandatory (`vif()` returns 1.01 on that data). CH19-P03's drafted sentence was
+   false (Breusch-Pagan $p = .19$; the SEs grow because of participant 60, not heteroscedasticity).
+   And in Ch21 a first draft claimed the Johnson-Neyman region was well supported "because both
+   boundaries are inside the observed range" until counting revealed **1 participant of 240** in
+   one of the regions. **Counting the data inside a region is a distinct check from checking the
+   range, and only the second one is usually done.**
+2. **Look at rendered PNGs, always.** Ch19 had the participant-60 label clipped off the plot in
+   *two* figures (off the right edge in one, off the top in the other), invisible in the code and
+   obvious in the image. Ch21's J-N `fig-alt` was wrong in its first draft about where the slope
+   line crosses zero versus where the *band* does, which is the entire method.
+3. **Index `vcov()` and `coef()` by name, never by position.** In `Y ~ A * B` the second
+   predictor's variance is row 3. A scratch script indexed positionally and produced J-N roots of
+   $-47.7$ and $56.7$ with nothing erroring. Same family as the Ch17 Type III `(Intercept)` trap;
+   that is now two independent sightings, so treat positional indexing as a defect on sight.
+4. **Tune the design, never the seed.** Two Ch20 demos needed three calibration passes to show
+   anything (at n = 40/group no correction changed a conclusion). Both were fixed by changing
+   sample size and the number of null predictors, with `set.seed(343)` untouched throughout.
+5. **A cross-reference is worth checking for a debt already owed.** Two of this session's links
+   turned out to be promises the book had already made and never paid:
+   `Chapter_Multiple_Regression_Control.qmd:466` says "a later chapter measures exactly this with
+   something called *variance inflation*", and the categorical-predictors chapter says four-plus
+   groups need a real correction "which is what the Multiple Comparisons chapter is for". Both are
+   now paid. **Grep for forward promises before inventing a new connection.**
+6. **Linking to the two space-containing filenames needs URL encoding** in the `.qmd` source:
+   `](Chapter_Regression%20with%20Cat%20Variables.qmd)`. Quarto resolves it to
+   `./Chapter_Regression with Cat Variables.html`, matching its own sidebar nav. Verified.
 
 ### Before you touch anything
 
@@ -56,8 +82,20 @@ ask for code that shows a thing the text only describes). 20 can stand alone and
 2. `index.qmd`, the preface. It is a contract. Re-read it after each chapter too.
 3. The review file for the chapter you are on.
 4. **Check each chapter's opening against §15 before item work, and flag it rather than
-   rewriting.** Alex has said yes to a cold open three times running (15, 16, 18) when asked
-   first. He should not discover a voice pass in a diff.
+   rewriting.** Alex should not discover a voice pass in a diff.
+
+### What is left in the book
+
+**No `CHnn` item in `01` through `26` is outstanding.** What remains:
+
+- **Alex's reading pass on 19, 20 and 21.** Nothing else in Part 3 is blocked on anything.
+- **G05b, now unblocked** (see loose end 4 below): 28 invisible `library()` calls across 8
+  chapters. Alex answered the open question on 2026-08-17, so this is mechanical now.
+- **CH18-DUP01, now decided** (loose end 1): retire `Chapter_Mixed_Designs.qmd`. Not yet done.
+- **The commented-out draft chapters**, of which `Chapter_Advanced_Contrasts_ANOVA.qmd` is the
+  ripest and now the most natural next chapter, since Part 3's three active chapters are finished.
+- **G03, G04, G07, G09** and the other cross-cutting items that were never per-chapter work.
+- **Two Part 1 chapters above the em-dash target**, which nobody is authorized to touch.
 
 ### Hard-won rules that keep paying off
 
