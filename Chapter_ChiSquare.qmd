@@ -49,7 +49,7 @@ They are not assumption-free. Independence, sampling, measurement, and the desig
 
 ### Chi-Square
 
-Pearson's chi-square is often placed under the “nonparametric” umbrella because it does not model means with a normal error distribution. More precisely, it is a test for **categorical counts**. It is not the emergency version of a t-test to use whenever normality looks annoyed.
+Pearson's chi-square is often placed under the “nonparametric” umbrella because it does not model means with a normal error distribution. More precisely, it is a test for **categorical counts**. It is not the emergency version of a *t*-test to use whenever normality looks annoyed.
 
 Rather than asking: “How far is this group mean from another group mean?”
 

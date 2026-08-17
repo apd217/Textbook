@@ -169,7 +169,7 @@ When we get our regression output from R you see it as:
 - the **ConditionTexting coefficient represents the difference between Texting and No Distraction**
 
 
-### Comparing the Groups with a t-test
+### Comparing the Groups with a *t*-test
 
 We first test the hypothesis that texting increases reaction time.
 
@@ -215,7 +215,7 @@ Reminder:
 
 - `RT ~ Condition` tells R we are predicting **reaction time** from the **driving condition**
 - `data = dat2` specifies which dataset to use
-- `var.equal = TRUE` assumes equal variances across groups (the standard Student t-test)
+- `var.equal = TRUE` assumes equal variances across groups (the standard Student *t*-test)
 
 
 ### Print the Results in APA Format
@@ -261,13 +261,13 @@ model2 <- lm(RT ~ Condition, data = dat2)
 summary(model2)
 ```
 
-### Why Are the t-values the Same?
+### Why Are the *t*-values the Same?
 
 Stop and compare two numbers before going any further, because this is the whole point of the section.
 
 In the `ConditionTexting` row above: $t =$ `r round(summary(model2)$coefficients[2,3], 2)`, $p < .001$.
 
-Back in the t-test: $t =$ `r round(texting.ttest$statistic, 2)`, $p < .001$.
+Back in the *t*-test: $t =$ `r round(texting.ttest$statistic, 2)`, $p < .001$.
 
 Same magnitude, opposite sign. Not similar. *Identical.*
 
@@ -277,7 +277,7 @@ The sign flip is bookkeeping: `t.test()` subtracted in the order No Distraction 
 - Its standard error **is** the pooled standard error of that difference.
 - Dividing one by the other is precisely what the *t*-test did.
 
-One condition on that equivalence, and it is worth naming. It holds because we ran the t-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student *t*-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
+One condition on that equivalence, and it is worth naming. It holds because we ran the *t*-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student *t*-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
 
 The regression equation is
 
@@ -576,7 +576,7 @@ If we used *t*-tests, we would need three comparisons:
 
 Running multiple tests increases the probability of a **Type I error**.
 
-If $\alpha = .05$, then the probability of at least one false positive ($1-(1-\alpha)^j$) [$j$ = # of t-tests]: 
+If $\alpha = .05$, then the probability of at least one false positive ($1-(1-\alpha)^j$) [$j$ = # of *t*-tests]: 
 
 $$
 1 - (1 - .05)^3
@@ -852,7 +852,7 @@ This figure shows the **model-estimated mean reaction time for each driving cond
 - R represents a categorical predictor with numeric contrast variables.
 - Under ordinary treatment/dummy coding, the intercept is the reference-group mean.
 - Each category coefficient is that group's difference from the reference group.
-- With two groups, the regression test is equivalent to an independent-samples t-test under the matching variance assumptions.
+- With two groups, the regression test is equivalent to an independent-samples *t*-test under the matching variance assumptions.
 - With three or more groups, the overall model asks whether the group means are all equal; follow-ups ask which contrasts differ.
 - Changing the reference group changes the coefficient labels, not the fitted group means or the underlying data.
 - Set factor levels deliberately. Otherwise R may select a reference group alphabetically, because the alphabet has apparently been granted authority over your scientific question.

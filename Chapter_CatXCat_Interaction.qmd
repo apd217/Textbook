@@ -351,7 +351,7 @@ cat("Interaction model R-squared: ", round(R2.2, 3), "\n")
 cat("Change in R-squared:         ", round(R2.2 - R2.1, 3), "\n")
 ```
 
-The interaction model explains substantially more variance. The F-test ($\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`, $F(`r delta_df1`, `r delta_df2`) =$ `r delta_F`, $p < .001$) confirms that this improvement is far larger than would be expected by chance. Adding the interaction term was worth it.
+The interaction model explains substantially more variance. The *F*-test ($\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`, $F(`r delta_df1`, `r delta_df2`) =$ `r delta_F`, $p < .001$) confirms that this improvement is far larger than would be expected by chance. Adding the interaction term was worth it.
 
 
 ## Interpreting the Interaction Model
@@ -529,7 +529,7 @@ In the full interaction model ($R^2 =$ `r round(R2.2, 3)`, adjusted $R^2 =$ `r r
 **Things to notice about this write-up:**
 
 - We report **Cohen's *d*** alongside the simple effects, since the comparisons are between two categorical groups. This is the appropriate effect size for a two-group mean difference.
-- The **model comparison** ($\Delta R^2$, F-test) is still the primary test of the interaction, exactly as in the prior chapter.
+- The **model comparison** ($\Delta R^2$, *F*-test) is still the primary test of the interaction, exactly as in the prior chapter.
 - We describe the interaction in plain language: *"the benefit of high agreeableness ... is conditional on social engagement."*
 - The **main effects** from the interaction model are not heavily emphasized. In the presence of a significant interaction, they represent effects at the reference level of the other variable (simple effects), not population-level averages.
 

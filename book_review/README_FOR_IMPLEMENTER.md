@@ -21,35 +21,100 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## Status as of 2026-08-16 (read before starting Part 2)
+## Status as of 2026-08-16, end of the 14+15 session (READ THIS FIRST)
 
-**Chapters 14 and 15 are done.** Every item in both is implemented or explicitly marked as
-needing no change: CH15-P01, P02, U01 and CH14-B01, P01, U01. Alex has not read them yet.
+**Chapters 14 and 15 are finished and Alex has read and edited both.** Every item is
+implemented or marked as needing no change: CH14-B01, P01, U01 and CH15-P01, P02, U01.
+Chapter 15 also got a full voice pass, approved by Alex mid-session, logged as CH15-VOICE in
+`15_Hierarchical_Regression.md`. Do not reopen either chapter without instruction.
 
-Three things from that session the next one needs:
+**Your job is chapters 16 (Interaction_1) and 17 (CatXCat), together.** The grouping is not
+optional: CH16-P01 and CH17-P02 are the same bug wearing two hats. See below.
 
-- **CH15-P02 was implemented in the opposite direction from its text**, and any item written
-  before the reorder may have the same defect. The item said "you met this in the Control
-  chapter"; Control is now the chapter *after* Hierarchical, so it became a forward pointer.
-  Before implementing any Part 2 item that references another chapter, check the order in
-  `_quarto.yml` rather than trusting the item.
-- **The em-dash cleanups are down to one.** Hierarchical Regression went from 9.48 per 1000
-  words to the floor. `Chapter_CatXCat_Interaction` at 5.35 is the last one outstanding and
-  belongs to the 16+17 session. `Chapter_Distro_Moments` at 6.45 is Part 1 and finished, so
+### The five things that will actually bite you
+
+1. **Items written before the Part 2 reorder can point the wrong way. Check `_quarto.yml`,
+   never the item.** CH15-P02 said "you met this quantity in the Control chapter." After the
+   reorder Control comes *after* Hierarchical, so the whole sentence had to flip into a
+   forward pointer. The order today is: Multiple Regression, **Hierarchical**, **Control**,
+   Interaction_1, CatXCat, Mixed Regression. Any item that says "previous chapter," "earlier,"
+   or "we saw in" is a claim to verify, not a fact.
+
+2. **An item can be wrong about its own numbers.** CH15-P02 implied Hierarchical and Control
+   share the $sr^2$ value. They do not: Hierarchical residualizes Anxiety ($sr^2 = .067$),
+   Control residualizes Study Hours ($sr^2 = .110$). Same identity, different predictor. Run
+   the numbers before you write a sentence claiming two chapters match.
+
+3. **Alex's own edits sometimes need repair, and he expects you to catch it.** In this session
+   his Ch15 pass introduced two real defects: dropping "sequential" as a synonym left the
+   disambiguation callout saying hierarchical regression is also called hierarchical
+   regression, and `R^2` typed outside math renders as a literal caret, "R^2", in the heading
+   *and* the TOC. Both were fixed and flagged back to him. **Re-render and re-read after he
+   edits.** Do not assume his version is clean just because it is his.
+
+4. **`R^2` outside math is a live bug elsewhere in the book.** Pandoc needs `R^2^` or `$R^2$`.
+   `Chapter_Multiple_Regression_Control.qmd` still has it in three headings (lines 329, 389,
+   395) and is marked finished, so it needs Alex's say-so. The correct pattern is
+   `## Residual Variance and $R^2$` in Intro_to_regression.
+
+5. **`check_render_safety.R` counts differently since 2026-08-16.** It now strips HTML
+   comments and YAML fences, so every chapter's number dropped by about two, and a clean file
+   reports **1**, not 0. Treat 1 as the floor. Numbers written before that date read about two
+   high. The change exists because three `---Alex---` notes used to fake a spike of 6.
+
+### What is done, so you do not redo it
+
+- **Em-dash cleanups: one left.** Hierarchical went 9.48 to the floor. **`Chapter_CatXCat_Interaction`
+  at 5.35 is yours**, in this session. `Chapter_Distro_Moments` at 6.45 is Part 1 and finished;
   leave it unless Alex asks.
-- **`check_render_safety.R` counts differently now.** It strips HTML comments and the YAML
-  fences, so every chapter's number dropped by about two and a clean file reports 1 rather
-  than 0. Treat 1 as the floor. This was fixed because three `---Alex---` notes in a chapter
-  used to produce a false em-dash spike of 6, which would have sent the next session chasing
-  dashes that did not exist.
+- **Italic *t* and *F*: done book-wide, 2026-08-16**, 76 symbols across 15 chapters, at Alex's
+  request. Only the hyphenated compounds were swept (`*t*-test`, `*F*-test`, `*t*-value`,
+  `*F*-statistic`, `*t*-distribution` and friends). **Bare `t` and `F` were deliberately left
+  alone** and you should leave them alone too: a survey found 44 "bare t" hits that were mostly
+  `don't`, and the "bare F" hits were inside multi-line `$$` blocks plus Bootstrapping's `t(F)`
+  functional notation, which is real math. The sweep script is
+  `book_review/tools/italicize_tF.R`; it protects YAML, code chunks, `#|` option lines
+  (`fig-alt` especially, where markdown is not parsed and asterisks would be read aloud),
+  inline code, and math. Run it dry first. **Not yet swept: `p`, `r`, `M`, `SD`, `N`, `df`.**
+  APA italicizes those too. Ask Alex before extending.
+- **G01 (YAML strip), G02 (`fig-alt`), G10 (callout types)** are applied in 10 through 15 as
+  each chapter was touched. Chapters 16 and 17 still carry dead `format:` blocks, and Ch16/17
+  additionally carry an `html:` block. `callout-danger` is gone book-wide; the convention is
+  now written at the top of `_quarto.yml`.
 
-**Left for Alex on chapters 14 and 15:** three `---Alex---` notes, all in
-`Chapter_Hierarchical_Regression.qmd`, plus one in `Chapter_Control.qmd` recording the
-verified FWL standard errors. The biggest one is a scope flag, not an edit: **Chapter 15
-reads dryer than anything else in Part 2.** About 3,000 words carrying two jokes, no figure
-until three quarters of the way down, and an opening that recaps rather than showing
-anything. By the preface's own contract that is a breach, the same one Chapter 10's middle
-had. No approved item covers it, so nothing was changed. It wants its own voice pass.
+### Chapters 16 and 17: what the grouping is for
+
+**CH16-P01 and CH17-P02 are one bug.** The DV is a 0 to 100 closeness thermometer and both
+chapters keep calling it a count of friends. Fix it in one and not the other and the book
+contradicts itself. Chapter 16 already has the contradiction *internally*: the study is
+described with a thermometer at the top, and the hypothesis plots are labelled "Predicted New
+Friends". These are also the two largest files in Part 2, 44KB and 36KB.
+
+Before you start: re-read `VOICE_GUIDE.md` §15 and check both chapter openings. Ch16 opens on
+"Where We Are and Where We Are Going", which is a recap, the same failure Ch10 and Ch15 had.
+Chapter 15's cold open is the freshest worked example of the fix.
+
+**Alex has already been editing Ch16 by hand.** As of this session: "in the course" became
+"in the book" (three places, one of which he missed and was completed for him), and the
+z-score formula became `$$Z = \frac{X - M}{S}$$` to match Distro_Moments and Covariance. Diff
+against `git log` before assuming anything about that file's state.
+
+### What the Chapter 15 voice pass established, which 16 and 17 can reuse
+
+The cold open that worked was a **demonstration that indicts the tool**: ten columns of
+`rnorm()` added to a real model, $R^2$ climbing every time. It landed because the numbers were
+real and slightly embarrassing (ten junk predictors bought $\Delta R^2 = .063$, the one real
+predictor bought $.067$), and because the same device came back twice later as a callback: a
+5,000-run null distribution that motivates the F-test, and the junk columns re-entered as a
+block to show the test correctly killing them. **Plant, then pay off twice.** Alex kept all of
+it and added to it.
+
+Two process notes from that pass. **Verify before you write**, every time: the F equals t
+squared claim, the FWL standard errors, and the simulation-versus-formula agreement were all
+run first and the prose written to match, which is why none of them needed correcting. And
+**flag rather than smuggle**: the voice pass happened because the dryness was raised as an
+`---Alex---` note and a line in this file, and Alex then asked for it. He says yes to scope
+expansion when you ask. He should not have to discover it in a diff.
 
 ## Status as of 2026-08-15
 

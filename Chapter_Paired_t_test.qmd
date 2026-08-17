@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 ::: {.callout-note title="The Same People Have Returned"}
-Use a paired-samples t-test when the **same people are measured twice** or when observations form meaningful pairs. The two scores from one person know each other. Pretending they are independent is statistical identity theft.
+Use a paired-samples *t*-test when the **same people are measured twice** or when observations form meaningful pairs. The two scores from one person know each other. Pretending they are independent is statistical identity theft.
 
 The central idea is simple: turn each pair into one difference score, then ask whether the average difference is zero. That is the whole test. Nobody needs a random effect yet. The random effects are waiting in a later chapter, and they will want receipts.
 :::
@@ -47,7 +47,7 @@ Measuring someone twice buys you statistical power (an easier time seeing an eff
 - **Fatigue effects.** They get worse on the task because they are tired and would like to go home. *I tried to lock the doors, but Fire Marshal Bill paid me a visit.*
 - **Carryover.** The first condition is still working on them when the second one starts. *The accumulation of experience, always causing problems.*
 
-Here is the problem for our study. If every student sits through the no-chocolate lecture first and the chocolate lecture second, then "chocolate increased fixation time" and "students settled down in the second session" are the same sentence. No t-test can separate them, because nothing in the data distinguishes them.
+Here is the problem for our study. If every student sits through the no-chocolate lecture first and the chocolate lecture second, then "chocolate increased fixation time" and "students settled down in the second session" are the same sentence. No *t*-test can separate them, because nothing in the data distinguishes them.
 
 The fix is **counterbalancing**. Half the students get chocolate first and half get it second. Order effects still happen, but now they land on both conditions equally and cancel out of the comparison. So assume we counterbalanced, because we are professionals.
 
@@ -168,7 +168,7 @@ $$
 t=\frac{M_D-0}{S_D/\sqrt{n}}
 $$
 
-This is the one-sample t-test from the earlier chapter. The paired t-test does not compare two unrelated piles of scores. It reduces every pair to one difference and tests the set of differences.
+This is the one-sample *t*-test from the earlier chapter. The paired *t*-test does not compare two unrelated piles of scores. It reduces every pair to one difference and tests the set of differences.
 
 ```{r paired-t-test}
 paired_result <- t.test(
@@ -277,7 +277,7 @@ That is the whole argument for within-subjects designs, and it is why the design
 
 ## Assumptions That Actually Matter
 
-For the paired-samples t-test:
+For the paired-samples *t*-test:
 
 - the observations form genuine pairs;
 - different pairs are independent of one another;
@@ -369,10 +369,10 @@ So: repeated measures usually *do* buy power, sometimes dramatically. But do not
 
 ## The Short Story
 
-- Use a paired-samples t-test when observations form genuine pairs.
+- Use a paired-samples *t*-test when observations form genuine pairs.
 - The same person measured twice is the most common paired design.
 - Compute one difference score for each pair.
-- A paired-samples t-test is a one-sample t-test on those differences.
+- A paired-samples *t*-test is a one-sample *t*-test on those differences.
 - The unit of analysis is the pair, not the individual measurement.
 - Inspect the distribution and outliers of the **differences**.
 - Report the mean change, confidence interval, p-value, and the specific paired effect size you used.

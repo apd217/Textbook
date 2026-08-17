@@ -414,7 +414,7 @@ knitr::kable(anova(Model.1, Model.2), digits = 3,
              caption = "Model Comparison: Additive vs. Interaction")
 ```
 
-The interaction model explains substantially more variance than the additive model. The F-test is significant, meaning that the improvement in $R^2$ ($\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`) is far larger than we would expect by chance. Adding the interaction term was worth it. The two lines are not parallel in the population.
+The interaction model explains substantially more variance than the additive model. The *F*-test is significant, meaning that the improvement in $R^2$ ($\Delta R^2 =$ `r round(R2.2 - R2.1, 3)`) is far larger than we would expect by chance. Adding the interaction term was worth it. The two lines are not parallel in the population.
 
 Let's also check the residuals from the interaction model:
 
@@ -627,7 +627,7 @@ In the full interaction model ($R^2 =$ `r round(R2.2, 3)`, adjusted $R^2 =$ `r r
 
 **A few things to notice about this write-up:**
 
-- We report the **model comparison** (the $\Delta R^2$ and its F-test) as the primary test of whether an interaction exists.
+- We report the **model comparison** (the $\Delta R^2$ and its *F*-test) as the primary test of whether an interaction exists.
 - We then report the **interaction coefficient** ($b$, $SE$, $t$, $p$) from the full model.
 - We follow up with **simple slopes** (the slope of the continuous variable separately for each group) to explain *what* the interaction looks like. The interaction tells us the slopes differ; the simple slopes tell us how.
 - We use the phrase **"the effect of X was conditional on Z"** to describe an interaction in plain language.

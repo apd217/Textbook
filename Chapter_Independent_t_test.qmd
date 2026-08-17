@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 
 ::: {.callout-note title="Two Groups, and Now Both of Them Bounce"}
-Use an independent-samples t-test when **two different sets of people** are each measured once and you want to know whether the groups differ.
+Use an independent-samples *t*-test when **two different sets of people** are each measured once and you want to know whether the groups differ.
 
 This is the workhorse of experimental psychology. Two groups, one measurement each, and random assignment deciding who went where. A very large share of the experiments you will read are exactly this shape, which means you will spend far more of your career reading this test than running it.
 
@@ -137,7 +137,7 @@ This is not easy here, cause I am randomly sampling subway riders. Does the time
 
 ## Step 3: Compute the Standard Error
 
-For **Welch's t-test**, which R uses by default, the standard error is:
+For **Welch's *t*-test**, which R uses by default, the standard error is:
 
 $$
 S_{M_1-M_2}=\sqrt{\frac{S_1^2}{n_1}+\frac{S_2^2}{n_2}}
@@ -157,7 +157,7 @@ Welch's test does not assume equal population variances. In other words, we do n
 
 Imagine the chaotic subway causes more varied feelings: some riders LOVE it and some HATE it. The clockwork one does not draw opinions that strong, so people give a narrower range of ratings. Now suppose that by pure luck you sampled too many of the HATE it crowd on the chaotic subway. It would make you think the chaotic system was more hated than it really is.
 
-So Welch's t-test corrects this problem by shrinking our estimate of the degrees of freedom (*df*). Remember that our *df* sets the critical values of the *t*-distribution. By shrinking our *df*, we push those critical values further out into the tails of the distribution, so a result has to be more extreme before we are allowed to make our decision. Thus we make our test more conservative, harder to say something is there when it is not. Remember type I error, which is a bad thing to do.
+So Welch's *t*-test corrects this problem by shrinking our estimate of the degrees of freedom (*df*). Remember that our *df* sets the critical values of the *t*-distribution. By shrinking our *df*, we push those critical values further out into the tails of the distribution, so a result has to be more extreme before we are allowed to make our decision. Thus we make our test more conservative, harder to say something is there when it is not. Remember type I error, which is a bad thing to do.
 
 ::: {.callout-tip title="Layers of Knowledge, and Why Your Brain Is Not Broken"}
 Have you noticed that in this one section I had to call back to degrees of freedom, the *t*-distribution, type I error, and several other concepts? This is the part about statistics that freaks people out. You have to actually remember what you learned before.
@@ -232,7 +232,7 @@ t.test(Liking ~ Condition, data = CTA.df, var.equal = TRUE)
 
 Same number. The machine just does math faster.
 
-R uses **Welch's t-test** by default because it does not require the two populations to have equal variances. That is usually the safer choice. The pooled formula above is still useful because it makes the basic machinery visible, but we should not force equal variances merely because ancient papers did it that way. Also, we have these things called computers now. We do not do this by hand anymore.
+R uses **Welch's *t*-test** by default because it does not require the two populations to have equal variances. That is usually the safer choice. The pooled formula above is still useful because it makes the basic machinery visible, but we should not force equal variances merely because ancient papers did it that way. Also, we have these things called computers now. We do not do this by hand anymore.
 
 ```{r welch-test}
 #| echo: true
@@ -252,7 +252,7 @@ Four things, and they are not equally dangerous.
 
 **Independence.** Each rider answers alone. If you survey five friends traveling together, you have one opinion wearing five coats, and the model, which believes it met five strangers, becomes confident in ways it has not earned. This is the assumption that actually kills studies, and no amount of statistical fanciness resurrects them. When you genuinely cannot avoid it, because you measured the same person twice or sampled whole classrooms, you need a model that knows about the grouping, which is where mixed models come in later.
 
-**Random assignment.** Nothing about the arithmetic knows how riders ended up in their groups. The reason we can talk about the 7-minute schedule *causing* anything is that chance built the groups, so the schedule is the only systematic difference between them. Let people choose their own condition and you have a quasi-experiment, the same t-test, and a much weaker sentence at the end of it.
+**Random assignment.** Nothing about the arithmetic knows how riders ended up in their groups. The reason we can talk about the 7-minute schedule *causing* anything is that chance built the groups, so the schedule is the only systematic difference between them. Let people choose their own condition and you have a quasi-experiment, the same *t*-test, and a much weaker sentence at the end of it.
 
 **Normality, roughly.** The test assumes the *sampling distribution of each mean* is approximately normal. With 30 people per group the Central Limit Theorem does most of that work for you. Look at the histograms anyway.
 
@@ -288,7 +288,7 @@ The bars would look exactly the same if every rider in a group had given the ide
 
 ## Step 6: Extract the Values for the APA Write-Up
 
-Formatting packages can be convenient, but some do not support Welch's t-test. We can extract the values directly and avoid letting a package bully us back into an equal-variance assumption.
+Formatting packages can be convenient, but some do not support Welch's *t*-test. We can extract the values directly and avoid letting a package bully us back into an equal-variance assumption.
 
 ```{r, echo=TRUE}
 # The $ pulls one piece out of the t.test object by name.
@@ -357,7 +357,7 @@ Participants in the every-7-minutes condition ($M =$ `r round(M1, 2)`, $SD =$ `r
 In this simulated experiment, increasing train frequency produced a very large difference in reported attitudes. In real life, the CTA has declined our invitation to be manipulated with `set.seed(343)`.
 
 ::: {.callout-important title="Welch by Default; Effect Size Beside It"}
-Welch's t-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The p-value cannot tell the reader how far apart the groups are.
+Welch's *t*-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The p-value cannot tell the reader how far apart the groups are.
 :::
 
 ## Power: How Many Riders Would You Actually Need?
@@ -442,16 +442,16 @@ A true $d$ of .8 estimated from five people per group is meaningfully inflated. 
 
 ## The Short Story
 
-- An independent-samples t-test compares two separate groups: the difference between the means, divided by the standard error of that difference.
+- An independent-samples *t*-test compares two separate groups: the difference between the means, divided by the standard error of that difference.
 - Welch's version is R's default and the better habit. The pooled version assumes equal variances and is what your lab computes by hand to show you the machinery.
 - Formula syntax (`Liking ~ Condition`) is the shape everything in Part 2 will use. R subtracts groups in factor-level order, so if the sign looks backwards, check your levels before you check your arithmetic.
-- Random assignment, not the t-test, is what licenses a causal sentence.
+- Random assignment, not the *t*-test, is what licenses a causal sentence.
 - Cohen's $d$ puts the gap in pooled standard-deviation units. Report the interval and the effect size; a lone p-value tells the reader nothing about size.
 
 ::: {.callout-note title="Which Test Comes Next?"}
-Use the independent-samples t-test when two *different* groups of people are compared on one measure.
+Use the independent-samples *t*-test when two *different* groups of people are compared on one measure.
 
-If you measured the **same people twice**, the groups are not independent and this test is the wrong tool. Continue to the [paired-samples t-test chapter](Chapter_Paired_t_test.qmd), where the fact that Rider 12 appears in both columns stops being a problem and starts being the whole point.
+If you measured the **same people twice**, the groups are not independent and this test is the wrong tool. Continue to the [paired-samples *t*-test chapter](Chapter_Paired_t_test.qmd), where the fact that Rider 12 appears in both columns stops being a problem and starts being the whole point.
 
-If you have **more than two groups**, or a predictor that is a number rather than a label, the t-test runs out of road. Part 2 rebuilds all of this as regression, which handles both without complaint.
+If you have **more than two groups**, or a predictor that is a number rather than a label, the *t*-test runs out of road. Part 2 rebuilds all of this as regression, which handles both without complaint.
 :::

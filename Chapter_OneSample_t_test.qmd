@@ -468,8 +468,8 @@ $$
 S_M = \frac{s}{\sqrt{n}}
 $$
 
-We can do the math by hand, or use the t-test function in R. 
-t-test by hand: 
+We can do the math by hand, or use the *t*-test function in R. 
+*t*-test by hand: 
 
 ```{r, echo=TRUE}
 M = mean(kids.1)
@@ -481,7 +481,7 @@ t.kids <- (M - Mu) / (s/sqrt(n))
 t.kids
 
 ```
-one sample t-test in R:
+one sample *t*-test in R:
 
 ```{r}
 Kids.t.test <- t.test(x = kids.1, #we put the vector of scores in
@@ -537,9 +537,9 @@ Our $t_{critical}$ values for $df = `r df`$ would be:
 - $t_{lower}$ < `r round(t_lower, 3)` 
 - $t_{upper}$ > `r round(t_upper, 3)`
 
-This t-test value is greater than our upper value. 
+This *t*-test value is greater than our upper value. 
 
-Further from the R t-test function, we can see our exact p-value which is below $p < .05$.
+Further from the R *t*-test function, we can see our exact p-value which is below $p < .05$.
 
 ::: {.callout-important title="The p-Value, Actually Defined (That IOU from Chapter 1)"}
 Back in Chapter 1 I promised you a real definition of statistical significance once you had some probability theory. Here it is, at the first moment you actually need it.
@@ -551,7 +551,7 @@ Look back at the shaded red tails in the figure above. Your observed $t$ lands s
 Note what the definition does not say. It is a statement about the data given an assumption, not a statement about the assumption given the data. It is not the probability that the null hypothesis is true, not the probability that you are wrong, and not the probability that the result will replicate.
 :::
 
-We can also see the 95 percent confidence interval from our R t-test function, and that range does NOT include $\mu = 50$, which is another way of seeing that our result is bigger than chance alone would produce.
+We can also see the 95 percent confidence interval from our R *t*-test function, and that range does NOT include $\mu = 50$, which is another way of seeing that our result is bigger than chance alone would produce.
 
 ### Make a Decision
 
@@ -570,7 +570,7 @@ There are two possible outcomes:
 - We report: $t_{test}$ = `r round(Kids.t.test$statistic, 3)`, $p =$ `r round(Kids.t.test$p.value, 3)` (since we know the exact p-value).
 - In modern APA format, it is recommended to report the exact p-value.
 
-### One-sample t-test in APA format
+### One-sample *t*-test in APA format
 
 
 Written the way it would appear in a paper, our result looks like this:
@@ -627,7 +627,7 @@ You met the extreme version of this in the [Probability chapter](Chapter_Probabi
 
 ### The Short Story
 
-- A one-sample t-test compares a sample mean with a hypothesized population value.
+- A one-sample *t*-test compares a sample mean with a hypothesized population value.
 - The t statistic is the observed difference divided by its standard error.
 - A p-value measures compatibility with the null model; it is not the probability that the null is true.
 - “Fail to reject” does not mean “prove no effect.” Sometimes the study simply arrived carrying a tiny sample and no flashlight.
@@ -638,11 +638,11 @@ The numerator is how far the sample mean sits from the null value. The denominat
 :::
 
 ::: {.callout-note title="What Comes Next?"}
-**Straight ahead** is the [power and effect size chapter](Chapter_Power_Effect_Size.qmd), and it is not optional scenery. It explains the $d$ we just dangled in front of you, it covers Type I and Type II error, and it answers the only question anyone actually asks before running a study: how many people do I need? Read it before the other two t-tests, because both of them assume it.
+**Straight ahead** is the [power and effect size chapter](Chapter_Power_Effect_Size.qmd), and it is not optional scenery. It explains the $d$ we just dangled in front of you, it covers Type I and Type II error, and it answers the only question anyone actually asks before running a study: how many people do I need? Read it before the other two *t*-tests, because both of them assume it.
 
-After that, the remaining two t-tests are variations on what you already know.
+After that, the remaining two *t*-tests are variations on what you already know.
 
-Use the one-sample t-test when one group is being compared with one number. If you want to ask whether **Group A differs from Group B**, continue to the [independent-samples t-test chapter](Chapter_Independent_t_test.qmd). For example, you might compare the running speed of one group of undergraduates chased by a goose with a completely different group chased by two geese. The ethics board will compare your application with a paper shredder.
+Use the one-sample *t*-test when one group is being compared with one number. If you want to ask whether **Group A differs from Group B**, continue to the [independent-samples *t*-test chapter](Chapter_Independent_t_test.qmd). For example, you might compare the running speed of one group of undergraduates chased by a goose with a completely different group chased by two geese. The ethics board will compare your application with a paper shredder.
 
-If you measure the **same people twice**, continue to the [paired-samples t-test chapter](Chapter_Paired_t_test.qmd). For example, you might measure the same students' stress before and after telling them that the group presentation they forgot about has been moved to today. Same humans, two measurements, one sudden desire to transfer universities.
+If you measure the **same people twice**, continue to the [paired-samples *t*-test chapter](Chapter_Paired_t_test.qmd). For example, you might measure the same students' stress before and after telling them that the group presentation they forgot about has been moved to today. Same humans, two measurements, one sudden desire to transfer universities.
 :::

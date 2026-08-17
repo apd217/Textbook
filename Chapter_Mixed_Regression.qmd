@@ -28,7 +28,7 @@ A mixed design combines a **between-subjects** variable with a **within-subjects
 Our strategy is to ask one question at a time: Where are the repeated observations? What does each fixed coefficient mean? How are people allowed to differ? What comparison answers the research question?
 :::
 
-The [paired-samples t-test chapter](Chapter_Paired_t_test.qmd) handled one clean comparison between two measurements from the same person. This chapter begins when the design grows up and acquires complications: more occasions, a between-person group, individual trajectories, missing observations, or several of these problems arriving together in a trench coat.
+The [paired-samples *t*-test chapter](Chapter_Paired_t_test.qmd) handled one clean comparison between two measurements from the same person. This chapter begins when the design grows up and acquires complications: more occasions, a between-person group, individual trajectories, missing observations, or several of these problems arriving together in a trench coat.
 
 ## The Design
 

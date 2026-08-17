@@ -210,7 +210,7 @@ str(study)
 
 The `$` pulls one column out of a data frame. Now `therapy` is a factor with two levels instead of loose text.
 
-Do this every time. When you run a t-test or a regression later, R has to know that CBT and Control are two groups being compared, not two words it happened to find lying around.
+Do this every time. When you run a *t*-test or a regression later, R has to know that CBT and Control are two groups being compared, not two words it happened to find lying around.
 
 ### Count Them
 

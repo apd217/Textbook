@@ -35,7 +35,7 @@ This is the longest chapter in the book, so here is the map before you start.
 
 Before we can talk about power, we have to admit something uncomfortable about small samples.
 
-Recall that the standard error is the standard deviation of sample means. Let us build a population for children's hyperactivity scores, the same population from the one-sample t-test chapter, with $\mu = 50$ and $\sigma = 5$.
+Recall that the standard error is the standard deviation of sample means. Let us build a population for children's hyperactivity scores, the same population from the one-sample *t*-test chapter, with $\mu = 50$ and $\sigma = 5$.
 
 ```{r population-pdf}
 #| echo: false
@@ -132,7 +132,7 @@ The red line is the truth, $\sigma = 5$. Notice the histogram is **not centered 
 
 That is not a rounding artifact, it is a known bias, and the theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of $S$ works out to `r round(sqrt(2/12)*gamma(6.5)/gamma(6)*5, 3)`. Our 5,000 simulated studies averaged `r round(mean(Sample.SD),3)`. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.
 
-Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known $\sigma$ and started using a sample $S$ as an approximation, and it is why we have a t-distribution at all.
+Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known $\sigma$ and started using a sample $S$ as an approximation, and it is why we have a *t*-distribution at all.
 
 ::: {.callout-important title="This Is the Whole Reason Power Exists"}
 Your sample gives you one guess about the mean and one guess about the spread. Both guesses bounce around, and the smaller the sample, the harder they bounce. Worse, the guess about the spread does not bounce evenly. It lands low more often than high, in a direction that flatters you.
@@ -183,7 +183,7 @@ Psychology and neuroscience have historically obsessed over Type I error and tre
 
 Given that I must estimate my standard error from an $S$ that bounces around, I need a way to say how "big" an effect is in the first place.
 
-The one-sample t-test chapter ended by handing you a $d$ and refusing to explain it. Here is the explanation.
+The one-sample *t*-test chapter ended by handing you a $d$ and refusing to explain it. Here is the explanation.
 
 Cohen borrowed the idea from signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The question there was: how strong must a signal be before you can detect it over the noise? For us, the noise is the control condition and the signal is the effect of the treatment.
 
@@ -484,7 +484,7 @@ There is no consensus in the literature beyond "interpret with caution," and I s
 
 ## Estimating A Priori Power in R
 
-Base R ships with a power function for t-tests. No package required.
+Base R ships with a power function for *t*-tests. No package required.
 
 It needs five pieces of information, and you already know all of them by other names:
 
@@ -518,7 +518,7 @@ power.t.test(delta = 0.4, sd = 1, ...)   # this is d = .4
 Everything in this chapter uses that convention. If you ever want to work in raw units instead, supply both the real `delta` and the real `sd` and it will happily oblige.
 :::
 
-The `type` argument picks which t-test you mean:
+The `type` argument picks which *t*-test you mean:
 
 | `type` | Design | What `n` means |
 |--------|--------|----------------|
@@ -688,7 +688,7 @@ par(op)
 With 25 people you need a whopping effect before you are likely to find anything. With 100, medium effects come into range. The curves are S-shaped, not straight, which means there is a region where adding a few participants helps enormously and a region where it barely matters at all.
 
 ::: {.callout-note title="Power for the Other Two t-Tests Lives With Those Tests"}
-Everything above used `type = "one.sample"`, because the one-sample t-test is the only one you have met so far.
+Everything above used `type = "one.sample"`, because the one-sample *t*-test is the only one you have met so far.
 
 The other two work identically, with one argument changed. Rather than teach them here to a reader who has not seen the tests yet, each one waits in its own chapter:
 
@@ -706,7 +706,7 @@ Come back here for the concepts. Go there for the arithmetic.
 - Effect size lives in standard deviation units. Significance lives in standard error units. Adding participants narrows the curves without moving the peaks.
 - Compute power **before** you run the study. Post-hoc power is a restatement of your p-value wearing a disguise.
 - `power.t.test()` solves for whatever you leave `NULL`. Set `sd = 1` and put $d$ in `delta`.
-- The other two t-tests use the same function with `type` changed, and each is powered in its own chapter. For `two.sample`, `n` is per group, so double it. For `paired`, `n` is the number of pairs and `delta` is $d_z$.
+- The other two *t*-tests use the same function with `type` changed, and each is powered in its own chapter. For `two.sample`, `n` is per group, so double it. For `paired`, `n` is the number of pairs and `delta` is $d_z$.
 - Non-significant does not mean no effect. Very often it means no chance.
 
 ---
@@ -825,7 +825,7 @@ Powering a replication off a point estimate like that is not a calculation. It i
 
 ## When the Formula Will Not Do: Simulate
 
-`power.t.test()` handles t-tests. The moment your design gets more complicated, unequal group sizes, non-normal outcomes, planned attrition, an outcome measured on a bounded scale, the closed-form solution runs out.
+`power.t.test()` handles *t*-tests. The moment your design gets more complicated, unequal group sizes, non-normal outcomes, planned attrition, an outcome measured on a bounded scale, the closed-form solution runs out.
 
 The general-purpose answer is to simulate. Build the world you expect, run your analysis on it thousands of times, and count how often you win.
 
@@ -858,7 +858,7 @@ simulate_power(n_per_group = 30, true_d = 0.5)
 power.t.test(n = 30, delta = 0.5, sd = 1, type = "two.sample")$power
 ```
 
-Read what that function does one more time, because the logic is the entire idea of power. We *built* a world where the effect is real and we know its exact size. Then we ran the study 2,000 times in that world and counted how often the t-test noticed. If it noticed 480 times out of 2,000, our power is .48, and the other 1,040 studies were funded, staffed, and wasted.
+Read what that function does one more time, because the logic is the entire idea of power. We *built* a world where the effect is real and we know its exact size. Then we ran the study 2,000 times in that world and counted how often the *t*-test noticed. If it noticed 480 times out of 2,000, our power is .48, and the other 1,040 studies were funded, staffed, and wasted.
 
 The last two lines are the important habit: the simulation and the formula agree. Always check a simulation against a known answer before you trust it on a problem where you do not have one.
 
@@ -883,7 +883,7 @@ Twenty percent attrition costs real power. Plan for it before it happens, not in
 
 ## Other Tools
 
-`power.t.test()` is deliberately limited. For anything beyond t-tests:
+`power.t.test()` is deliberately limited. For anything beyond *t*-tests:
 
 - the **`pwr`** package covers correlations, proportions, chi-square, ANOVA, and regression with the same solve-for-`NULL` logic;
 - **G\*Power** is free stand-alone software and remains the standard for grant applications for people who do not code;

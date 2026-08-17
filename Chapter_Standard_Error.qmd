@@ -248,7 +248,7 @@ $$
 M \pm t^*SE
 $$
 
-For example, with $N=10$, the 95% multiplier is about 2.26---not exactly 2. We will learn where that number comes from in the t-test chapter. For now, $\pm2SE$ is a useful approximation. But **hold your Guinness Beers**. *That is dramatic foreshadowing, and yes, English teachers, I did learn something.*
+For example, with $N=10$, the 95% multiplier is about 2.26---not exactly 2. We will learn where that number comes from in the *t*-test chapter. For now, $\pm2SE$ is a useful approximation. But **hold your Guinness Beers**. *That is dramatic foreshadowing, and yes, English teachers, I did learn something.*
 :::
 
 ### The Standard Error of the Mean (SEM), the One Number to Rule Them All

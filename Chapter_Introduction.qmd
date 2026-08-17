@@ -21,7 +21,7 @@ Maybe you woke up as a child, looked at the ceiling, and thought, *One day I hop
 
 Before we go any farther, here are three phrases researchers use constantly and explain approximately never:
 
-- **Statistically significant** means something like, "This result probably, maybe did not happen just because chance was being weird." That definition is deliberately incomplete. We will give it a real one in the [one-sample t-test chapter](Chapter_OneSample_t_test.qmd), after you learn some probability theory and are emotionally prepared for it.
+- **Statistically significant** means something like, "This result probably, maybe did not happen just because chance was being weird." That definition is deliberately incomplete. We will give it a real one in the [one-sample *t*-test chapter](Chapter_OneSample_t_test.qmd), after you learn some probability theory and are emotionally prepared for it.
 - An **asterisk** is the little star researchers sometimes put after a number to show that it was statistically significant: for example, `r=.32*`. More stars may indicate smaller p-values, depending on the researchers' chosen rules, but more does not mean better or "more better," as I say constantly. Asterisks do not mean the effect is large, important, true, or blessed by the Statistics Gods.
 - An **effect size** asks how strong or large an effect is. Think of a small effect as being hit over the head with a coffee stirrer, a medium effect as a Nerf bat, a large effect as a wooden bat, and a huge effect as a metal bat. A **gargantuan effect**---a made-up but extremely technical term---is your mother hitting you over the head with her slipper or the hanger she happens to be holding. The effect is so devastating that you would have preferred to have taken the metal bat.
 
@@ -401,7 +401,7 @@ That will look advanced at first, and probably confusing. Stay with it, because 
 
 So do not be scared of the code. It will feel like a lot early on. That is not a sign you are behind, it is a sign you are at the beginning.
 
-Here is the good news about learning statistics: **the effort is front-loaded.** It is hardest at the start and it gets easier, which is the opposite of what most people expect. Once you understand the guts of what is happening, every new technique turns out to be one more step bolted onto something you already know. Regression is not a new subject after t-tests, it is the same subject wearing a bigger coat.
+Here is the good news about learning statistics: **the effort is front-loaded.** It is hardest at the start and it gets easier, which is the opposite of what most people expect. Once you understand the guts of what is happening, every new technique turns out to be one more step bolted onto something you already know. Regression is not a new subject after *t*-tests, it is the same subject wearing a bigger coat.
 
 Skip the guts and the opposite happens. Every new method arrives as an unrelated set of buttons to memorize, and it gets harder forever. That is like being handed *Crime and Punishment* in Russian after being taught only to sound out the letters. You can pronounce every word on the page and understand none of them.
 

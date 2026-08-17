@@ -501,7 +501,7 @@ All three slopes equal about `r round(coef(full_model)["StudyHours"], 2)` Exam S
 
 This is not a coincidence. The Study Hours coefficient in multiple regression is built from the Study Hours variation that Anxiety cannot linearly explain. This result is sometimes called the **Frisch–Waugh–Lovell theorem**, which is an impressive name for "residualize the relevant pieces and you recover the same slope."
 
-One caution before someone reports the wrong t-value. The **slopes** match. The standard errors and t-tests from these shortcut regressions do not, because those regressions do not know that Anxiety already spent a degree of freedom. Report your inference from the full model. Use the residualized regressions to *understand* where that slope came from.
+One caution before someone reports the wrong *t*-value. The **slopes** match. The standard errors and *t*-tests from these shortcut regressions do not, because those regressions do not know that Anxiety already spent a degree of freedom. Report your inference from the full model. Use the residualized regressions to *understand* where that slope came from.
 
 The practical interpretation is:
 

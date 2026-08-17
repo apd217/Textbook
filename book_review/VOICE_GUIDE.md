@@ -5,7 +5,10 @@
 > professional, the rule wins. When it conflicts with statistical accuracy, accuracy wins
 > and the joke gets cut — never the reverse.
 >
-> Status: v1.9, 2026-08-16. **v1.9 updates §14's numbers after the chapters 14+15 pass:
+> Status: v2.0, 2026-08-16. **v2.0 adds the italic *t* / *F* rule to §14 and, more usefully,
+> the reason bare symbols were left unswept. It also adds §17, the cold-open pattern that
+> worked on Chapter 15, which is the second chapter Alex has accepted a full voice pass on.**
+> v1.9 updated §14's numbers after the chapters 14+15 pass:
 > Hierarchical Regression is fixed (9.48 to 0.30), and the counting script's baseline moved,
 > so every number written before 2026-08-16 reads about two dashes high. Read the note under
 > the table before comparing against an old figure.**
@@ -588,6 +591,23 @@ Why?".
 "texting-while-driving" became "texting---while-driving" in Chapter 12 and read as nonsense.
 Check 3 in the render-safety script looks for that specific shape.
 
+**Test statistics are italic: *t* and *F*.** Alex asked for this on 2026-08-16 after starting
+the convention himself in Chapter 15. Swept book-wide the same day, 76 symbols across 15
+chapters, using `book_review/tools/italicize_tF.R`. Write `*t*-test`, `*F*-test`, `*t*-value`,
+`*F*-statistic`, `*t*-distribution`. Inside math it is already italic, so `$F(1, 97)$` and
+`$t(98)$` need nothing.
+
+**Only the hyphenated compounds were swept, and bare `t` / `F` must stay unswept.** A survey
+before the sweep found 44 "bare t" candidates that were overwhelmingly `don't` and `don’t`,
+and the "bare F" candidates were inside multi-line `$$` blocks (`F=\frac{MS_{Model}}{MS_{Error}}`)
+plus the Bootstrapping chapter's `t(F)`, which is a statistic-of-a-distribution functional and
+genuinely means something else. A regex confident enough to catch bare symbols is confident
+enough to corrupt contractions and math. If a bare symbol needs italics, do it by hand or put
+it in math mode.
+
+**Still plain, deliberately: `p`, `r`, `M`, `SD`, `N`, `df`.** APA italicizes these too, and the
+book does not yet. That is a decision for Alex, not a cleanup to perform unasked.
+
 **"Bounce around" is the fixed term for sampling variability.** Estimates bounce around; they
 do not wobble, jump, waver, or drift. This was settled after "wobble" was tried and rejected,
 and it is grounded in the bouncing-ball image planted at the end of the expected-value section
@@ -716,3 +736,42 @@ he kept: the admission that the pirate data is invented, the line "It does not k
 pirate is. It has never been outside," and the italic aphorism closing the cold open. He also
 kept the model's habit of ending a section on a short, flat sentence after a long one. When in
 doubt, the precision snap (§4) is safe.
+
+## 17. The Chapter 15 cold open, and what made it work (2026-08-16)
+
+Chapter 15 is the second full voice pass Alex has accepted. §15 gives the *shape* of an
+opening; this section gives the thing that made this one land, because the shape alone is not
+enough.
+
+**Build the cold open out of a demonstration that indicts the tool.** Not an analogy about the
+tool, and not a promise that a problem exists. Chapter 15 opens by adding ten columns of
+`rnorm()` to a real model and plotting $R^2$ climbing every single time. The reader watches
+the metric they have trusted for four chapters get fooled, in a graph, before any definition
+arrives. Compare the pirate plot in Chapter 10: same move, and the two chapters Alex has
+signed off on are the two that do it.
+
+**Let the real numbers be the punchline, and do not tune them.** Ten junk predictors bought
+$\Delta R^2 = .063$; the one real predictor bought $.067$. Garbage and theory, near enough the
+same. That near-tie is what the data actually do. A seed was chosen so adjusted $R^2$ ends
+visibly lower, and that is the honest limit of the tuning; the gap itself was not selected on,
+and the chapter says so. **If you find yourself hunting for a seed that makes the joke bigger,
+stop.** The demonstration only has authority because it is not rigged, and Alex will ask.
+
+**Plant once, pay off twice.** The junk predictors come back as the null distribution that
+motivates the F-test (5,000 of them, a histogram, the observed gain out in the tail), and
+again in the Blocks section, entered as a block and correctly killed at $p = .665$. A device
+used once is an illustration. A device that returns is the chapter's spine.
+
+**Motivate a formula by simulating what it approximates, then show them agreeing.** The F-test
+section runs the simulation *before* the formula and then puts the two numbers side by side:
+$p = .0036$ from five thousand models, $p = .0037$ from the arithmetic. The line that does the
+teaching is "the histogram is what the formula is a shortcut *for*." This is the single most
+reusable move from the pass, and it fits anywhere the book introduces a test.
+
+**What Alex changed, which is calibration data.** He kept the whole structure and every joke.
+He added a plain-English model-by-model setup *before* the graph, because he wanted the reader
+to know what was being plotted first. He swapped "honest predictor" for "real predictor" and
+"bother you" for "worry you", and added his own italic snap, "*Does this worry you? It
+should.*" He reused "more better" from Chapter 8, in quotes. He cut "pre-register it if you
+can." The pattern: he makes the setup more explicit and the register more direct, and he does
+not cut the demonstrations.

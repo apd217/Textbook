@@ -774,7 +774,7 @@ Everything off the diagonal is a **pair**. To find a pair, pick a row and a colu
 
 The matrix is **symmetrical**. The panel for Happiness and Oreos below the diagonal and the number for Happiness and Oreos above it are the same relationship shown two ways, which is also why the diagonal is the fold: correlating a variable with itself would give 1.00 every time and tell you nothing.
 
-Those asterisks next to each correlation are the significance stars from the [one-sample t-test chapter](Chapter_OneSample_t_test.qmd), doing the same job here:
+Those asterisks next to each correlation are the significance stars from the [one-sample *t*-test chapter](Chapter_OneSample_t_test.qmd), doing the same job here:
 
 | Stars | p-value |
 |-------|---------|
