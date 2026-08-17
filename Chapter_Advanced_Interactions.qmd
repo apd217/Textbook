@@ -6,11 +6,85 @@ title: "Advanced: Continuous and Higher-Order Interactions"
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
 ```
 
+<!-- ---Alex--- Cold open (VOICE_GUIDE 15/17), which you approved on 2026-08-17.
+The chapter previously opened on "It Depends, Again" plus a Fast Review recap,
+which is the same first-position-recap failure as Ch10/15/16. The simulation
+chunk moved up here so the demonstration can happen before any definition; the
+old "Simulating Sleep, Caffeine, and Questionable Judgment" heading is now
+"Does the Interaction Earn Its Place?" and keeps the additive-vs-interaction
+comparison, since it no longer simulates anything. Every number below was run
+first. The sign flip and the three identities are real and not tuned. -->
+
+## Two Models, One Dataset, Opposite Headlines
+
+We asked 240 students how much they slept, how much caffeine they drank, and how well they could concentrate. Here is the whole study, invented on the spot, with the interaction built in on purpose so you can see it sitting in the generating model.
+
+```{r interaction-data}
+set.seed(343)
+n <- 240
+InterData <- data.frame(
+  Sleep = pmin(pmax(rnorm(n, 6.5, 1.3), 2.5), 10),
+  Caffeine = pmin(pmax(rnorm(n, 220, 100), 0), 500)
+)
+
+InterData$Concentration <-
+  40 +
+  3.5 * InterData$Sleep +
+  0.055 * InterData$Caffeine -
+  0.012 * InterData$Sleep * InterData$Caffeine +
+  rnorm(n, 0, 5)
+
+InterData$Sleep.C <- InterData$Sleep - mean(InterData$Sleep)
+InterData$Caffeine.C <- InterData$Caffeine - mean(InterData$Caffeine)
+```
+
+Now fit the obvious model. Concentration from sleep, caffeine, and their interaction, using the variables exactly as they were measured.
+
+```{r cold-open-raw}
+RawModel <- lm(Concentration ~ Sleep * Caffeine, data = InterData)
+
+round(coef(summary(RawModel)), 5)
+```
+
+Caffeine helps. The slope is `r round(coef(RawModel)["Caffeine"], 4)`, it is significantly greater than zero at $p =$ `r round(coef(summary(RawModel))["Caffeine", 4], 3)`, and you can write the sentence yourself: more caffeine, better concentration.
+
+Now subtract the mean from each predictor and fit the same three terms again.
+
+```{r cold-open-centered}
+InteractionModel <- lm(Concentration ~ Sleep.C * Caffeine.C, data = InterData)
+
+round(coef(summary(InteractionModel)), 5)
+```
+
+Caffeine hurts. The slope is `r round(coef(InteractionModel)["Caffeine.C"], 4)`, and it is significantly *less* than zero at $p <$ .001.
+
+Both of those sentences describe the same 240 people. Neither model is wrong, neither is a typo, and nothing was dropped or added between them. Watch what did not move.
+
+```{r cold-open-identity}
+FittedGap <- max(abs(fitted(RawModel) - fitted(InteractionModel)))
+
+c(
+  Interaction.raw      = unname(coef(RawModel)[4]),
+  Interaction.centered = unname(coef(InteractionModel)[4]),
+  R2.raw               = summary(RawModel)$r.squared,
+  R2.centered          = summary(InteractionModel)$r.squared,
+  Largest.fitted.diff  = FittedGap
+)
+```
+
+The interaction coefficient is identical. $R^2$ is identical. Across all 240 predicted values, the largest disagreement between the two models shows up in the `r floor(-log10(FittedGap))`th decimal place, which is not a small difference but a zero that has been through floating-point arithmetic. These are not two models. This is one model, wearing two sets of labels.
+
+So what changed? Only the location of zero. In the first model, the caffeine coefficient is the effect of caffeine **on a student who slept zero hours**. In the second, it is the effect of caffeine **on a student who slept the average amount**, about `r round(mean(InterData$Sleep), 1)` hours. Those are different students, so they get different answers, and the model was never claiming otherwise. We were.
+
+*A coefficient in an interaction model is not an effect. It is an effect at a place.*
+
+The rest of this chapter is about choosing that place on purpose, saying which one you chose, and noticing when software has quietly chosen for you.
+
 ## Advanced Topic: It Depends, Again
 
 The earlier interaction chapters asked whether a slope differs across categories. Here both predictors can be continuous. This produces a model that is compact to write and remarkably easy to explain badly [@aiken1991].
 
-Suppose caffeine predicts concentration differently depending on sleep. Caffeine may help a rested student focus while merely allowing an exhausted student to hear colors at a higher frame rate.
+Caffeine predicts concentration differently depending on sleep. Caffeine may help a rested student focus while merely allowing an exhausted student to hear colors at a higher frame rate.
 
 ### Fast Review: Categorical-by-Continuous Interactions
 
@@ -52,31 +126,17 @@ That derivative is the entire interaction in one line: the slope of $X$ changes 
 When $XZ$ is in the model, $\beta_1$ is the slope of $X$ specifically when $Z=0$. If zero is meaningless or outside the data, the coefficient answers a question nobody asked.
 :::
 
-## Simulating Sleep, Caffeine, and Questionable Judgment
+## Does the Interaction Earn Its Place?
 
-```{r interaction-data}
-set.seed(343)
-n <- 240
-InterData <- data.frame(
-  Sleep = pmin(pmax(rnorm(n, 6.5, 1.3), 2.5), 10),
-  Caffeine = pmin(pmax(rnorm(n, 220, 100), 0), 500)
-)
+Before interpreting a product term, check that it bought you anything. Fit the model without it and compare.
 
-InterData$Concentration <-
-  40 +
-  3.5 * InterData$Sleep +
-  0.055 * InterData$Caffeine -
-  0.012 * InterData$Sleep * InterData$Caffeine +
-  rnorm(n, 0, 5)
-
-InterData$Sleep.C <- InterData$Sleep - mean(InterData$Sleep)
-InterData$Caffeine.C <- InterData$Caffeine - mean(InterData$Caffeine)
-
+```{r additive-comparison}
 AdditiveModel <- lm(Concentration ~ Sleep.C + Caffeine.C, data = InterData)
-InteractionModel <- lm(Concentration ~ Sleep.C * Caffeine.C, data = InterData)
+
 anova(AdditiveModel, InteractionModel)
-summary(InteractionModel)
 ```
+
+It did. Adding the product term improves fit at $p <$ .001, so the claim that caffeine's slope depends on sleep is doing real work rather than decorating the model. Had this comparison come back nonsignificant, the honest move would be to say so and report the additive model, not to hunt for a subgroup in which the interaction reappears.
 
 Centering places zero at the sample mean. It changes the interpretation of the intercept and lower-order slopes. It does **not** change fitted values, residuals, $R^2$, or the interaction coefficient.
 
@@ -90,6 +150,48 @@ Centering does not solve **essential multicollinearity** caused by predictors co
 
 Whatever coding you choose, use it consistently. Do not put centered variables in the product while leaving uncentered versions as the lower-order terms. You would be fitting a mathematical casserole that no longer represents the intended model.
 
+### The Standardized-Beta Trap
+
+Sooner or later a reviewer will ask for standardized coefficients on your moderation model. This request is reasonable and the obvious way to satisfy it is wrong, so it is worth meeting the problem here rather than in a revision.
+
+The correct procedure is to z-score $X$ and $Z$ first, and *then* multiply them. The tempting shortcut is to build the product first and z-score that. These are not the same variable, because the z-score of a product is not the product of z-scores.
+
+```{r standardized-betas}
+InterData$Sleep.Z    <- as.numeric(scale(InterData$Sleep))
+InterData$Caffeine.Z <- as.numeric(scale(InterData$Caffeine))
+InterData$Concen.Z   <- as.numeric(scale(InterData$Concentration))
+
+# Right: standardize the components, then let R form the product.
+ProperBetas <- lm(Concen.Z ~ Sleep.Z * Caffeine.Z, data = InterData)
+
+# Wrong: standardize the product term itself.
+InterData$Product.Z <- as.numeric(scale(InterData$Sleep * InterData$Caffeine))
+WrongBetas <- lm(Concen.Z ~ Sleep.Z + Caffeine.Z + Product.Z, data = InterData)
+
+BetaCompare <- cbind(
+  Proper = coef(ProperBetas),
+  Wrong  = coef(WrongBetas)
+)
+
+# Relabel: the last row is Sleep.Z:Caffeine.Z in one model and Product.Z in the
+# other. They occupy the same position, and that is exactly the point.
+rownames(BetaCompare) <- c("(Intercept)", "Sleep", "Caffeine", "Sleep x Caffeine")
+
+round(BetaCompare, 4)
+```
+
+The interaction "beta" is `r round(coef(ProperBetas)["Sleep.Z:Caffeine.Z"], 2)` one way and `r round(coef(WrongBetas)["Product.Z"], 2)` the other. Both lower-order betas are wrong in the second column too, and one of them is `r round(coef(WrongBetas)["Caffeine.Z"], 2)`, which should be your first clue: a standardized coefficient larger than 1 in a model this simple is usually a confession rather than a finding.
+
+Here is the part that makes this genuinely dangerous. The two models fit **identically**. $R^2$ is `r round(summary(ProperBetas)$r.squared, 4)` in both, and the interaction's *t* is `r round(coef(summary(ProperBetas))["Sleep.Z:Caffeine.Z", "t value"], 2)` in both, so the significance test is untouched. Nothing looks broken. The only thing that changed is the number you would put in the table and describe in words, and it is off by a factor of about `r round(coef(WrongBetas)["Product.Z"] / coef(ProperBetas)["Sleep.Z:Caffeine.Z"], 1)`.
+
+::: {.callout-warning title="Do Not Trust a Standardized Column You Did Not Build"}
+If you want standardized coefficients for an interaction model, **z-score the components first and refit**. Do not read them off a "standardized" or "beta" column produced by software that standardized the product term along with everything else, because several packages do exactly that and none of them will warn you.
+
+The check takes ten seconds: refit with z-scored predictors and confirm the numbers match the column you were about to report. If they do not, the column is describing a variable nobody constructed on purpose.
+
+Friedrich made this argument in 1982 and it has needed remaking roughly once per graduate cohort ever since [@friedrich1982]. Cohen, Cohen, West and Aiken work through it at length in their chapter on interactions [@cohen2003].
+:::
+
 Leave a predictor uncentered when zero is scientifically meaningful and you want the lower-order coefficient evaluated there. For example, zero milligrams of caffeine is understandable. Zero hours of sleep is also understandable, but anyone reporting it should probably not be completing your study.
 
 ::: {.callout-note title="Centering Is Translation, Not Exorcism"}
@@ -100,7 +202,12 @@ Centering can make lower-order terms interpretable and reduce nonessential corre
 
 We will draw the caffeine slope at low sleep, average sleep, and high sleep. The common $\pm1SD$ convention is useful because it gives three recognizable values. It is not a law delivered by the Moderation Gods.
 
-```{r interaction-plot, fig.width=7, fig.height=5}
+```{r}
+#| label: interaction-plot
+#| fig-width: 7
+#| fig-height: 5
+#| fig-cap: "Points are observed concentration scores. The three lines are model predictions at low, average, and high sleep, defined as one standard deviation below the mean, the mean, and one standard deviation above it."
+#| fig-alt: "Scatterplot with caffeine in milligrams from 0 to about 470 on the x axis and concentration from about 42 to 75 on the y axis. A wide grey cloud of 240 faint points fills the panel with no obvious tilt of its own. Three straight prediction lines are drawn over it and fan out rather than running parallel. The orange Low sleep line is almost flat, falling only from about 57 to 55. The blue Average sleep line falls from about 61 to 53. The green High sleep line falls most steeply, from about 65 to 50. All three lines converge and cross near 290 milligrams of caffeine."
 sleep_values <- c(
   Low = -sd(InterData$Sleep.C),
   Average = 0,
@@ -111,7 +218,9 @@ caffeine_grid <- seq(min(InterData$Caffeine.C), max(InterData$Caffeine.C), lengt
 plot(
   InterData$Caffeine, InterData$Concentration,
   pch = 19, col = rgb(0.3, 0.3, 0.3, 0.22),
-  xlab = "Caffeine (mg)", ylab = "Predicted concentration",
+  # y label is "Concentration", not "Predicted concentration": the dots are raw
+  # observed scores. Only the three overlaid lines are predictions.
+  xlab = "Caffeine (mg)", ylab = "Concentration",
   main = "Caffeine does not have one universal slope"
 )
 
@@ -226,7 +335,11 @@ A buffering interaction usually combines a risk factor with a protective factor.
 
 The term *buffering* depends strongly on which variable is defined as the risk and which outcome direction is good. Reverse-score stress into serenity and several coefficient signs reverse even though every fitted value remains unchanged.
 
-```{r interaction-patterns, fig.width=8, fig.height=7}
+```{r}
+#| label: interaction-patterns
+#| fig-width: 8
+#| fig-height: 7
+#| fig-alt: "Four panels in a two-by-two grid. Three of them plot predicted Y against predictor X from minus 2 to 2, each showing an orange Low moderator line and a blue High moderator line. In Synergistic, both lines rise and the blue one rises much more steeply, so they cross near X of minus 1.3 and the gap widens to the right. In Antagonistic, the orange line rises steeply and the blue one is nearly flat, so they cross near X of 1.3 and the gap is widest on the left. In Buffering, both lines fall, the orange steeply and the blue gently, so the orange drops far below the blue on the right. The fourth panel has no plot in it, only three lines of text reading Same product-term machinery, Different theoretical stories, and Check the coding before naming anything."
 PatternX <- seq(-2, 2, length.out = 80)
 ModeratorValues <- c(Low = -1, High = 1)
 PatternColors <- c("#D55E00", "#0072B2")
@@ -358,7 +471,115 @@ SE(b_{X\mid Z})=
 \sqrt{Var(b_1)+Z^2Var(b_3)+2ZCov(b_1,b_3)}.
 $$
 
-Johnson-Neyman regions can be useful when the moderator is truly continuous. Do not report a region far outside the observed values of $Z$. The equation is willing to extrapolate into space; your data did not go there.
+### Solving It, Which Is Just a Quadratic
+
+The boundary we want is where the conditional slope is exactly $t_{crit}$ standard errors from zero:
+
+$$
+\frac{b_1+b_3Z}{SE(b_{X\mid Z})}=\pm t_{crit}.
+$$
+
+Square both sides, substitute the standard error, and move everything to one side. The $Z$ terms collect into an ordinary quadratic $AZ^2+BZ+C=0$ with
+
+$$
+A=t_{crit}^2Var(b_3)-b_3^2,\quad
+B=2\left(t_{crit}^2Cov(b_1,b_3)-b_1b_3\right),\quad
+C=t_{crit}^2Var(b_1)-b_1^2.
+$$
+
+That is the entire Johnson-Neyman method. There is no new estimator here, no new distribution, and nothing that could not be done with the coefficients and covariance matrix you already have. Packages exist that will do this for you, but the machinery is small enough to look at once.
+
+```{r johnson-neyman}
+CoefVar <- vcov(InteractionModel)
+
+# Pull these out BY NAME. The rows of vcov() are in model order, so Caffeine.C
+# is the third row here, not the second, and positional indexing silently
+# hands you the variance of the wrong coefficient. Nothing errors. The roots
+# just come out wrong.
+b1  <- coef(InteractionModel)["Caffeine.C"]
+b3  <- coef(InteractionModel)["Sleep.C:Caffeine.C"]
+v11 <- CoefVar["Caffeine.C", "Caffeine.C"]
+v33 <- CoefVar["Sleep.C:Caffeine.C", "Sleep.C:Caffeine.C"]
+v13 <- CoefVar["Caffeine.C", "Sleep.C:Caffeine.C"]
+
+TCrit <- qt(.975, df.residual(InteractionModel))
+
+A <- TCrit^2 * v33 - b3^2
+B <- 2 * (TCrit^2 * v13 - b1 * b3)
+C <- TCrit^2 * v11 - b1^2
+
+JNRoots <- sort(c(
+  (-B - sqrt(B^2 - 4 * A * C)) / (2 * A),
+  (-B + sqrt(B^2 - 4 * A * C)) / (2 * A)
+))
+
+# Roots are on the centered scale; add the mean back to read them as hours.
+JNHours <- JNRoots + mean(InterData$Sleep)
+
+rbind(Centered = JNRoots, Hours = JNHours)
+```
+
+The two boundaries land at `r round(JNHours[1], 2)` and `r round(JNHours[2], 2)` hours of sleep, and they split the sleep axis into three regions:
+
+- Below about `r round(JNHours[1], 1)` hours, caffeine's slope is significantly **positive**.
+- Between `r round(JNHours[1], 1)` and `r round(JNHours[2], 1)` hours, the slope is not distinguishable from zero.
+- Above about `r round(JNHours[2], 1)` hours, the slope is significantly **negative**. For rested students, more caffeine predicts worse concentration.
+
+Before repeating any of that in a paper, count how many people are actually in each region. This is the step everyone skips.
+
+```{r jn-coverage}
+table(cut(
+  InterData$Sleep,
+  breaks = c(-Inf, JNHours, Inf),
+  labels = c("Slope positive", "Not distinguishable", "Slope negative")
+))
+```
+
+That changes the write-up considerably. Both boundaries are technically inside the observed range of `r round(min(InterData$Sleep), 2)` to `r round(max(InterData$Sleep), 2)` hours, so nothing here is extrapolation in the strict sense. But the significantly-positive region contains `r sum(InterData$Sleep < JNHours[1])` participant out of `r nrow(InterData)`. The model is confident about a region where the study essentially has no data, because a confidence band is narrow near the middle of the moderator and the boundary happens to fall where the band is still narrow enough to exclude zero.
+
+So the honest report is: the upper boundary at `r round(JNHours[2], 2)` hours is well supported, with `r sum(InterData$Sleep > JNHours[2])` participants above it, and it is the finding. The lower boundary is where the data ran out, not a discovery about sleep-deprived students. **"Inside the observed range" is a weaker guarantee than it sounds, and the fix is to report the counts alongside the region.**
+
+The $\pm1SD$ convention would have found none of this, and its problem here is more specific than being arbitrary. One standard deviation below the mean is `r round(mean(InterData$Sleep) - sd(InterData$Sleep), 2)` hours, which the convention would label "low sleep" in a table and which sits *inside* the not-distinguishable region. So the conventional probe reports a nonsignificant slope at "low sleep" and significant ones at average and high, in a sample whose sleep actually runs down to `r round(min(InterData$Sleep), 1)` hours. The label is doing work the number cannot support.
+
+```{r}
+#| label: johnson-neyman-plot
+#| fig-width: 7.5
+#| fig-height: 5
+#| fig-alt: "Line plot with hours of sleep from about 2.5 to 9.6 on the x axis and the conditional slope of caffeine on the y axis, labelled from 0.06 down to minus 0.06. A straight blue line falls steadily from about 0.03 at the left edge to about minus 0.06 at the right, surrounded by a grey 95 percent confidence band that is narrowest around 5 hours and flares at both ends. A horizontal dashed line marks a slope of zero. Two vertical dashed orange lines at about 3.35 and 5.77 hours mark exactly where the edges of the confidence band touch zero, and the strip between them is shaded and labelled not distinguishable from zero. Left of the shaded strip the whole band sits above zero; right of it the whole band sits below zero. The blue line itself crosses zero near 5 hours, in the middle of the shaded strip rather than at either boundary."
+SleepGrid   <- seq(min(InterData$Sleep.C), max(InterData$Sleep.C), length.out = 200)
+SlopeGrid   <- b1 + b3 * SleepGrid
+SlopeSE     <- sqrt(v11 + SleepGrid^2 * v33 + 2 * SleepGrid * v13)
+HoursGrid   <- SleepGrid + mean(InterData$Sleep)
+
+plot(
+  HoursGrid, SlopeGrid, type = "n",
+  ylim = range(SlopeGrid - TCrit * SlopeSE, SlopeGrid + TCrit * SlopeSE),
+  xlab = "Sleep (hours)",
+  ylab = "Conditional slope of caffeine",
+  main = "Where does caffeine actually do something?"
+)
+
+# The region between the two roots is where zero stays inside the interval.
+rect(JNHours[1], par("usr")[3], JNHours[2], par("usr")[4],
+     col = "#EFEFEF", border = NA)
+
+polygon(
+  c(HoursGrid, rev(HoursGrid)),
+  c(SlopeGrid - TCrit * SlopeSE, rev(SlopeGrid + TCrit * SlopeSE)),
+  col = rgb(0.3, 0.3, 0.3, 0.20), border = NA
+)
+
+lines(HoursGrid, SlopeGrid, lwd = 3, col = "#0072B2")
+abline(h = 0, lty = 2, lwd = 2)
+abline(v = JNHours, lty = 2, lwd = 2, col = "#D55E00")
+text(mean(JNHours), max(SlopeGrid + TCrit * SlopeSE) * .92,
+     "not distinguishable\nfrom zero", cex = .85, col = "gray25")
+box()
+```
+
+Notice that the confidence band is narrowest near the middle of the sleep distribution and flares at both ends. That is not a quirk of this dataset. A conditional slope is estimated most precisely where you have the most data, and the $\pm1SD$ points are convenient partly because they are still in the crowded part of the moderator.
+
+Johnson-Neyman regions can be useful when the moderator is truly continuous. Do not report a region far outside the observed values of $Z$. The equation is willing to extrapolate into space; your data did not go there. A boundary at `r round(JNHours[2], 1)` hours of sleep, with `r sum(InterData$Sleep > JNHours[2])` people beyond it, is a finding. A boundary at 22 hours of sleep is a rounding error with ambitions.
 
 ## Centering Cannot Remove the Interaction
 
@@ -366,4 +587,10 @@ Mean-centering changes the value represented by zero and therefore changes the l
 
 ## The Short Story
 
-A continuous interaction means one slope changes with another variable. Center to make zero useful, plot predictions, test meaningful simple slopes, and remember that a three-way interaction is a changing two-way interaction—not merely a coefficient with extra punctuation.
+- The slope of $X$ is $b_1+b_3Z$. That derivative **is** the interaction; everything else in this chapter is bookkeeping around it.
+- $b_1$ is the slope of $X$ where $Z = 0$, so make zero mean something. A coefficient in an interaction model is not an effect, it is an effect at a place.
+- **Center for interpretation, not for exorcism.** Centering moves the labels. It does not change fitted values, $R^2$, or the interaction coefficient, and it cannot make a real interaction go away.
+- Probe at values theory chose, or use Johnson-Neyman, and stay inside the observed data. $\pm1SD$ is a convention, not a law, and it can miss where the sign actually changes.
+- **Standardize the components before forming the product**, never the product itself. The fit is identical and the reported beta is not.
+- Words like *synergistic*, *antagonistic*, and *buffering* are stories about coding. Reverse-score a variable and the label flips while every prediction stays put, so inspect predictions before naming anything.
+- A three-way interaction is a two-way interaction that changes. It is not a coefficient with extra punctuation, and it costs power, measurement, and a theory precise enough to justify it.
