@@ -17,7 +17,11 @@ it currently serves Week 10 students a graduate seminar.
 - **Location:** Chapter_Mixed_Regression.qmd → "Random Intercepts" (search anchor: "glmmTMB::glmmTMB(")
 - **Problem:** The curriculum names the tool three times: Week 10 ("run a within-subjects regression in R using lmer() from the lme4 package"), Week 12 (lmer for within-subjects interactions), Week 13 ("full factorial lmer() model"). Homework and TA materials will all be lmer. The book's only mixed chapter never shows `lmer()` — it uses glmmTMB, whose output differs visibly (z instead of t, no df, different summary layout). A student comparing their lab output to the book will conclude one of them is wrong. glmmTMB is a defensible expert choice, but this book is the course text for a standardized multi-section course.
 - **Fix:** Make `lmer()` (lme4 + lmerTest for p-values) the primary engine in this chapter: same models, `lmer(depression ~ week * group + (1 + week | participant), data = mixed_data)`, with lmerTest's Satterthwaite t-tests, which also match what students expect (t and df, like every other chapter). Keep glmmTMB as a clearly labeled aside ("another engine you'll meet in grad school; same model, different plumbing, z instead of t") or move the glmmTMB treatment to the draft Mixed_Inference chapter where the estimation discussion belongs. The current text's careful Wald-z caveats become a short callout about *why* mixed-model p-values are approximations regardless of engine. Verify all inline values after the swap.
-- **Approved:** [x] — IMPLEMENTED 2026-08-16. All 7 `glmmTMB` calls are now `lmer()`; the file
+- **Approved:** [x] — IMPLEMENTED 2026-08-16. **Then partly superseded by CH18-U04 below**, which
+  cut the 2×4 design entirely, so several of the models this item converted no longer exist. What
+  survives: `lmer()` + `lmerTest` is the engine, there is one short `glmmTMB` aside and no other
+  mention, and the random-slope models left with the 2×4. Original note follows.
+- All 7 `glmmTMB` calls were converted to `lmer()`; the file
   contains exactly one `glmmTMB` mention, a two-sentence aside inside the new *p*-value callout.
   Every number re-derived from the new fits. **Two defects found by running it that the item did
   not know about:** (a) the prose said "suppose the interaction estimate is about $-1.2$", which
@@ -131,14 +135,69 @@ recut to commas). Render-safety check reports no PDF-breaking characters.
 
 **Ordering note (for 00_OVERVIEW): ANSWERED BY ALEX, 2026-08-16.** The question was whether to
 move this chapter earlier or split it so the Week-10 material sits at its curriculum position.
-**Decision: neither, for now.** One chapter, staying last in Part 2, with the CH18-U02 on-ramp
-written as a self-contained opening section that could be **lifted into its own chapter later
-without a rewrite**. Moving the whole chapter earlier was considered and rejected on a
-dependency: Week × Group *is* a continuous-by-categorical interaction, which is Interaction_1's
-material, so the CBT half would lean on vocabulary the reader has not met. If the split ever
-happens, everything from "Your Paired *t*-Test Was a Mixed Model All Along" through the
-"Where This Chapter Gets Harder" callout is the piece that moves, and Ch18 would then need a
-new cold open.
+**Decision: neither.** One chapter, staying last in Part 2.
+
+### [CH18-U04] The altitude jump from 2 levels to a 2×4 with random slopes was too big
+- **Priority:** HIGH
+- **Perspective:** Student
+- **Raised by:** Alex, 2026-08-16, after reading the first restructured draft
+- **Problem:** In his words: *"this chapter jumps too fast in complexity... jumping from 2 level
+  design to the 2x4 is too much of a jump."* The chapter went from a two-level within-subjects
+  on-ramp straight to a 2×4 longitudinal design with correlated random intercepts and slopes.
+- **Fix (implemented):** Pivot to a **mixed 2×2** instead: one within-subjects factor (Baseline
+  vs Week 6) by one between-subjects factor (Control vs CBT), random intercept only. The 2×4,
+  random slopes, continuous-versus-categorical time and `emtrends()` are all cut and left to the
+  future mixed-models section.
+- **Approved:** [x] — IMPLEMENTED 2026-08-16.
+- **The pedagogical call turned out to be a mathematical one.** A random slope is **not
+  estimable** with two occasions. `lmer` refuses outright: *"number of observations (=200) <=
+  number of random effects (=200) for term (1 + week | participant); the random-effects
+  parameters and the residual variance are probably unidentifiable."* Two points determine a
+  line exactly, so there is nothing left to separate "this person changed fast" from "this
+  measurement was noisy." This is now a `callout-warning` in the chapter, and it is a much
+  stronger reason for the split than altitude alone.
+- **The 2×2 pays off with a third exact identity**, which makes the chapter's spine three
+  *t*-tests deep: the Occasion × Group interaction **is** an independent-samples *t*-test on the
+  change scores. Verified: both give $t = -8.35423$, $df = 98$, $p = 4.42529 \times 10^{-13}$,
+  estimate $= -5.75243$. So the chapter now shows the mixed model impersonating the paired *t*
+  (Part 1) and then the independent *t* (Part 1) in the same file.
+- **A fourth demonstration was added that no item asked for**, because the data handed it over:
+  running the same 2×2 through `lm()` gives **identical estimates to every printed decimal** and
+  badly wrong standard errors. The interaction SE goes from 0.69 to 1.75, and the Control change
+  flips from $p < .001$ to $p = .121$. Same numbers, opposite conclusion, and the only difference
+  is whether the model was told which rows share a human. This mirrors the paired-*t* chapter's
+  "run it wrong on purpose" section deliberately. It also shows what the random intercept
+  *cannot* do: the purely between-person coefficient `groupCBT` has the same SE in both models to
+  nine decimal places, because there is no repeated measurement inside that comparison.
+- **The residual plot now teaches instead of passing.** With a random intercept only, residuals
+  are flat against fitted values at baseline ($r = .07$) and clearly trending at Week 6
+  ($r = .39$). The cause was run down rather than guessed: it is the omitted random slope, since
+  `person_slope` is in the simulation and has had six weeks to act by Week 6 and zero at
+  baseline. Residuals correlate $.45$ with `person_slope × week`. **My first two attempts at this
+  caption were both wrong** (I claimed the smoother was flat, then that it only wandered at the
+  edges), and a shrinkage explanation was tested and rejected before the real one was found. The
+  figure is now colored by occasion with a straight-line fit per occasion, and the prose says
+  what the trend is and why the chapter cannot fix it.
+
+### [CH18-DUP01] `Chapter_Mixed_Designs.qmd` overlaps this chapter and is uncommitted
+- **Priority:** HIGH
+- **Perspective:** Publisher
+- **Status:** FLAGGED FOR ALEX, not resolved
+- **Problem:** The working-tree copy of `Chapter_Mixed_Designs.qmd` (commented out of
+  `_quarto.yml`) contains **the same structure this chapter now has**: a chocolate paired-*t*
+  on-ramp using the identical `set.seed(343)` simulation, a "Mixed 2-by-2: Week 0 vs. Week 6"
+  section, and an Advanced Topics half holding the 2×4. If both ever ship, the book runs the same
+  on-ramp twice and carries two different CBT studies (`seed 346 / n = 96 / Symptoms / Therapy`
+  versus this chapter's `seed 3436 / n = 100 / depression / CBT`).
+- **Its provenance is unexplained.** The committed version is a different, shorter chapter titled
+  "Advanced Mixed Models III". The working-tree version is **uncommitted**, has an mtime of
+  2026-08-17 00:02, which is *after* the 23:28 Ch18 commit, and reuses sentences written for Ch18
+  that day verbatim ("Those are not two answers that happen to agree. They are one answer,
+  printed twice."). It was not written by this session.
+- **Alex chose to merge into `Chapter_Mixed_Regression.qmd`** rather than adopt it, so this
+  chapter borrowed two things from it deliberately: the CatXCat bridge table and the
+  change-score identity. **The file itself was left untouched and uncommitted.** It still needs a
+  decision, and because it is not in git it could be lost.
 
 **Not flagged (deliberate):** The spaghetti-plot-with-group-means figure ("group averages
 sitting on top of actual humans" is the correct religion); the REML/ML switching rule stated

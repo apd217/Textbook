@@ -26,8 +26,22 @@ the diff and merges into `main` themselves — do not merge or push to `main`.
 **Chapter 18 is done, and it was the last chapter. Every item in the review is now implemented.**
 One commit, on `review-implementation`, not merged to main. Alex has not read it yet.
 
-Implemented: CH18-U02, CH18-U01, CH18-P01, CH18-U03, CH18-P02, plus G01 and G02. Details are on
-each item in `18_Mixed_Regression.md`. The four things worth carrying forward:
+Implemented: CH18-U02, CH18-U01, CH18-P01, CH18-U03, CH18-P02, CH18-U04, plus G01 and G02.
+Details are on each item in `18_Mixed_Regression.md`.
+
+**Two things need Alex, and one of them is a loose file.**
+
+1. **`Chapter_Mixed_Designs.qmd` is modified, uncommitted, and nobody knows who wrote it.** Its
+   working-tree version duplicates Ch18's structure (same chocolate on-ramp, same seed, a
+   Week 0 vs Week 6 2×2, a 2×4 in Advanced Topics). Its mtime is 2026-08-17 00:02, *after* the
+   23:28 Ch18 commit, and it reuses Ch18 prose from that day verbatim, so it postdates and drew
+   on this session's work but was not produced by it. Logged as **CH18-DUP01**. It is not in git,
+   so it can be lost. Do not build on it or commit it without asking.
+2. The 2×4 material now has no home in the active book. It exists only in that uncommitted file
+   and in this session's history. If the future mixed-models chapter is wanted, that file is the
+   raw material, pending item 1.
+
+The five things worth carrying forward:
 
 1. **Alex answered the ordering question: neither move nor split, for now.** Ch18 stays last as
    one chapter, and the CH18-U02 on-ramp was written self-contained so it can be lifted into its
@@ -46,10 +60,20 @@ each item in `18_Mixed_Regression.md`. The four things worth carrying forward:
    invisible unless you fit the model. Worth a grep in any chapter that simulates an effect and
    then describes it. Separately, `lmer` throws a convergence warning where `glmmTMB` did not,
    fixed with `bobyqa` and explained rather than hidden.
-4. **Write `fig-alt` against the rendered PNG, not against the plotting code.** The alt text
-   drafted from the code said the diagnostic smoother lay flat. Looking at the actual figure, it
-   droops to about $-1.3$ at the left edge, on two data points. The code could not have told you
-   that. Read the image.
+4. **Write `fig-alt` against the rendered PNG, not against the plotting code, and expect to be
+   wrong more than once.** The diagnostic figure took **three** attempts. Draft one, written from
+   the code, said the smoother lay flat; it did not. Draft two said it only wandered at the sparse
+   edges; it did not, there was a real trend. Only after running the diagnostics down did the
+   actual cause appear, and it was not the first plausible explanation either: a shrinkage story
+   was tested and rejected before the omitted random slope turned out to be responsible. **Look at
+   the image, then quantify what you think you see, then explain it.** All three steps failed
+   independently here.
+
+5. **Alex's altitude complaints are sometimes statistical facts wearing a pedagogical hat.** He
+   said the jump from a 2-level design to a 2×4 with random slopes was too fast. Checking it
+   turned up that a random slope is not *estimable* on two occasions at all: `lmer` errors, and
+   two points determine a line exactly. His instinct located a real constraint, not a preference.
+   Worth checking whether other "this feels too advanced" notes have the same character.
 
 **Nothing in `10`–`25` is outstanding.** What remains for the book is Alex's own reading pass,
 the still-commented-out draft chapters (`Advanced_Contrasts_ANOVA` is the ripest; see below),
