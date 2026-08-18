@@ -271,6 +271,19 @@ library(tidyverse)
 
 The quotation marks belong in `install.packages("tidyverse")`, but not in `library(tidyverse)`. This distinction exists because the Probability Gods were briefly allowed to help design software.
 
+## The Pipe: `|>`
+
+You will start seeing this symbol in a couple of chapters, so meet it now. The **pipe** `|>` takes the thing on its left and hands it to the function on its right as the first argument. Read it out loud as the word **"then."**
+
+```{r pipe-example}
+study |>
+  head(2)
+```
+
+That says "take `study`, *then* show me the first two rows," and it does exactly what `head(study, 2)` does. With one step the pipe buys you nothing. With five steps stacked up it is the difference between code you can read top to bottom and code buried inside nested parentheses, which is why the tidyverse chapter at the end of the book runs on it.
+
+**One warning, because you will meet it on Stack Overflow within a week.** Older R code uses `%>%` instead, a pipe that came from the `magrittr` package. For everyday work the two mean the same thing, so when you find `%>%` in somebody's code you can read it as `|>` and carry on. This book uses `|>` throughout. The difference is that `|>` is built into R itself while `%>%` needs a package loaded first, which is a good reason to prefer the one that always works.
+
 ## Asking R for Help
 
 R ships with a manual for every function. Put a `?` in front of the name:

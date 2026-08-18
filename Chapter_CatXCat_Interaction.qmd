@@ -240,8 +240,8 @@ Friend.Data.Full$NiceGroup_ <- ifelse(Friend.Data.Full$BeingNice < 2,  "Low Nice
                                ifelse(Friend.Data.Full$BeingNice > 8, "High Nice", NA))
 
 # Keep only extreme groups
-Friend.Data <- Friend.Data.Full %>%
-  filter(!is.na(NiceGroup_)) %>%
+Friend.Data <- Friend.Data.Full |>
+  filter(!is.na(NiceGroup_)) |>
   mutate(NiceGroup_ = factor(NiceGroup_, levels = c("Low Nice", "High Nice")))
 
 n_low_stayin  <- sum(Friend.Data$NiceGroup_ == "Low Nice"  & Friend.Data$GoingOut_ == "Stay in")
@@ -253,8 +253,8 @@ n_high_goout  <- sum(Friend.Data$NiceGroup_ == "High Nice" & Friend.Data$GoingOu
 The resulting dataset has `r nrow(Friend.Data)` participants spread across four cells:
 
 ```{r cell-counts, echo=TRUE}
-Friend.Data %>%
-  group_by(NiceGroup_, GoingOut_) %>%
+Friend.Data |>
+  group_by(NiceGroup_, GoingOut_) |>
   summarise(n = n(),
             M_Close  = round(mean(Closeness), 2),
             SD_Close = round(sd(Closeness), 2),
@@ -273,8 +273,8 @@ Before running any models, let's visualize the four cells directly.
 #| fig-cap: "The four cells before any model is fit. Jittered raw scores with the observed cell means connected by group."
 #| fig-alt: "A plot with Low Nice and High Nice on the x axis and Friendship Closeness 0 to 100 on the y axis, showing jittered raw data points and two connected cell-mean lines. The blue Stay in line is nearly flat, from about 16 to 19. The orange Go out line rises steeply from about 23 to about 60. The Go out High Nice cluster of points sits well above every other cell."
 
-cell_means <- Friend.Data %>%
-  group_by(NiceGroup_, GoingOut_) %>%
+cell_means <- Friend.Data |>
+  group_by(NiceGroup_, GoingOut_) |>
   summarise(M = mean(Closeness), .groups = "drop")
 
 ggplot(Friend.Data, aes(x = NiceGroup_, y = Closeness, color = GoingOut_)) +
@@ -479,11 +479,11 @@ We use `pairs()` from the `emmeans` package to test each pairwise comparison wit
 library(emmeans)
 
 Fit.2 <- emmeans(Model.2, ~ NiceGroup_ | GoingOut_)
-pairs(Fit.2, adjust = "none") %>% summary(infer = TRUE)
+pairs(Fit.2, adjust = "none") |> summary(infer = TRUE)
 ```
 
 ```{r simple-effects-store, include=FALSE}
-se_out <- pairs(Fit.2, adjust = "none") %>% summary(infer = TRUE)
+se_out <- pairs(Fit.2, adjust = "none") |> summary(infer = TRUE)
 se_df  <- as.data.frame(se_out)
 b_stayin <- round(se_df$estimate[se_df$GoingOut_ == "Stay in"], 2)
 b_goout  <- round(se_df$estimate[se_df$GoingOut_ == "Go out"],  2)
@@ -535,8 +535,8 @@ m1_F   <- round(sm1_f[1], 2)
 m1_df1 <- sm1_f[2]
 m1_df2 <- sm1_f[3]
 
-cell_desc <- Friend.Data %>%
-  group_by(NiceGroup_, GoingOut_) %>%
+cell_desc <- Friend.Data |>
+  group_by(NiceGroup_, GoingOut_) |>
   summarise(M = round(mean(Closeness), 1),
             SD = round(sd(Closeness), 1), .groups = "drop")
 

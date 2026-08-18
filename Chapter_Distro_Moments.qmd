@@ -73,7 +73,7 @@ bounds <- map(df$bin, parse_bounds)
 df$lower <- map_dbl(bounds, 1)
 df$upper <- map_dbl(bounds, 2)
 
-df <- df %>%
+df <- df |>
   mutate(midpoint = ifelse(is.na(upper), NA, (lower + upper) / 2))
 
 # ---- Approximate mean, using bin midpoints (the open-ended $200k+ bin has
@@ -89,21 +89,21 @@ mean_income <- weighted.mean(
 # largest raw count is not the mode -- a $50,000-wide bin will out-count a
 # $2,500-wide one no matter what. Use households per dollar of bin width
 # (density) instead, and ignore the open-ended top bin.
-df <- df %>%
+df <- df |>
   mutate(density = households / (upper - lower))
 
 mode_income <- df$midpoint[which.max(ifelse(is.na(df$density), -Inf, df$density))]
 
 # ---- Approximate median
-df <- df %>%
-  arrange(lower) %>%
+df <- df |>
+  arrange(lower) |>
   mutate(cum_households = cumsum(households))
 
 total_households <- sum(df$households)
 median_income <- df$lower[which(df$cum_households >= total_households/2)[1]]
 
 # ---- Plot
-plot_df <- df %>% filter(!is.na(upper))
+plot_df <- df |> filter(!is.na(upper))
 
 ggplot(plot_df, aes(x = lower, y = households / 1e6)) +
   geom_col(fill = "lightblue", color = "black", width = 4000) +
@@ -644,7 +644,7 @@ library(tidyverse)   # loads dplyr, ggplot2, and friends
 library(moments)     # gives us skewness() and kurtosis()
 
 Desc.table <-
-  DF %>%                        # take the data frame, then...
+  DF |>                        # take the data frame, then...
   summarise(N    = n(),                 # count the rows
             M    = mean(X),             # moment 1: center
             S    = sd(X),               # moment 2: spread
@@ -655,7 +655,7 @@ Desc.table <-
 round(Desc.table, 2)
 ```
 
-That `%>%` is a **pipe**. Read it as the word "then." It takes whatever is on its left and feeds it into the function on its right, so `DF %>% summarise(...)` means "take DF, *then* summarise it." It saves you from writing `summarise(DF, ...)` with everything crammed inside one set of parentheses, and it gets very handy once you are stacking four or five operations.
+That `|>` is a **pipe**. Read it as the word "then." It takes whatever is on its left and feeds it into the function on its right, so `DF |> summarise(...)` means "take DF, *then* summarise it." It saves you from writing `summarise(DF, ...)` with everything crammed inside one set of parentheses, and it gets very handy once you are stacking four or five operations.
 
 ::: {.callout-tip title="About All Those Plots I Keep Making Without Explaining Them"}
 You have now seen several figures built with `ggplot()`, and I have never once told you how it works. That is deliberate. Explaining the grammar of graphics in the middle of a chapter about variance would help nobody.
@@ -710,7 +710,7 @@ Normal.Sample.Z <- scale(Normal.Sample.1, center = TRUE, scale = TRUE)
 ```{r, echo=TRUE}
 DF.Z <- data.frame(X = Normal.Sample.Z)
 Desc.table.Z <-
-  DF.Z %>%
+  DF.Z |>
   summarise(N = n(), M = mean(X), S = sd(X))
 round(Desc.table.Z, 2)
 ```
@@ -837,9 +837,9 @@ params <- tribble(
   "Social Sciences", "F",    1358,   8.75,  4.18
 )
 
-MRT.2 <- params %>%
-  mutate(data = pmap(list(n, mean, sd), rnorm)) %>%
-  unnest(data) %>%
+MRT.2 <- params |>
+  mutate(data = pmap(list(n, mean, sd), rnorm)) |>
+  unnest(data) |>
   select(Field, Group, Value = data)
 ```
 
@@ -847,8 +847,8 @@ Check that our simulation matches published values:
 
 ```{r, echo=TRUE}
 MRT.table <-
-  MRT.2 %>%
-  group_by(Field, Group) %>%
+  MRT.2 |>
+  group_by(Field, Group) |>
   summarise(N = n(), M = mean(Value), S = sd(Value))
 MRT.table
 ```
@@ -871,10 +871,10 @@ ggplot(MRT.2, aes(x = Value, fill = Group, color = Group)) +
 Standardize within each group---critical because each group has a different mean and SD.
 
 ```{r}
-MRT.2 <- MRT.2 %>%
-  group_by(Field, Group) %>%
+MRT.2 <- MRT.2 |>
+  group_by(Field, Group) |>
   mutate(Z = scale(Value))
-MRT.2 %>% head()
+MRT.2 |> head()
 ```
 
 ```{r mrt-z-scores}
@@ -904,7 +904,7 @@ A little over half an SD below the mean. Visually:
 ```{r alex-position}
 #| fig-cap: "Alex's place among male social scientists. The red line is him. Most of the distribution is to the right of it."
 #| fig-alt: "Histogram and density curve of z-scores for males in the social sciences, centered on zero. A vertical red line sits a little over half a standard deviation below zero, marking Alex's score."
-MRT.2.Males.Social.Sciences <- MRT.2 %>% filter(Group == "M" & Field == "Social Sciences")
+MRT.2.Males.Social.Sciences <- MRT.2 |> filter(Group == "M" & Field == "Social Sciences")
 
 ggplot(MRT.2.Males.Social.Sciences, aes(x = Z)) +
   geom_histogram(aes(y = after_stat(density)), position = "identity", alpha = 0.3, bins = 30) +

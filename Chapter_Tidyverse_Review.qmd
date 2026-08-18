@@ -1,12 +1,5 @@
 ---
 title: "R Help and Review: Tidyverse Without Tears"
-fontsize: 11pt
-geometry: margin=.5in
-format:
-  pdf:
-    toc: true
-    toc-depth: 1
-    number-sections: true
 ---
 
 ```{r}
@@ -20,9 +13,6 @@ knitr::opts_chunk$set(
   fig.width = 7,
   fig.height = 4.5
 )
-
-library(dplyr)
-library(ggplot2)
 ```
 
 ## Why Is This at the End of the Book?
@@ -37,14 +27,15 @@ The **tidyverse** is a collection of R packages designed around consistent ways 
 Install them once on a computer:
 
 ```{r}
+#| label: install-packages
 #| eval: false
 install.packages(c("dplyr", "ggplot2"))
 ```
 
-Load them again whenever you begin a new R session:
+Load them again whenever you begin a new R session. This chunk really does run, and it is what makes every other chunk in the chapter work:
 
 ```{r}
-#| eval: false
+#| label: load-packages
 library(dplyr)
 library(ggplot2)
 ```
@@ -58,6 +49,7 @@ The old lecture expected a file called `caffeine.csv` to materialize from a work
 In this completely fictional study, 160 students consume different amounts of caffeine. We record sleep, anxiety, hatred of group projects, and whether the student begins hearing colors. No students actually consumed these doses. The IRB has stopped returning our calls for unrelated reasons.
 
 ```{r}
+#| label: simulate-caffeine-data
 set.seed(343)
 
 n_students <- 160
@@ -107,6 +99,7 @@ This structure is often called **tidy data** when each variable has its own colu
 Useful first inspections include:
 
 ```{r}
+#| label: inspect-data
 dim(lab_students)
 names(lab_students)
 str(lab_students)
@@ -120,6 +113,7 @@ summary(lab_students)
 Modern R uses `|>` to pass the result of one step into the next step:
 
 ```{r}
+#| label: pipe-head
 lab_students |>
   head(3)
 ```
@@ -129,19 +123,21 @@ Read it as **"and then."**
 > Start with `lab_students`, **and then** keep highly caffeinated students, **and then** select the variables we want.
 
 ```{r}
+#| label: pipe-chain
 lab_students |>
   filter(caffeine_mg >= 200) |>
   select(student_id, caffeine_mg, anxiety, hears_colors) |>
   head()
 ```
 
-Older R code often uses `%>%`, the pipe from `magrittr` and `dplyr`. It is still valid and appears throughout older lectures, published code, and the ancient inscriptions found beneath BSB. We will use the native `|>` in new code and eventually update the rest of the book.
+Older R code often uses `%>%`, the pipe from `magrittr` and `dplyr`. It is still valid and appears throughout older lectures, published code, and the ancient inscriptions found beneath BSB. For everyday `dplyr` work the two mean the same thing, so when you find `%>%` on Stack Overflow you can read it as `|>` and carry on. This book uses `|>` everywhere, including the earlier chapters, which were swept so you would never have to wonder whether the difference mattered.
 
 ## The Five Verbs You Will Use Constantly
 
 ### `select()`: Keep Columns
 
 ```{r}
+#| label: select-keep
 small_data <- lab_students |>
   select(student_id, caffeine_mg, sleep_hours, anxiety)
 
@@ -151,6 +147,7 @@ head(small_data)
 Remove columns with a minus sign:
 
 ```{r}
+#| label: select-drop
 lab_students |>
   select(-student_id) |>
   head()
@@ -159,6 +156,7 @@ lab_students |>
 ### `filter()`: Keep Rows
 
 ```{r}
+#| label: filter-yes
 chromatic_students <- lab_students |>
   filter(hears_colors == "Yes")
 
@@ -168,16 +166,20 @@ nrow(chromatic_students)
 Combine conditions with `&` for **and** and `|` for **or**:
 
 ```{r}
+#| label: filter-and
 lab_students |>
   filter(caffeine_mg >= 200 & sleep_hours < 6) |>
   head()
 ```
+
+Inside `filter()`, a comma means the same thing as `&`: every condition must be true. So `filter(caffeine_mg >= 200, sleep_hours < 6)` returns exactly the rows above. You will see both, including in the solutions at the end of this chapter, and neither is more correct than the other.
 
 Use `==` to test equality. One `=` assigns an argument; two `==` ask whether values are equal. This tiny distinction has destroyed entire afternoons.
 
 ### `mutate()`: Create or Change Columns
 
 ```{r}
+#| label: mutate-columns
 lab_students <- lab_students |>
   mutate(
     caffeine_per_hour_sleep = caffeine_mg / sleep_hours,
@@ -192,6 +194,7 @@ head(lab_students)
 ### `arrange()`: Sort Rows
 
 ```{r}
+#| label: arrange-rows
 lab_students |>
   arrange(desc(anxiety)) |>
   select(student_id, caffeine_mg, sleep_hours, anxiety) |>
@@ -203,6 +206,7 @@ These are the students most likely to email at 2:13 a.m. with the subject line `
 ### `summarise()`: Collapse Many Rows into Answers
 
 ```{r}
+#| label: summarise-all
 lab_students |>
   summarise(
     n = n(),
@@ -220,6 +224,7 @@ Unlike `mutate()`, `summarise()` reduces many rows to a smaller summary. `n()` c
 `group_by()` tells later verbs to operate separately within categories.
 
 ```{r}
+#| label: group-summarise
 caffeine_summary <- lab_students |>
   group_by(caffeine_mg) |>
   summarise(
@@ -239,6 +244,7 @@ caffeine_summary
 For simple frequency tables, `count()` is faster:
 
 ```{r}
+#| label: count-table
 lab_students |>
   count(caffeine_mg, hears_colors)
 ```
@@ -246,6 +252,7 @@ lab_students |>
 For the same summaries across several columns, use `across()`:
 
 ```{r}
+#| label: across-columns
 lab_students |>
   group_by(caffeine_mg) |>
   summarise(
@@ -263,6 +270,7 @@ lab_students |>
 Quarto renders the book from the project directory. Use a project-relative path instead of `setwd()`:
 
 ```{r}
+#| label: read-csv-example
 #| eval: false
 caffeine_data <- read.csv("data/caffeine.csv")
 ```
@@ -278,6 +286,8 @@ A `ggplot` usually has three core ingredients:
 3. **Geometries**: the marks placed on the graph, such as points, bars, or boxes.
 
 ```{r}
+#| label: ggplot-basic
+#| fig-alt: "A bare ggplot scatterplot of anxiety against caffeine, with the default grey panel and unedited axis labels caffeine_mg and anxiety. Because caffeine takes only four values, the points stack into four vertical stripes at 0, 100, 200 and 400, with nothing at 300. Each stripe climbs a little higher than the last."
 ggplot(
   data = lab_students,
   mapping = aes(x = caffeine_mg, y = anxiety)
@@ -290,7 +300,9 @@ The `+` adds layers to a ggplot. It is not interchangeable with the pipe. The pi
 ### Scatterplot with a Model Line
 
 ```{r}
+#| label: ggplot-scatter-model
 #| fig-cap: "Anxiety across caffeine doses. Jitter separates students who otherwise occupy the same caffeine value."
+#| fig-alt: "The same data with the four stripes fanned out by jitter, so individual students are visible instead of stacked. A black regression line with a narrow grey confidence band rises steadily from about 2.7 anxiety at zero caffeine to about 6.2 at 400 mg. Points are colored by whether the student hears colors: the orange Yes points are rare and cluster at the high-caffeine end, with only one at zero."
 ggplot(lab_students, aes(x = caffeine_mg, y = anxiety, color = hears_colors)) +
   geom_jitter(width = 12, height = 0, alpha = .65, size = 2) +
   geom_smooth(method = "lm", se = TRUE, color = "black") +
@@ -309,7 +321,9 @@ ggplot(lab_students, aes(x = caffeine_mg, y = anxiety, color = hears_colors)) +
 ### Boxplots, Correctly Explained
 
 ```{r}
+#| label: ggplot-boxplot
 #| fig-cap: "Anxiety distributions at each caffeine dose."
+#| fig-alt: "Four boxplots, one per caffeine dose, marching upward from left to right. Medians rise from about 2.5 at zero, to 4.0 at 100 mg, 4.2 at 200 mg, and 6.3 at 400 mg. The zero-caffeine box is the tallest and has long whiskers reaching from 0 to about 5.4; the higher doses have tighter boxes. Orange dots beyond the whiskers mark a handful of outlying students at 100 and 200 mg."
 ggplot(lab_students, aes(x = factor(caffeine_mg), y = anxiety)) +
   geom_boxplot(fill = "#9ECAE1", color = "#1F4E79", outlier.color = "#D55E00") +
   labs(
@@ -327,7 +341,9 @@ Those separate points are not automatically errors, criminals, or volunteers for
 ### Plotting a Summary
 
 ```{r}
+#| label: ggplot-summary-col
 #| fig-cap: "Simulated proportion of students reporting chromatic audition by caffeine dose."
+#| fig-alt: "Pink bars showing the proportion of students hearing colors at each caffeine dose, on a y axis fixed from 0 to 1. The bars are tiny at 0 mg (.03), grow to .07 at 200 mg, and jump to .31 at 400 mg. There is no bar at all at 100 mg, because in this simulated sample not one of the 44 students at that dose reported hearing colors, so the bar has height zero."
 ggplot(caffeine_summary, aes(x = factor(caffeine_mg), y = proportion_hearing_colors)) +
   geom_col(fill = "#CC79A7", width = .70) +
   scale_y_continuous(limits = c(0, 1)) +
@@ -346,6 +362,7 @@ ggplot(caffeine_summary, aes(x = factor(caffeine_mg), y = proportion_hearing_col
 Most routine work follows this sequence:
 
 ```{r}
+#| label: compact-workflow
 analysis_data <- lab_students |>
   filter(!is.na(anxiety)) |>
   mutate(caffeine_group = factor(caffeine_mg)) |>
@@ -385,6 +402,8 @@ Try these before looking at the solutions:
 ## Solutions, because suffering has limits
 
 ```{r}
+#| label: practice-solutions
+#| fig-alt: "Solution scatterplot of anxiety against hours of sleep, points colored by whether the student hears colors, with a separate regression line and wide grey confidence band per group. Both lines are nearly flat, drifting down only slightly across the sleep range; the Yes group's line sits about a point higher but its band is very wide because there are few such students. Sleep does much less work here than caffeine did."
 sleep_deprived_and_caffeinated <- lab_students |>
   filter(sleep_hours < 6, caffeine_mg >= 200)
 

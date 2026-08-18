@@ -257,8 +257,8 @@ Here is a summary of the sample broken down by social engagement:
 ```{r descriptives, echo=TRUE}
 library(tidyverse)
 
-Friend.Data %>%
-  group_by(GoingOut_) %>%
+Friend.Data |>
+  group_by(GoingOut_) |>
   summarise(
     n         = n(),
     M_Nice    = round(mean(BeingNice), 2),

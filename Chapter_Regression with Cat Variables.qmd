@@ -190,8 +190,8 @@ Before running a statistical test, it is always good practice to examine the des
 The code below calculates the **mean (M)** and **standard deviation (SD)** of reaction time for each condition.
 
 ```{r group-descriptives, echo=TRUE}
-dat2 %>%
-  group_by(Condition) %>%
+dat2 |>
+  group_by(Condition) |>
   summarise(
     M = mean(RT),
     SD = sd(RT)
