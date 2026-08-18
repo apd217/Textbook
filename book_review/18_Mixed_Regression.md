@@ -1,4 +1,4 @@
-# Chapter 18 — Mixed Regression: Between People and Within People (Chapter_Mixed_Regression.qmd)
+# Chapter 18 — Mixed Regression: Between People and Within People (Ch_18_Mixed_Regression.qmd)
 
 **Snapshot:** ~2,300 words. Statistically the most careful chapter in the book — honest about
 Wald z approximations, REML vs. ML for fixed-effect comparisons, missing-data assumptions,
@@ -14,7 +14,7 @@ it currently serves Week 10 students a graduate seminar.
 - **Priority:** HIGH
 - **Perspective:** Student
 - **Effort:** M
-- **Location:** Chapter_Mixed_Regression.qmd → "Random Intercepts" (search anchor: "glmmTMB::glmmTMB(")
+- **Location:** Ch_18_Mixed_Regression.qmd → "Random Intercepts" (search anchor: "glmmTMB::glmmTMB(")
 - **Problem:** The curriculum names the tool three times: Week 10 ("run a within-subjects regression in R using lmer() from the lme4 package"), Week 12 (lmer for within-subjects interactions), Week 13 ("full factorial lmer() model"). Homework and TA materials will all be lmer. The book's only mixed chapter never shows `lmer()` — it uses glmmTMB, whose output differs visibly (z instead of t, no df, different summary layout). A student comparing their lab output to the book will conclude one of them is wrong. glmmTMB is a defensible expert choice, but this book is the course text for a standardized multi-section course.
 - **Fix:** Make `lmer()` (lme4 + lmerTest for p-values) the primary engine in this chapter: same models, `lmer(depression ~ week * group + (1 + week | participant), data = mixed_data)`, with lmerTest's Satterthwaite t-tests, which also match what students expect (t and df, like every other chapter). Keep glmmTMB as a clearly labeled aside ("another engine you'll meet in grad school; same model, different plumbing, z instead of t") or move the glmmTMB treatment to the draft Mixed_Inference chapter where the estimation discussion belongs. The current text's careful Wald-z caveats become a short callout about *why* mixed-model p-values are approximations regardless of engine. Verify all inline values after the swap.
 - **Approved:** [x] — IMPLEMENTED 2026-08-16. **Then partly superseded by CH18-U04 below**, which
@@ -38,7 +38,7 @@ it currently serves Week 10 students a graduate seminar.
   `lmer()` + `lmerTest` throughout, Satterthwaite *t* and df so the output looks like every
   other chapter in the book; glmmTMB reduced to **at most** a short labelled aside ("another
   engine you will meet in graduate school, same model, different plumbing, *z* instead of *t*")
-  or dropped from this chapter entirely and left to `Chapter_Mixed_Inference.qmd`, which is
+  or dropped from this chapter entirely and left to `Ch_33D_Mixed_Inference.qmd`, which is
   where the estimation discussion belongs and which is currently commented out anyway. If you
   find yourself writing a long glmmTMB comparison, you have misread the instruction.
 - The chapter's careful Wald-*z* caveats should not be deleted, they should shrink into one
@@ -53,7 +53,7 @@ it currently serves Week 10 students a graduate seminar.
 - **Priority:** HIGH
 - **Perspective:** Student
 - **Effort:** M
-- **Location:** Chapter_Mixed_Regression.qmd → before "The Design" (search anchor: "## The Design")
+- **Location:** Ch_18_Mixed_Regression.qmd → before "The Design" (search anchor: "## The Design")
 - **Problem:** Week 10's lab: "TA compares the lmer() output to the paired t-test output from 242: same t-value, same p-value, just presented differently. Discussion: What is a random intercept, and why do we need it?" The book never does this anywhere. The paired-t chapter ends by routing readers here; this chapter's first model is already a 2×4 longitudinal design with random slopes. The single most important on-ramp — *your paired t-test was secretly a mixed model* — is skipped, and it's the one thing every 343 student must do for homework.
 - **Fix:** Add an opening section "Your Paired t-Test Was a Mixed Model All Along": reuse the chocolate-fixation data from the paired-t chapter (same simulation code, seed 343 — continuity is free), fit `lmer(fixation ~ condition + (1 | participant), data = paired_long)`, and put its condition t-value side by side with the paired t-test's t — identical. Three paragraphs: (1) the random intercept is each person's own baseline, which is what "each person is their own control" means in equation form; (2) fixed effect = the average chocolate effect, the thing the t-test tested; (3) why this scales where difference scores can't (3+ occasions, missing rows, between-person predictors) — which hands off to the CBT design that currently opens the chapter. ~350 words + 2 chunks.
 - **Approved:** [x] — IMPLEMENTED 2026-08-16, and **expanded into the chapter's cold open** with
@@ -78,27 +78,27 @@ it currently serves Week 10 students a graduate seminar.
   **Re-run before writing prose anyway.** Three separate items in this review turned out to be
   wrong about their own numbers; this one is right, which is why it is worth recording that it
   was checked rather than trusted.
-- Note `Chapter_Paired_t_test.qmd:317` already links here, so this section lands exactly where
+- Note `Ch_09_Paired_t.qmd:317` already links here, so this section lands exactly where
   a reader following that pointer arrives.
 
 ### [CH18-P01] Broken forward reference: "the later inference chapter" is commented out of the book
 - **Priority:** MED
 - **Perspective:** Professor + Publisher
 - **Effort:** S
-- **Location:** Chapter_Mixed_Regression.qmd → "Read the Model Without Panic" (search anchor: "the later inference chapter shows the deliberate `lmerTest` detour")
-- **Problem:** The text promises a "later inference chapter" (Chapter_Mixed_Inference.qmd), which is commented out of `_quarto.yml`. Web readers get a promise pointing at nothing. (Same class of problem to watch for book-wide: references into the disabled draft chapters.)
+- **Location:** Ch_18_Mixed_Regression.qmd → "Read the Model Without Panic" (search anchor: "the later inference chapter shows the deliberate `lmerTest` detour")
+- **Problem:** The text promises a "later inference chapter" (Ch_33D_Mixed_Inference.qmd), which is commented out of `_quarto.yml`. Web readers get a promise pointing at nothing. (Same class of problem to watch for book-wide: references into the disabled draft chapters.)
 - **Fix:** If CH18-U01 is adopted, this sentence largely dissolves (lmerTest becomes the main path). Otherwise reword to "a future chapter (in progress)" or drop the pointer. Also grep all active chapters for links to commented-out chapters (Mixed_Foundations, Mixed_Inference, GLM, Mediation, EFA…) and neutralize each — logged as a cross-cutting item too.
 - **Approved:** [x] — IMPLEMENTED 2026-08-16. Dissolved exactly as predicted: `lmerTest` is now
   the main path, so the whole sentence containing the pointer was replaced by the *p*-value
   callout. **The book-wide grep is clean.** The only link from any chapter into a commented-out
-  chapter is `Chapter_Mediation.qmd:288` → `Chapter_Moderated_Mediation.qmd`, and Mediation is
+  chapter is `Ch_23_Mediation.qmd:288` → `Ch_24_Moderated_Mediation.qmd`, and Mediation is
   itself commented out of `_quarto.yml`, so no reader can reach it. Nothing to neutralize.
 
 ### [CH18-U03] Consider a gentler altitude profile: label the second half "Advanced"
 - **Priority:** MED
 - **Perspective:** Student
 - **Effort:** S
-- **Location:** Chapter_Mixed_Regression.qmd → "Should Time Be Continuous or Categorical?" (search anchor: "## Should Time Be Continuous or Categorical?")
+- **Location:** Ch_18_Mixed_Regression.qmd → "Should Time Be Continuous or Categorical?" (search anchor: "## Should Time Be Continuous or Categorical?")
 - **Problem:** For the undergrad who needs Week 10–13 survival, the essential content ends after "Follow Up the Interaction." The remaining sections (continuous vs. categorical time, missing data, model checking) are genuinely valuable grad-prep — the Power chapter solved this exact problem with an explicit unnumbered "Advanced Topics" break, and this chapter should use the same device rather than an opening "Advanced Chapter" banner that scares off the students who *must* read the first half.
 - **Fix:** (1) Soften the opening callout: this chapter starts where the paired t ends, and the first half is required 343 material; the second half is labeled. (2) Insert the `# Advanced Topics {.unnumbered}` break (Power-chapter style) before "Should Time Be Continuous or Categorical?". (3) Move the Short Story to just before the break OR keep at end but have the break note say "the Short Story at the end covers everything."
 - **Approved:** [x] — IMPLEMENTED 2026-08-16, all three parts. (1) The "Advanced Chapter" banner
@@ -112,12 +112,12 @@ it currently serves Week 10 students a graduate seminar.
 - **Priority:** LOW
 - **Perspective:** Professor
 - **Effort:** S
-- **Location:** Chapter_Mixed_Regression.qmd → "Follow Up the Interaction" (search anchor: "28 tests and a dead salmon")
+- **Location:** Ch_18_Mixed_Regression.qmd → "Follow Up the Interaction" (search anchor: "28 tests and a dead salmon")
 - **Problem:** Second salmon reference in the book (first in Probability). If CH03-P01 (cite Bennett et al., cross-ref the Multiple Comparisons chapter) is approved, this one should link to the same places so the running gag doubles as navigation.
-- **Fix:** Add cross-reference to Chapter_Multiple_Comparisons.qmd and the Bennett citation here too.
+- **Fix:** Add cross-reference to Ch_20_Multiple_Comparisons.qmd and the Bennett citation here too.
 - **Approved:** [x] — IMPLEMENTED 2026-08-16. "a dead salmon" now links to
-  `Chapter_Multiple_Comparisons.qmd` and carries `[@bennett2010]`. Both verified in the rendered
-  HTML: the link resolves to `./Chapter_Multiple_Comparisons.html` and the citation renders as
+  `Ch_20_Multiple_Comparisons.qmd` and carries `[@bennett2010]`. Both verified in the rendered
+  HTML: the link resolves to `./Ch_20_Multiple_Comparisons.html` and the citation renders as
   "Bennett et al. 2010" with a reference-list entry.
 
 ---
@@ -214,16 +214,16 @@ move this chapter earlier or split it so the Week-10 material sits at its curric
 - **Perspective:** Publisher
 - **Status:** OPEN, waiting on Alex's file
 - Alex said he would put his repeated-measures ANOVA lecture into the advanced section. The last
-  paragraph of `Chapter_Mixed_Regression.qmd` already says "there is a review of it in the
+  paragraph of `Ch_18_Mixed_Regression.qmd` already says "there is a review of it in the
   advanced sections of this book" **with no hyperlink, on purpose**, because the chapter does not
   exist yet and CH18-P01 in this same chapter was exactly that bug. **Add the link when it
   ships.** Alex deleted the in-file `---Alex---` reminder, so this item is now the only record.
 
-### [CH18-DUP01] `Chapter_Mixed_Designs.qmd` overlaps this chapter and is uncommitted
+### [CH18-DUP01] `Ch_33C_Mixed_Designs.qmd` overlaps this chapter and is uncommitted
 - **Priority:** HIGH
 - **Perspective:** Publisher
 - **Status:** FLAGGED FOR ALEX, not resolved
-- **Problem:** The working-tree copy of `Chapter_Mixed_Designs.qmd` (commented out of
+- **Problem:** The working-tree copy of `Ch_33C_Mixed_Designs.qmd` (commented out of
   `_quarto.yml`) contains **the same structure this chapter now has**: a chocolate paired-*t*
   on-ramp using the identical `set.seed(343)` simulation, a "Mixed 2-by-2: Week 0 vs. Week 6"
   section, and an Advanced Topics half holding the 2×4. If both ever ship, the book runs the same
@@ -234,7 +234,7 @@ move this chapter earlier or split it so the Week-10 material sits at its curric
   2026-08-17 00:02, which is *after* the 23:28 Ch18 commit, and reuses sentences written for Ch18
   that day verbatim ("Those are not two answers that happen to agree. They are one answer,
   printed twice."). It was not written by this session.
-- **Alex chose to merge into `Chapter_Mixed_Regression.qmd`** rather than adopt it, so this
+- **Alex chose to merge into `Ch_18_Mixed_Regression.qmd`** rather than adopt it, so this
   chapter borrowed two things from it deliberately: the CatXCat bridge table and the
   change-score identity. **The file itself was left untouched and uncommitted.** It still needs a
   decision, and because it is not in git it could be lost.

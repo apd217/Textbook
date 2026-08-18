@@ -31,7 +31,7 @@
 #    a chapter has drifted. The mature Part 1 chapters run 0.55 to 1.20 per 1000
 #    words. Treat anything above about 1.5 as needing a pass.
 
-files <- sort(list.files(".", pattern = "^(Chapter_.*|index)\\.qmd$"))
+files <- sort(list.files(".", pattern = "^(Ch_.*|index)\\.qmd$"))
 if (!length(files)) stop("No chapter .qmd files here. Run from the project root.")
 
 bad <- c("↔" = 0x2194, "⇒" = 0x21D2, "⁴" = 0x2074, "≠" = 0x2260,

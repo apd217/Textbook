@@ -1,4 +1,4 @@
-# Chapter 26 — R Help and Review: Tidyverse Without Tears (Chapter_Tidyverse_Review.qmd)
+# Chapter 26 — R Help and Review: Tidyverse Without Tears (Ch_38_Tidyverse_Review.qmd)
 
 **Snapshot:** ~1,900 words. Excellent appendix — five verbs, group-then-summarise,
 `across()`, pipe-vs-plus distinction, correct boxplot anatomy, and (only the second chapter
@@ -12,7 +12,7 @@ are trivia.
 - **Priority:** LOW
 - **Perspective:** Student
 - **Effort:** S
-- **Location:** Chapter_Tidyverse_Review.qmd → solutions callout (search anchor: "filter(sleep_hours < 6, caffeine_mg >= 200)")
+- **Location:** Ch_38_Tidyverse_Review.qmd → solutions callout (search anchor: "filter(sleep_hours < 6, caffeine_mg >= 200)")
 - **Problem:** The `filter()` section teaches `&` for AND; the solutions use the comma shorthand without comment. Both are correct, but the struggling reader who just memorized `&` will wonder if the comma is different magic.
 - **Fix:** One sentence in the solutions or at first use: "Inside `filter()`, a comma means the same thing as `&` — every condition must be true." 
 - **Approved:** [x] — IMPLEMENTED 2026-08-17 at first use rather than in the solutions, so the
@@ -24,7 +24,7 @@ are trivia.
 - **Priority:** MED
 - **Perspective:** Publisher + Student
 - **Effort:** M (book-wide)
-- **Location:** Chapter_Tidyverse_Review.qmd → "The Native Pipe" (search anchor: "eventually update the rest of the book")
+- **Location:** Ch_38_Tidyverse_Review.qmd → "The Native Pipe" (search anchor: "eventually update the rest of the book")
 - **Problem:** This chapter teaches `|>` and openly admits earlier chapters still use `%>%` (they do — Distro_Moments, Standard_Error, CatVariables, and others). The admission is charming but the inconsistency is real: students copying from Chapter 4 and Chapter 26 will mix pipes without knowing whether it matters. This is the anchor for the cross-cutting pipe item in 00_OVERVIEW.md.
 - **Fix (cross-cutting):** Pick `|>` (the stated direction), sweep the book (`grep '%>%'`), and add two sentences to R_Basics introducing the pipe early with the note that `%>%` in the wild means the same thing. If a full sweep is too disruptive, at minimum move this chapter's "%>% is the old one, same idea" explanation into R_Basics so students meet the explanation *before* they meet the inconsistency.
 - **Approved:** [x] — IMPLEMENTED 2026-08-17. **Alex chose the full sweep** over the
@@ -76,7 +76,7 @@ are trivia.
 - **Chunk names: DONE**, 20 anonymous chunks named, and the five stale `unnamed-chunk-*`
   figures dropped from `_freeze`.
 - **Em-dash density: 0.82 → 0.76**, both the floor.
-- **`Chapter_R_Basics` is at 2.03 per 1k and above target.** It was already above target
+- **`Ch_02_R_Basics` is at 2.03 per 1k and above target.** It was already above target
   (2.21) before this session; the number moved only because the new pipe section added
   words. **The new prose contains no em-dashes.** Flagging it because it is a Part 1
   chapter and nobody is authorized to sweep it, and it is not on the known list, which

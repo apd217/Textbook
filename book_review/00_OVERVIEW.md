@@ -324,7 +324,7 @@ so these are the findings that method supports:
 - b/B raw vs β standardized: consistent across chapters ✔ (declare once, CH13/G13).
 - "The Short Story" missing in 8 chapters (verified by grep; see G03).
 - `%>%` in 7 chapters vs `|>` in Tidyverse appendix (G06).
-- callout-danger: 1 instance, Chapter_Control (G10). fig-alt: 0 instances book-wide (G02).
+- callout-danger: 1 instance, Ch_15_Statistical_Control (G10). fig-alt: 0 instances book-wide (G02).
 
 ### Recurring voice assets (protect from editors)
 - Statistics/Probability Gods, Dorkaos, Reviewer 2, foam chainsaw, coerced-undergrad-labor arc, effect-size bats, "rectangular coffins," "statistical identity theft," "celestial punctuation," "computation is not forgiveness."

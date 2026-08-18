@@ -1,4 +1,4 @@
-# Chapter 25 — Reporting Models (Chapter_Reporting.qmd)
+# Chapter 25 — Reporting Models (Ch_37_Reporting.qmd)
 
 **Snapshot:** ~830 words. Right instincts throughout — lead with the scientific result,
 extract from model objects, "celestial punctuation," Future You. But it's thin for the job
@@ -12,7 +12,7 @@ example write-up contains no numbers.
 - **Priority:** MED
 - **Perspective:** Student
 - **Effort:** S
-- **Location:** Chapter_Reporting.qmd → "Example Write-Up" (search anchor: "predicted an estimated increase in memory performance")
+- **Location:** Ch_37_Reporting.qmd → "Example Write-Up" (search anchor: "predicted an estimated increase in memory performance")
 - **Problem:** The write-up paragraph deliberately omits every statistic, then instructs "replace that language with the actual numerical estimates." The chapters students will imitate (t-tests, regression, interactions) all model *filled-in* write-ups with live inline values; the dedicated reporting chapter is the only one that doesn't. For this audience, showing the completed sentence teaches more than describing it.
 - **Fix:** Fill the paragraph with inline R from `ReportModel` (b, SE or CI, t, p per predictor; R², F for the model) exactly as Chapters 13/15/16 do, and keep one sentence noting the underlying template structure ("claim in units → statistics in parentheses → what it does and doesn't support"). 
 - **Approved:** [x] — IMPLEMENTED 2026-08-17. Every statistic in the paragraph is now inline
@@ -44,7 +44,7 @@ example write-up contains no numbers.
 - **Priority:** MED
 - **Perspective:** Student
 - **Effort:** M
-- **Location:** Chapter_Reporting.qmd → after "What Belongs in a Regression Table?" (search anchor: "celestial punctuation")
+- **Location:** Ch_37_Reporting.qmd → after "What Belongs in a Regression Table?" (search anchor: "celestial punctuation")
 - **Problem:** Every chapter shows APA write-ups, but the mechanical rules students get graded on appear nowhere: statistics in italics (*t*, *p*, *M*, *SD*, *R*²), no leading zero for values bounded by 1 (p, r: ".03" not "0.03"), two decimals for most statistics, exact p-values except "< .001", df in parentheses, spaces around = and <. The 343 curriculum promises an "APA format refresher" (Week 6); the book — built partly at Stephanie Del Tufo's urging to teach APA write-ups — has no single place these rules live.
 - **Fix:** Add a compact section "The APA Formatting Rules Nobody Tells You" as a table: rule | wrong | right (6–8 rows covering the above). Close with one sentence: every write-up example in this book follows these; when your poster doesn't, the TA will find it. Cross-reference from the earlier APA sections is optional but cheap (one line in each: "formatting rules live in the Reporting chapter").
 - **Approved:** [x] — IMPLEMENTED 2026-08-17 as "The APA Formatting Rules Nobody Tells You",
@@ -74,7 +74,7 @@ example write-up contains no numbers.
 - **Priority:** LOW
 - **Perspective:** Student
 - **Effort:** S
-- **Location:** Chapter_Reporting.qmd → "Extract Results from the Model Object" (search anchor: "broom::tidy(ReportModel, conf.int = TRUE)")
+- **Location:** Ch_37_Reporting.qmd → "Extract Results from the Model Object" (search anchor: "broom::tidy(ReportModel, conf.int = TRUE)")
 - **Problem:** `broom::tidy` + kable is the right teaching path, but sjPlot is already the course's plotting package and `tab_model(ReportModel)` produces a publication-ready HTML table in one line — the tool students will reach for on posters. Omitting it means they'll find it on Stack Overflow without the chapter's guardrails.
 - **Fix:** Add a short aside: `sjPlot::tab_model(ReportModel)` shown once, with the guardrail sentence (a beautiful table of a bad model is still a bad model; the checklist above governs what belongs in it regardless of who typesets it).
 - **Approved:** [x] — IMPLEMENTED 2026-08-17 as a short subsection under "Extract Results
@@ -140,7 +140,7 @@ enough to catch a bare letter is confident enough to corrupt every "r" in the bo
 **The bug this nearly shipped, which is the reusable lesson.** `italicize_tF.R` protects
 inline code and math with one alternation, scanning left to right. That is not safe here,
 because a `$` can live *inside* a code span. On this line in
-`Chapter_Regression with Cat Variables.qmd`:
+`Ch_12_Categorical_Regression.qmd`:
 
 ```
 $t(`r tl$df`) =$ `r round(tl$t.ratio, 2)`, $p < .001$
@@ -158,7 +158,7 @@ Three other exclusions were added after auditing the dry run one hit at a time:
   `title=` as an attribute, not as markdown, so asterisks would show up literally.
 - **HTML comment blocks**, tracked across lines rather than by delimiter, so `---Alex---`
   notes are left alone.
-- Two bullets in `Chapter_ChiSquare.qmd` that looked like statistics but were **`qchisq()`
+- Two bullets in `Ch_34_Chi_Square.qmd` that looked like statistics but were **`qchisq()`
   argument names** (`p = .05`, `df = 1`). Those wanted code font, not italics, and were
   changed to backticks by hand instead.
 

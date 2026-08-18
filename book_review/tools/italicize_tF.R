@@ -13,7 +13,7 @@
 args  <- commandArgs(trailingOnly = TRUE)
 write <- "--write" %in% args
 
-files <- sort(list.files(".", pattern = "^(Chapter_.*|index)\\.qmd$"))
+files <- sort(list.files(".", pattern = "^(Ch_.*|index)\\.qmd$"))
 
 stat_words <- "(tests?|statistics?|values?|distributions?|ratios?|scores?)"
 

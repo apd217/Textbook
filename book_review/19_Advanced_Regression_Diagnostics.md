@@ -1,4 +1,4 @@
-# Chapter 19 — Advanced: Regression Diagnostics (Chapter_Advanced_Regression_Diagnostics.qmd)
+# Chapter 19 — Advanced: Regression Diagnostics (Ch_19_Regression_Diagnostics.qmd)
 
 **Snapshot:** ~1,350 words, grad/advanced audience (correctly labeled). Conceptually careful
 (leverage ≠ influence, screening thresholds ≠ deletion warrants, hat matrix for the brave)
@@ -14,7 +14,7 @@ never demonstrated.
 - **Priority:** MED
 - **Perspective:** Professor (grad reader)
 - **Effort:** S
-- **Location:** Chapter_Advanced_Regression_Diagnostics.qmd → after the Cook's distance plot (search anchor: "not whom to throw into the statistical volcano.")
+- **Location:** Ch_19_Regression_Diagnostics.qmd → after the Cook's distance plot (search anchor: "not whom to throw into the statistical volcano.")
 - **Problem:** Participant 60 is built, flagged in two plots, and moralized about ("If one person reverses the entire result, that instability is part of the result") — but the payoff never happens: the model is never refit without them, so the reader never sees how much the coefficients actually move. The one thing a grad student will do in practice (sensitivity refit) is the one thing not modeled.
 - **Fix:** Add a short chunk: `TherapyModel.60 <- update(TherapyModel, data = TherapyData[-60, ])` and a two-row coefficient comparison (kable or `rbind(coef(...))`), with 2–3 sentences interpreting the shift and repeating the rule: report both, don't silently pick the flattering one. Verify by running.
 - **Approved:** [ x] — IMPLEMENTED 2026-08-17, and **expanded**: the refit now happens twice.
@@ -34,7 +34,7 @@ never demonstrated.
 - **Priority:** MED
 - **Perspective:** Professor (grad reader)
 - **Effort:** S
-- **Location:** Chapter_Advanced_Regression_Diagnostics.qmd → "Multicollinearity" (search anchor: "VIF_j=\\frac{1}{1-R_j^2}")
+- **Location:** Ch_19_Regression_Diagnostics.qmd → "Multicollinearity" (search anchor: "VIF_j=\\frac{1}{1-R_j^2}")
 - **Problem:** Every other diagnostic in the chapter has a plot or computation; multicollinearity gets only algebra. The reader leaves without knowing `car::vif(TherapyModel)` exists — the single command they'll actually use — or what magnitude should worry them.
 - **Fix:** Add `car::vif(TherapyModel)` with output and two sentences: conventional worry thresholds (5–10) are folklore, not law; what matters is whether the inflated SEs damage the question being asked. Optional: one line simulating two r = .9 predictors to show a VIF ≈ 5 in action. (Also connects back to CH13-P01's "controlled slopes cost precision" point — cross-reference it.)
 - **Approved:** [ x] — IMPLEMENTED 2026-08-17. `library(car)` + `vif(TherapyModel)` added
@@ -47,7 +47,7 @@ never demonstrated.
   unarguable: same true effect, and $p$ goes $< .0001 \to .039 \to .43$.
   **A verified identity worth keeping:** $\sqrt{VIF}$ *is* the SE inflation factor. VIF 5.13
   gives $\sqrt{}=2.27$, and the SE ratio in the table is 2.26. Built prose on it.
-  Cross-reference done, and it pays a debt: `Chapter_Multiple_Regression_Control.qmd:466`
+  Cross-reference done, and it pays a debt: `Ch_13_Multiple_Regression.qmd:466`
   already says "A later chapter measures exactly this with something called *variance
   inflation*." This is that chapter, so the link closes a promise rather than just pointing.
   Added a `callout-warning` making the 5-and-10 rule folklore explicitly, plus a paragraph on
@@ -57,7 +57,7 @@ never demonstrated.
 - **Priority:** LOW
 - **Perspective:** Professor (grad reader)
 - **Effort:** S
-- **Location:** Chapter_Advanced_Regression_Diagnostics.qmd → "When the Variance Changes" (search anchor: "reporting heteroscedasticity-consistent standard errors")
+- **Location:** Ch_19_Regression_Diagnostics.qmd → "When the Variance Changes" (search anchor: "reporting heteroscedasticity-consistent standard errors")
 - **Problem:** HC standard errors are recommended twice, but the reader is never shown how — and this is the fix they'll need most often (it's also CCAW-adjacent material). One chunk closes the loop.
 - **Fix:** Add: `lmtest::coeftest(TherapyModel, vcov = sandwich::vcovHC(TherapyModel, type = "HC3"))` with one sentence ("same slopes, more honest SEs when the spread misbehaves") and a pointer that `performance::check_model()` bundles most of this chapter's plots into one call — worth knowing even if the hand-built versions teach better.
 - **Approved:** [ x] — IMPLEMENTED 2026-08-17 with **one deviation, flagged in the file as an
@@ -78,14 +78,14 @@ never demonstrated.
 - **Priority:** LOW
 - **Perspective:** Publisher
 - **Effort:** S
-- **Location:** Chapter_Advanced_Regression_Diagnostics.qmd → three spots (search anchors: "## Advanced Topic: Who Is This For?", "in the graduate mixed-model section", "## The Short Story")
-- **Problem:** (1) The Intro-to-Regression chapter frames assumptions as five questions; this chapter re-derives the same list without referencing it — a free continuity win missed. (2) "We will do that in the graduate mixed-model section" — vague; Chapter_Mixed_Regression.qmd is active and linkable. (3) The Short Story here is a paragraph while every other chapter uses bullets — trivial inconsistency, but this is the recap format students learn to scan. (4) Typo: workflow step 4 "inspect" is lowercase (search: "4. inspect Q–Q behavior").
+- **Location:** Ch_19_Regression_Diagnostics.qmd → three spots (search anchors: "## Advanced Topic: Who Is This For?", "in the graduate mixed-model section", "## The Short Story")
+- **Problem:** (1) The Intro-to-Regression chapter frames assumptions as five questions; this chapter re-derives the same list without referencing it — a free continuity win missed. (2) "We will do that in the graduate mixed-model section" — vague; Ch_18_Mixed_Regression.qmd is active and linkable. (3) The Short Story here is a paragraph while every other chapter uses bullets — trivial inconsistency, but this is the recap format students learn to scan. (4) Typo: workflow step 4 "inspect" is lowercase (search: "4. inspect Q–Q behavior").
 - **Fix:** (1) Open with "In the Intro to Regression chapter we asked five questions about the line; this chapter is those questions with a magnifying glass" + link. (2) Link the mixed chapter. (3) Convert Short Story to 4–5 bullets. (4) Capitalize.
 - **Approved:** [x ] — IMPLEMENTED 2026-08-17, all four parts.
   (1) The five-questions bridge is in, and it landed better than planned: the cold open now
-  sits above it, and question 5 in `Chapter_Intro_to_regression.qmd:271` is literally "Is one
+  sits above it, and question 5 in `Ch_11_Intro_Regression.qmd:271` is literally "Is one
   strange person steering the entire line while everyone else watches?" So the bridge reads
-  "You have just seen question five win." (2) Linked to `Chapter_Mixed_Regression.qmd`, plus
+  "You have just seen question five win." (2) Linked to `Ch_18_Mixed_Regression.qmd`, plus
   two sentences on why independence is the one assumption a diagnostic plot cannot rescue you
   from. (3) Short Story is now 7 bullets. (4) Capitalized.
   **Also fixed, not in any item (two of Alex's slips, both invisible in code and only findable
@@ -103,7 +103,7 @@ file as the target state for the global YAML item.)
 **G02 DONE 2026-08-17:** all three figures now carry `fig-alt`, written against the rendered
 PNGs rather than the plotting code, per the standing rule. The three chunks were converted from
 `{r label, fig.width=...}` headers to `#|` option style to carry it, matching the convention in
-`Chapter_CatXCat_Interaction` and `Chapter_Control`. Chunk labels are unchanged, so figure
+`Ch_17_Categorical_Interaction` and `Ch_15_Statistical_Control`. Chunk labels are unchanged, so figure
 filenames and the freeze cache are unaffected.
 
 **Chapter length**, ~1,350 words to 3,078 after the first pass, then to **4,516** after Alex's

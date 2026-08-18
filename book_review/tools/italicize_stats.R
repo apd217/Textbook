@@ -5,7 +5,7 @@
 #
 # Companion to italicize_tF.R, which did *t* and *F* on 2026-08-16. Alex
 # approved extending the convention to p, r, M, SD, N, n and df on 2026-08-17,
-# at the same time he approved the APA formatting table in Chapter_Reporting.
+# at the same time he approved the APA formatting table in Ch_37_Reporting.
 #
 # SCOPE, deliberately narrow. Only two shapes are touched:
 #
@@ -24,12 +24,12 @@
 #
 # NOT swept, on purpose: Greek letters, and CI/ANOVA/OR-style word
 # abbreviations. See "The APA Formatting Rules Nobody Tells You" in
-# Chapter_Reporting for the rule this implements.
+# Ch_37_Reporting for the rule this implements.
 
 args  <- commandArgs(trailingOnly = TRUE)
 write <- "--write" %in% args
 
-files <- sort(list.files(".", pattern = "^(Chapter_.*|index)[.]qmd$"))
+files <- sort(list.files(".", pattern = "^(Ch_.*|index)[.]qmd$"))
 
 symbols <- "(p|r|M|SD|N|n|df)"
 
@@ -51,7 +51,7 @@ subst <- function(s) {
 # math matcher pairs the wrong dollars, leaves the real `$p < .001$` exposed,
 # and the sweep writes `$*p* < .001$`, which renders as literal asterisks
 # inside math. Found by auditing the dry run against
-# Chapter_Regression with Cat Variables.qmd, twice. Mask code, then math.
+# Ch_12_Categorical_Regression.qmd, twice. Mask code, then math.
 code_re <- "`[^`]*`"
 math_re <- "([$][$].*?[$][$])|([$][^$]+[$])"
 

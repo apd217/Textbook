@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 ## What a Third Measurement Buys
 
-The [mixed regression chapter](Chapter_Mixed_Regression.qmd) stopped, deliberately, at two occasions. Baseline and Week 6, one within-subjects factor, one between-subjects factor, four cells, a random intercept. It ended by admitting what that design could not do, and this chapter is the part it could not do.
+The [mixed regression chapter](../Ch_18_Mixed_Regression.qmd) stopped, deliberately, at two occasions. Baseline and Week 6, one within-subjects factor, one between-subjects factor, four cells, a random intercept. It ended by admitting what that design could not do, and this chapter is the part it could not do.
 
 Three things were out of reach with two measurements:
 
@@ -195,7 +195,7 @@ summary(random_intercept_model)
 
 This is the same `(1 | participant)` that reproduced the paired *t*-test in the previous chapter, doing the same job on a larger design: give participants different intercepts, by estimating the variance of those intercepts rather than 100 unrelated participant coefficients.
 
-`lmer()` fits with REML by default, which is what we want while we are looking at the random effects. The [previous chapter](Chapter_Mixed_Regression.qmd) has the deliberately oversimplified version of what REML is doing and why. The practical rule is unchanged: REML while we are estimating the random-effects structure, REML switched off when we compare models that differ in their fixed effects.
+`lmer()` fits with REML by default, which is what we want while we are looking at the random effects. The [previous chapter](../Ch_18_Mixed_Regression.qmd) has the deliberately oversimplified version of what REML is doing and why. The practical rule is unchanged: REML while we are estimating the random-effects structure, REML switched off when we compare models that differ in their fixed effects.
 
 <!-- ---Alex--- Pointer rather than a copy, so your REML callout lives in exactly one place.
 If this chapter ends up NOT following Mixed_Regression in the running order, paste the callout
@@ -311,7 +311,7 @@ estimated_means <- emmeans(
 estimated_means
 ```
 
-Do not automatically test every possible pair at every possible week because the software makes it easy. That is how a sensible research question becomes 28 tests and a dead [salmon](Chapter_Multiple_Comparisons.qmd) [@bennett2010]. Choose comparisons that answer the theory, and adjust for multiplicity when you conduct a family of tests.
+Do not automatically test every possible pair at every possible week because the software makes it easy. That is how a sensible research question becomes 28 tests and a dead [salmon](../Ch_20_Multiple_Comparisons.qmd) [@bennett2010]. Choose comparisons that answer the theory, and adjust for multiplicity when you conduct a family of tests.
 
 ## Reporting the Result
 

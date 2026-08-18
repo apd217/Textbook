@@ -1,0 +1,593 @@
+---
+title: "P-Values and Multiple Comparisons"
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4.5
+)
+```
+
+::: {.callout-warning}
+## Advanced topic
+
+This chapter assumes that you already understand null hypotheses, Type I and Type II errors, power, effect sizes, and confidence intervals. Undergraduates may continue, but should bring snacks and a responsible graduate student. Graduate students should bring two snacks because they are expected to pretend this is easy.
+:::
+
+## First, Let Us Put a Dead Fish in an MRI
+
+Bennett and colleagues placed a mature Atlantic salmon in an fMRI scanner and showed it photographs of people in social situations. The salmon was asked to decide what emotion each person was experiencing. There was a slight methodological complication: **the salmon was dead** [@bennett2010].
+
+The researchers ran tens of thousands of voxel-by-voxel tests. With an uncorrected threshold of $p < .001$, they found apparently active voxels in the salmon's brain cavity and spinal column. After proper familywise-error and false-discovery-rate corrections, the salmon's social-cognitive abilities vanished. Even relaxed corrected thresholds found nothing, which is generally what we hope to discover about the thoughts of a dead fish.
+
+If Atlantic salmon become difficult to recruit, Alex can substitute for the fish because he is approximately as brain-dead. The major design problem is that Alex may twitch, complain, demand cookies, and ask whether the scan counts toward tenure.
+
+The study was deliberately absurd, but the statistical problem was real. If you conduct enough tests, fickle chance receives enough opportunities to manufacture something exciting. A tiny *p*-value attached to one selected result does not tell us how many other tests were run before that result crawled out of the computer wearing a crown.
+
+Before we control many *p*-values, however, we should establish what one *p*-value means. This seems obvious. It is not. Researchers have spent nearly a century proving that they can misunderstand a definition with remarkable consistency.
+
+## What a P-Value Actually Is
+
+A *p*-value answers this conditional question:
+
+> **Assuming the null hypothesis and the statistical model are correct, how probable are results at least as incompatible with the null hypothesis as the result we observed?**
+
+In shorthand:
+
+$$
+p = P(\text{data this extreme or more extreme} \mid H_0, \text{model})
+$$
+
+Small *p*-values say that the observed result does not sit comfortably inside the null model. They do not identify which assumption is wrong. Perhaps the null hypothesis is a poor description. Perhaps independence failed, the model was misspecified, the measurement was terrible, or one participant completed the experiment while being chased by a goat Statistics can tell you that the whole package looks strained. It cannot interrogate the goat.
+
+**Statistical significance** is a decision rule. If the *p*-value is at or below a threshold chosen in advance, usually $\alpha = .05$, we call the result statistically significant. The threshold is a convention, not a cliff in nature. A result with $p = .049$ and one with $p = .051$ are not members of different species.
+
+### The Conditional-Probability Trap
+
+The most famous mistake is reversing the condition:
+
+$$
+P(D \mid H_0) \neq P(H_0 \mid D)
+$$
+
+The probability of screaming **given that** a foam-bat-wielding research assistant is chasing you is probably high. The probability that a foam-bat-wielding research assistant is chasing you **given that** you are screaming is not necessarily high. You may have seen your tuition bill.
+
+Cohen emphasized that a *p*-value gives $P(D \mid H_0)$, not the probability that the null is true after seeing the data [@cohen1994]. To calculate $P(H_0 \mid D)$, we would need additional information, including prior probabilities and an explicit alternative model. Quietly turning one conditional probability around does not make it Bayesian. It makes it wrong.
+
+### A P-Value Is Not Any of These Things
+
+A *p*-value is **not**:
+
+- The probability that the null hypothesis is true.
+- The probability that the research hypothesis is false.
+- The probability that the result happened "because of chance."
+- The Type I error rate for this particular result.
+- The probability that the study will replicate.
+- The size or practical importance of the effect.
+- A tiny certificate declaring the study free of confounds, bias, fraud, or nonsense.
+
+Lane-Getaz documented thirteen recurring *p*-value misconceptions in statistics students and experienced researchers [@lanegetaz2005]. Even graduate students who had survived multiple statistics courses often confused *p*-values with the probability of a hypothesis, replicability, effect size, or Type I error. Taking another statistics course helps, but apparently does not exorcise the demon automatically.
+
+## Cohen's Complaint: The Ritual Ate the Science
+
+Cohen's title, *The Earth Is Round ($p < .05$)*, mocked the habit of testing a nearly certain or scientifically uninteresting null and then acting impressed when it was rejected [@cohen1994]. In much of psychology, an exact **nil hypothesis**, a population difference or correlation of precisely zero, is implausible. With a large enough sample, a trivial departure from zero can become statistically significant.
+
+That produces two failures:
+
+1. Researchers mistake "detectable" for "important."
+2. Researchers treat rejection of one null model as confirmation of their favorite theory, even though confounds, measurement problems, alternative theories, and several Probability Gods remain available.
+
+Cohen did not offer a new sacred test to solve this problem. He recommended exploratory data analysis, graphs, effect sizes, confidence intervals, better measurement, power planning, and replication. In other words: look at what happened, estimate how much happened, admit the uncertainty, and see whether it happens again. Annoyingly, the solution is scientific judgment rather than purchasing a newer computer that can do a more powerful fancy test.
+
+## Significant Here, Not Significant There
+
+Gelman and Stern identified another extremely common error: concluding that two effects differ because one is statistically significant and the other is not [@gelman2006].
+
+Suppose two independent studies estimate effects of:
+
+$$
+25 \pm 10 \qquad \text{and} \qquad 10 \pm 10
+$$
+
+The first estimate is statistically significant and the second is not. But their estimated **difference** is $15$, with a standard error of:
+
+$$
+SE_{difference} = \sqrt{10^2 + 10^2} = 14.14
+$$
+
+The two effects are only about 1.06 standard errors apart. That difference is not statistically significant. "Treatment A worked but Treatment B did not" is not evidence that Treatment A worked **better** than Treatment B. Test the comparison you want to claim.
+
+This matters for interactions, subgroups, replications, and breathless headlines. If an effect is significant for women but not men, younger adults but not older adults, or Tuesday but not Wednesday, you have not established a group difference until you test that difference directly.
+
+## One Test at a Time Creates a Family Problem
+
+Set $\alpha = .05$ for one true null hypothesis. In repeated use, that test falsely rejects the null about 5% of the time. Now run $j$ independent tests, all with true null hypotheses. The probability of **at least one** false positive is:
+
+$$
+FWER = 1 - (1 - \alpha)^j
+$$
+
+With 20 independent tests:
+
+$$
+1 - .95^{20} = .642
+$$
+
+There is about a 64% chance of at least one false positive. You did not change $\alpha$ for any individual test. You simply gave fickle chance twenty auditions and published whichever one could sing.
+
+```{r}
+#| label: fig-fwer-growth
+#| fig-cap: "The probability of at least one false positive grows rapidly as more independent true null hypotheses are tested at alpha = .05. Simulated points sit on the theoretical curve."
+#| fig-alt: "Line graph with the number of tests in the family from 1 to 100 on the x axis and the probability of one or more false positives from 0 to 1 on the y axis. A dark blue curve starts at 0.05 for a single test, climbs steeply to about 0.40 by 10 tests and about 0.64 by 20, then flattens as it approaches 1, reaching about 0.92 at 50 tests and nearly 1 at 100. Six orange simulated points at 1, 5, 10, 20, 50 and 100 tests sit directly on the curve. A dashed grey horizontal line near the bottom marks the 5 percent reference level, which the curve leaves immediately."
+set.seed(343)
+
+alpha <- .05
+m_grid <- 1:100
+theoretical_fwer <- 1 - (1 - alpha)^m_grid
+
+simulated_at <- c(1, 5, 10, 20, 50, 100)
+simulated_fwer <- vapply(simulated_at, function(m) {
+  p_values <- matrix(runif(20000 * m), ncol = m)
+  mean(rowSums(p_values <= alpha) > 0)
+}, numeric(1))
+
+plot(
+  m_grid, theoretical_fwer,
+  type = "l", lwd = 3, col = "#1F4E79",
+  ylim = c(0, 1),
+  xlab = "Number of tests in the family",
+  ylab = "Probability of one or more false positives"
+)
+points(simulated_at, simulated_fwer, pch = 19, col = "#D55E00")
+abline(h = .05, lty = 2, col = "gray50")
+legend(
+  "bottomright",
+  inset = c(.01, .10),
+  legend = c("Theoretical FWER", "Simulation"),
+  col = c("#1F4E79", "#D55E00"),
+  lty = c(1, NA), pch = c(NA, 19), bty = "n"
+)
+text(78, .075, "5% reference", col = "gray40", cex = .82)
+```
+
+The independence formula is not exact for correlated tests, such as neighboring fMRI voxels. Dependence changes the arithmetic but does not make the problem disappear. Specialized methods can exploit that dependence; pretending the other tests never happened cannot.
+
+### What Counts as a Family?
+
+A **family** is the set of tests over which you want a joint error guarantee. Defining it requires scientific judgment.
+
+- All pairwise comparisons following one omnibus test often form a family.
+- All outcomes used to support one broad claim may form a family.
+- Thousands of voxels in one brain contrast form a family.
+- Every analysis ever conducted by everyone named Alex does not form one useful family, although it may form a cry for help.
+
+The family should be defined by the claim and analysis plan, preferably before looking at results. Dividing twenty tests into twenty "families of one" after seeing the *p*-values is not a clever solution. It is p-hacking with office supplies.
+
+## Familywise Error Rate: Protect the Whole Family
+
+The **familywise error rate** (FWER) is the probability of making **one or more Type I errors anywhere in the family**:
+
+$$
+FWER = P(V \geq 1)
+$$
+
+Here, $V$ is the number of false rejections. FWER control is strict. It is appropriate when even one false positive would be costly or when a small, confirmatory set of claims is being tested.
+
+### Bonferroni
+
+For $j$ tests, Bonferroni compares each *p*-value with $\alpha/j$, or multiplies each *p*-value by $j$ and caps the result at 1:
+
+$$
+p_{Bonferroni} = \min(jp, 1)
+$$
+
+Bonferroni works under arbitrary dependence, which is useful, but it can sacrifice substantial power when there are many tests. Reviewer 2 always asks for this correction cause they want to kill your power and thus your paper. Don't do it unless you powered for it in advance. 
+
+### Holm's Sequential Method
+
+Holm's procedure orders the *p*-values and tests them sequentially [@holm1979]. It controls FWER under the same broad conditions as Bonferroni and is never less powerful. If your entire justification for plain Bonferroni is "that is the one I remember," R remembers Holm for you.
+
+```{r}
+raw_p <- c(.001, .012, .021, .046, .210, .730)
+
+data.frame(
+  test = paste("Hypothesis", 1:length(raw_p)),
+  raw = raw_p,
+  bonferroni = p.adjust(raw_p, method = "bonferroni"),
+  holm = p.adjust(raw_p, method = "holm")
+)
+```
+
+## False Discovery Rate: Permit Some Risk Among Discoveries
+
+In large exploratory analyses, strict FWER control may erase too many real signals. The **false discovery rate** (FDR) instead controls the expected proportion of false positives among the rejected hypotheses:
+
+$$
+FDR = E\left(\frac{V}{\max(R,1)}\right)
+$$
+
+$V$ is the number of false rejections and $R$ is the total number of rejections. The `max(R,1)` convention sets the proportion to zero when nothing is rejected.
+
+Benjamini and Hochberg's procedure controls FDR under independence and certain forms of positive dependence [@benjamini1995]. It is commonly available in R as `method = "BH"`.
+
+FDR of .05 does **not** guarantee that exactly 5% of one study's discoveries are false. Some studies will have none, some will have more, and some will reject nothing. The control applies to the expected false-discovery proportion over repeated uses of the procedure.
+
+```{r}
+data.frame(
+  test = paste("Hypothesis", 1:length(raw_p)),
+  raw = raw_p,
+  holm_fwer = p.adjust(raw_p, method = "holm"),
+  bh_fdr = p.adjust(raw_p, method = "BH")
+)
+```
+
+### What FDR Is Actually For
+
+FDR gets described as the lenient option, which makes it sound like the correction you reach for when the real ones were inconvenient. That is not what it is. FDR is the right tool for a particular question, and the question is not "is this specific comparison real?" It is:
+
+> **Is anything happening here at all, and if so, where should I look next?**
+
+That is a screening question. It is what you ask of ten thousand voxels, twenty thousand genes, or a battery of forty outcomes you collected because the grant said you could. You are not making forty claims. You are trying to find the handful worth a second study, and you can tolerate a few dead ends in that handful, because the second study is what settles it.
+
+The obvious worry is that a method willing to tolerate false discoveries will manufacture them out of nothing. So let us hand it nothing.
+
+Here is a brain with no activity in it whatsoever: ten thousand voxels, every null true, every *p*-value pure noise. This is the salmon.
+
+```{r}
+#| label: dead-brain
+set.seed(343)
+
+n_voxels <- 10000
+dead_brain <- runif(n_voxels)   # nothing is happening anywhere, by construction
+
+DeadCounts <- c(
+  uncorrected.p05  = sum(dead_brain < .05),
+  uncorrected.p001 = sum(dead_brain < .001),
+  BH_FDR           = sum(p.adjust(dead_brain, "BH") < .05),
+  Holm             = sum(p.adjust(dead_brain, "holm") < .05)
+)
+
+DeadCounts
+```
+
+Read that top row and then remember it is a corpse. An uncorrected threshold of $.05$ finds `r DeadCounts["uncorrected.p05"]` active voxels in a dead brain. At the salmon paper's own uncorrected threshold of $p < .001$, it still finds `r DeadCounts["uncorrected.p001"]`, which is the same order as what Bennett and colleagues reported, because it is the same arithmetic doing the same thing.
+
+**BH finds zero.** So does Holm. The correction that supposedly waves things through waved nothing through, because there was nothing to wave.
+
+That is not a lucky seed either. Run two thousand dead brains and count how often BH declares even one discovery:
+
+```{r}
+#| label: dead-brain-repeated
+set.seed(343)
+
+any_discovery <- replicate(2000, {
+  any(p.adjust(runif(n_voxels), "BH") < .05)
+})
+
+CryWolfRate <- mean(any_discovery)
+
+CryWolfRate
+```
+
+About `r round(100 * CryWolfRate, 1)`%, which is the guarantee working. When every null is true there is nothing to discover, so the false-discovery proportion is either 0 or 1, and controlling its expectation at $.05$ means declaring anything at all no more than 5% of the time. **Under a global null, FDR control gives you familywise control for free.**
+
+Now give it a brain with something in it: the same ten thousand voxels, two hundred of them genuinely active.
+
+```{r}
+#| label: live-brain
+set.seed(343)
+
+z <- rnorm(n_voxels)
+z[1:200] <- z[1:200] + 4          # 200 real effects, 9,800 true nulls
+live_brain <- 2 * pnorm(-abs(z))
+
+Real  <- 1:200
+Noise <- 201:n_voxels
+
+CountUp <- function(adjusted) {
+  c(found = sum(adjusted < .05),
+    real  = sum(adjusted[Real] < .05),
+    false = sum(adjusted[Noise] < .05))
+}
+
+BrainTable <- rbind(
+  Uncorrected = CountUp(live_brain),
+  BH_FDR      = CountUp(p.adjust(live_brain, "BH")),
+  Holm        = CountUp(p.adjust(live_brain, "holm"))
+)
+
+BrainTable
+```
+
+This is the entire argument in three rows.
+
+**Uncorrected** reports `r BrainTable["Uncorrected", "found"]` findings, and `r BrainTable["Uncorrected", "false"]` of them are noise. Most of that table is garbage and it looks exactly like the real part.
+
+**Holm** makes no mistakes at all: `r BrainTable["Holm", "false"]` false discoveries out of `r BrainTable["Holm", "found"]`. It also misses `r 200 - BrainTable["Holm", "real"]` of the 200 real effects, which in a screening study means `r 200 - BrainTable["Holm", "real"]` things you will never look at again.
+
+**BH** recovers `r BrainTable["BH_FDR", "real"]` of the 200 and pays `r BrainTable["BH_FDR", "false"]` false ones for them. That is the trade, stated plainly: you accept that roughly one in twenty of the things on your follow-up list is a dead end, in exchange for a follow-up list that actually contains the findings.
+
+Note that the observed false-discovery proportion here is `r round(BrainTable["BH_FDR", "false"] / BrainTable["BH_FDR", "found"], 3)`, slightly above the $.05$ you asked for. That is not a bug, and it is the point made two paragraphs above the first table in this section: FDR controls the *expected* proportion across repeated uses, so any single study can land above or below it.
+
+::: {.callout-note title="Why the Salmon Is the Right Test of a Correction"}
+The dead salmon is usually told as a joke about fMRI. It is better understood as a **calibration check**, and it is one every method in this chapter passes.
+
+A correction is a promise about how often you will be fooled. The cheapest way to test such a promise is to hand the procedure data with nothing in it and confirm that it says nothing. The salmon is a physical version of the simulation above, and both give the same answer: the uncorrected threshold hallucinates, and every corrected one, FDR included, does not.
+
+So when someone objects that FDR is too permissive for serious work, the reply is that it is permissive about *which* discoveries it lets through, not about *whether* there is anything there. On a dead fish it reports a dead fish.
+:::
+
+## What the Corrections Trade Away
+
+No method is perfect. Tight false-positive control usually reduces the ability to detect real effects. The useful question is not "Which correction is best?" It is "Which error promise matches this research goal?"
+
+The simulation below contains 20 tests per study. Five hypotheses have real standardized signals and fifteen null hypotheses are true. We compare no adjustment, Bonferroni, Holm, and Benjamini--Hochberg over 5,000 simulated studies.
+
+```{r}
+#| label: multiple-testing-simulation
+set.seed(343)
+
+n_families <- 5000
+n_tests <- 20
+n_real <- 5
+
+z_values <- matrix(rnorm(n_families * n_tests), nrow = n_families)
+z_values[, 1:n_real] <- z_values[, 1:n_real] + 2.5
+p_matrix <- 2 * pnorm(-abs(z_values))
+
+adjust_rows <- function(method) {
+  t(apply(p_matrix, 1, function(p) p.adjust(p, method = method) <= .05))
+}
+
+rejections <- list(
+  Unadjusted = p_matrix <= .05,
+  Bonferroni = adjust_rows("bonferroni"),
+  Holm = adjust_rows("holm"),
+  BH_FDR = adjust_rows("BH")
+)
+
+summarize_method <- function(reject) {
+  true_discoveries <- rowSums(reject[, 1:n_real, drop = FALSE])
+  false_discoveries <- rowSums(reject[, (n_real + 1):n_tests, drop = FALSE])
+  total_discoveries <- true_discoveries + false_discoveries
+  false_discovery_proportion <- ifelse(
+    total_discoveries == 0,
+    0,
+    false_discoveries / total_discoveries
+  )
+
+  c(
+    average_true_discoveries = mean(true_discoveries),
+    probability_any_false_positive = mean(false_discoveries > 0),
+    average_false_discovery_proportion = mean(false_discovery_proportion)
+  )
+}
+
+round(t(vapply(rejections, summarize_method, numeric(3))), 3)
+```
+
+The unadjusted method finds more real signals but also produces at least one false positive far too often. Bonferroni and Holm protect strongly against any false positive, with Holm usually retaining a little more power. BH accepts a higher chance that a study contains some false positives in exchange for finding more real signals, while controlling their expected proportion among the discoveries.
+
+| Goal | Sensible default |
+|---|---|
+| A few planned, confirmatory tests where any false claim is costly | Holm FWER control |
+| A simple method that remains valid under broad dependence | Bonferroni, accepting lower power |
+| Many exploratory tests where some false leads can be tolerated and checked later | Benjamini--Hochberg FDR control |
+| A small number of clearly preregistered primary tests | Test those primary hypotheses as planned; correct the separate exploratory family |
+
+## Multiple Comparisons in Regression
+
+A regression with many coefficients is also a collection of tests. The correct family depends on the claim.
+
+If one coefficient was the preregistered primary hypothesis and the others were prespecified covariates, automatically correcting every coefficient together may not represent the design. If you added 84 predictors, 31 interactions, six subgroups, and the participant's astrological sign until something became significant, you have a multiple-testing problem plus a confession.
+
+Store the *p*-values you intend to treat as one family and adjust them directly. Here is the kitchen-sink model described above, built small enough to inspect: 100 people, twelve predictors, and only the first two doing anything at all. The other ten are `rnorm()` with a job title.
+
+```{r}
+#| label: regression-family
+set.seed(343)
+
+n_people <- 100
+kitchen_sink <- as.data.frame(matrix(rnorm(n_people * 12), nrow = n_people))
+names(kitchen_sink) <- paste0("V", 1:12)
+
+# Only V1 and V2 are real. V3 through V12 are noise.
+kitchen_sink$Focus <-
+  0.45 * kitchen_sink$V1 -
+  0.38 * kitchen_sink$V2 +
+  rnorm(n_people)
+
+sink_model <- lm(Focus ~ ., data = kitchen_sink)
+
+coefficient_p <- coef(summary(sink_model))[-1, "Pr(>|t|)"]
+
+round(data.frame(
+  raw  = coefficient_p,
+  holm = p.adjust(coefficient_p, method = "holm"),
+  BH   = p.adjust(coefficient_p, method = "BH")
+), 4)
+```
+
+Read the `raw` column first and pretend you do not know how the data were made. Three predictors clear $.05$: `r paste(names(coefficient_p)[coefficient_p <= .05], collapse = ", ")`. Two of them are real. The third, `r setdiff(names(coefficient_p)[coefficient_p <= .05], c("V1", "V2"))`, is a column of random numbers that happened to line up, at $p =$ `r round(coefficient_p[setdiff(names(coefficient_p)[coefficient_p <= .05], c("V1", "V2"))], 3)`.
+
+This was not arranged. Ten true nulls tested at $\alpha = .05$ give about a `r round(100 * (1 - .95^10))`% chance of at least one false positive, so meeting one here is the ordinary outcome rather than bad luck. Run this chunk with a different seed and you will sometimes get none and occasionally get two.
+
+Both corrections do their job. Holm and Benjamini-Hochberg each keep `r paste(names(coefficient_p)[p.adjust(coefficient_p, "holm") <= .05], collapse = " and ")`, the two real effects, and both kill the impostor. Notice also that BH is gentler than Holm on the survivors, which is the trade the previous section measured: it is buying power by promising less.
+
+For planned contrasts, use software that can adjust the contrast family explicitly. Always report the method, the family of tests, and whether the analyses were confirmatory or exploratory.
+
+## Where You Will Actually Meet This: emmeans
+
+Everything above is theory you will use once a year. This section is the thing you will type next month.
+
+In this book's pipeline, multiplicity arrives in exactly one place: `pairs(emmeans(...))` after a model with a categorical predictor. The [categorical predictors chapter](Ch_12_Categorical_Regression.qmd) left a promise here. It ran three unadjusted comparisons behind a significant omnibus *F*, which is Fisher's protected LSD, and it warned that the protection expires at exactly three groups. So let us arrive with four.
+
+The study is the same distracted-driving design, with one more condition added and a deliberately modest sample, because a correction that never changes anything teaches nothing.
+
+```{r}
+#| label: emmeans-family
+library(emmeans)
+
+set.seed(343)
+n <- 20
+
+drive_data <- data.frame(
+  Condition = factor(
+    rep(c("No Distraction", "Podcast", "Lecture", "Texting"), each = n),
+    levels = c("No Distraction", "Podcast", "Lecture", "Texting")
+  ),
+  RT = c(
+    rnorm(n, 0.70, 0.25),
+    rnorm(n, 0.86, 0.25),
+    rnorm(n, 0.92, 0.25),
+    rnorm(n, 1.08, 0.25)
+  )
+)
+
+drive_model <- lm(RT ~ Condition, data = drive_data)
+anova(drive_model)
+```
+
+The omnibus test is significant, so under the old three-group rule we would now be entitled to look at pairs. With four groups there are six pairs, and the entitlement has expired.
+
+```{r}
+#| label: emmeans-default
+drive_means <- emmeans(drive_model, ~ Condition)
+
+pairs(drive_means)
+```
+
+**Read the last line of that output.** It says `P value adjustment: tukey method for comparing a family of 4 estimates`. You did not ask for that. `emmeans` decided that six all-pairwise comparisons constitute a family, applied Tukey, and mentioned it in a footnote below the table you were reading.
+
+This is the single most important fact in this section, and it cuts both ways. The default is defensible, because Tukey was built for precisely this situation. But a reader who does not know it is there will report Tukey-adjusted *p*-values while describing them as ordinary ones, and a reader who wanted something else will not get it by hoping.
+
+### What Tukey Actually Is
+
+Tukey's HSD is the correction psychologists meet most often and explain least often, so it is worth knowing what it does instead of treating it as the button labelled "post hoc."
+
+Every other method in this chapter takes a pile of *p*-values and adjusts them, without caring where they came from. Tukey does not work that way. It asks a specific question about a specific design: **if all $k$ group means came from the same population, how far apart would the largest and smallest of them drift by chance alone?**
+
+That quantity has its own distribution, the **studentized range**, usually written $q$. Tukey compares every pair against it. The logic is worth sitting with for a moment, because it is genuinely clever: if you protect the *biggest* gap in the set, every smaller gap is protected automatically. You do not have to buy six comparisons separately, because six comparisons among four means are not six independent questions. They are six views of four numbers.
+
+That is why Tukey is not just another cautious correction. With equal group sizes and roughly equal variances it controls the familywise error rate **exactly**, rather than by being conservative and hoping. Bonferroni and Holm are valid under *any* dependence structure, which sounds like a stronger property and is really the concession: they are generic because they know nothing about your design, so they cannot take advantage of the fact that your comparisons share means.
+
+**The assumption doing all of that work is that the groups are independent.** The studentized range is derived for $k$ separate samples with one common error variance. That is a between-subjects design, and it is why the honest answer to "when should I use Tukey?" contains a design rather than a number of tests.
+
+Here is the same comparison with the correction turned off, and with Holm instead.
+
+```{r}
+#| label: emmeans-adjust-menu
+pairs(drive_means, adjust = "none")
+
+pairs(drive_means, adjust = "holm")
+```
+
+Put the three side by side.
+
+```{r}
+#| label: emmeans-comparison
+adjust_column <- function(method) {
+  as.data.frame(pairs(drive_means, adjust = method))$p.value
+}
+
+data.frame(
+  contrast = as.data.frame(pairs(drive_means))$contrast,
+  none     = round(adjust_column("none"), 4),
+  tukey    = round(adjust_column("tukey"), 4),
+  holm     = round(adjust_column("holm"), 4)
+)
+```
+
+Five of the six comparisons say the same thing under all three methods, which is the usual and slightly boring result. The sixth does not. **Lecture versus Texting** is significant unadjusted at $p =$ `r round(as.data.frame(pairs(drive_means, adjust = "none"))$p.value[6], 4)`, and survives neither correction: Tukey puts it at `r round(as.data.frame(pairs(drive_means, adjust = "tukey"))$p.value[6], 3)` and Holm at `r round(as.data.frame(pairs(drive_means, adjust = "holm"))$p.value[6], 3)`.
+
+That single row is the entire chapter in miniature. "Texting is worse than listening to a lecture" is a claim you may publish if you looked at that pair alone, and may not publish if you looked at all six and picked this one. The data did not change. The number of chances you gave yourself did.
+
+### Where Holm Helps and Where It Does Not
+
+Look down the Tukey and Holm columns and something awkward appears: Holm gives the smaller number in five of the six rows. If Tukey is the tailored tool for this design, why is the generic one winning?
+
+Because "which is more powerful" is the wrong question, and the answer depends on *where in the list* you are standing.
+
+Holm is a **step-down** procedure. Sort the *p*-values smallest to largest, then multiply the smallest by $m$, the next by $m-1$, the next by $m-2$, and so on. That first step deserves your attention:
+
+> **Holm's adjustment for the smallest *p*-value in the family is exactly Bonferroni.**
+
+Not similar. Identical. Both multiply that one *p*-value by the full family size, and R will confirm it on the strongest comparison in the table above:
+
+```{r}
+#| label: holm-is-bonferroni
+SmallestOf <- function(method) {
+  min(as.data.frame(pairs(drive_means, adjust = method))$p.value)
+}
+
+c(
+  raw          = SmallestOf("none"),
+  raw.times.6  = 6 * SmallestOf("none"),
+  holm         = SmallestOf("holm"),
+  bonferroni   = SmallestOf("bonferroni")
+)
+```
+
+Holm is never *worse* than Bonferroni, which is why this chapter recommends it over Bonferroni, but the improvement is entirely in the comparisons after the first. **If your headline finding is the single strongest contrast in the family, Holm has done nothing for you that Bonferroni would not have done.**
+
+That is the real cost, and it is why Holm hurts most in the design where you can least afford it. Between-subjects studies spend their sample on telling people apart, so the standard errors are large, and the one comparison the paper is about is usually the one at the top of the sorted list, taking the full $\times m$ penalty.
+
+Within-subjects designs are the opposite situation. Each person serves as their own control, between-person variance drops out of the error term, and the same number of humans buys much smaller standard errors. There you can usually afford Holm's conservatism, and you often need something like it, because Tukey's studentized range assumes independent groups and repeated measures are not independent. Holm's indifference to dependence stops being a concession and becomes the reason to use it.
+
+So the two facts point in the same direction:
+
+- **Between-subjects, exploring which means differ:** Tukey. It is built for exactly this and it is exact, not conservative.
+- **Within-subjects, or a handful of theory-chosen contrasts:** Holm. It stays valid when observations are correlated, and the design has usually bought you the power to pay for it.
+
+One honest footnote on magnitude. Tukey's edge over Bonferroni at the top of the list is real but modest here, about `r round(sort(as.data.frame(pairs(drive_means, adjust = "bonferroni"))$p.value)[1] / sort(as.data.frame(pairs(drive_means, adjust = "tukey"))$p.value)[1], 2)` times, because four groups do not offer much dependence to exploit. That advantage grows as groups are added, since the number of pairs grows much faster than the number of means. With eight groups you have 28 comparisons carrying only 7 degrees of freedom between them, and Tukey's willingness to notice that starts to matter a great deal.
+
+::: {.callout-tip title="Which `adjust=` Do I Want? Answer With Your Design"}
+Pick by what the study is and what you are trying to learn, not by how many tests happen to be on the screen.
+
+- **Between-subjects, all pairwise, working out which conditions differ?** Leave the default. `adjust = "tukey"` is built for exactly this and `emmeans` is already applying it. Say so in the write-up.
+- **Within-subjects or repeated measures?** `adjust = "holm"`. Tukey's studentized range assumes independent groups, which you do not have, and Holm stays valid under any dependence. The design has usually bought you the power to afford it.
+- **A handful of contrasts your theory named in advance?** `adjust = "holm"` again, and the family is those planned contrasts, not every pair the software is willing to generate.
+- **Exactly three groups behind a significant omnibus *F*?** `adjust = "none"` is defensible, and only there. That is the protected LSD case from the [categorical predictors chapter](Ch_12_Categorical_Regression.qmd). At four groups, as above, it is the inflation problem wearing a lab coat.
+- **Screening a large pile of outcomes to decide what to study next?** `adjust = "fdr"`, and call the results exploratory, because that is what you have promised. The dead-brain demonstration earlier in this chapter is what that promise buys you.
+
+**The trap to avoid:** reaching for Holm in a between-subjects pairwise design because it sounds more rigorous than the default. On your strongest comparison Holm *is* Bonferroni, so that instinct costs you power at the exact place your paper needs it, and buys nothing Tukey was not already giving you.
+
+Whatever you pick, name it and name the family. "Pairwise comparisons were Tukey-adjusted across all six condition pairs" is one clause, and it is the difference between a reader trusting your table and a reader rebuilding it.
+:::
+
+## The Point Is Not to Fear P-Values
+
+P-values are not evil. They are also not tiny judges who determine whether a theory is innocent or guilty. They describe how incompatible the data are with a specified null model, under a pile of assumptions that must remain attached.
+
+A defensible statistical argument uses:
+
+- The design and quality of the measurement.
+- The estimated effect and its confidence interval.
+- The *p*-value as one piece of evidence rather than a personality test for the hypothesis.
+- A correction that matches the family and scientific goal.
+- Transparency about how many analyses were attempted.
+- Replication, because one clever correction cannot make a single study carry an entire theory on its back.
+
+The dead salmon did not teach us that fMRI is fake. It taught us that if we give chance enough opportunities, eventually even dinner appears to think. Correct the tests, show the effects, admit the uncertainty, and please stop asking deceased seafood to perform social cognition without preregistration.
+
+## The Short Story
+
+- $p = P(\text{data this weird or weirder} \mid H_0 \text{ and the model})$. Never the reverse, and never the probability that your hypothesis is wrong.
+- **"Significant here, not significant there" is not a comparison.** If you want to claim two effects differ, test the difference.
+- **A family is defined by the claim**, and defined before you peek. Splitting twenty tests into twenty families of one after seeing the *p*-values is p-hacking with office supplies.
+- **FWER when any single false claim would be costly**, and prefer Holm to Bonferroni, since it is never less powerful. **BH-FDR when you are exploring** and false leads are survivable.
+- **Choose the pairwise correction by design, not by test count.** Between-subjects, working out which conditions differ: Tukey, which is exact for that job because the studentized range is built for independent groups. Within-subjects: Holm, which stays valid when observations are correlated, in a design that has usually bought you the power to pay for it.
+- **On the strongest comparison in a family, Holm *is* Bonferroni.** The step-down only helps the comparisons after the first, so reaching for Holm in a between-subjects pairwise design costs power exactly where the paper needs it.
+- **FDR answers "is anything here, and where do I look next?"** It is a screening tool, not a lenient one. On a dead brain it reports a dead brain.
+- FDR of .05 is a promise about the long run, not a guarantee that 5% of *this* study's discoveries are false.
+- **`emmeans` already adjusted your pairwise comparisons.** It defaults to Tukey and says so in a footnote. Know what your software chose before you describe it in a sentence.
+- **Report the method and the family**, every time. One clause does it.
+- No correction rescues a study from bad measurement, and no correction is a substitute for replication.
+- The salmon was dead the whole time.

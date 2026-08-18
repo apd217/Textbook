@@ -1,0 +1,633 @@
+---
+title: "Statistical Control: What Are We Actually Removing?"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 4.5
+)
+```
+
+::: {.callout-warning title="Advanced Topic: Your Brain May File a Complaint"}
+This is difficult material. Graduate students routinely stare at partial and semi-partial correlations as if the correlations have personally betrayed them. If this chapter requires two readings, that does not mean you are bad at statistics. It means we are removing different pieces of relationships and then giving the leftovers nearly identical names.
+
+Keep asking three questions:
+
+1. What variable are we controlling?
+2. Which variable or variables are we removing it from?
+3. What does the resulting number mean?
+:::
+
+## Statistical Control Is Not a Statistics Jail
+
+In [Multiple Regression: Statistical Control](Ch_13_Multiple_Regression.qmd), we predicted **Exam Score** from **Study Hours** and **Test Anxiety**. Study Hours and Anxiety were related to one another, which meant their relationships with Exam Score overlapped.
+
+Multiple regression gave us a Study Hours slope while *controlling for* Anxiety. That phrase sounds reassuringly official. It also hides nearly all the interesting work.
+
+We did not put Anxiety in a tiny statistical jail. We did not force every student to experience precisely 50 units of Anxiety. We used a model to remove the **linear association** Anxiety had with another variable and then studied what remained.
+
+This chapter takes that process apart. We will use the exact same example and simulated data as the multiple-regression chapter, because changing the variables while explaining an already difficult idea would be rude.
+
+Our main question will remain:
+
+> Do Study Hours predict Exam Score after accounting for Test Anxiety?
+
+## The Same Exam Study
+
+The expected correlations are:
+
+| Relationship | Correlation | Translation |
+|---|---:|---|
+| Study Hours with Exam Score | $+.45$ | Students who study more tend to score higher. |
+| Test Anxiety with Exam Score | $-.40$ | Students who are more anxious tend to score lower. |
+| Study Hours with Test Anxiety | $-.35$ | Students who study more tend to be less anxious. |
+
+That last relationship creates the control problem. When Study Hours predicts Exam Score, part of that association may travel through the fact that students who study more also tend to be less anxious.
+
+```{r simulate-exam-data}
+library(MASS)
+
+set.seed(42)
+
+n   <- 100
+rY1 <-  0.45  # Study Hours with Exam Score
+rY2 <- -0.40  # Test Anxiety with Exam Score
+r12 <- -0.35  # Study Hours with Test Anxiety
+
+Sigma <- matrix(c(
+   1,   rY1, rY2,
+  rY1,   1,  r12,
+  rY2,  r12,  1
+), ncol = 3)
+
+raw <- as.data.frame(
+  mvrnorm(
+    n,
+    mu = c(0, 0, 0),
+    Sigma = Sigma,
+    empirical = TRUE
+  )
+)
+
+colnames(raw) <- c("Exam", "StudyHours", "Anxiety")
+
+dat <- data.frame(
+  Exam       = round(raw$Exam * 12 + 75, 1),
+  StudyHours = round(raw$StudyHours * 3 + 8, 1),
+  Anxiety    = round(raw$Anxiety * 10 + 50, 1)
+)
+```
+
+```{r correlation-table}
+round(cor(dat[c("StudyHours", "Anxiety", "Exam")]), 2)
+```
+
+## The Ballantine, Now Made Fresh
+
+The circles below represent variance. The overlapping portions represent shared variance. This diagram is called a **Ballantine** because apparently three overlapping circles needed a name, and statisticians had already used "Venn diagram" for something fun at parties.
+
+```{r ballantine-control}
+#| echo: false
+#| fig-width: 6.5
+#| fig-height: 5.5
+#| fig-cap: "A Ballantine for Study Hours, Test Anxiety, and Exam Score. The areas are conceptual, not drawn to scale."
+#| fig-alt: "Three overlapping circles. Study Hours sits upper left in blue, Test Anxiety upper right in orange, and Exam Score below and between them in green. Region a is where Study Hours overlaps Exam Score alone, region b is where Test Anxiety overlaps Exam Score alone, region c is where all three overlap, and region e is the part of the Exam Score circle no predictor touches."
+
+plot.new()
+plot.window(xlim = c(0, 1), ylim = c(0, 1), asp = 1)
+
+symbols(
+  x = c(0.50, 0.34, 0.66),
+  y = c(0.40, 0.63, 0.63),
+  circles = c(0.30, 0.27, 0.27),
+  inches = FALSE,
+  add = TRUE,
+  bg = c(
+    adjustcolor("#009E73", alpha.f = 0.30),
+    adjustcolor("#0072B2", alpha.f = 0.30),
+    adjustcolor("#E69F00", alpha.f = 0.30)
+  ),
+  fg = c("#006B4F", "#004C7A", "#A66B00")
+)
+
+text(0.17, 0.90, "Study Hours\n(X1)", font = 2, col = "#004C7A")
+text(0.83, 0.90, "Test Anxiety\n(X2)", font = 2, col = "#A66B00")
+text(0.50, 0.035, "Exam Score (Y)", font = 2, col = "#006B4F")
+
+text(0.34, 0.43, "a", cex = 1.5, font = 2)
+text(0.66, 0.43, "b", cex = 1.5, font = 2)
+text(0.50, 0.58, "c", cex = 1.5, font = 2)
+text(0.50, 0.19, "e", cex = 1.5, font = 2)
+```
+
+- **Region $a$** is Exam Score variance uniquely associated with Study Hours.
+- **Region $b$** is Exam Score variance uniquely associated with Test Anxiety.
+- **Region $c$** is Exam Score variance shared by both predictors. Neither predictor gets exclusive custody.
+- **Region $e$** is Exam Score variance the full model does not explain.
+
+The full regression model explains $a+b+c$. Our main target in this chapter is region $a$: what Study Hours contributes above and beyond Anxiety.
+
+::: {.callout-note title="Circles Are a Metaphor"}
+The areas are not drawn to scale, variables are not actually circular, and residuals do not fall onto the floor when we remove them. The diagram helps us track which variance belongs in each calculation. Do not demand anatomical accuracy from it.
+:::
+
+## Residuals: The Leftovers
+
+Control begins with a familiar regression. First, predict Study Hours from Anxiety:
+
+```{r residualize-study}
+study_from_anxiety <- lm(StudyHours ~ Anxiety, data = dat)
+summary(study_from_anxiety)
+
+dat$ExpectedStudy <- fitted(study_from_anxiety)
+dat$StudyResidual <- residuals(study_from_anxiety)
+```
+
+For every student:
+
+$$
+\text{Study residual} = \text{Actual Study Hours} - \text{Expected Study Hours}
+$$
+
+Suppose an entirely hypothetical student named Alex has an Anxiety score of 60, studies 10 hours, and earns a 78 on the exam. There is no connection between this fictional Alex and the author except the name, profession, and desperate wish that ten hours of studying always happened.
+
+```{r hypothetical-alex}
+alex_anxiety <- 60
+alex_actual_study <- 10
+alex_actual_exam <- 78
+
+alex_expected_study <- unname(
+  predict(study_from_anxiety, newdata = data.frame(Anxiety = alex_anxiety))
+)
+
+alex_study_residual <- alex_actual_study - alex_expected_study
+
+alex_table <- data.frame(
+  Anxiety = alex_anxiety,
+  Expected_Study = round(alex_expected_study, 1),
+  Actual_Study = alex_actual_study,
+  Study_Residual = round(alex_study_residual, 1)
+)
+
+knitr::kable(alex_table)
+```
+
+Given an Anxiety score of 60, the model expected Alex to study about `r round(alex_expected_study, 1)` hours. Alex studied 10 hours, so the Study Hours residual is about $+`r round(alex_study_residual, 1)`$. Alex studied that many hours **more than expected given Anxiety**.
+
+A positive residual means "more than expected." A negative residual means "less than expected." A residual of zero means the model finally got one exactly right and will be insufferable about it.
+
+```{r residual-lines}
+#| echo: false
+#| fig-cap: "Study Hours predicted from Test Anxiety. Selected vertical lines show residuals: the distance between each student's actual and expected Study Hours."
+#| fig-alt: "Scatterplot of Test Anxiety on the x axis against Study Hours on the y axis, with a downward-sloping orange regression line through a loose blue cloud of 100 students. Twelve purple vertical segments connect the most extreme points to the line, showing how far each of those students studied above or below what their anxiety score predicted."
+
+plot(
+  dat$Anxiety,
+  dat$StudyHours,
+  pch = 19,
+  col = adjustcolor("#0072B2", alpha.f = 0.55),
+  xlab = "Test Anxiety",
+  ylab = "Study Hours",
+  main = "Removing Anxiety from Study Hours"
+)
+
+abline(study_from_anxiety, col = "#D55E00", lwd = 3)
+
+selected <- order(abs(dat$StudyResidual), decreasing = TRUE)[1:12]
+segments(
+  x0 = dat$Anxiety[selected],
+  y0 = dat$ExpectedStudy[selected],
+  x1 = dat$Anxiety[selected],
+  y1 = dat$StudyHours[selected],
+  col = adjustcolor("#6A3D9A", alpha.f = 0.70),
+  lwd = 2
+)
+
+legend(
+  "topright",
+  legend = c("Actual students", "Expected Study Hours", "Selected residuals"),
+  col = c("#0072B2", "#D55E00", "#6A3D9A"),
+  pch = c(19, NA, NA),
+  lty = c(NA, 1, 1),
+  lwd = c(NA, 3, 2),
+  bty = "n",
+  cex = 0.82
+)
+```
+
+Anxiety has now explained whatever linear association it can explain in Study Hours. The Study Hours residuals are the leftovers. Notice what happens if we correlate those leftovers with Anxiety:
+
+```{r residual-check}
+cor(dat$Anxiety, dat$StudyResidual)
+```
+
+It is essentially zero. That is not luck. Least-squares regression creates residuals that are uncorrelated with the predictors used to create them.
+
+## Semi-Partial Correlation: Remove Anxiety from One Side
+
+We will learn **semi-partial correlation first** because it connects directly to multiple regression.
+
+To find the semi-partial relationship between Study Hours and Exam Score while controlling for Anxiety:
+
+1. Predict Study Hours from Anxiety.
+2. Save the Study Hours residuals.
+3. Leave Exam Score completely alone.
+4. Correlate residualized Study Hours with the original Exam Score.
+
+```{r manual-semipartial}
+sr_study <- cor(dat$Exam, dat$StudyResidual)
+sr_study
+```
+
+The semi-partial correlation is $sr=`r round(sr_study, 3)`$.
+
+Its plain-language question is:
+
+> Do students who study more than we would expect from their Anxiety tend to earn higher Exam Scores?
+
+The answer is yes. More of the Study Hours that Anxiety cannot explain is associated with better Exam performance.
+
+```{r semipartial-plots}
+#| echo: false
+#| fig-width: 8.5
+#| fig-height: 4.3
+#| fig-cap: "Left: the zero-order Study Hours–Exam Score relationship. Right: the semi-partial relationship after removing Anxiety from Study Hours only."
+#| fig-alt: "Two scatterplots side by side, each with an orange upward-sloping fit line. The left plot puts raw Study Hours on the x axis against Exam Score. The right plot replaces the x axis with the Study Hours residual after Anxiety is removed, while the y axis stays the original Exam Score. The right cloud is centred on zero and its slope is visibly shallower."
+
+par(mfrow = c(1, 2), mar = c(4.3, 4.3, 3, 1))
+
+plot(
+  dat$StudyHours,
+  dat$Exam,
+  pch = 19,
+  col = adjustcolor("#0072B2", alpha.f = 0.60),
+  xlab = "Study Hours",
+  ylab = "Exam Score",
+  main = paste0("Zero-order r = ", round(cor(dat$StudyHours, dat$Exam), 3))
+)
+abline(lm(Exam ~ StudyHours, data = dat), col = "#D55E00", lwd = 3)
+
+plot(
+  dat$StudyResidual,
+  dat$Exam,
+  pch = 19,
+  col = adjustcolor("#6A3D9A", alpha.f = 0.60),
+  xlab = "Study Hours residual\n(Anxiety removed)",
+  ylab = "Original Exam Score",
+  main = paste0("Semi-partial sr = ", round(sr_study, 3))
+)
+abline(lm(Exam ~ StudyResidual, data = dat), col = "#D55E00", lwd = 3)
+```
+
+### Why Squaring $sr$ Matters
+
+Squaring a semi-partial correlation gives the unique proportion of **total outcome variance** associated with that predictor:
+
+```{r semipartial-squared}
+sr2_study <- sr_study^2
+sr2_study
+```
+
+Therefore, Study Hours uniquely accounts for about `r round(sr2_study * 100, 1)`% of the total variance in Exam Score after the Anxiety-only model has explained everything it can, including the shared region $c$. In the Ballantine, the additional contribution is region $a$.
+
+This also equals the change in $R^2$ when Study Hours is added to a model that already contains Anxiety.
+
+```{r nested-models}
+anxiety_model <- lm(Exam ~ Anxiety, data = dat)
+full_model <- lm(Exam ~ Anxiety + StudyHours, data = dat)
+
+r2_anxiety <- summary(anxiety_model)$r.squared
+r2_full <- summary(full_model)$r.squared
+delta_r2_study <- r2_full - r2_anxiety
+
+data.frame(
+  Quantity = c(
+    "R-squared: Anxiety only",
+    "R-squared: Anxiety + Study Hours",
+    "Change in R-squared",
+    "Squared semi-partial correlation"
+  ),
+  Value = round(c(r2_anxiety, r2_full, delta_r2_study, sr2_study), 3)
+)
+```
+
+The last two values match:
+
+$$
+sr^2 = \Delta R^2
+$$
+
+That equation is the main reason semi-partial correlation matters in multiple regression. It tells us exactly how much total explanatory power Study Hours adds **above and beyond** Anxiety.
+
+We can formally compare the nested models with `anova()`:
+
+```{r nested-model-test}
+anova(anxiety_model, full_model)
+```
+
+The test asks whether adding Study Hours improves prediction enough that we should take the improvement seriously, rather than blaming the Probability Gods for a tiny accidental increase.
+
+## Partial Correlation: Remove Anxiety from Both Sides
+
+Partial correlation takes one additional step. We remove Anxiety from **both** Study Hours and Exam Score:
+
+1. Predict Study Hours from Anxiety and save the residuals.
+2. Predict Exam Score from Anxiety and save those residuals too.
+3. Correlate the two sets of residuals.
+
+```{r manual-partial}
+exam_from_anxiety <- lm(Exam ~ Anxiety, data = dat)
+dat$ExpectedExam <- fitted(exam_from_anxiety)
+dat$ExamResidual <- residuals(exam_from_anxiety)
+
+pr_study <- cor(dat$StudyResidual, dat$ExamResidual)
+pr_study
+```
+
+The partial correlation is $pr=`r round(pr_study, 3)`$.
+
+Its plain-language question is:
+
+> Among the portions of Study Hours and Exam Score that Anxiety cannot explain, how strongly are the remaining portions related?
+
+Return to Hypothetical Alex. Based on Anxiety alone, the model predicts an Exam Score of about `r round(predict(exam_from_anxiety, newdata = data.frame(Anxiety = alex_anxiety)), 1)`. Alex actually earned a 78. Therefore, Alex scored about `r round(alex_actual_exam - predict(exam_from_anxiety, newdata = data.frame(Anxiety = alex_anxiety)), 1)` points **higher than expected given Anxiety**.
+
+Partial correlation asks whether students who study more than Anxiety predicts also score higher than Anxiety predicts.
+
+```{r partial-plots}
+#| echo: false
+#| fig-width: 9.5
+#| fig-height: 4.3
+#| fig-cap: "Semi-partial correlation leaves Exam Score untouched. Partial correlation removes Anxiety from both Study Hours and Exam Score."
+#| fig-alt: "Two scatterplots side by side, both with the Study Hours residual on the x axis and an orange fit line. The left plot keeps the original Exam Score on the y axis and is labelled with the semi-partial correlation. The right plot uses the Exam Score residual instead and is labelled with the larger partial correlation. Both point clouds tilt the same way; the right one is more tightly gathered around its line because the anxiety-related spread has been taken out of the y axis too."
+
+par(mfrow = c(1, 2), mar = c(4.5, 4.5, 3, 1))
+
+plot(
+  dat$StudyResidual,
+  dat$Exam,
+  pch = 19,
+  col = adjustcolor("#6A3D9A", alpha.f = 0.60),
+  xlab = "Study Hours residual",
+  ylab = "Original Exam",
+  main = paste0("Semi-partial sr = ", round(sr_study, 3))
+)
+abline(lm(Exam ~ StudyResidual, data = dat), col = "#D55E00", lwd = 3)
+
+plot(
+  dat$StudyResidual,
+  dat$ExamResidual,
+  pch = 19,
+  col = adjustcolor("#009E73", alpha.f = 0.60),
+  xlab = "Study Hours residual",
+  ylab = "Exam residual",
+  main = paste0("Partial pr = ", round(pr_study, 3))
+)
+abline(lm(ExamResidual ~ StudyResidual, data = dat), col = "#D55E00", lwd = 3)
+```
+
+### Why Partial Correlation Is Larger
+
+For these data:
+
+```{r partial-squared}
+pr2_study <- pr_study^2
+pr2_study
+```
+
+The squared partial correlation is about `r round(pr2_study * 100, 1)`%. This does **not** mean Study Hours suddenly explains `r round(pr2_study * 100, 1)`% of total Exam Score variance. Semi-partial correlation already told us that the unique contribution to total variance was `r round(sr2_study * 100, 1)`%.
+
+Partial correlation uses a smaller denominator. Anxiety has already removed the Exam Score variance it can explain. Of the Exam Score variance **remaining after Anxiety**, Study Hours is associated with about `r round(pr2_study * 100, 1)`%.
+
+In Ballantine language:
+
+$$
+sr_1^2 = a
+$$
+
+$$
+pr_1^2 = \frac{a}{a+e}
+$$
+
+The numerator is the same unique Study Hours region. Partial correlation looks larger because it compares region $a$ with only the Exam variance left after Anxiety is removed. It did not discover a stronger effect. It changed the denominator.
+
+## Semi-Partial Versus Partial
+
+| Quantity | Remove Anxiety from Study Hours? | Remove Anxiety from Exam Score? | What does the square mean? |
+|---|:---:|:---:|---|
+| Zero-order $r$ | No | No | Total variance shared by Study Hours and Exam Score |
+| Semi-partial $sr$ | Yes | No | Unique Study Hours contribution to **total** Exam Score variance; $\Delta R^2$ |
+| Partial $pr$ | Yes | Yes | Study Hours association with Exam Score variance **remaining after Anxiety** |
+
+If you remember only one distinction, remember this:
+
+> **Semi-partial leaves Y alone. Partial residualizes both sides.**
+
+"Semi" does not mean the analysis tried less hard. It means the control variable was removed from only one member of the target relationship.
+
+## The Moderately Mathy Version
+
+The residual method is the method I want you to understand. The formulas show why the two correlations differ.
+
+Let:
+
+- $r_{Y1}$ be the Exam Score–Study Hours correlation,
+- $r_{Y2}$ be the Exam Score–Anxiety correlation, and
+- $r_{12}$ be the Study Hours–Anxiety correlation.
+
+The Study Hours semi-partial correlation controlling for Anxiety is:
+
+$$
+sr_{Y(1.2)} =
+\frac{r_{Y1}-r_{Y2}r_{12}}
+{\sqrt{1-r_{12}^2}}
+$$
+
+The partial correlation is:
+
+$$
+pr_{Y1.2} =
+\frac{r_{Y1}-r_{Y2}r_{12}}
+{\sqrt{(1-r_{Y2}^2)(1-r_{12}^2)}}
+$$
+
+Notice that the numerators are identical. Both calculations isolate the same unique Study Hours–Exam Score relationship. The partial-correlation denominator also removes the outcome variance associated with Anxiety.
+
+```{r formula-check}
+r_y1 <- cor(dat$Exam, dat$StudyHours)
+r_y2 <- cor(dat$Exam, dat$Anxiety)
+r_12 <- cor(dat$StudyHours, dat$Anxiety)
+
+sr_formula <- (r_y1 - r_y2 * r_12) / sqrt(1 - r_12^2)
+
+pr_formula <- (r_y1 - r_y2 * r_12) /
+  sqrt((1 - r_y2^2) * (1 - r_12^2))
+
+round(c(
+  Residual_sr = sr_study,
+  Formula_sr = sr_formula,
+  Residual_pr = pr_study,
+  Formula_pr = pr_formula
+), 3)
+```
+
+The residual and formula routes agree. Statistics has briefly behaved itself.
+
+## How This Becomes the Multiple-Regression Slope
+
+Here is the important connection. Compare three slopes:
+
+1. The Study Hours slope from the full multiple regression.
+2. The slope predicting original Exam Score from residualized Study Hours.
+3. The slope predicting residualized Exam Score from residualized Study Hours.
+
+```{r slope-equivalence}
+semipartial_lm <- lm(Exam ~ StudyResidual, data = dat)
+partial_lm <- lm(ExamResidual ~ StudyResidual, data = dat)
+
+round(c(
+  Full_multiple_regression = coef(full_model)["StudyHours"],
+  Original_Y_on_residualized_X = coef(semipartial_lm)["StudyResidual"],
+  Residualized_Y_on_residualized_X = coef(partial_lm)["StudyResidual"]
+), 6)
+```
+
+All three slopes equal about `r round(coef(full_model)["StudyHours"], 2)` Exam Score points per Study Hour.
+
+This is not a coincidence. The Study Hours coefficient in multiple regression is built from the Study Hours variation that Anxiety cannot linearly explain. This result is sometimes called the **Frisch–Waugh–Lovell theorem**, which is an impressive name for "residualize the relevant pieces and you recover the same slope."
+
+One caution before someone reports the wrong *t*-value. The **slopes** match. The standard errors and *t*-tests from these shortcut regressions do not, because those regressions do not know that Anxiety already spent a degree of freedom. Report your inference from the full model. Use the residualized regressions to *understand* where that slope came from.
+
+The practical interpretation is:
+
+> Among students at the same Anxiety level, one additional Study Hour is associated with about `r round(coef(full_model)["StudyHours"], 2)` additional Exam Score points.
+
+That is a conditional association. It is not automatically a causal effect.
+
+## Where Standardized Beta Fits
+
+Now we have several numbers describing the Study Hours relationship. This is where students reasonably begin asking whether statistics could have used fewer symbols.
+
+```{r standardized-beta}
+dat_z <- as.data.frame(scale(dat[c("Exam", "StudyHours", "Anxiety")]))
+standardized_model <- lm(Exam ~ StudyHours + Anxiety, data = dat_z)
+beta_study <- coef(standardized_model)["StudyHours"]
+
+comparison <- data.frame(
+  Quantity = c(
+    "Zero-order correlation (r)",
+    "Standardized regression slope (beta)",
+    "Semi-partial correlation (sr)",
+    "Partial correlation (pr)",
+    "Squared semi-partial (sr-squared)",
+    "Squared partial (pr-squared)"
+  ),
+  Value = round(c(
+    r_y1,
+    beta_study,
+    sr_study,
+    pr_study,
+    sr2_study,
+    pr2_study
+  ), 3),
+  Meaning = c(
+    "Uncontrolled Study Hours-Exam association",
+    "Conditional slope in standard-deviation units",
+    "Unique Study association scaled by total Exam variance",
+    "Unique Study association scaled by remaining Exam variance",
+    "Unique contribution to total Exam variance; change in R-squared",
+    "Proportion of residual Exam variance associated with Study"
+  )
+)
+
+knitr::kable(comparison)
+```
+
+The standardized beta is $\beta=`r round(beta_study, 3)`$. It tells us how many standard deviations Exam Score changes for a one-standard-deviation increase in Study Hours while Anxiety is held constant.
+
+Beta, $sr$, and $pr$ have the same sign here and test the same unique predictor contribution, but they are **not interchangeable**. They standardize the relationship using different variance. Never report one while calling it another because the decimals looked lonely.
+
+## `ppcor`: A Shortcut
+
+For a strict correlation question involving one outcome, one target predictor, and a control variable, the `ppcor` package can verify our work:
+
+```{r ppcor-shortcut, eval=FALSE}
+library(ppcor)
+# Semi-partial: remove Anxiety from the SECOND variable, StudyHours
+spcor.test(
+  x = dat$Exam,
+  y = dat$StudyHours,
+  z = dat$Anxiety
+)
+
+# Partial: remove Anxiety from both Exam and StudyHours
+pcor.test(
+  x = dat$Exam,
+  y = dat$StudyHours,
+  z = dat$Anxiety
+)
+```
+
+The order matters for `spcor.test()` because the control variable is removed from the **second** variable. Order matters less conceptually for partial correlation because the control is removed from both target variables.
+
+`ppcor` can accept more than one control variable, but it remains a specialized correlation shortcut. Real analyses quickly acquire several predictors, categorical variables, interactions, missing observations, model comparisons, diagnostics, and Reviewer 2. Use `lm()` as your default. It scales to those problems and shows exactly which model you estimated. Use `ppcor` as a quick check when the question is genuinely simple.
+
+## Statistical Control Is Not Experimental Control
+
+::: {.callout-important title="Control Does Not Manufacture Causality"}
+We removed linear associations from numbers. We did **not** randomly assign Anxiety, repair measurement error, eliminate variables we forgot to measure, or reach backward through time.
+
+After controlling for Anxiety, the Study Hours coefficient describes the association between Study Hours and Exam Score conditional on Anxiety. Calling it "the true causal effect of studying" would require a research design and assumptions much stronger than this regression alone provides.
+:::
+
+Adding a control variable does not guarantee that a slope will shrink. Depending on the correlation pattern, a slope can:
+
+- shrink,
+- grow,
+- reverse direction,
+- become more precise,
+- become less precise, or
+- stare into the abyss and become a suppression effect.
+
+Control variables must be selected using theory and research design. Throwing every available column into a regression is not rigor. It is making the software eat the entire refrigerator because you could not decide what to cook.
+
+## Four Questions Before You Escape
+
+### 1. Caffeine, Sleep, and Exam Scores
+
+You want to know how much **total Exam Score variance** Caffeine uniquely explains after Sleep Hours are already in the model. Do you want a partial or semi-partial correlation?
+
+### 2. The Entirely Ethical Chainsaw Study
+
+You want the relationship between Fear and Heart Rate after removing Running Speed from **both** variables. Participants are not actually chased with chainsaws because the IRB has once again ruined science. Partial or semi-partial?
+
+### 3. Reviewer 2 Predicts Rejection
+
+You want to know how much $R^2$ increases when Formatting Errors are added after Manuscript Length. Which squared correlation should equal that change in $R^2$?
+
+### 4. The Causal Caffeine Disaster
+
+You observe that Caffeine predicts Exam Score after controlling for Sleep. May you conclude that forcing students to drink six espressos will improve their grades?
+
+::: {.callout-tip title="Answers, If You Have Suffered Enough" collapse="true"}
+1. **Semi-partial.** You want Caffeine's unique contribution to total Exam Score variance.
+2. **Partial.** Running Speed is removed from both Fear and Heart Rate.
+3. **Squared semi-partial correlation.** $sr^2=\Delta R^2$ when Formatting Errors are added last.
+4. **Absolutely not.** Statistical control does not establish causality, and six espressos may merely establish a new relationship with campus medical services.
+:::
+
+## The Short Story
+
+- **Residual**: what remains after subtracting a model's predicted value from the observed value.
+- **Semi-partial correlation**: remove the control variable from one target variable; $sr^2$ is the unique addition to total $R^2$.
+- **Partial correlation**: remove the control variable from both target variables; $pr^2$ describes the relationship within the outcome variance that remains.
+- **Multiple-regression slope**: can be recovered by predicting Y from the residualized target predictor.
+- **Standardized beta**: the controlled regression slope in standard-deviation units.
+- **Statistical control**: adjustment for measured associations, not a tiny machine that produces causal truth.
+
+If you can identify what was removed, what it was removed from, and what denominator remains, you understand statistical control. That places you ahead of many graduate students and at least several published papers.

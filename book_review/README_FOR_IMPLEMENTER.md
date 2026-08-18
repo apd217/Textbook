@@ -30,11 +30,11 @@ items are implemented and marked in their review files. **Alex has not read them
 
 | # | Chapter | Items | Em-dash before → after |
 |---|---|---|---|
-| 22 | `Chapter_ChiSquare.qmd` | P01, P02, B01, B02, U01 + G01, G02 | 2.00 → 0.23 |
-| 23 | `Chapter_Nonparametric_Tests.qmd` | P01, U01, U02 + G01 | 2.81 → 0.49 |
-| 24 | `Chapter_Bootstrapping.qmd` | P01, U01, B01 + G02 | 0.41 → 0.35 |
-| 25 | `Chapter_Reporting.qmd` | U01, U02, U03, B01 + G02 | 1.68 → 0.72 (both the floor) |
-| 26 | `Chapter_Tidyverse_Review.qmd` | U01, B01 + G01, G02, G05b | 0.82 → 0.76 |
+| 22 | `Ch_34_Chi_Square.qmd` | P01, P02, B01, B02, U01 + G01, G02 | 2.00 → 0.23 |
+| 23 | `Ch_35_Nonparametric_Tests.qmd` | P01, U01, U02 + G01 | 2.81 → 0.49 |
+| 24 | `Ch_36_Bootstrapping.qmd` | P01, U01, B01 + G02 | 0.41 → 0.35 |
+| 25 | `Ch_37_Reporting.qmd` | U01, U02, U03, B01 + G02 | 1.68 → 0.72 (both the floor) |
+| 26 | `Ch_38_Tidyverse_Review.qmd` | U01, B01 + G01, G02, G05b | 0.82 → 0.76 |
 
 **Four decisions were put to Alex at the start and he answered all four.** Do not re-open them:
 
@@ -68,7 +68,7 @@ device that was offered, so nobody re-proposes them.
    moving calls to first *visible* use. **The Ch26 trap is worth knowing before you start:**
    its visible `library()` chunk was `eval: false`, so deleting the hidden block alone would
    have broken every chunk in the file. Check whether the visible call actually runs.
-3. **CH18-DUP01: still not executed.** Retire `Chapter_Mixed_Designs.qmd`, salvaging anything
+3. **CH18-DUP01: still not executed.** Retire `Ch_33C_Mixed_Designs.qmd`, salvaging anything
    worth keeping into `Chapter_Mixed_Change_Over_Time.qmd` first. Decided 2026-08-17, and
    three sessions have now recorded the decision without acting on it.
 4. **`Chapter_Mixed_Change_Over_Time.qmd`** needs a real name and a `_quarto.yml` entry.
@@ -82,7 +82,7 @@ device that was offered, so nobody re-proposes them.
    only two. `R_Basics` moved up slightly this session because the new pipe section added
    words; it contains no new em-dashes.
 8. **`R^2` outside math renders as a literal caret** in three headings of
-   `Chapter_Multiple_Regression_Control.qmd` (lines 329, 389, 395). Still needs Alex's say-so.
+   `Ch_13_Multiple_Regression.qmd` (lines 329, 389, 395). Still needs Alex's say-so.
 
 ### Things this session learned that will apply to the next one
 
@@ -93,7 +93,7 @@ device that was offered, so nobody re-proposes them.
    a uniform $X$, so the quiet end cancelled the loud end. Fixed by changing the design
    (`Sleep^3 / 30`), never the seed, after comparing five candidate designs against HC3 as
    ground truth. **An item can be wrong about what its own demonstration will show.**
-2. **It also caught a false claim in Alex's own template.** `Chapter_Reporting`'s example
+2. **It also caught a false claim in Alex's own template.** `Ch_37_Reporting`'s example
    write-up ended "diagnostic plots did not reveal a consequential violation of constant
    residual variance." The errors are simulated homoscedastic and `bptest()` still returns
    $p = .003$ on that draw. The clause was cut rather than filled in, with an `---Alex---`
@@ -113,11 +113,11 @@ device that was offered, so nobody re-proposes them.
    `_quarto.yml` reverted the CH25-B01 part rename; it was re-applied and called out in the
    commit. **Re-read a shared file immediately before editing it, and diff before committing.**
 6. **Dropbox restores files you delete.** Six stale `unnamed-chunk-*.png` files removed from
-   `_freeze/Chapter_ChiSquare` in one commit reappeared later in the session. **Check
+   `_freeze/Ch_34_Chi_Square` in one commit reappeared later in the session. **Check
    `git status` for resurrected `_freeze` files before every commit.**
 7. **`git add -A` is unsafe in this repo.** It swept in pre-existing untracked `_freeze` churn
    that belongs to nobody. Stage explicit paths.
-8. **The em-dash floor is 1, and on a short chapter that reads high.** `Chapter_Reporting`
+8. **The em-dash floor is 1, and on a short chapter that reads high.** `Ch_37_Reporting`
    reported 1.68 with *zero* real em-dashes, purely because 595 words is a small denominator.
    Check the raw count before treating a short chapter's density as a finding.
 
@@ -137,11 +137,11 @@ status.
 
 | # | Chapter | Review file | Items | Words | Dash/1k | Notes |
 |---|---|---|---|---|---|---|
-| 22 | `Chapter_ChiSquare.qmd` | `22_...md` | P01, P02, B01, B02, U01 | 3,492 | **2.00** | **Two HIGH items.** Biggest job of the five. YAML residue + injects `amsmath`. |
-| 23 | `Chapter_Nonparametric_Tests.qmd` | `23_...md` | P01, U01, U02 | 1,422 | **2.81** | Worst dash density outside Part 1. YAML residue. |
-| 24 | `Chapter_Bootstrapping.qmd` | `24_...md` | P01, U01, B01 | 2,419 | 0.41 | Grad-level. YAML already clean. |
-| 25 | `Chapter_Reporting.qmd` | `25_...md` | U01, U02, U03, B01 | 595 | **1.68** | Shortest chapter in the book. YAML clean. |
-| 26 | `Chapter_Tidyverse_Review.qmd` | `26_...md` | U01, B01 | 1,222 | 0.82 | YAML residue. Anchors the G06 pipe sweep. |
+| 22 | `Ch_34_Chi_Square.qmd` | `22_...md` | P01, P02, B01, B02, U01 | 3,492 | **2.00** | **Two HIGH items.** Biggest job of the five. YAML residue + injects `amsmath`. |
+| 23 | `Ch_35_Nonparametric_Tests.qmd` | `23_...md` | P01, U01, U02 | 1,422 | **2.81** | Worst dash density outside Part 1. YAML residue. |
+| 24 | `Ch_36_Bootstrapping.qmd` | `24_...md` | P01, U01, B01 | 2,419 | 0.41 | Grad-level. YAML already clean. |
+| 25 | `Ch_37_Reporting.qmd` | `25_...md` | U01, U02, U03, B01 | 595 | **1.68** | Shortest chapter in the book. YAML clean. |
+| 26 | `Ch_38_Tidyverse_Review.qmd` | `26_...md` | U01, B01 | 1,222 | 0.82 | YAML residue. Anchors the G06 pipe sweep. |
 
 **Every item is approved.** Approval is not the gate; they were all ticked on 2026-08-15.
 
@@ -203,9 +203,9 @@ simple aside, a full stop when it is really its own sentence, and in a heading j
 
 | # | Chapter | Items | Final size | Em-dash / 1k |
 |---|---|---|---|---|
-| 19 | `Chapter_Advanced_Regression_Diagnostics.qmd` | P01, P02, P03, B01 + G02 | 5,207 words | 0.19 |
-| 20 | `Chapter_Multiple_Comparisons.qmd` | P01, U01, U02 + G01, G02 | 4,885 words | 0.20 |
-| 21 | `Chapter_Advanced_Interactions.qmd` | P01, P02, B01 + G02 | 3,441 words | 0.29 |
+| 19 | `Ch_19_Regression_Diagnostics.qmd` | P01, P02, P03, B01 + G02 | 5,207 words | 0.19 |
+| 20 | `Ch_20_Multiple_Comparisons.qmd` | P01, U01, U02 + G01, G02 | 4,885 words | 0.20 |
+| 21 | `Ch_21_Advanced_Interactions.qmd` | P01, P02, B01 + G02 | 3,441 words | 0.29 |
 
 All three grew substantially past their reviewed size, because Alex asked twice for *more*
 explanation rather than less: VIF gained its standard-error derivation and a perfect-collinearity
@@ -240,13 +240,13 @@ checked and deliberately left alone.
    sample size and the number of null predictors, with `set.seed(343)` untouched throughout.
 5. **A cross-reference is worth checking for a debt already owed.** Two of this session's links
    turned out to be promises the book had already made and never paid:
-   `Chapter_Multiple_Regression_Control.qmd:466` says "a later chapter measures exactly this with
+   `Ch_13_Multiple_Regression.qmd:466` says "a later chapter measures exactly this with
    something called *variance inflation*", and the categorical-predictors chapter says four-plus
    groups need a real correction "which is what the Multiple Comparisons chapter is for". Both are
    now paid. **Grep for forward promises before inventing a new connection.**
 6. **Linking to the two space-containing filenames needs URL encoding** in the `.qmd` source:
-   `](Chapter_Regression%20with%20Cat%20Variables.qmd)`. Quarto resolves it to
-   `./Chapter_Regression with Cat Variables.html`, matching its own sidebar nav. Verified.
+   `](Ch_12_Categorical_Regression.qmd)`. Quarto resolves it to
+   `./Ch_12_Categorical_Regression.html`, matching its own sidebar nav. Verified.
 7. **Never put scientific notation in an inline `` `r ` `` expression.** A `signif()` result of
    `5.99e-10` renders as the literal string **`5.99^{-10}`** in the HTML, because knitr formats
    small numbers for a math context that inline output does not provide. This is the same caret
@@ -282,7 +282,7 @@ Beyond those:
   needs it after the strip.
 - **G06 (the `%>%` → `|>` sweep) is anchored at CH26-B01** and should be settled while Ch26 is
   open, since that chapter is where the book admits the inconsistency.
-- **CH18-DUP01, decided but not executed:** retire `Chapter_Mixed_Designs.qmd`.
+- **CH18-DUP01, decided but not executed:** retire `Ch_33C_Mixed_Designs.qmd`.
 - **The commented-out draft chapters**, of which `Chapter_Advanced_Contrasts_ANOVA.qmd` is the
   ripest.
 - **G03, G04, G07, G09** and the other cross-cutting items that were never per-chapter work.
@@ -325,14 +325,14 @@ Beyond those:
 
 ### Loose ends, listed so they are not lost
 
-1. **CH18-DUP01: ANSWERED by Alex, 2026-08-17. `Chapter_Mixed_Designs.qmd` is the one that
+1. **CH18-DUP01: ANSWERED by Alex, 2026-08-17. `Ch_33C_Mixed_Designs.qmd` is the one that
    retires.** `Chapter_Mixed_Change_Over_Time.qmd` wins: it is the verified 2×4 material,
    self-contained, renders clean, every number re-checked against the original run.
-   `Chapter_Mixed_Designs.qmd` was rewritten on 2026-08-17 at 00:02 by something that was not
+   `Ch_33C_Mixed_Designs.qmd` was rewritten on 2026-08-17 at 00:02 by something that was not
    the Ch18 session, reused that session's prose verbatim, and was committed unreviewed purely
    so it could not be lost. **Nobody has retired it yet** — the Part 3 session recorded the
    decision but did not act on it, since it is not Part 3 work. Whoever picks this up: check
-   `Chapter_Mixed_Designs.qmd` for anything worth salvaging into `Mixed_Change_Over_Time`
+   `Ch_33C_Mixed_Designs.qmd` for anything worth salvaging into `Mixed_Change_Over_Time`
    first, then delete it, and leave a line in the commit message saying it was CH18-DUP01.
 2. **`Chapter_Mixed_Change_Over_Time.qmd`** is the verified 2×4 material, parked, not in
    `_quarto.yml`, **filename still a guess**. Now that DUP01 is settled it is the survivor, so
@@ -348,9 +348,9 @@ Beyond those:
 6. **`Chapter_Advanced_Contrasts_ANOVA.qmd`** is written, 195 lines, and commented out. Ch17
    points at it without a hyperlink. Add the link if it ships. Alex has grad material to fold in.
 7. **Two Part 1 chapters are above the em-dash target** and nobody is authorized to touch them:
-   `Chapter_Distro_Moments` (6.45) and `Chapter_Introduction` (3.16).
+   `Ch_04_Distributions` (6.45) and `Ch_01_Introduction` (3.16).
 8. **`R^2` outside math renders as a literal caret** in three headings of
-   `Chapter_Multiple_Regression_Control.qmd` (lines 329, 389, 395). Marked finished, so it needs
+   `Ch_13_Multiple_Regression.qmd` (lines 329, 389, 395). Marked finished, so it needs
    Alex's say-so.
 
 ## Status as of 2026-08-16, end of the Chapter 18 session
@@ -371,7 +371,7 @@ Details are on each item in `18_Mixed_Regression.md`.
 
 **Two things need Alex, and one of them is a loose file.**
 
-1. **`Chapter_Mixed_Designs.qmd` is modified, uncommitted, and nobody knows who wrote it.** Its
+1. **`Ch_33C_Mixed_Designs.qmd` is modified, uncommitted, and nobody knows who wrote it.** Its
    working-tree version duplicates Ch18's structure (same chocolate on-ramp, same seed, a
    Week 0 vs Week 6 2×2, a 2×4 in Advanced Topics). Its mtime is 2026-08-17 00:02, *after* the
    23:28 Ch18 commit, and it reuses Ch18 prose from that day verbatim, so it postdates and drew
@@ -384,7 +384,7 @@ Details are on each item in `18_Mixed_Regression.md`.
    `_quarto.yml`, matching the other drafts. It carries a `bibliography: references.bib` line of
    its own so the Bennett citation resolves on a standalone render, which it does not without it.
    Its own `---Alex---` header lists what is still missing. **The filename is a guess and the
-   CH18-DUP01 overlap with `Chapter_Mixed_Designs.qmd` is unresolved**, so do not add it to
+   CH18-DUP01 overlap with `Ch_33C_Mixed_Designs.qmd` is unresolved**, so do not add it to
    `_quarto.yml` until one of the two files wins.
 
 The five things worth carrying forward:
@@ -452,11 +452,11 @@ from facts instead of assumptions. All of the following was **executed, not assu
   Identical to six decimals, Satterthwaite df included. **Write the section around these
   numbers, but re-run them yourself before you publish prose about them.** Note the estimate
   is the mean *difference*, so the fixed effect is the chocolate effect in seconds.
-- **The paired-t chapter already routes here** (`Chapter_Paired_t_test.qmd:317` links to
-  `Chapter_Mixed_Regression.qmd`), so CH18-U02 lands exactly where a reader arrives.
+- **The paired-t chapter already routes here** (`Ch_09_Paired_t.qmd:317` links to
+  `Ch_18_Mixed_Regression.qmd`), so CH18-U02 lands exactly where a reader arrives.
 - **The chapter has 7 `glmmTMB` calls, 0 `fig-alt`, and full YAML residue** (`geometry`,
   `fontsize`, `format: pdf:`). So G01 and G02 are both outstanding here.
-- **`Chapter_Mixed_Inference.qmd` is still commented out of `_quarto.yml`**, so CH18-P01's
+- **`Ch_33D_Mixed_Inference.qmd` is still commented out of `_quarto.yml`**, so CH18-P01's
   broken forward reference is real.
 
 ### Chapter 18: how to run the session
@@ -527,12 +527,12 @@ moved out of first position.
 
 ### Em-dashes: the list is finished, but two chapters are still high
 
-`Chapter_CatXCat_Interaction` went **5.35 to 0.20**, the floor. That was the last chapter on
+`Ch_17_Categorical_Interaction` went **5.35 to 0.20**, the floor. That was the last chapter on
 the outstanding list. Current standings put two chapters above target, and **only one of them
 was previously known**:
 
-- `Chapter_Distro_Moments` at **6.45** (known; Part 1, finished, leave unless Alex asks)
-- `Chapter_Introduction` at **3.16** (**not previously flagged anywhere**; also Part 1 and
+- `Ch_04_Distributions` at **6.45** (known; Part 1, finished, leave unless Alex asks)
+- `Ch_01_Introduction` at **3.16** (**not previously flagged anywhere**; also Part 1 and
   finished, so same rule applies, but somebody should tell Alex it exists)
 
 ### New standing policy from Alex, 2026-08-16: show the simulation, name the package
@@ -548,7 +548,7 @@ Where it stands after this session:
 
 - **Simulations: essentially done, and it was one chunk.** An audit of every chapter in
   `_quarto.yml` found exactly **one** hidden data-making chunk in the whole book, in
-  `Chapter_Hierarchical_Regression`. It is now echoed with a lead-in line. Everything else
+  `Ch_14_Hierarchical_Regression`. It is now echoed with a lead-in line. Everything else
   was already visible. Do not go hunting; the job is finished.
 - **Libraries: 8 chapters outstanding, 28 invisible `library()` calls.** See G05b for the
   per-chapter counts and for the trap that makes this less mechanical than it looks (first
@@ -624,7 +624,7 @@ optional: CH16-P01 and CH17-P02 are the same bug wearing two hats. See below.
    edits.** Do not assume his version is clean just because it is his.
 
 4. **`R^2` outside math is a live bug elsewhere in the book.** Pandoc needs `R^2^` or `$R^2$`.
-   `Chapter_Multiple_Regression_Control.qmd` still has it in three headings (lines 329, 389,
+   `Ch_13_Multiple_Regression.qmd` still has it in three headings (lines 329, 389,
    395) and is marked finished, so it needs Alex's say-so. The correct pattern is
    `## Residual Variance and $R^2$` in Intro_to_regression.
 
@@ -635,8 +635,8 @@ optional: CH16-P01 and CH17-P02 are the same bug wearing two hats. See below.
 
 ### What is done, so you do not redo it
 
-- **Em-dash cleanups: one left.** Hierarchical went 9.48 to the floor. **`Chapter_CatXCat_Interaction`
-  at 5.35 is yours**, in this session. `Chapter_Distro_Moments` at 6.45 is Part 1 and finished;
+- **Em-dash cleanups: one left.** Hierarchical went 9.48 to the floor. **`Ch_17_Categorical_Interaction`
+  at 5.35 is yours**, in this session. `Ch_04_Distributions` at 6.45 is Part 1 and finished;
   leave it unless Alex asks.
 - **Italic *t* and *F*: done book-wide, 2026-08-16**, 76 symbols across 15 chapters, at Alex's
   request. Only the hyphenated compounds were swept (`*t*-test`, `*F*-test`, `*t*-value`,
@@ -700,9 +700,9 @@ grammar, em-dash reduction, and a render-safety sweep. Treat them as done.
 
 **Two dash cleanups were outstanding here. One is done; see the 2026-08-16 block above.**
 
-- `Chapter_Hierarchical_Regression.qmd` was at **9.48** em-dashes per 1000 words, the worst in
+- `Ch_14_Hierarchical_Regression.qmd` was at **9.48** em-dashes per 1000 words, the worst in
   the book. **Fixed 2026-08-16** in the 14+15 pass.
-- `Chapter_Distro_Moments.qmd` is at **6.69** and `Chapter_CatXCat_Interaction.qmd` at **5.60**
+- `Ch_04_Distributions.qmd` is at **6.69** and `Ch_17_Categorical_Interaction.qmd` at **5.60**
   (old baseline; subtract about 2 for the current script). Distro_Moments is Part 1 and
   finished, so leave it unless Alex asks; CatXCat is chapter 17 and should be fixed in the
   16+17 session.
@@ -763,8 +763,8 @@ with Control closing the trilogy. See the DECIDED block in `00_OVERVIEW.md` §2.
 
 Both chapters whose *filenames contain spaces* fail with `Unable to load picture or PDF file`.
 `*_files/` is gitignored, and for those two the freeze cache does not preserve `figure-pdf`,
-because Quarto rewrites `Chapter_Covariance and Correlation` to
-`Chapter_Covariance-and-Correlation` and the supporting-files bookkeeping does not survive the
+because Quarto rewrites `Ch_10_Covariance_Correlation` to
+`Ch_10_Covariance_Correlation` and the supporting-files bookkeeping does not survive the
 rename. Confirmed pre-existing: reproduced with every Chapter 10 edit stashed. It works on
 Alex's machine only because those gitignored directories linger from earlier renders. The fix
 is renaming both files plus their `_quarto.yml` entries, and it needs Alex's approval.

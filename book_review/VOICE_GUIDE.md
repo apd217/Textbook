@@ -575,9 +575,9 @@ top of that. A file with genuinely zero em-dashes now reports 1, not 0: the open
 no newline in front of it and survives the strip. **Treat 1 as the floor, not as a finding.**
 If you are comparing against a number written before that date, subtract about 2.
 
-`Chapter_CatXCat_Interaction` was fixed in the 16+17 session, 5.35 to 0.20, which finished the
+`Ch_17_Categorical_Interaction` was fixed in the 16+17 session, 5.35 to 0.20, which finished the
 outstanding list. Two chapters remain above target and **only one was previously known**:
-`Chapter_Distro_Moments` at 6.45 and `Chapter_Introduction` at 3.16. Both are Part 1 and
+`Ch_04_Distributions` at 6.45 and `Ch_01_Introduction` at 3.16. Both are Part 1 and
 finished, so leave them unless Alex asks, but the Introduction one had never been flagged.
 
 The house form is `---` (three hyphens), not the literal `—` character. Both count.

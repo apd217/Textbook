@@ -1,4 +1,4 @@
-# Chapter 22 — Pearson's Chi-Square (Chapter_ChiSquare.qmd)
+# Chapter 22 — Pearson's Chi-Square (Ch_34_Chi_Square.qmd)
 
 **Snapshot:** ~4,000 words. Strong content: the Best (1979) answer-changing study is a
 perfect running example, the simulate-the-null intuition (10,000 fake guessers before
@@ -15,7 +15,7 @@ the APA reports.
 - **Priority:** HIGH
 - **Perspective:** Professor + Student
 - **Effort:** S
-- **Location:** Chapter_ChiSquare.qmd → "Goodness of Fit Calculation by Hand" (search anchor: "= 127.14") and "Our results?" / APA sections (search anchors: "124.14 (experimental value we got)", "N = 222) = 124.14")
+- **Location:** Ch_34_Chi_Square.qmd → "Goodness of Fit Calculation by Hand" (search anchor: "= 127.14") and "Our results?" / APA sections (search anchors: "124.14 (experimental value we got)", "N = 222) = 124.14")
 - **Problem:** The hand calculation correctly gives χ² = (84²+84²)/111 = 127.14. The decision sentence and *both* APA write-ups then report 124.14 — three times. `chisq.test()` will print ~127.13, so the student sees the hand value, the code value, and the reported value disagree, in the section teaching them to report numbers accurately.
 - **Fix:** Correct all instances to the computed value (ideally make them inline: `` `r round(MCQ.chi$statistic, 2)` ``, which prevents recurrence). Also upgrade "p < .05" to the exact-p convention the t-test chapters teach ("In modern APA format, report the exact p-value") — here p < .001. Verify by rendering.
 - **Approved:** [x] — IMPLEMENTED 2026-08-17. Every chi-square value in the chapter is now
@@ -35,9 +35,9 @@ the APA reports.
 - **Priority:** HIGH
 - **Perspective:** Publisher + Student
 - **Effort:** S
-- **Location:** Chapter_ChiSquare.qmd → multiple (search anchors: "We will return the logic of hypothesis testing in more detail later in the semester.", "### Parametric Tests (coming later)", "later we’ll formalize how they connect to tests like t and F", "which the advanced chapter later in this book handles")
+- **Location:** Ch_34_Chi_Square.qmd → multiple (search anchors: "We will return the logic of hypothesis testing in more detail later in the semester.", "### Parametric Tests (coming later)", "later we’ll formalize how they connect to tests like t and F", "which the advanced chapter later in this book handles")
 - **Problem:** This chapter was clearly written for an early-242 slot (chi-square as the first hypothesis test) and was moved to Part 4 without updating its self-references: it promises hypothesis-testing logic "later in the semester" (the reader finished it nine chapters ago), labels parametric tests "(coming later)" (they came), promises t and F will be formalized "later" (they were), and defers multiplicity to "the advanced chapter later in this book" (Multiple Comparisons is *earlier* in book order). For a reader this is disorienting; for an instructor evaluating the book it looks unedited.
-- **Fix:** Sweep the chapter's temporal references to match its actual position: "(coming later)" → "(the t-tests and regression you've already met)"; "we will return… later in the semester" → "you know this logic from the t-test chapters — chi-square runs the same play with counts"; "later we'll formalize" → backward reference; "the advanced chapter later" → link to Chapter_Multiple_Comparisons.qmd. Alternatively — Alex's call, see the ordering discussion in 00_OVERVIEW.md — this chapter genuinely could serve as an early gentle-intro to hypothesis testing (its null-simulation build-up is self-contained); but then the *other* chapters' text needs checking instead. Fixing the references in place is the cheaper, recommended path.
+- **Fix:** Sweep the chapter's temporal references to match its actual position: "(coming later)" → "(the t-tests and regression you've already met)"; "we will return… later in the semester" → "you know this logic from the t-test chapters — chi-square runs the same play with counts"; "later we'll formalize" → backward reference; "the advanced chapter later" → link to Ch_20_Multiple_Comparisons.qmd. Alternatively — Alex's call, see the ordering discussion in 00_OVERVIEW.md — this chapter genuinely could serve as an early gentle-intro to hypothesis testing (its null-simulation build-up is self-contained); but then the *other* chapters' text needs checking instead. Fixing the references in place is the cheaper, recommended path.
 - **Approved:** [x] — IMPLEMENTED 2026-08-17. **Alex chose "fix the references in place"**
   on 2026-08-17 when asked; the move-the-chapter option is declined, not pending.
   Four references swept: "(coming later)" → "(everything up to this point)"; "later we'll
@@ -46,9 +46,9 @@ the APA reports.
   "we will return the logic of hypothesis testing later in the semester" → "You already
   know this logic from the *t*-test chapters. Chi-square runs the same play with counts
   instead of means."; "the advanced chapter later in this book" → a live link to
-  [Multiple Comparisons](Chapter_Multiple_Comparisons.qmd), which is now *earlier*.
+  [Multiple Comparisons](Ch_20_Multiple_Comparisons.qmd), which is now *earlier*.
   The link is also used a second time in the new residuals section (CH22-U01). Both
-  resolve to `./Chapter_Multiple_Comparisons.html` in the rendered book, verified.
+  resolve to `./Ch_20_Multiple_Comparisons.html` in the rendered book, verified.
   "(this chapter and the next)" on the Nonparametric heading was checked and is still
   accurate.
 
@@ -56,7 +56,7 @@ the APA reports.
 - **Priority:** MED
 - **Perspective:** Professor
 - **Effort:** S
-- **Location:** Chapter_ChiSquare.qmd → two-way APA (search anchor: "N = 1379) = 16.08") vs. the corrected test (search anchor: "correct = TRUE")
+- **Location:** Ch_34_Chi_Square.qmd → two-way APA (search anchor: "N = 1379) = 16.08") vs. the corrected test (search anchor: "correct = TRUE")
 - **Problem:** The hand calculation (16.08, uncorrected) is reported in the mid-chapter APA sentence, then the R section runs `correct = TRUE` and prints 15.57 with no comment; only the final "Reporting the Result" section reconciles them ("state your choices"). A student comparing the mid-chapter APA to the output above it sees an unexplained mismatch for several pages.
 - **Fix:** At the mid-chapter APA, add one sentence: "This matches our hand calculation, which used no continuity correction; R's default output below will differ slightly — we'll sort that out in a moment." Or run `correct = FALSE` first to match the hand value, then introduce Yates as the deliberate follow-up. Either way the reconciliation should happen at first contact, not two sections later.
 - **Approved:** [x] — IMPLEMENTED 2026-08-17, both halves of the item rather than either/or,
@@ -72,7 +72,7 @@ the APA reports.
 - **Priority:** MED
 - **Perspective:** Publisher
 - **Effort:** S
-- **Location:** Chapter_ChiSquare.qmd → multiple
+- **Location:** Ch_34_Chi_Square.qmd → multiple
 - **Problem / Fix (list):**
   - `dimnames(MCQ.Study.2) <- list(Social = c("Easy","Diff")…)` — the dimension is item difficulty, not "Social" (copy-paste residue from another dataset); rename to `Difficulty` (search: "Social = c(\"Easy\"").
   - "The way above if the hard way and shown you understand what the computer is doing" → "The way above is the hard way, and shows you understand…" (search: "The way above if the hard way").
@@ -90,7 +90,7 @@ the APA reports.
 - **Priority:** LOW
 - **Perspective:** Professor (grad reader)
 - **Effort:** S
-- **Location:** Chapter_ChiSquare.qmd → "Chi-Square Issues" (search anchor: "It does not identify every cell responsible for it.")
+- **Location:** Ch_34_Chi_Square.qmd → "Chi-Square Issues" (search anchor: "It does not identify every cell responsible for it.")
 - **Problem:** The Issues list correctly says the omnibus test doesn't localize the association, and the callout says to "inspect the percentages, residuals, and effect size" — but standardized residuals are never shown, even though `MCQ.chi.2$stdres` already exists in the fitted object. For a 2×2 it's trivial; for the grad reader heading to bigger tables it's the missing follow-up tool.
 - **Fix:** Add a 3-line chunk: `MCQ.chi.2$stdres` with two sentences — values act like z-scores per cell; beyond ±2 marks the cells doing the work; for bigger tables this is the first thing to inspect after a significant omnibus (and yes, checking many cells is a family — link the Multiple Comparisons chapter).
 - **Approved:** [x] — IMPLEMENTED 2026-08-17 as a new section, "Which Cells Are Doing the
