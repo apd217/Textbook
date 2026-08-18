@@ -44,11 +44,11 @@ library(scales)
 
 # ---- Read table ----
 # Source: U.S. Census Bureau, HINC-01 (Selected Characteristics of Households
-# by Total Money Income), downloaded as hinc01.xlsx and kept in the project
+# by Total Money Income), downloaded as data/hinc01.xlsx and kept in the project
 # root. For this vintage of the file, row 8 holds the income-bin labels and
 # row 10 holds household counts in thousands, across columns 3:43. If Census
 # reshapes the sheet, those row numbers are the first thing to check.
-raw <- read_excel("hinc01.xlsx", sheet = "hinc01", col_names = FALSE)
+raw <- read_excel("data/hinc01.xlsx", sheet = "hinc01", col_names = FALSE)
 
 bin_names <- raw[8, 3:43] |> unlist(use.names = FALSE)
 counts_thousands <- raw[10, 3:43] |> unlist(use.names = FALSE)

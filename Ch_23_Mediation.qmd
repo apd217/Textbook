@@ -35,13 +35,13 @@ dependent variable of interest"
 - In short, the mediator describes a pathway through which $X$ may be related to $Y$.
 - Having one mediator is called simple mediation.
 
-![Simple mediation](Mediation_Figure1.png)
+![Simple mediation](images/Mediation_Figure1.png)
 
 Preacher and Hayes (2008) explain that the relationship between $X$ and $Y$ can be separated into the direct effect $c'$ and the indirect effect through $M$. Path $a$ represents the relationship between $X$ and $M$, path $b$ represents the relationship between $M$ and $Y$ while controlling for $X$, and the indirect effect is the product $ab$.
 
 - Mediation attempts to explain part of the total relationship through an indirect path.
 
-![Total effect](Mediation_Figure2.png)
+![Total effect](images/Mediation_Figure2.png)
 
 - We can connect the total effect to simple mediation:
 $$c = c' + ab$$

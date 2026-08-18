@@ -15,5 +15,13 @@
 /site_libs/
 *.knit.md
 
+# Local editorial, validation, and rendered-output staging
+/book_review/
+/_freeze/
+/_book_check/
+/output/
+/qa_render/
+/tmp/
+
 # base-R graphics devices left behind by the PDF render pass (DHARMa plots)
 Rplots.pdf

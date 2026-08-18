@@ -68,7 +68,7 @@ ANOVAs are closely related to *t*-tests: $F = t^2$. This is why the *F*-distribu
 ANOVA asks, "Is one of these things not like the others?"
 
 
-![](1Of_These_Things.jpg){width=50% height=50%}
+![](images/1Of_These_Things.jpg){width=50% height=50%}
 
 
 $H_0$: All groups have equal means.
