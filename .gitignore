@@ -19,7 +19,10 @@
 /book_review/
 /_freeze/
 /_book_check/
-/output/
+/output/*
+!/output/pdf/
+/output/pdf/*
+!/output/pdf/Psychological_Statistics_with_R.pdf
 /qa_render/
 /tmp/
 
