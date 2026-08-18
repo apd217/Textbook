@@ -1,0 +1,360 @@
+---
+title: "From the Paired *t*-Test to the One-Way Within-Subjects ANOVA"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.75,
+  fig.height = 2.75
+)
+```
+
+## Types of Design
+- Repeated: The same person is measured twice.
+- Matched: "Doppelgangers we pretend are clones."
+    - A. Natural matches, such as twins or siblings
+    - B. Participants matched on other characteristics, such as IQ, age, gender, or other controls
+
+### Correlated Measures
+- When participants repeat trials or complete multiple conditions, their scores tend to be **correlated**.
+    - We want to control for individual variability.
+    - In the formula below, we remove shared variance from the standard error using Pearson's r between conditions.
+
+$$ t = \frac{M_1-M_2}{\sqrt{\frac{S_1^2 + S_2^2}{n}-\frac{2rS_1S_2}{n} }}$$
+
+#### Between-Subjects Assumption
+
+Below is a covariance matrix for a between-subjects design with two levels, as in an independent-samples *t*-test. We assume HOV, meaning that the population variances are equal: $\sigma_1^2 = \sigma_2^2 = \sigma^2$. The cells show the correlations between groups. Note that $\rho$ is the population correlation.
+
+$$
+\mathbf{Cov} = \sigma^2\left[\begin{array}
+          {rrr}
+          1 & 0  \\
+          0 & 1  \\
+          \end{array}\right]
+$$
+
+- Cell 1 = Group 1 with Group 1 ($\rho$ = 1): The cell data are correlated with themselves.
+- Cell 2 = Group 1 with Group 2 ($\rho$ = 0): The groups are unrelated, so the correlation should be around zero.
+- Cell 3 = Group 2 with Group 1 ($\rho$ = 0): Same as Cell 2 because the matrix is symmetric.
+- Cell 4 = Group 2 with Group 2 ($\rho$ = 1): The cell data are correlated with themselves.
+
+#### Within-Subjects Assumption 
+
+Below is a covariance matrix for a within-subjects design with two levels, as in a paired-samples *t*-test. We still assume HOV, meaning that the population variances are equal: $\sigma_1^2 = \sigma_2^2 = \sigma^2$. The cells show the correlations between conditions.
+
+$$
+\mathbf{Cov} = \sigma^2\left[\begin{array}
+          {rrr}
+          1 & \rho  \\
+          \rho & 1  \\
+          \end{array}\right]
+$$ 
+    
+- Cell 1 = Group 1 with Group 1 ($\rho$ = 1): The cell data are correlated with themselves.
+- Cell 2 = Group 1 with Group 2 ($\rho$ > |0|): Each person's scores are correlated across conditions and should NOT be zero.
+- Cell 3 = Group 2 with Group 1 ($\rho$ > |0|): Same as Cell 2 because the matrix is symmetric.
+- Cell 4 = Group 2 with Group 2 ($\rho$ = 1): The cell data are correlated with themselves.
+
+
+## One Repeated Factor: Two-Level Designs
+
+> Does eating chocolate during a lecture increase fixation on the lecture? We measure fixation as the mean time a student's eyes remain on the screen, in seconds per glance. We collect multiple trials per condition for each person and compare the means with a paired-samples *t*-test. The DV is mean fixation time. The IV is a two-level repeated factor: no chocolate in Lecture 1 versus one fun-size Snickers in Lecture 2. We simulate $n = 5$ students measured during both lectures, with means of $M_1 = 5$ and $M_2 = 10$ and $\sigma^2 = 4$. The responses across conditions are correlated at $\rho = .4$.
+
+```{r, echo=FALSE}
+set.seed(7580)
+library(tidyr)
+library(dplyr)
+library(MASS)
+n = 5 ; p = .4 ; M1=5; M2=10; S2=4
+# Generate Cov matrix
+SigmaMatrix<-matrix(c(1,p, 
+                      p,1), nrow=2, ncol=2)*S2
+
+DataSim0 = mvrnorm(n=n, mu=c(M1, M2), Sigma=SigmaMatrix, empirical=FALSE)
+colnames(DataSim0) <- c("X1","X2")
+DataSim1<-gather(data.frame(DataSim0),key = "Chocolate", value = "Fixation")
+DataSim1$SS<-as.factor(rep(seq(1:n),2))
+DataSim1$Chocolate<-factor(DataSim1$Chocolate, 
+       levels=c("X1","X2"),
+       labels=c("No Snickers", "Fun Size Snickers"))
+```
+
+### Plot of Simulation
+- Spaghetti plot per person
+- Each line represents a person's score from Lecture 1 (No Chocolate) to Lecture 2 (Chocolate).
+- As you can see, most do better, while some do worse.
+
+```{r, echo=FALSE}
+library(ggplot2)
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+Rm.t.test.plot <-ggplot(data = DataSim1, aes(x = Chocolate, y=Fixation))+
+  geom_point(aes(colour = SS))+
+  geom_smooth(method = "lm", se = FALSE, aes(group=SS,colour = SS))+
+  ylab("Fixation (in seconds)")+xlab("Chocolate")+
+  theme(legend.position = "none")
+Rm.t.test.plot
+```
+
+```{r, echo=FALSE}
+Rval=round(cor(DataSim1$Fixation[1:5],DataSim1$Fixation[6:10]),2)
+```
+
+
+The correlation matrix:  
+
+Corr Matrix |None     | Snickers
+------------|---------|---------
+None        |   1     | `r Rval`
+Snickers    | `r Rval`| 1
+
+The value of r is reasonably close to the $\rho = .4$ that we simulated.
+
+Variance per cell:  
+
+```{r, echo=FALSE}
+Vars<-
+DataSim1 %>%
+  group_by(Chocolate)%>%
+  summarise(Varience=var(Fixation))
+knitr::kable(Vars)
+```
+
+The variances are not very homogeneous, but we have an $N$ of only 5.
+
+### Conduct a Paired *t*-Test in R
+We use the `t.test()` function with the argument `paired = TRUE`. Make sure the data are sorted by ID when you read them into R. The $df$ equals the number of participants minus 1.
+
+```{r}
+T1<-t.test(Fixation~Chocolate, paired=TRUE,
+           data = DataSim1)
+T1
+```
+
+
+#### APA-Style Report
+The `apa` package can automatically convert our *t*-test result into APA format.
+
+```{r,results="asis"}
+library(apa)
+cat(apa(T1, format = "rmarkdown", print = FALSE))
+```
+
+
+### Logic of the Paired *t*-Test
+We remove **individual differences** because we care about how people **change** from one condition to another. Although the raw data look like the spaghetti plot above, the analysis removes these individual differences by calculating a difference score: *Fun-Size Snickers Condition* - *No Snickers Condition*.
+
+Now that we have difference scores, we will plot the dots:
+
+```{r, echo=FALSE}
+DataSim2<-data.frame(diff=(DataSim0[,2]-DataSim0[,1]))
+
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+Rm.t.test.plot.2 <-ggplot(data = DataSim2, aes(x="Snickers - None" , y=diff))+
+  geom_point()+
+  ylab("Fixation Difference Score")+xlab("")+
+  theme(legend.position = "none")
+Rm.t.test.plot.2
+```
+
+#### One-Sample *t*-Test on Difference Scores
+Because we have one score per person, the difference between conditions, we can run a one-sample *t*-test to determine whether the difference scores differ from zero.
+
+$$t = \frac{M - \mu}{\sqrt{S^2/n}}$$ 
+
+```{r}
+T2<-t.test(x=DataSim2$diff, y = NULL, mu=0)
+T2
+```
+
+Notice that the results are identical to those from the paired-samples *t*-test.
+
+#### Simplified Paired *t*-Test Formula
+To calculate this paired *t*-test by hand, calculate the difference scores ($D$), then find their mean and variance, or $S$. The result is identical to that from the more complex formula above, which removes individual differences using the Pearson correlation.
+
+$$t = \frac{M_D - \mu_D}{\sqrt{S_D^2/n}}$$ 
+
+### Effect Size
+There is considerable debate about calculating Cohen's $d$ for paired designs. The simple formula looks like Cohen's $d$ for a one-sample *t*-test, except that it uses difference scores:
+
+$$d = \frac{M_D}{S_D}$$
+
+## One Repeated Factor: Designs with Three or More Levels
+> Does eating chocolate during a lecture increase fixation on the lecture? We measure fixation as the mean time a student's eyes remain on the screen, in seconds per glance. We collect multiple trials per condition for each person and compare the means with a repeated-measures ANOVA. The DV is mean fixation time. The IV is a three-level repeated factor: no chocolate in Lecture 1, one fun-size Snickers in Lecture 2, and one king-size Snickers in Lecture 3. We simulate $n = 5$ students measured during all three lectures, with means of $M_1 = 5$, $M_2 = 10$, and $M_3 = 3$, assuming HOV with $\sigma^2 = 4$. Responses across conditions are correlated at $\rho = .4$.
+
+
+```{r, echo=FALSE}
+set.seed(42)
+n = 5 ; p = .4 ; M1=5; M2=10;M3=3; S2=4
+# Generate Cov matrix
+SigmaMatrix<-matrix(c(1,p,p, 
+                      p,1,p,
+                      p,p,1), nrow=3, ncol=3)*S2
+
+DataSim3 = mvrnorm(n=n, mu=c(M1, M2,M3), Sigma=SigmaMatrix, empirical=FALSE)
+colnames(DataSim3) <- c("X1","X2","X3")
+DataSim4<-gather(data.frame(DataSim3),key = "Chocolate", value = "Fixation")
+DataSim4$SS<-as.factor(rep(seq(1:n),3))
+DataSim4$Chocolate<-factor(DataSim4$Chocolate, 
+       levels=c("X1","X2","X3"),
+       labels=c("No Snickers", "Fun Size Snickers","King Size Snickers"))
+DataSim4$Fixation<-round(DataSim4$Fixation,0)
+
+```
+
+
+### Plot of Simulation
+- Spaghetti plot per person
+- Each line represents a person's score across conditions
+
+```{r, echo=FALSE}
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+Rm.t.test.plot.2 <-ggplot(data = DataSim4, aes(x = Chocolate, y=Fixation, group=SS))+
+  geom_point(aes(colour = SS))+
+  geom_line(aes(colour = SS))+
+  #geom_smooth(method = "lm", se = FALSE, aes(group=SS,colour = SS))+
+  ylab("Fixation (in Seconds)")+xlab("Chocolate")+
+  theme(legend.position = "none")
+Rm.t.test.plot.2
+```
+
+
+### Repeated-Measures ANOVA Logic
+In a repeated-measures ANOVA, we identify variance due to individual differences. We estimate it from the row sums, which are the sums of each participant's scores.
+
+#### One-way ANOVA Table With the formulas (conceptually simplified)
+
+
+Source | SS     | DF     | MS     | F
+-------|--------|--------|--------|----
+Between| $SS_B=nSS_{treatment}$ | $K-1$ | $MS_{B}=\frac{SS_B}{df_B}$ | $\frac{MS_B}{MS_W}$
+Within | $SS_W=\displaystyle \sum SS_{within}$| $N-K$ | $MS_{W}=\frac{SS_W}{df_W}$ | 
+Total  | $SS_T=SS_{scores}$   | $N-1$ 
+
+Note: $SS_B + SS_W = SS_T$ and $df_B + df_W = df_T$.
+
+#### One-way RM ANOVA Table With the formulas (conceptually simplified)
+
+Source     | SS                    | DF      | MS       | F
+-----------|-----------------------|---------|----------|---
+$RM_1$ | $SS_{RM}=nSS_{all\,cell\,means}$ | $c-1$| $MS_{RM}=\frac{SS_{RM}}{df_{RM}}$ | $\frac{MS_{RM}}{MS_E}$
+Within  | $SS_{w}=\displaystyle \sum SS_{within}$     |   
+$\,Subject\,[Sub]$  | $SS_{sub}=\frac{1}{c} SS_{subjects:\, rows\,sums}$     | $n-1$     | $MS_{Sub}=\frac{SS_{sub}}{df_{sub}}$ | 
+$\,Error [Sub\,x\,RM_1]$  | $SS_E=SS_W-SS_{sub}$     | $(n-1)(c-1)$     | $MS_E=\frac{SS_E}{df_E}$ | 
+Total   | $SS_T=SS_{scores}$      | $N-1$ 
+
+Note: $SS_{sub} + SS_E = SS_W$, $SS_B + SS_W = SS_T$, and $df_B + df_W = df_T$.
+
+##### Explained vs. Unexplained Terms
+
+**Explained:** 
+
+$SS_{RM}$ = variance caused by the treatment.
+$SS_{sub}$ = individual differences. We do not know why people differ, but we can parse this variance, so we have *explained it*.
+
+**Unexplained:** 
+
+$SS_{E}$ = variance within participants that cannot be explained. This is not individual-difference variance.
+
+
+### Assumptions
+As with the paired *t*-test, we assume HOV ($\sigma^2_1 = \sigma^2_2 =\sigma^2_3$). More importantly, we assume that the correlations among the three conditions are equal ($\rho_1 = \rho_2 = \rho_3$). We call this *compound symmetry*:
+
+$$
+\mathbf{Cov} = \sigma^2\left[\begin{array}
+          {rrrr}
+          1 & \rho & \rho  \\
+          \rho & 1 & \rho  \\
+          \rho & \rho & 1  \\
+          \end{array}\right]
+$$ 
+
+When HOV and compound symmetry are met, we satisfy the assumption of **homogeneity of covariance**.
+
+#### Sphericity
+We evaluate this assumption with Mauchly's test of sphericity, which tests the variances of the difference scores among all conditions.
+
+$H_0: \sigma^2_{2-1}=\sigma^2_{3-1}=\sigma^2_{3-2}$
+
+$H_1: \sigma^2_{2-1}\neq\sigma^2_{3-1}\neq\sigma^2_{3-2}$
+
+When sphericity is violated, we reduce the df to lower the risk of Type I error. We will not cover the calculation in detail. The basic idea is that a value called $\epsilon$ is calculated from the degree of violation. The greater the violation, the larger the df correction. The old-school approach corrected only after rejecting the null in Mauchly's test. The modern approach always applies a sphericity correction, even when Mauchly's test is nonsignificant. R follows the second approach by default.
+
+There are two methods for calculating $\epsilon$. The most common and slightly more conservative is the Greenhouse-Geisser (GG) correction. A more powerful but less common approach is the Huynh-Feldt (HF) correction. R defaults to GG, as do psychologists, but you can request HF.
+
+### Effect Sizes
+
+#### What SPSS and Your Book Suggest
+Your book suggests an effect size that is very similar to $\eta^2_p$.
+
+Remember in two-way ANOVA: 
+
+$$\eta_p^2 = \frac{SS_A}{SS_A+SS_W}$$
+
+Because our error term is no longer $SS_W$, we now use $SS_E$.
+
+$$\eta_p^2 = \frac{SS_{RM}}{SS_{RM}+SS_E}$$
+
+#### R and Generalized Effect Size
+Olejnik and Algina (2003) instead propose generalized eta-squared, which can be compared across within- and between-subjects designs and is what `afex` has been reporting.
+
+$$\eta_g^2 = \frac{SS_{RM}}{SS_{RM} + SS_{sub}+ SS_E} = \frac{SS_{RM}}{SS_T} $$
+
+You can also calculate an unbiased generalized effect size by hand or use the Excel sheets.
+
+$$\omega_g^2 = \frac{df_{RM}(MS_{RM}-MS_E)}{MS_{sub}+ SS_T} $$
+
+See Bakeman (2005) for additional issues concerning effect sizes in repeated-measures and mixed designs.
+
+### R Calculations
+#### R Defaults
+- `afex` calculates the repeated-measures ANOVA and automatically corrects for sphericity violations.
+- `Error(Subject ID/RM factor)`: This tells `afex` that participants vary as a function of the repeated-measures condition.
+- It reports $\eta_g^2$ assuming a manipulated treatment.
+
+```{r}
+library(afex)
+Model.1<-aov_car(Fixation~ Chocolate + Error(SS/Chocolate), 
+        data = DataSim4)
+Model.1
+```
+
+#### SPSS-Like Report
+Use the following code to see results formatted like SPSS output:
+
+```{r}
+aov_car(Fixation~ Chocolate + Error(SS/Chocolate), 
+        data = DataSim4, return="univariate")
+```
+
+This reports Mauchly's test, which is nonsignificant, along with the uncorrected df and p-value. It also shows the p-values for the GG and HF corrections, if applied.
+
+#### Manually Select DF Correction & $\eta_p^2$
+
+You can request `HF`, `GG`, or `none`. You can also request $\eta_p^2$ with `pes`.
+
+```{r}
+aov_car(Fixation~ Chocolate + Error(SS/Chocolate), 
+        data = DataSim4,
+        anova_table=list(correction = "HF", es='pes'))
+```
+
+## Challenges of Repeated Design
+- Practice effects
+- Carryover effects
+- Order effects
+- Fatigue
+
+### Solutions
+- Counterbalancing
+- Time between trials/distractor tasks
+- Using a matched design
+
+## References
+Bakeman, R. (2005). Recommended effect size statistics for repeated measures designs. *Behavior Research Methods*, 37(3), 379-384.
+
+Olejnik, S., & Algina, J. (2003). Generalized eta and omega squared statistics: Measures of effect size for some common research designs. *Psychological Methods*, 8(4), 434-447. doi:10.1037/1082-989X.8.4.434

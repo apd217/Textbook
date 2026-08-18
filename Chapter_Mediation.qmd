@@ -1,351 +1,221 @@
 ---
-title: "Advanced: Mediation and Indirect Effects"
+title: "Mediation"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 5,
+  fig.height = 3.75,
+  fig.align = "center"
+)
 ```
 
-## The Question Changes from Whether to How
-
-Mediation asks whether the relationship between $X$ and $Y$ may operate through a third variable, $M$.
-
-$$
-X\longrightarrow M\longrightarrow Y.
-$$
-
-Suppose a study-skills workshop increases practice time, which then improves exam performance. The proposed mediator is practice time.
-
-Baron and Kenny's classic paper helped make the distinction familiar: a **moderator** changes the strength or direction of a relationship, whereas a **mediator** represents a proposed process through which one variable affects another [@baronkenny1986]. The definitions were useful. The original step-by-step testing ritual has not aged as well.
-
-::: {.callout-warning title="A Mediator Is a Causal Claim Wearing Three Variables"}
-Regression can estimate paths consistent with mediation. It cannot prove temporal order, eliminate unmeasured confounding, or show that changing the mediator would change the outcome. Causal mediation requires design and assumptions, not merely three significant coefficients standing in a trench coat.
+::: {.callout-warning title="Historical Lecture"}
+This chapter has not yet been adapted to match the format and style of the rest of the book. It is included in its original lecture structure for readers who need to conduct and interpret a mediation analysis.
 :::
 
-## The Path Model
+## Mediation
 
-The mediator model is:
+- Baron and Kenny (1986) had 66,271 citations as of March 27, 2017.
+- See [Kenny's mediation page](https://davidakenny.net/cm/mediate.htm) for useful information.
+- Mediation is extremely common in social psychology and is now used throughout psychology.
 
-$$
-M=i_M+aX+e_M.
-$$
+- Baron and Kenny define moderator and mediator as follows:
 
-The outcome model is:
+> "The moderator function of third variables, which partitions a focal independent variable into subgroups that establish its domains of maximal effectiveness regarding a given dependent variable"
 
-$$
-Y=i_Y+c'X+bM+e_Y.
-$$
+> "The mediator function of a third
+variable, which represents the generative mechanism through
+which the focal independent variable can influence the
+dependent variable of interest"
 
-The indirect effect is:
+- In short, the mediator describes a pathway through which $X$ may be related to $Y$.
+- Having one mediator is called simple mediation.
 
-$$
-ab.
-$$
+![Simple mediation](Mediation_Figure1.png)
 
-The total effect in a simple linear system is:
+Preacher and Hayes (2008) explain that the relationship between $X$ and $Y$ can be separated into the direct effect $c'$ and the indirect effect through $M$. Path $a$ represents the relationship between $X$ and $M$, path $b$ represents the relationship between $M$ and $Y$ while controlling for $X$, and the indirect effect is the product $ab$.
 
-$$
-c=c'+ab.
-$$
+- Mediation attempts to explain part of the total relationship through an indirect path.
 
-The labels mean:
+![Total effect](Mediation_Figure2.png)
 
-- $a$: expected change in $M$ for a one-unit change in $X$.
-- $b$: expected change in $Y$ for a one-unit change in $M$, controlling for $X$.
-- $c'$: direct relationship between $X$ and $Y$, controlling for $M$.
-- $ab$: indirect effect through $M$.
-- $c$: total relationship between $X$ and $Y$ before adding $M$.
+- We can connect the total effect to simple mediation:
+$$c = c' + ab$$
 
-For ordinary linear models without interactions and with the same observations, $c=c'+ab$. With nonlinear models, interactions, missing-data differences, or other complications, this simple decomposition may not hold on every scale.
+$$total = direct + indirect $$
 
-```{r mediation-path-diagram, fig.width=7, fig.height=3.3}
-plot.new()
-plot.window(xlim = c(0, 10), ylim = c(0, 5))
+### A Hypothetical Example of Mediation
 
-rect(0.7, 1.8, 2.5, 3.2, col = "#D9EAF7", border = "#1F4E79", lwd = 2)
-rect(4.1, 1.8, 5.9, 3.2, col = "#FDE0C5", border = "#D55E00", lwd = 2)
-rect(7.5, 1.8, 9.3, 3.2, col = "#D8F0E5", border = "#007F5F", lwd = 2)
-text(c(1.6, 5, 8.4), 2.5, c("Workshop\nX", "Practice\nM", "Exam\nY"), cex = 1.05)
+- Children with the ability to delay gratification tend to be more successful later in life, as illustrated by the marshmallow test.
+- You hypothesize that their trust in authority figures to keep promises is an intermediate step in the pathway to later success.
+- You collect data from 268 four-year-olds and give them the marshmallow test, measuring how long they wait before eating the marshmallow. Rather than waiting 20 years, you operationalize success as performance on a kindergarten entrance exam at the end of the year. You also measure how much they trust authority figures on a 1-to-10 scale using an established battery for children.
 
-arrows(2.55, 2.75, 4.0, 2.75, length = .12, lwd = 2)
-arrows(5.95, 2.75, 7.4, 2.75, length = .12, lwd = 2)
-arrows(2.45, 1.65, 7.55, 1.65, length = .12, lwd = 2, xpd = NA)
-text(3.25, 3.15, "a", cex = 1.2)
-text(6.75, 3.15, "b", cex = 1.2)
-text(5, 1.22, "c' (direct)", cex = 1.05)
-text(5, 4.25, "Indirect effect = a x b", cex = 1.1)
+
+```{r, echo=TRUE, warning=FALSE}
+library(car)
+set.seed(42)
+# For simulation of mediation steps see Hallgren, 2013
+# path a strength
+a=.4
+# path b strength
+b=.4
+# path c' strength
+cp=.01
+# people
+n <- 268
+# Normal distribution of time (mins)
+X <- rnorm(n, 5, 2)
+# Mediator
+M <- a*X+rnorm(n, 0, 1)
+# Our equation to  create Y
+Y <- cp*X + b*M + rnorm(n, sd=1)
+#Built our data frame
+Marshmallow.Data<-data.frame(Success=Y,Time=X,Trust=M)
+# plots
+scatterplot(Success~Time, data= Marshmallow.Data, smoother=FALSE)
+scatterplot(Success~Trust, data= Marshmallow.Data, smoother=FALSE)
+scatterplot(Trust~Time, data= Marshmallow.Data,smoother=FALSE)
 ```
 
-## Simulated Workshop Data
 
-```{r mediation-data}
-set.seed(343)
-n <- 220
-MediationData <- data.frame(
-  Workshop = rbinom(n, 1, .5)
-)
+#### Baron and Kenny Steps for Testing Mediation
 
-MediationData$Practice <-
-  3 + 2.2 * MediationData$Workshop + rnorm(n, 0, 1.6)
+- Step 1: Test $Y \sim X$.
+- Is there a relationship? In the traditional procedure, you proceeded only if the total effect was significant. Modern mediation analysis does not require a significant total effect before testing the indirect effect.
 
-MediationData$Exam <-
-  58 + 2.5 * MediationData$Workshop +
-  3.2 * MediationData$Practice + rnorm(n, 0, 7)
+```{r, echo=TRUE, warning=FALSE}
+Model.1<-lm(Success~Time, data= Marshmallow.Data)
+summary(Model.1)
 ```
 
-```{r mediation-models}
-MediatorModel <- lm(Practice ~ Workshop, data = MediationData)
-OutcomeModel <- lm(Exam ~ Workshop + Practice, data = MediationData)
-TotalModel <- lm(Exam ~ Workshop, data = MediationData)
+- Step 2: Test $M \sim X$.
+- This model estimates path $a$.
 
-a <- coef(MediatorModel)["Workshop"]
-b <- coef(OutcomeModel)["Practice"]
-c_prime <- coef(OutcomeModel)["Workshop"]
-c_total <- coef(TotalModel)["Workshop"]
-
-c(a = a, b = b, indirect = a * b, direct = c_prime, total = c_total)
+```{r, echo=TRUE, warning=FALSE}
+Model.2<-lm(Trust~Time, data= Marshmallow.Data)
+summary(Model.2)
 ```
 
-## Do Not Require Every Historical Step
+- Step 3: Test $Y \sim M + X$.
+- This model estimates path $b$ while controlling for $X$ and estimates the direct effect $c'$ while controlling for $M$.
 
-The traditional Baron-and-Kenny procedure required a sequence of significant paths, including a significant total effect. Modern mediation analysis focuses on the indirect effect itself [@preacher2008]. A total effect can be small when indirect pathways operate in opposite directions or when the direct and indirect effects cancel.
-
-Historically, researchers were told to:
-
-1. Regress $Y$ on $X$ and require a significant total effect $c$.
-2. Regress $M$ on $X$ and require a significant $a$ path.
-3. Regress $Y$ on $X$ and $M$ and require a significant $b$ path.
-4. Declare "complete" mediation if $c'$ became nonsignificant, or "partial" mediation if it merely became smaller.
-
-These regressions remain useful for understanding the system. The gatekeeping rules are the problem. A nonsignificant total effect does not prohibit an indirect effect. The direct and indirect effects can point in opposite directions and cancel. Significance also depends on sample size, so making "complete mediation" depend on a nonsignificant $c'$ rewards low power.
-
-::: {.callout-note title="The Indirect Effect Is the Target"}
-Do not infer mediation merely because $a$ and $b$ are individually significant. Test and report $ab$ with an interval that reflects its skewed sampling distribution.
-:::
-
-### Joint Significance and the Sobel Test
-
-If both $a$ and $b$ are clearly different from zero, their joint significance provides evidence consistent with an indirect effect. However, it does not directly estimate the uncertainty of $ab$.
-
-The Sobel approach uses a delta-method standard error. A common version is
-
-$$
-SE_{ab}\approx\sqrt{b^2SE_a^2+a^2SE_b^2},
-$$
-
-and then tests $z=ab/SE_{ab}$. The problem is that a product of two approximately normal coefficients is usually not normal, especially when either path is near zero. The resulting interval is forced to be symmetric when the sampling distribution is often skewed. This is why bootstrap intervals largely replaced the Sobel test for ordinary mediation [@preacher2008].
-
-## Bootstrap the Indirect Effect
-
-The product $ab$ is often asymmetric, especially in smaller samples. A bootstrap interval avoids forcing the product into a symmetric normal approximation.
-
-```{r mediation-bootstrap, fig.width=7, fig.height=4.5}
-set.seed(344)
-B <- 4000
-
-IndirectBoot <- replicate(B, {
-  rows <- sample(seq_len(nrow(MediationData)), replace = TRUE)
-  d <- MediationData[rows, ]
-  a_star <- coef(lm(Practice ~ Workshop, data = d))["Workshop"]
-  b_star <- coef(lm(Exam ~ Workshop + Practice, data = d))["Practice"]
-  a_star * b_star
-})
-
-quantile(IndirectBoot, c(.025, .975))
-
-hist(
-  IndirectBoot, breaks = 35,
-  col = "#9ECAE1", border = "white",
-  xlab = "Bootstrapped indirect effect",
-  main = "The indirect effect gets its own sampling distribution"
-)
-abline(v = 0, lty = 2, lwd = 2)
-abline(v = a * b, col = "#D55E00", lwd = 3)
+```{r, echo=TRUE, warning=FALSE}
+Model.3<-lm(Success~Trust+Time, data= Marshmallow.Data)
+summary(Model.3)
 ```
 
-The code resamples complete rows so each participant's workshop, practice, and exam values stay together. In clustered or repeated data, resample at the appropriate higher-level unit or use a model-based procedure. Do not split a participant into three independent ghosts.
+- Step 4: Inspect $c'$ in Model 3 and test the indirect effect $ab$ directly.
+- Historically, researchers used the labels *complete mediation* when $c'$ was no longer significant and *partial mediation* when $c'$ remained significant but became smaller. These labels depend too heavily on sample size and are no longer recommended as the main conclusion.
 
-### Percentile and BCa Intervals
+#### Interpretation
 
-The histogram above supports a percentile interval by taking its 2.5th and 97.5th percentiles. A BCa interval additionally adjusts for median bias and acceleration. Neither method rescues a badly identified causal model. See the advanced bootstrapping chapter for the jackknife, percentile, basic, studentized, and BCa logic.
+- In this simulation, the direct path $c'$ is close to zero.
+- Time is not significant in Model 3, but it could be significant in a larger sample.
+- The data are consistent with part of the relationship between time and success operating through trust.
+- How do we test the indirect effect, path $ab$?
 
-### The `mediation` Package Vocabulary
+#### Significance of the Indirect Path
 
-The `mediation` package describes the indirect effect as the **average causal mediation effect** (ACME), the direct effect as the **average direct effect** (ADE), and their sum as the total effect. Those names emphasize causal estimands, which means the assumptions deserve more attention, not less.
+- In our example, paths $a$ and $b$ are both strong and significant. This is called joint significance.
+- Joint significance provides evidence consistent with an indirect effect, but we should test and report the indirect effect directly.
+- The Sobel test estimates the standard error of $ab$ in the equation $c = c' + ab$ and tests the product against zero.
+- The Sobel test relies on a normal approximation for the product $ab$. That sampling distribution is often asymmetric, especially in smaller samples, so the test can have low power.
+- Other tests exist, but the Sobel test was the most common in its day.
 
-```{r mediation-package, eval=FALSE}
+```{r, echo=TRUE, warning=FALSE}
+library(bda)
+mediation.test(Marshmallow.Data$Trust,Marshmallow.Data$Time,Marshmallow.Data$Success)
+```
+
+- Bootstrapping has largely replaced the Sobel test, so we will focus on bootstrap intervals in the examples.
+- Two common bootstrap intervals are the bias-corrected and accelerated (BCa) interval and the percentile interval.
+- Their performance differs across situations; the important point is to name the interval you use and report the number of bootstrap draws.
+
+\pagebreak
+
+##### The `mediation` Package in R
+
+- You need Model 2 ($M \sim X$) and Model 3 ($Y \sim M + X$) from above.
+- The terminology changes because this package can handle larger designs with control variables and several types of regression models.
+ 
+```{r, echo=TRUE, warning=FALSE}
 library(mediation)
-
-MediationFit <- mediate(
-  model.m = MediatorModel,
-  model.y = OutcomeModel,
-  treat = "Workshop",
-  mediator = "Practice",
-  boot = TRUE,
-  boot.ci.type = "bca",
-  sims = 5000
-)
-
-summary(MediationFit)
-plot(MediationFit)
+Med.Boot.BCa <- mediate(Model.2, Model.3, boot = TRUE, 
+                        boot.ci.type = "bca", sims=200, treat="Time", mediator="Trust")
+summary(Med.Boot.BCa)
+plot(Med.Boot.BCa)
 ```
 
-Five thousand simulations are used here for a final analysis. A few hundred are acceptable while testing code, but bootstrap tail endpoints dislike being estimated from spare change.
+- ACME: average causal mediation effect [total effect - direct effect]
+- ADE: average direct effect [total effect - indirect effect]
+- Total Effect = Direct (ADE) + Indirect (ACME) 
+- These are unstandardized effects
+- Proportion mediated: conceptually, ACME / total effect
+- Note: I used 200 simulations to keep this lecture example quick, but use substantially more for a real analysis.
 
-## What Must Be True for a Causal Interpretation?
+- By changing the code, we can request a percentile interval instead of BCa.
 
-At minimum, we need defensible assumptions about:
-
-- Temporal order: $X$ precedes $M$, which precedes $Y$.
-- No unmeasured confounding of $X\rightarrow M$.
-- No unmeasured confounding of $M\rightarrow Y$.
-- No mediator–outcome confound created by $X$.
-- Correct functional forms and measurement.
-- No major post-treatment selection problems.
-
-Randomizing $X$ helps with paths beginning at $X$. It does not automatically randomize the mediator. Participants who practice more may differ in motivation, sleep, prior knowledge, terror of disappointing their mother, or several variables we did not measure.
-
-## Partial and Complete Mediation
-
-Avoid treating “complete mediation” as a trophy awarded when $c'$ becomes nonsignificant. Significance depends on sample size and uncertainty. Report the direct effect, indirect effect, total effect, and their intervals. Let the estimates describe the pattern.
-
-The **proportion mediated**, often calculated as $ab/c$, can be unstable or nonsensical when the total effect is close to zero or when direct and indirect effects have opposite signs. Report it only when the decomposition and scale make it meaningful. A ratio exploding because its denominator is nearly zero is algebra having a tantrum, not a discovery.
-
-## Binary Mediators or Outcomes
-
-The mediator and outcome models do not both have to be ordinary linear regressions. A binary mediator can use logistic regression, and a binary outcome can use a binomial model.
-
-```{r binary-mediator-example}
-set.seed(346)
-n_binary <- 600
-BinaryMediationData <- data.frame(
-  Workshop = rbinom(n_binary, 1, .5)
-)
-
-BinaryMediationData$AskedForHelp <- rbinom(
-  n_binary,
-  1,
-  plogis(-1 + 1.1 * BinaryMediationData$Workshop)
-)
-
-BinaryMediationData$Exam <-
-  62 +
-  2 * BinaryMediationData$Workshop +
-  7 * BinaryMediationData$AskedForHelp +
-  rnorm(n_binary, 0, 8)
-
-BinaryMediatorModel <- glm(
-  AskedForHelp ~ Workshop,
-  data = BinaryMediationData,
-  family = binomial()
-)
-
-BinaryOutcomeModel <- lm(
-  Exam ~ Workshop + AskedForHelp,
-  data = BinaryMediationData
-)
-
-summary(BinaryMediatorModel)
-summary(BinaryOutcomeModel)
+```{r, echo=TRUE, warning=FALSE}
+Med.Boot.perc <- mediate(Model.2, Model.3, boot = TRUE, 
+                         boot.ci.type = "perc", sims=200, treat="Time", mediator="Trust")
+summary(Med.Boot.perc)
+plot(Med.Boot.perc)
 ```
 
-With nonlinear links, $ab$ formed from two raw coefficients may not equal a simple indirect effect on the probability or outcome scale. Use software that defines the estimand, calculates predictions on a meaningful scale, and states whether effects are conditional or averaged. Do not multiply a log-odds coefficient by a raw-score coefficient and declare the units “advanced.”
+- These results align with the pattern from the regression steps.
+- One benefit is that the package can accommodate several kinds of mediator and outcome models.
+- More complicated mediation models may require additional packages or custom code.
 
-## Power for an Indirect Effect
+#### Testing the Mediator as a Moderator?
+- Could it be that our mediator is really just a moderator?
 
-Power depends jointly on paths $a$ and $b$, their standard errors, the distributions of the variables, collinearity, measurement reliability, and the resampling method. A study powered for the total $X\rightarrow Y$ association is not automatically powered for $ab$.
+### Power
 
-Because the product distribution is awkward, Monte Carlo simulation is often the clearest planning method:
+- When you plan a mediation analysis, think carefully about the power you will need.
+- Indirect effects are products of coefficients and often require larger samples than expected.
+- Kenny developed an [application for estimating power in simple designs](https://davidakenny.shinyapps.io/MedPower/).
+- Larger designs may require custom simulations. The `powerMediation` package can help with some designs.
 
-1. Specify plausible values for $a$, $b$, $c'$, residual variances, and measurement reliability.
-2. Simulate data under those assumptions.
-3. Fit the planned mediator and outcome models.
-4. Construct the planned indirect-effect interval.
-5. Repeat the entire study many times and count how often the interval excludes zero.
+### Partial Mediation
 
-Run several plausible scenarios. Power calculated from one heroic guessed effect size is optimism wearing a spreadsheet.
+- Historically, *partial mediation* referred to a pattern in which the direct and indirect effects were both present.
+- Low power can make the labels *complete* and *partial* unstable.
+- Following Hayes (2013), avoid making the main conclusion that mediation is complete or partial. Report the direct and indirect effects with their uncertainty.
+- Below, I created a simulation with power near .80 to examine both effects.
 
-::: {.callout-important title="Measurement Error Attacks Mediation Twice"}
-Poor measurement weakens the estimated $a$ or $b$ path and can distort the decomposition. Because the indirect effect is a product, damage to either path damages $ab$. Reliable measures and defensible timing are part of the power analysis, even when the software pretends the only input is $N$.
-:::
+```{r, echo=TRUE, warning=FALSE}
+library(car)
+set.seed(42)
+# For simulation of mediation steps see Hallgren, 2013
+# path a strength
+a=.4
+# path b strength
+b=.4
+# path c' strength
+cp=.2
+# people
+n <- 177
+# Normal distribution of time (mins)
+X <- rnorm(n, 5, 2)
+# Mediator
+M <- a*X+rnorm(n, 0, 1)
+# Our equation to  create Y
+Y <- cp*X + b*M + rnorm(n, sd=1)
+#Built our data frame
+Marshmallow.Data.Part<-data.frame(Success=Y,Time=X,Trust=M)
 
-## Moderated Mediation
+Part.Model.2<-lm(Trust~Time, data= Marshmallow.Data.Part)
+summary(Part.Model.2)
 
-An indirect effect may depend on another variable $W$. For example, the workshop may increase practice more strongly among students with enough available time:
+Part.Model.3<-lm(Success~Trust+Time, data= Marshmallow.Data.Part)
+summary(Part.Model.3)
 
-$$
-M=i_M+a_1X+a_2W+a_3XW+e_M.
-$$
-
-The conditional indirect effect becomes:
-
-$$
-(a_1+a_3W)b.
-$$
-
-This is not a separate magical procedure. It combines mediation with an interaction, then evaluates the indirect effect at meaningful values of the moderator.
-
-The [moderated mediation chapter](Chapter_Moderated_Mediation.qmd) develops first-stage, second-stage, direct-path, and combined moderation; conditional indirect effects; bootstrap contrasts; and the index of moderated mediation.
-
-::: {.callout-important title="More Arrows Require More Theory"}
-Every added mediator, moderator, and covariate creates additional assumptions and alternative explanations. A path diagram is not evidence merely because the arrows are straight and the font is attractive.
-:::
-
-## Identification: What the Three Regressions Cannot See
-
-For the indirect effect to support a causal mediation story, we need strong assumptions about confounding of the $X\rightarrow M$, $X\rightarrow Y$, and $M\rightarrow Y$ relations. We also need no mediator-outcome confound that was itself caused by $X$. The last condition is especially rude because controlling for the post-treatment confound can create additional bias.
-
-Randomizing $X$ protects comparisons beginning at $X$. It does not randomize the mediator. If motivated students both practice more and perform better, the estimated $b$ path can mix the mediator with motivation. A beautiful indirect-effect interval does not reveal the missing variable.
-
-## Competing Mediators and Temporal Order
-
-With several mediators, the total indirect effect can be divided into specific indirect effects only under additional assumptions. Parallel mediators may influence one another; serial mediators require a defensible order. Measuring every variable in one survey and drawing arrows from left to right does not create time. Longitudinal measurement, experimental manipulation of mechanisms, and sensitivity analysis make the argument stronger.
-
-## Mediation as a Structural Equation Model
-
-Structural equation modeling (SEM) writes the same regressions as one system. In a path diagram:
-
-- Squares usually represent observed variables.
-- Circles usually represent latent variables.
-- One-headed arrows represent regressions.
-- Two-headed arrows represent variances or covariances.
-- A triangle labeled 1 may represent a constant or intercept.
-
-For simple mediation with observed variables, SEM does not magically change the scientific assumptions. Its advantages appear when we estimate several equations together, test multiple mediators, represent latent variables, handle correlated residuals, or impose equality constraints.
-
-In `lavaan`, labels define paths and `:=` defines derived parameters:
-
-```{r lavaan-mediation, eval=FALSE}
-library(lavaan)
-
-MediationSyntax <- '
-  # Regressions
-  Practice ~ a*Workshop
-  Exam ~ cprime*Workshop + b*Practice
-
-  # Derived effects
-  indirect := a*b
-  direct := cprime
-  total := cprime + (a*b)
-'
-
-MediationSEM <- sem(
-  model = MediationSyntax,
-  data = MediationData,
-  se = "bootstrap",
-  bootstrap = 5000
-)
-
-summary(
-  MediationSEM,
-  standardized = TRUE,
-  rsquare = TRUE,
-  fit.measures = TRUE
-)
+Part.Med.Boot.BCa <- mediate(Part.Model.2, Part.Model.3, boot = TRUE,
+                             boot.ci.type = "bca", sims=200, treat="Time", mediator="Trust")
+summary(Part.Med.Boot.BCa)
+plot(Part.Med.Boot.BCa)
 ```
-
-For a just-identified three-variable path model, global fit indices may be uninformative because the model reproduces the available covariance information exactly. Adding the words *structural equation model* does not provide a free model-fit halo.
-
-## The Short Story
-
-Mediation estimates an indirect effect $ab$. Bootstrap its uncertainty, report direct and total effects, and separate “the data are consistent with this pathway” from “we proved this causal mechanism.” The second claim requires much more than regression output.

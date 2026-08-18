@@ -190,15 +190,6 @@ Notice what the caffeine sentence does. The estimate is negative, and it is also
 
 A real write-up also ends with a sentence about diagnostics: what you checked, and whether anything you found changed the interpretation. See the Advanced Regression Diagnostics chapter for what belongs in it.
 
-<!-- ---Alex--- The old version of this paragraph ended with "Diagnostic plots did not
-     reveal a consequential violation of linearity or constant residual variance." I cut
-     that clause rather than filling it in, because it is not true of this model: the
-     errors are simulated homoscedastic, but `lmtest::bptest(ReportModel)` returns
-     p = .003 on this particular draw. Rather than assert a diagnostic the chapter never
-     runs, or bolt a diagnostics section onto a chapter whose brevity the review says is
-     right, I replaced it with a pointer to Ch19. Say the word if you would rather the
-     chapter actually ran the diagnostics here. -->
-
 
 ## Reproducibility Checklist
 

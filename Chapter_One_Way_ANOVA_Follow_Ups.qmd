@@ -1,0 +1,568 @@
+---
+title: "Follow-Ups to One-Way ANOVAs"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.25,
+  fig.height = 4
+)
+```
+
+## Experimentwise Error Rate
+The experimentwise error rate is the likelihood that you will make at least one Type I error in your experiment as you run more and more *t*-tests. Each test has a *per-comparison* error rate ($\alpha_{pc}$).
+
+$$ \alpha_{EW} = 1-(1-\alpha_{pc})^j$$
+
+where $j$ is the number of comparisons.
+
+$$ j = \frac{K(K-1)}{2} $$
+
+[This calculation assumes that each comparison is independent and that sampling is conducted with replacement.]
+
+We call this the experimentwise error rate ($\alpha_{EW}$). If we set $\alpha_{pc} = .05$ and increase $K$ from 2 to 15, we can see what happens as the number of conditions grows and we make all possible pairwise comparisons.
+
+```{r}
+Aew <-function(alpha,K){1-(1-alpha)^(K*(K-1)/2)} 
+K=seq(2,15)
+Aew.Report<-mapply(Aew, alpha=.05, K)
+
+plot(K,Aew.Report, type='l', 
+     xlab = "# of Conditions", ylab="Experimentwise Error Rate", ylim=c(0,1))
+abline(h=.05, col='red')
+
+```
+
+As we conduct more tests, we become increasingly likely to commit a Type I error.
+
+### Familywise Error
+This is similar to experimentwise error, but it focuses on the risk of a Type I error within a "family" of tests. A family of tests will make more sense when we get to two-way ANOVA follow-ups. In the example at the end, I treat the planned contrasts as one family and the unplanned contrasts as another. The logic will become clearer later this semester.
+
+
+[Note: Experimentwise error is also called familywise error.]
+
+### Design Example 1 for Last Class
+> We are interested in how much people trust a partner after engaging in different levels of joint action. Two people enter the lab, one of whom is a confederate. They are asked to either (a) move chairs independently, (b) move a couch together while the confederate helps, or (c) move a couch together while the confederate hinders. Moving a couch requires the two people to coordinate their actions. After the study ends, participants rate how trustworthy their partner seems from 1 to 7, with 7 indicating high trust.
+  
+No Joint Action | Helpful Joint Action | Disrupted Joint Action
+----------------|----------------------|------------------------
+2               | 5                    | 2
+3               | 4                    | 3
+5               | 7                    | 3
+3               | 4                    | 1
+2               | 5                    | 1
+M = 3           | M = 5                | M = 2 
+
+```{r, echo=FALSE}
+### Build our data frame
+n=5; k=3;
+JA.Study<-
+  data.frame(SubNum=seq(1:(k*n)),
+           Condition=ordered(
+                      c(rep("No",n),
+                       rep("Helpful",n),
+                       rep("Distrupted",n))
+                      ),
+           DV=c(2,3,5,3,2,5,4,7,4,5,2,3,3,1,1))
+### Check the Means and SS Calculations with dplyr
+library(dplyr)
+Means.Table<-JA.Study %>%
+  group_by(Condition) %>%
+  summarise(N=n(),
+            Means=mean(DV),
+            SS=sum((DV-Means)^2),
+            SD=sd(DV),
+            SEM=SD/N^.5)
+```
+
+#### Run the ANOVA
+
+```{r}
+library(afex) # 
+
+ANOVA.Table<-aov_car(DV~Condition + Error(SubNum), 
+                  data=JA.Study)
+ANOVA.Table
+```
+
+So, we need to track down which groups are different. 
+
+### Which Groups Are Different?
+If we run three *t*-tests with $\alpha_{pc} = .05$, then with $j = 3$ our experimentwise error rate is $\alpha_{EW}$ = `r round(Aew(.05,3),3)`.
+
+### Philosophy I (Familywise) Correction for Error Rate
+
+This is the dominant philosophy in experimental psychology. Neuroscience is a different story, which we will cover next week.
+
+Declared         | Null is True (no difference)   | Null is False (difference)    | Total
+-----------------|--------------------------------|-------------------------------|------
+Sig              | Type 1 (V)                     | True Positives (S)            | R
+Non-Sig          | True Negative (U)              | Type II (T)                   | m-R
+Total            | Mo                             | M-Mo                          | 
+
+V / Mo = Probability of getting at least one wrong: we want to keep this at 5%
+
+
+**Different correction methods have been proposed over the years, ranging from the most anti-conservative to the most conservative.** They come in and out of favor based on the fashion of the times within each subfield.
+
+### Approaches to Follow-Up Testing
+
+#### Confirmatory: Hypothesis-Driven Follow-Up
+**Preferred approach**: Examine only the conditions you predicted would differ. That means you must formulate your predictions carefully. This is hard and takes time to learn. It causes people the most frustration. It is required for preregistered reports and is increasingly required by reviewers. We are starting to leave the dark ages when reviewers asked for everything to be compared with everything because Type I error problems are better understood.
+
+- Pros: You will conduct fewer tests and commit fewer Type I errors. Because you run fewer tests, your follow-ups can be less conservative, which also produces fewer Type II errors, as you will see below.
+- Cons: You might miss something interesting. However, many people argue that chasing those interesting findings helped cause the replication crisis.
+
+Summary: Low Type I and low Type II error rates, but a risk of missing something novel, assuming it is not a Type I error.
+
+#### Exploratory: Test-Everything Approach
+**Out of favor**: Test all comparisons and anything else you find interesting. This is the easiest approach to understand and was once common, but it is becoming difficult to publish. It requires very conservative follow-up methods because the risk of Type I error is high.
+
+- Pros: You see everything
+- Cons: If you do not do it correctly, much of what you find will be a Type I error. If you do it correctly, you will commit many Type II errors.
+
+Summary: If you do it correctly, you have low Type I and very high Type II error rates. If you do it incorrectly, you have very high Type I and low Type II error rates.
+
+#### Hybrid Approach
+**Happy medium?** Use the confirmatory approach for planned comparisons. Test anything exploratory as conservatively as you can with unplanned comparisons. Carefully distinguish the two approaches for your reader. Otherwise, it may look as though you selected different corrections for no clear reason.
+
+## Contrasts
+A contrast lets you customize what you want to compare. It is the best way to conduct confirmatory testing. You can use pairwise comparisons or more complex tests that merge and compare groups. This is a huge topic, so we will cover only the basic types today and return to advanced forms, such as orthogonal and polynomial contrasts, later in the semester.
+
+### Linear Contrast
+This is basically an *F*-test in which you compare only the groups of interest. It also lets you merge groups for a comparison.
+
+$$F_{contrast} = \frac{MS_{contrast}}{MS_W} $$
+Note: your book says: 
+
+$$F_{contrast} = \frac{SS_{contrast}}{MS_W} $$
+
+That is correct because $df_{contrast}$ always equals 1 when we compare two groups at once ($2-1 = 1$). Thus, $MS_{contrast} = \frac{SS_{contrast}}{1}$. We can skip the $MS_{contrast}$ step because $MS_{contrast} = SS_{contrast}$.
+
+### Pairwise (linear) Contrast
+
+#### Step 1
+Decide how you want to weight the cells. We call each weight $C$, and **the weights must add to zero**. I want to compare No versus Helpful (H1), No versus Disrupted (H2), and Helpful versus Disrupted (H3). The specific numbers you choose are arbitrary.
+
+If we conduct three hypothesis tests, they form a family. We can review the code above to see our error rate for three tests: $\alpha_{EW}$ = `r round(Aew(.05,3),3)`.
+
+Cell  |No Joint Action | Helpful Joint Action | Disrupted Joint Action | Sum
+------|----------------|----------------------|------------------------|-----
+$M$   | 3              | 5                    | 2                      |
+$C_{H1}$| -1             | 1                    | 0                    |0
+$C_{H2}$| -1             | 0                    | 1                    |0
+$C_{H3}$| 0              |-1                    | 1                    |0
+
+#### Step 2
+Linear Sum ($L_{H1}$)
+
+$$ L = \displaystyle\sum_{i=1}^{k}C_iM_i$$
+$$ L = -1*3 + 1*5 + 0*2  = 2 $$
+
+#### Step 3
+Calculate the $MS$/$SS_{contrast}$
+
+$$MS_{contrast} = \frac{nL^2}{\sum{C^2}}$$
+
+$$MS_{contrast} = \frac{nL^2}{\sum{C^2}} =  \frac{5*2^2}{{(-1)^2+(1)^2+(0)^2}} = \frac{20}{2} = 10$$
+
+#### Step 4
+Calculate $F_{contrast}$
+
+$$F_{contrast} = \frac{MS_{contrast}}{MS_W} = \frac{10}{1.33} = 7.5$$
+
+Note: You can convert it to $t$ as follows:
+
+$$\sqrt{F_{contrast}} = t_{contrast}$$
+
+$$\sqrt{7.5} = 2.739$$
+
+#### Step 5
+Look up $F_{crit}$ using $df = (1,df_w)$ or $t_{crit}$ using $df = df_w$.
+
+### Doing Contrasts in R
+The `emmeans` package brings the ANOVA error term into the contrast. `emmeans` stands for estimated marginal means. When we get to two-way ANOVAs, the meaning of marginal means will become clearer. First, we run the ANOVA and pass the resulting `afex` object to `emmeans`. Estimated marginal means are based on the model's fitted values rather than the raw data. ANOVA is a special case of regression, so this method also works for regression analysis.
+
+```{r}
+library(emmeans)
+Fitted.Model<-emmeans(ANOVA.Table, ~Condition)
+Fitted.Model
+```
+
+Notice that we created a new object containing the estimated marginal mean for each cell, the SE, the $df_w$ term, and the confidence intervals. The SE is the same for all cells because it is created from $MS_W$ when sample sizes are equal: $SE = \frac{MS_w}{\sqrt{n}}$.
+
+**Pay attention to the order of the object. It does not match our table, so be careful.**
+
+*Set up the hypotheses (make sure the order matches your fitted emmeans object!)*
+
+```{r}
+set1 <- list(
+  H1_No.VS.H = c(0,1,-1),
+  H2_No.VS.D = c(1,0,-1),
+  H3_D.VS.H = c(-1,1,0))
+```
+
+Check: Do they each sum to zero?
+
+```{r}
+c(sum(set1$H1_No.VS.H),sum(set1$H2_No.VS.D),sum(set1$H3_D.VS.H))
+```
+Run the contrast. `adjust = "none"` means that the p-value is not corrected for multiple comparisons.
+
+```{r}
+contrast(Fitted.Model, set1, adjust = "none") %>% summary(infer = TRUE)
+```
+It matches the by-hand calculation! 
+
+#### Pairwise Contrast = Fisher's Protected *t*-Test (aka LSD)
+
+LSD stands for Least Significant Difference. It is the most anti-conservative method because it provides *almost* no protection against Type I error, although it is used as the base pairwise method for other approaches. It modifies the *t*-test formula directly:
+
+$$  t = \frac{M_1 - M_2} {\sqrt{\frac{S^2_p}{n_1}+ \frac{S^2_p}{n_2}}}$$
+
+$$LSD= \frac{M_1 - M_2} {\sqrt{\frac{MS_W}{n_1}+ \frac{MS_W}{n_2}}} $$
+
+This works because $MS_W$ is basically $S^2_p$: $MS_W$ is the pooled variance across all groups, while $S^2_p$ uses only the groups of interest. The error term therefore contains the pooled variance of all groups, making this a safer version of the *t*-test formula for our follow-up tests.
+
+**LSD is only appropriate for confirmatory testing with three or fewer comparisons.**
+
+$$LSD_{SE}=  \sqrt{\frac{MS_W}{n_1}+ \frac{MS_W}{n_2}}$$
+
+$$LSD_{SE}=  \sqrt{\frac{1.33}{5}+ \frac{1.33}{5}}$$
+
+$LSD_{SE}= .73$, which matches our contrast SE.
+
+##### Doing LSD in R
+LSD can be calculated automatically and is a little easier than writing the linear contrast.
+
+```{r}
+Fitted.Model<-emmeans(ANOVA.Table, ~Condition)
+summary(pairs(Fitted.Model, adjust='none'))
+```
+The estimate is now the mean difference between groups. The SE comes from the LSD equation, and the test uses $df_W$ to calculate p-values. This is identical to our linear contrast.
+
+
+### "Custom" Contrast
+A custom contrast compares merged groups.
+
+#### Step 1
+Decide how you want to weight the cells. We call each weight $C$, and the weights must add to zero. I want to compare No + Disrupted versus Helpful.
+
+Cell  |No Joint Action | Helpful Joint Action | Disrupted Joint Action
+------|----------------|----------------------|------------------------
+$M$   | 3              | 5                    | 2 
+$C_{H4}$   | -.5             | 1                    | -.5
+
+
+#### Step 2
+Linear Sum ($L$)
+
+$$ L = \displaystyle\sum_{i=1}^{k}C_iM_i$$
+$$ L = -.5*3 +1*5 + -.5*2  = 2.5 $$
+
+#### Step 3
+Calculate the $MS$/$SS_{contrast}$
+
+$$MS_{contrast} = \frac{nL^2}{\sum{C^2}}$$
+
+$$MS_{contrast} = \frac{nL^2}{\sum{C^2}} =  \frac{5*2.5^2}{{(-.5)^2+(1)^2+(-.5)^2}} = \frac{31.25}{1.5} = 20.833$$
+
+#### Step 4
+Calculate $F_{contrast}$
+
+$$F_{contrast} = \frac{MS_{contrast}}{MS_W} = \frac{20.833}{1.33} = 15.625$$
+
+Note: You can convert it to a *t*-test as follows:
+
+$$\sqrt{F_{contrast}} = t_{contrast}$$
+
+$$\sqrt{15.625} = 3.953$$
+
+#### Step 5
+Look up $F_{crit}$ using $df = (1,df_w)$ or $t_{crit}$ using $df = df_w$.
+
+### Doing Custom Contrasts in R
+
+Check the order of my fitted values.
+```{r}
+# Fitted.Model<-emmeans(ANOVA.Table, ~Condition) #we already created this
+Fitted.Model
+```
+
+- Set up the hypothesis (make sure the order matches your fitted emmeans object!)
+- *Make sure that the numbers add to 1 within each group you merge.* This does not affect the contrast, but it matters for the estimate used in the effect-size calculation.
+
+```{r}
+set2 <- list(
+  H4 = c(-.5,1,-.5))
+```
+
+- Check: Do they each sum to zero?
+```{r}
+sum(set2$H4)
+```
+- Run the contrast
+```{r}
+contrast(Fitted.Model, set2, adjust = "none")   %>% summary(infer = TRUE)
+```
+It matches the by-hand calculation! 
+
+## Correcting p-Values for Multiple Comparisons
+There are several ways to correct p-values for multiple comparisons, ranging from anti-conservative to ultra-conservative. By default, `emmeans` corrects within a set of comparisons. Our pairwise contrast has $j=3$, while our custom contrast has $j=1$, because we ran them as separate families of tests. `emmeans` therefore will not correct for four tests, nor will it correct the custom contrast, no matter what you tell it to do. *It will ignore you. Look for the note below the contrast to see whether a correction was applied.*
+
+### Tukey's HSD
+The Honestly Significant Difference test, also called Tukey's test, protects against Type I error better than LSD. It is popular for *pairwise* comparisons because it is more conservative than LSD, but it does not destroy power and is easy to understand. I think people like it because they do not "lose" all their effects, although it is still not very conservative overall. The formulas are similar to LSD, but Tukey uses the studentized-range distribution and its q-table to produce more conservative critical values. You compare $q_{exp}$ with $q_{crit}$ as you would in a *t*-test.
+
+$$q= \frac{M_1 - M_2} {\sqrt{\frac{MS_W}{n}}} $$
+Here is the simple formula used to calculate HSD by hand. If a mean difference is greater than the HSD value, the difference is significant.
+
+$$HSD = q_{crit} {\sqrt{\frac{MS_W}{n}}}$$
+
+#### Doing HSD in R
+The `emmeans` package provides a *t*-value, as with LSD, and corrects the p-values automatically. The computer can also correct for unequal sample sizes using the Tukey-Kramer method, while the formulas I gave you cannot.
+
+Correcting a pairwise contrast to HSD (**note: You cannot technically apply HSD to a custom contrast, but you can use an MVT adjustment, which is very similar**).
+
+Correcting LSD to HSD
+
+```{r}
+# Fitted.Model<-emmeans(ANOVA.Table, ~Condition) #we already created this
+pairs(Fitted.Model, adjust='tukey') %>% summary(infer = TRUE)
+```
+Note the message at the bottom: *P value adjustment: Tukey method for comparing a family of 3 estimates*. This corrects for three tests. We will need to be careful about this when we move to two-way ANOVAs. **Read the notes carefully because `emmeans` sometimes declines a request that does not make statistical sense.**
+
+Correcting contrast to MVT
+
+```{r}
+# Fitted.Model<-emmeans(ANOVA.Table, ~Condition) #we already created this
+contrast(Fitted.Model, set1, adjust = "mvt")  %>% summary(infer = TRUE)
+```
+### Bonferroni Family
+The logic of these tests is to lower $\alpha_{pc}$ based on the number of tests until $\alpha_{EW} = .05$, or another rate you set. These tests are extremely conservative and reduce power, although psychologists use them often. Methodologists have created many corrections that protect against Type I error without inflating Type II error as much in between-subjects designs.
+
+#### Bonferroni Correction
+This is the most conservative and least powerful approach.
+$$\alpha_{pc} = \frac{\alpha_{EW}}{j} $$
+
+For our study that means: 
+
+$$\alpha_{pc} = \frac{\alpha_{EW}}{j} = \frac{.05}{3} = .0167$$
+
+Thus, we would run LSD tests with $\alpha_{pc} = .0167$ instead of .05.
+
+##### Doing Bonferroni in R
+
+`emmeans` calculates the contrast, or LSD, and corrects the p-values based on the number of tests in the family.
+
+```{r}
+# Fitted.Model<-emmeans(ANOVA.Table, ~Condition) #we already created this
+contrast(Fitted.Model, set1, adjust = "bon")%>% summary(infer = TRUE)
+```
+
+#### Sidak Correction
+This approach is less conservative than Bonferroni, but still very conservative. 
+
+$$ \alpha_{new} = 1-(1-\alpha_{pc})^{1/j}$$
+```{r}
+contrast(Fitted.Model, set1, adjust = "sidak")  %>% summary(infer = TRUE)
+```
+
+#### Notes
+There are many other types of corrections. They are most often applied to pairwise approaches using the familywise philosophy.
+
+
+## Effect Sizes for Contrasts
+If you assume HOV, you can modify Cohen's $d$ by using $MS_W$ in these follow-up tests.
+
+$$d = \frac{M_1-M_2}{\sqrt{S_p^2}} = \frac{M_1-M_2}{\sqrt{MS_w}}$$
+
+You can extract $MS_W$ from the ANOVA with this script. Make sure to change the object name to match your ANOVA.
+
+```{r}
+SD.pooled = sqrt(ANOVA.Table$anova_table$MSE)
+SD.pooled
+```
+That value is your pooled SD, which you need for the next step. 
+
+Pass the estimated marginal means to the built-in `eff_size` function along with $DF_W$, the residual df from the model. You can also request a confidence interval around the effect size with `%>% summary()`.
+
+#### Pairwise Effect Size
+```{r}
+Con.with.d<-emmeans(Fitted.Model, ~ Condition,adjust='none')
+eff_size(Con.with.d, sigma = SD.pooled, edf = 12, method='pairwise') %>% summary()
+```
+
+#### Custom Contrast Effect Size
+Make sure to set `method = "identity"`.
+```{r}
+Con.with.d.2<-contrast(Fitted.Model, set2, adjust = "none")
+eff_size(Con.with.d.2, sigma = SD.pooled, edf = 12, method='identity') %>% summary()
+```
+
+## *A Priori* Power and Contrasts
+Remember, *a priori* power is determined by $\alpha_{pc}$, effect size, and sample size. Let's examine power for the ANOVA and the follow-up tests when we change alpha.
+
+For power analysis with a one-way ANOVA, we need Cohen's $f$, which plays a role similar to $d$ for *t*-tests.
+
+$$f = \sqrt{\frac{K-1}{K}\frac{F}{n}}$$
+
+ES  |Value | Size
+----|------|----------
+$f$ | .1   | Small effect
+$f$ | .25  | Medium effect
+$f$ | .4   | Large effect
+
+$f_{observed}$ = `r round(((2/3)*(8.75/5))^.5,3)`, a large effect for our study. Remember that these values may be inflated in small-$N$ studies. For now, we will believe it and use it to calculate *post hoc* power, which does not predict our *a priori* power in the wild.
+
+Note: You can approximate $f$ from $\eta^2$ using $f = \sqrt{\frac{\eta^2}{1 - \eta^2}}$, but it will not be bias-corrected like the formula above.
+
+```{r}
+library(pwr)
+pwr.anova.test(k = 3, n = 5, f = 1.08, sig.level = 0.05, power = NULL)
+```
+
+We can convert $f$ into $d$ to estimate the overall effect size: $d = 2f$. **Note:** This is only a conceptual formula; Cohen provides different versions for different patterns of data.
+
+$d$ = `r round(2*1.08,2)`
+
+At $\alpha_{pc} = .05$:
+
+```{r}
+pwr.t.test(n = 5, d = 2.16, power = NULL, sig.level = .05,
+               type = c("two.sample"), alternative = c("two.sided"))
+```
+
+We are above .80. 
+
+If we apply a Bonferroni correction, $\alpha_{pc} = .05/3 = .0167$:
+
+```{r}
+pwr.t.test(n = 5, d = 2.16, power = NULL, sig.level = .0167,
+               type = c("two.sample"), alternative = c("two.sided"))
+```
+
+**The power dropped!** Your ANOVA might find the effect while the Bonferroni-corrected tests miss it. This happens often. The next question people ask me is, which result is **real**, the ANOVA or the Bonferroni tests?
+
+
+## Suggestions for the Review Process
+Follow-up testing is the hardest part of many analyses. There is often no single correct answer, and it is where reviewers will fight you the hardest.
+
+> Reviewers often have their own perspectives on what they want to see and how they want to see it. Perhaps (a) you misunderstood your own hypothesis, (b) they misunderstood your hypothesis because you explained it badly or they simply did not read, or (c) one reviewer demands all comparisons while another demands that you remove them. Reviewer 1 versus Reviewer 3 on the same paper!
+
+> They may be fine with what you tested but disagree with how you tested it. Perhaps (a) they want only a Bonferroni correction because they want to control Type I error, want to kill your effect cause they do not like it, cynical, I know, or were taught that LSD/HSD is the devil; (b) they want specialized contrasts when you used pairwise comparisons, or the reverse; or (c) they want you to use, or not use, the ANOVA error term in an LSD or contrast approach. If you violated assumptions, they may be right in specific cases, but they need to explain their rationale.
+
+First, reviewers are not always right. However, assume that **YOU** did not clearly explain what you did. Rewrite in plain English what you tested and whether the tests were planned or unplanned. Use simple sentences. This is technical writing, not English literature. Make it clear **visually** and **verbally** what you did and why by guiding the reader with graphs or tables. Cite sources supporting your approach to follow-up testing. Do not assume that readers know what you did or why. In your response, explain how you changed the wording and thank the reviewer for helping you make it clearer.
+
+Second, do not play games with readers. If $p = .07$ supports your hypothesis and you call it significant, but later call $p = .06$ nonsignificant because it contradicts your hypothesis, readers will notice. This is a huge red flag that you are biased at best or p-hacking at worst. Your paper might be rejected without an invitation to revise, and the editor and reviewers may remember you. Most psychology journals are not double-blind.
+
+Third, do not p-hack. Do not hunt for a correction that makes your result significant after a more conservative test fails. If you get a reviewer who is paying attention, they will eat you alive! That lack of trust makes reviewers say to Bonferroni-correct everything. If you use a confirmatory approach, you can put the exploratory material in the appendix and apply Bonferroni there. Reviewers will trust you more when you show that you understand p-hacking and avoid drawing too many conclusions.
+
+Finally, reviewers might be right. Thank the reviewer for the careful reading and correct your paper or withdraw it from the review process. Yes, it sucks, but that is why we have reviewers. If they do their job well, everyone benefits!
+
+
+## APA-Style Report
+[Note: I cannot center everything in R, but you can render to Word and correct the formatting there. If you download the `.qmd` file, you will see my complete analysis.]
+
+  When people perform joint actions, their trust in one another increases (Launay, Dean, & Bailes, 2013). Feelings of affiliation also increase when joint action occurs synchronously (Hove & Risen, 2009), while poor synchronization decreases feelings of social affiliation (Demos et al., 2017). However, it remains unclear whether trust results from moving in time together (Hove & Risen, 2009) or simply sharing a task (Demos et al., 2012). To test this question, we designed a study with three conditions: helpful joint action, disrupted joint action, and no joint action. In the helpful condition, a confederate tried to remain synchronous with the participant. In the disrupted condition, the confederate performed the joint action asynchronously. In the control condition, the participant and confederate completed a task together but not jointly. We predicted that synchronous joint action would increase trust compared with no joint action or asynchronous movement.
+
+<center>**Methods**</center>
+
+**Procedure** 
+
+  Two people entered the lab: a participant and a confederate whose status was unknown to the participant. They were asked to either (a) move chairs independently, (b) move a couch together while the confederate followed the participant's lead, or (c) move a couch together while the confederate hindered the participant. Moving a couch required the two people to coordinate their actions. After the study, participants rated how trustworthy their partner seemed from 1 to 7, with 7 indicating high trust.
+
+**Data Analysis** 
+
+  Analyses were conducted in R (4.2.1). The *afex* package (1.1-1; Singmann et al., 2018) was used to calculate the ANOVAs, and the *emmeans* package (1.8.0; Lenth, 2018) was used for follow-up testing. Data wrangling and plots were generated with the *tidyverse* package (1.3.2; Wickham et al., 2019). Planned comparisons were tested with linear contrasts. Unplanned contrasts were Sidak-corrected.
+
+**Results** 
+
+```{r, echo=FALSE}
+# Complete analysis below
+# ANOVA
+
+library(afex)
+ANOVA.Table<-aov_car(DV~Condition + Error(SubNum), 
+                  data=JA.Study)
+
+Fitted.Model<-emmeans(ANOVA.Table, ~Condition)
+set3 <- list(
+  H1 = c(-1,2,-1),
+  H2 = c(1,0,-1))
+
+Planned<-contrast(Fitted.Model, set3, adjust = "none")
+
+set4 <- list(
+  H3 = c(-1,1,0),
+  H4 = c(0,1,-1))
+
+UnPlanned<-contrast(Fitted.Model, set4, adjust = "sidak")
+
+# get effect size for PLANNED contrasts
+SD.pooled = sqrt(ANOVA.Table$anova_table$MSE)
+Planned.Effects<-eff_size(Planned, sigma = SD.pooled, edf = 12, method='identity') %>% summary()
+
+# get effect size for UnPlanned contrasts
+UnPlanned.Effects<-eff_size(UnPlanned, sigma = SD.pooled, edf = 12, method='identity') %>% summary()
+
+
+# This merges them into two groups for effect size
+JA.Study$H1test<-with(JA.Study,
+     ifelse(Condition== "Distrupted" | Condition== "No", "Rest","Help"))
+
+# Means
+library(dplyr)
+Means.H1<-JA.Study %>%
+  group_by(H1test) %>%
+  summarise(N=n(),
+            Means=mean(DV),
+            SD=sd(DV))
+```
+
+  A one-way between-subjects ANOVA was conducted to compare the effect of joint action on trust across the no, helpful, and disrupted joint-action conditions. There was a significant effect of joint action on trust, $F(2,12) = 8.75, MS_W = 1.33, p < 0.01, \eta_g^2 = 0.59$. The planned contrast showed that trust was higher in the helpful joint-action condition (*M* = 5.00, *SD* = 1.22) than in the combined no and disrupted joint-action conditions (*M* = 2.50, *SD* = 1.18), *t*(12) = 3.95, *p* = .0019, *d* = `r round(as.numeric(Planned.Effects$effect.size[1]),2)`. As shown in Figure 1, the planned contrast between the disrupted and no joint-action conditions was not significant, *t*(12) = 1.369, *p* = .20, *d* = `r round(as.numeric(Planned.Effects$effect.size[2]),2)`. Sidak-corrected unplanned contrasts showed significantly higher trust in the helpful condition than in the disrupted condition, *t*(12) = 4.11, *p* = .003, *d* = `r round(as.numeric(UnPlanned.Effects$effect.size[1]),2)`, and the no joint-action condition, *t*(12) = 2.74, *p* = .04, *d* = `r round(as.numeric(UnPlanned.Effects$effect.size[2]),2)`. These results suggest that trust may result from synchronous action rather than joint action alone.
+
+**Figure 1**
+
+*Mean trust ratings (1-7) across the three joint-action conditions. Error bars show +/- 1 SE.*
+```{r, echo=FALSE, fig.height=2, fig.width=3}
+library(ggplot2)
+
+Means.Table$Condition<-factor(Means.Table$Condition, 
+                              levels = c("No","Distrupted","Helpful"),
+                              labels = c("No","Distrupted","Helpful"))
+
+Plot.1<-ggplot(Means.Table, aes(x = Condition, y = Means))+
+  geom_col()+
+  scale_y_continuous(expand = c(0, 0))+ # Forces plot to start at zero
+  geom_errorbar(aes(ymax = Means + SEM, ymin= Means - SEM), 
+                position=position_dodge(width=0.9), width=0.25)+
+  xlab('Joint Action Condition')+
+  ylab('Mean Trust Rating')+
+  theme_bw()+
+  theme(panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        panel.border=element_blank(),
+        axis.line=element_line(),
+        legend.title=element_blank())
+Plot.1
+```
+
+
+
+## References
+
+Demos, A.P., Carter, D.J., Wanderley, M.M., & Palmer, C (2017). The unresponsive partner: Roles of social status, auditory feedback, and animacy in coordination of joint music performance. *Frontiers in Psychology*, 149(8). 
+
+Demos, A.P., Chaffin, R., Begosh, K. T., Daniels, J. R., & Marsh, K. L. (2012). Rocking to the beat: Effects of music and partner's movements on spontaneous interpersonal coordination. *Journal of Experimental Psychology: General*, 141(1), 49-53.
+
+Hove, M. J., & Risen, J. L. (2009). It's all in the timing: Interpersonal synchrony increases affiliation. *Social Cognition*, 27(6), 949-960.
+
+Launay, J., Dean, R. T., & Bailes, F. (2013). Synchronization can influence trust following virtual interaction. *Experimental Psychology*, 60(1), 53-63.
+
+Lenth, R. (2018). emmeans: Estimated Marginal Means, aka Least-Squares Means. R Package Version 1.6.3. Available at: https://CRAN.R-project.org/package=emmeans.
+
+Singmann, H., Bolker, B., Westfall, J., and Aust, F. (2021). afex: Analysis of Factorial Experiments. R Package Version 1.0-1. Available at: https://CRAN.R-project.org/package=afex.

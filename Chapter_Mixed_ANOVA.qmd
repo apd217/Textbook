@@ -1,0 +1,340 @@
+---
+title: "Two-Way Mixed-Design ANOVA: Analysis and Graphing"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.75,
+  fig.height = 2.75
+)
+```
+
+## Mixed-Design Factors
+> You want to test the effectiveness of CBT therapy, compared with no therapy, for reducing depression scores. Clients and controls complete the Beck Depression Inventory (BDI) at baseline and every two weeks for six weeks. You assign 30 people with mild to severe depression, BDI scores from 20 to 50, to each between-subjects group: Control or CBT. You collect four BDI scores from each person, making Time a within-subjects factor. You expect BDI scores to drop by the second measurement and continue decreasing in the CBT group, while the Control group should show no change. Because the Control group receives no intervention and BDI scores can be unstable, you are concerned about assumption violations.
+
+```{r, echo=FALSE}
+library(MASS)
+library(tidyr)
+library(dplyr)
+library(Matrix)
+set.seed(40)
+n = 20; 
+## means
+M1A=35; M2A=30; M3A=25; M4A=25
+M1B=35; M2B=35; M3B=35; M4B=35
+## Generate Cov matrix
+# create k x k matrix populated with sigma
+sigma1=8
+sigma2=16
+r1=.5;
+r2=.1;
+s.r=.1
+sd.r=.2
+S1  <- forceSymmetric(Matrix(rnorm(16, m=sigma1,s=s.r), 4))
+Rho1<- forceSymmetric(Matrix(rnorm(16, m=r1,s=sd.r), 4))
+S2  <- forceSymmetric(Matrix(rnorm(16, m=sigma2,s=s.r), 4))
+Rho2<- forceSymmetric(Matrix(rnorm(16, m=r2,s=sd.r), 4))
+
+# compute covariance between measures
+Sigma1 <- (S1^2) *Rho1
+Sigma2 <- (S2^2) *Rho2
+# put the variances on the diagonal 
+#diag(Sigma1) <- sigma1^2  
+#diag(Sigma2) <- sigma2^2 
+
+# Fixed them if they are not PD
+Sigma1<-nearPD(Sigma1)
+Sigma2<-nearPD(Sigma2)
+
+Simulation1 = mvrnorm(n=n, mu=c(M1A,M2A,M3A,M4A), Sigma=Sigma1$mat, empirical=FALSE)
+Simulation2 = mvrnorm(n=n, mu=c(M1B,M2B,M3B,M4B), Sigma=Sigma2$mat, empirical=FALSE)
+
+DataSim1<-data.frame(rbind(Simulation1,Simulation2))
+DataSim1$ID<-as.factor(rep(seq(1:(n*2))))
+DataSim1$Group<-as.factor(c(rep("CBT",n),rep("Control",n)))
+DataSim2<-gather(DataSim1,key = "Time", value = "BDI",X1:X4)
+
+DataSim2$Time<-factor(DataSim2$Time, 
+       levels=c("X1", "X2","X3","X4"),
+       labels=c("Baseline", "2 Weeks","4 Weeks","6 Weeks"))
+DataSim2$Group<-factor(DataSim2$Group, 
+       levels=c("CBT", "Control"),
+       labels=c("CBT", "Control"))
+```
+
+
+### Plot of Simulation
+#### Spaghetti Plot
+Each line represents a person's score across conditions.
+
+```{r, echo=FALSE,fig.width=6}
+library(ggplot2)
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+
+Spaghetti.1 <-ggplot(data = DataSim2, aes(x = Time, y=BDI, group=ID))+
+  facet_grid(~Group)+
+  scale_y_continuous(limits=c(0,60),breaks = seq(0,60,10))+
+  geom_point(aes(colour = ID))+
+  geom_line(aes(colour = ID))+
+  ylab("BDI Score")+xlab("Time")+
+  theme(legend.position = "none")
+Spaghetti.1
+```
+
+#### Means Plot
+As in a repeated-measures ANOVA, we will use Cousineau-Morey corrected error bars, which remove individual differences. The current `afex_plot()` function performs this correction directly when we set `error = "within"`. Because `afex_plot()` uses a fitted `afex` model, we create the mixed-design ANOVA object here and use it again later.
+
+```{r,fig.width=6}
+library(afex)
+
+Mixed.1 <- aov_car(
+  BDI ~ Time * Group + Error(ID / Time),
+  data = DataSim2,
+  include_aov = TRUE
+)
+
+Means.Within.CI <- afex_plot(
+  Mixed.1,
+  x = "Time",
+  trace = "Group",
+  error = "within",
+  error_ci = TRUE
+) +
+  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  ylab("Mean BDI Score") +
+  xlab("Time") +
+  theme(legend.position = "right")
+Means.Within.CI
+```
+
+These within-subject confidence intervals help compare time points within a group. Because this is a mixed design, they should not be used to compare the two groups at a single time point.
+
+For corrected within-subjects error bars, you can visually approximate significance under suitable conditions (Cumming & Finch, 2005).
+
+95% CIs: 
+
+- $p < .05$: when the proportional overlap is about .50
+- $p < .01$: when the proportional overlap is about 0
+
+*Notice that you can also see problems with the variance.*
+
+### Two-Way Mixed ANOVA Logic
+
+Two-way mixed ANOVA table with conceptually simplified formulas:
+
+Source        | SS                  | DF          | MS   | F
+--------------|---------------------|-------------|------|---
+$Between\,Subject$ | $CSS_{row\,means}$                  | $nK-1$      | $\frac{SS_{BS}}{df_{BS}}$       | 
+$Group$ | $CnSS_{Group\,means}$                          | $K-1$       | $\frac{SS_{G}}{df_{G}}$         |$\frac{MS_{G}}{MS_{W_{G}}}$
+$W_{G}$ | $SS_{BS} - SS_{G}$                             | $K(n-1)$    | $\frac{SS_{W_{G}}}{df_{W_{G}}}$ | 
+$Within\,Subject$  | $SS_T-SS_{BS}$                      | $nK(C-1)$   | $\frac{SS_w}{df_w}$             |   
+$\,RM$  | $KnSS_{RM\,means}$                             | $C-1$       | $\frac{SS_{RM}}{df_{RM}}$       | $\frac{MS_{RM}}{MS_{SXRM}}$
+$\,GXRM$  | $nSS_{Col\,means}-SS_G-SS_{RM}$              | $(K-1)(C-1)$| $\frac{SS_{GXRM}}{df_{GXRM}}$   | $\frac{MS_{GXRM}}{MS_{SXRM}}$
+$\,Residual\,[Sub\,x\,RM]$ | $SS_{WS}-SS_{RM}-SS_{GXRM}$ | $K(n-1)(C-1)$| $\frac{SS_{SXRM}}{df_{SXRM}}$  | 
+Total   | $SS_{scores}$                                  | $N-1$ 
+
+Notes: 
+
+- $SS_{T} = SS_{BS} +SS_{WS}$ 
+    - $SS_{BS} = SS_{G} + SS_{W_{G}}$
+    - $SS_{WS} = SS_{RM} +SS_{GXRM} + SS_{SXRM}$ 
+- $df_{T} = df_{BS} +df_{WS}$ 
+    - $df_{BS} = df_{G} + df_{W_{G}}$
+    - $df_{WS} = df_{RM} +df_{GXRM} + df_{SXRM}$ 
+
+#### Explained Terms 
+
+- $SS_{G}$ = variance caused by Group.
+- $SS_{RM}$ = variance caused by the repeated treatment.
+- $SS_{GXRM}$ = variance caused by the Group x Treatment interaction.
+
+#### Unexplained Terms 
+
+- $SS_{W_{G}}$ = noise associated with Group.
+- $SS_{SXRM}$ = noise associated with Treatment.
+
+### R ANOVA Calculations
+#### R Defaults
+- `afex` calculates the repeated-measures ANOVA and automatically corrects for sphericity violations.
+- `Error(Subject ID/RM Factor)`: This tells `afex` that participants vary as a function of the repeated-measures conditions.
+- It reports $\eta_g^2$ assuming a manipulated group and treatment.
+
+```{r}
+Mixed.1
+```
+
+#### Assumptions
+##### Sphericity
+As in a repeated-measures ANOVA, we examine Mauchly's test of sphericity for each term with more than two levels.
+
+```{r}
+summary(Mixed.1, return="univariate")
+```
+
+Violations of sphericity are more common in mixed designs, so be cautious.
+
+##### Covariance Matrix 
+
+We assume compound symmetry within each group:
+
+$$
+\mathbf{Cov} = \sigma^2\left[\begin{array}
+          {rrrr}
+          1 & \rho & \rho & \rho  \\
+          \rho & 1 & \rho & \rho  \\
+          \rho & \rho & 1 & \rho  \\
+          \rho & \rho & \rho & 1\\
+          \end{array}\right]
+$$ 
+
+However, in the study we examined today, we have **two** covariance matrices, one for each group. We assume $COV_1 = COV_2$, so we must test whether the matrices are homogeneous. We can use Box's M.
+
+##### Box's M
+
+Box's M tests whether the covariance matrices are equal across groups, an assumption called homogeneity of covariance (**HOCV**). The R function requires us to spread the DV into columns based on the within-subjects factor. We will use `spread()` from the `tidyr` package: `dataset %>% spread(Within factor, DV)`.
+
+```{r}
+library(tidyr); library(dplyr); library(knitr)
+#Box's M
+data_wide <- DataSim2 %>% spread(Time, BDI)
+kable(head(data_wide))
+```
+
+Now that the data are wide, we index the DV columns, Columns 3 through 6. We pass these columns to `boxM()` from `heplots` and split them by group. We can view the covariance matrix for each group and the test results.
+
+```{r}
+library(heplots)
+BoxResult<-boxM(data_wide[,3:6],data_wide$Group)
+BoxResult$cov
+BoxResult
+```
+
+Box's M does not work well with small samples and becomes overly sensitive in large samples. We can therefore set $\alpha = .001$. A significant result means that the covariance matrices are unequal, which creates a problem. It increases the rate at which we might commit a Type I error when examining the interaction: the treatment affected the covariance between trials differently across groups, not just the means as expected. Is the interaction due to mean differences or covariance differences?
+
+##### HOV
+Box's M is not a great test, so you should also check Levene's test, which centers the data on the mean, or the Brown-Forsythe test, which centers on the median, using the `car` package. Brown-Forsythe is more robust to violations of normality. The output will still say Levene's test when you center on the median. Both tests are sensitive to unequal group sizes. We can test HOV for Group and the Group x Treatment interaction. If interaction HOV is violated, that supports the conclusion from Box's M.
+
+```{r}
+library(car)
+# Brown-Forsythe test on Group Only
+leveneTest(BDI~ Group, data=DataSim2,center=median)
+
+# Brown-Forsythe test on Group X Treatment Only
+leveneTest(BDI~ Time*Group, data=DataSim2,center=median)
+```
+
+In this study, Box's M and the Brown-Forsythe test showed **HOCV** and **HOV** problems. We are in trouble. What can we do?
+
+**Solution?** Cohen (2008) recommends that you **not** conduct the mixed ANOVA, meaning that you cannot test the interaction. You can conduct a one-way repeated-measures ANOVA within each group and an ANOVA or independent-samples *t*-test between groups after collapsing over the repeated-measures term. Is this extremely conservative approach justified?
+
+### How Serious Is the Problem?
+
+I ran a simulation to examine Type I error rates under these violations. The simulation used 10,000 repetitions of a 2 (between) x 4 (within) design with a sample size of 30. All cells had a mean of 0, and the covariance matrices were random and differed across groups.
+
+**Type I Levels:**
+
+No HOCV violation: Interaction term in the ANOVA (uncorrected) = **.0465**
+
+HOCV violation but no sphericity violation: Interaction term in the ANOVA (uncorrected) = **.059**
+
+HOCV and sphericity violations: Interaction term in the ANOVA (uncorrected) = **.0616**
+
+I then *followed up the significant interaction*, which was a Type I error, with **PAIRWISE** comparisons within each family. The table shows the proportion of simulations in which at least one follow-up test within a family was significant. These values should be high because the ANOVA already indicated that something was significant. They represent how often following a Type I interaction with additional tests produces a significant Type I follow-up.
+
+Our expected alpha for 12 *within tests*: alpha error = 1-(1-.05)^12 = *.460*.
+
+Our expected alpha for four *between tests*: alpha error = 1-(1-.05)^4 = *.185*.
+
+
+Approach             | Correction |  Don't Violate HOCV  | Violate HOCV | Violate HOCV + Sphericity 
+---------------------|------------|----------------------|--------------|-------------
+Univariate Within    | None       | .978                 | 1            | 1 
+Univariate Within    | Tukey      | .557                 | .998         | 1
+Univariate Within    | Bonferroni | *.492*               | .995         | 1
+---------------------|------------|----------------------|--------------|-------------
+Multivariate Within  | None       | .976                 | 1            | 1
+Multivariate Within  | Tukey      | .557                 | .998         | 1
+Multivariate Within  | Bonferroni | *.480*               | .991         | .986
+---------------------|------------|----------------------|--------------|-------------
+Univariate Between   | None       | .510                 | .844         | .984
+Univariate Between   | Bonferroni | *.211*               | .411         | .411
+---------------------|------------|----------------------|--------------|-------------
+Multivariate Between | None       | .484                 | .842         | .836
+Multivariate Between | Bonferroni | *.206*               | .392         | .413
+---------------------|------------|----------------------|--------------|-------------
+Ignore ANOVA Within  | Bonferroni | *.273*               | .338         | .313
+Ignore ANOVA Between | Bonferroni | *.206*               | .364         | .379
+---------------------|------------|----------------------|--------------|-------------
+    
+    
+    
+**Ignore ANOVA Within** = paired-samples *t*-tests Bonferroni-corrected within each group, producing six tests per family.
+
+**Ignore ANOVA Between** = Welch *t*-tests Bonferroni-corrected within each time point, using .05/4.
+      
+This is why Cohen suggests that nonconservative follow-ups are problematic when HOCV is violated. In practice, almost no one avoids the interaction because it is usually the entire point of the study. But what happens to power?
+
+Here is a simulation with 10,000 repetitions in which I had *88% power* to detect the interaction. The table shows power to detect a significant follow-up after a significant interaction. I include only simulations with a significant interaction, so these values should be very high.
+
+Approach             | Correction | Violate HOCV + Sphericity 
+---------------------|------------|-------------
+Univariate Within    | None       | 1 
+Univariate Within    | Tukey      | 1
+Univariate Within    | Bonferroni | 1
+---------------------|------------|-------------
+Multivariate Within  | None       | 1
+Multivariate Within  | Tukey      | 1
+Multivariate Within  | Bonferroni | 1
+---------------------|------------|-------------
+Univariate Between   | None       | .960
+Univariate Between   | Bonferroni | .740
+---------------------|------------|-------------
+Multivariate Between | None       | .958
+Multivariate Between | Bonferroni | .730
+---------------------|------------|-------------
+Ignore ANOVA Within  | Bonferroni | 1
+Ignore ANOVA Between | Bonferroni | .700
+---------------------|------------|-------------
+    
+If the interaction is NOT a Type I error, using a more conservative approach reduces power slightly.
+
+
+### Recommendations
+
+- For Box's M, set $\alpha = .001$, double-check with Brown-Forsythe, and examine spaghetti plots when you have a small number of participants.
+    - No violations: 
+        - The univariate and multivariate approaches should produce similar results. It is probably best to use a correction: Bonferroni, or Tukey if you are worried about losing too much power. You can apply the multivariate approach with a Bonferroni correction within each family, as SPSS does.
+- When Box's M and Brown-Forsythe are violated:
+    - Follow up ONLY the within-subjects variable, using the fewest tests needed to evaluate your predicted hypothesis and protect power.
+        - If you need contrasts using the ANOVA error term, conduct only the necessary contrast and remember that it might not replicate.
+        - If you need only pairwise tests, do NOT use the ANOVA error term. Conduct paired-samples *t*-tests and Bonferroni-correct the hell out of them. You can compare groups, but the Type I error rate is slightly higher and power is much lower, creating Type II problems.
+        - The multivariate approach will NOT help, but your book is correct that you should be extremely careful.
+    - **DO NOT DO ANY EXPLORATORY ANALYSIS; these results will all be Type I errors.**
+
+*Basically, if you designed the study well and have no violations, follow up as you would for a repeated-measures ANOVA using `emmeans`. Focus on within-subjects follow-ups because they have greater power and therefore a lower Type II risk. If the violations look bad, think carefully about how to proceed.*
+
+
+#### Example Follow-Up (Assuming No Violations)
+##### Follow-Up Interaction
+
+This example uses simple effects followed by a polynomial contrast.
+
+```{r}
+library(emmeans)
+Time.by.Group<-emmeans(Mixed.1,~Time|Group, model="multivariate")
+```
+
+The Control group changes over time, which we can follow up with polynomial, consecutive, or custom contrasts. We can index 1:3 to view only the CBT results.
+
+```{r}
+contrast(Time.by.Group, 'poly')
+```
+
+
+## References
+Cousineau, D., & O'Brien, F. (2014). Error bars in within-subject designs: a comment on Baguley (2012). *Behavior Research Methods*, 46(4), 1149-1151.
+

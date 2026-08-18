@@ -414,7 +414,7 @@ Someone may look at the population-level line over the raw data and announce tha
 
 ## Why `glmmTMB`?
 
-We use one engine throughout the advanced chapters. For Gaussian outcomes, `glmmTMB` fits linear mixed models. By changing `family`, the same framework handles binary, count, negative-binomial, beta, and zero-inflated outcomes [@brooks2017].
+We use one engine throughout the mixed chapters. For Gaussian outcomes, `glmmTMB` fits linear mixed models. By changing `family`, the same framework handles binary, count, negative-binomial, beta, and zero-inflated outcomes [@brooks2017].
 
 That consistency lets us focus on modeling rather than spending half the chapter translating between packages that all print the intercept in a slightly different location.
 

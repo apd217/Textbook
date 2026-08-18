@@ -1,0 +1,221 @@
+---
+title: "Follow-Ups to the Two-Way Within-Subjects ANOVA"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.75,
+  fig.height = 2.75
+)
+```
+
+```{r, echo=FALSE}
+library(MASS)
+library(tidyr)
+library(dplyr)
+set.seed(9)
+n = 9; 
+## means
+M1A=11; M2A=15; M3A=14; M4A=7
+M1B=11; M2B=15; M3B=9; M4B=7
+M1C=11; M2C=11; M3C=7; M4C=7
+## Generate Cov matrix
+# create k x k matrix populated with sigma
+sigma=9
+sigma.mat <- rep(sigma, 4*3)
+S <- matrix(sigma.mat, ncol=length(sigma.mat), nrow=length(sigma.mat))
+rho=.9
+# compute covariance between measures
+Sigma <- t(S) * S * rho  
+# put the variances on the diagonal 
+diag(Sigma) <- sigma^2  
+
+Simulation = mvrnorm(n=n, mu=c(M1A,M2A,M3A,M4A,
+                            M1B,M2B,M3B,M4B,
+                            M1C,M2C,M3C,M4C), Sigma=Sigma, empirical=FALSE)
+
+DataSim1<-data.frame(Simulation)
+DataSim2<-gather(DataSim1,key = "Key", value = "Fixation",X1:X12)
+DataSim2$ID<-as.factor(rep(seq(1:n),12))
+DataSim2$Time<-as.factor(rep(c("0-19", "20-39","40-59","60-79"),each=9))
+DataSim2$Reinforcement<-as.factor(rep(c("Positive", "Negative", "None"),each=9*4))
+DataSim2$Time<-factor(DataSim2$Time, 
+       levels=c("0-19", "20-39","40-59","60-79"),
+       labels=c("0-19", "20-39","40-59","60-79"))
+DataSim2$Reinforcement<-factor(DataSim2$Reinforcement, 
+       levels=c("Positive", "Negative", "None"),
+       labels=c("Positive", "Negative", "None"))
+DataSim2$Fixation<-round(DataSim2$Fixation,0)
+DataSim2$Fixation<-if_else(DataSim2$Fixation < 0,0,DataSim2$Fixation)
+```
+
+## Follow-Up Testing
+Following up main effects and interactions is mostly the same as in a two-way ANOVA. However, you have a few more decisions to make based on how conservative you want to be.
+
+### What Are Your Assumptions?
+- Do you assume strong violations of sphericity? You can use two different approaches.
+    - 1) Conduct only pairwise *t*-tests and ignore the omnibus repeated-measures ANOVA.
+    - 2) Use a MANOVA, or multivariate ANOVA, for the error variance and conduct contrasts as usual. This is the default approach in `afex` as of version 1.0, matching **SPSS**.
+- Do you assume no or only small violations of sphericity?
+
+
+### Assume Strong Violations of Sphericity: Classical Univariate Approach
+Your book recommends not using the ANOVA error terms and instead running ONLY Bonferroni-corrected paired *t*-tests. This is the oldest approach and remains common. The problem is that it permits only pairwise analyses: **no contrasts of any kind**.
+
+Pros: 
+
+- Provides the greatest protection against Type I error
+
+Cons:
+
+- MASSIVE inflation of Type II error
+- You cannot conduct contrasts; you are limited to pairwise or stepwise tests.
+
+#### Follow-up Interaction
+ 
+It is best to examine simple effects. We will compare Reinforcement pairwise within each level of Time. This produces 12 tests and tells us when the reinforcement conditions separate at each time point.
+
+Using `pairwise.t.test()`, we pass the arguments `paired = TRUE` and `p.adjust.method = "bonf"`. This is one family of tests, so $\alpha_{bon} = .05 / 12 = 0.0042$.
+
+
+```{r}
+library(broom)
+library(dplyr)
+DataSim2 %>% 
+  group_by(Time) %>% 
+  do(
+    tidy(
+    pairwise.t.test(.$Fixation,.$Reinforcement,
+                    paired=TRUE,
+                    p.adj = "bonf")))
+```
+
+##### Effect Sizes
+Calculate Cohen's $d$, again ignoring the ANOVA error term. **The code is broken; I am working on it.**
+
+
+### Assume Strong Violations of Sphericity: Multivariate Approach 
+
+You can instead do what SPSS does by default for contrasts and assume violations of sphericity. This uses a multivariate analysis with smaller, more conservative df. We will not go deeply into univariate versus multivariate testing yet. This is a conservative approach.
+
+Pros: 
+
+- You can apply an additional correction (HSD, MVT, Sidak, Holm, Bonferroni, etc.).
+- You can do any type of contrast you want
+- Provides better protection against Type I error
+
+Cons:
+
+- Can inflate Type II error
+
+The error term and df do NOT come from the repeated-measures ANOVA. They come from a MANOVA, or multivariate analysis of variance. This approach treats the repeated measures as multiple but related measures from the same participant, such as three ways of measuring a similar construct. MANOVA "eats" all your df because we now use $df_E = n-1$, making it less powerful overall and increasing Type II errors. MANOVA does not assume sphericity, although it accounts for covariance among measures. Running a MANOVA provides Pillai's trace, which ranges from 0 to 1, and an approximate *F*.
+
+##### MANOVA Results vs. ANOVA
+
+```{r}
+library(afex)
+Model.1<-aov_car(Fixation~ Time*Reinforcement + Error(ID/Time*Reinforcement), 
+        data = DataSim2,include_aov = TRUE)
+Model.1
+
+Model.M<-aov_car(Fixation~ Time*Reinforcement + Error(ID/Time*Reinforcement), 
+        data = DataSim2, return='Anova')
+Model.M
+```
+
+The interaction is no longer significant at $p < .05$, so we would not follow it up. However, people often do NOT examine the MANOVA results. They examine the repeated-measures ANOVA and then use the multivariate approach for follow-ups. It is logically inconsistent, but that is what SPSS users do and what many people are used to.
+
+You do not need to run or inspect the MANOVA separately. Pass the original `afex` object to `emmeans` because it already contains the MANOVA.
+
+##### Follow-Up Interaction
+This example uses simple effects followed by pairwise comparisons.
+
+```{r}
+library(emmeans)
+Reinforcement.by.Time.M<-emmeans(Model.1,~Reinforcement|Time, model = "multivariate")
+joint_tests(Reinforcement.by.Time.M, by = "Time")
+```
+
+Because only the middle two time points differ, we will examine the pairwise results within each family. You can also use any custom contrast you want. You must decide which correction to apply.
+
+```{r}
+pairs(Reinforcement.by.Time.M, adjust ='tukey')
+```
+
+
+### Assume No or Small Violations of Sphericity: Univariate Approach
+
+`emmeans` approximately uses the ANOVA error terms, although it actually calculates the pooled variance of the difference scores for each comparison. For the interaction, it calculates df using Satterthwaite approximations, which provide some correction for HOV. However, this does not control violations of sphericity. When sphericity is violated, this approach is anti-conservative and can inflate Type I error in follow-ups. When sphericity is not violated, this approach is equivalent to protected *t*-tests.
+
+Pros: 
+
+- You can apply an additional correction (HSD, MVT, Sidak, Holm, Bonferroni, etc.).
+- You can do any type of contrast you want
+
+Cons: 
+
+- Can inflate Type I error, especially when sphericity is violated
+
+
+#### Follow-Up Interaction
+This example uses simple effects followed by pairwise comparisons.
+
+```{r}
+library(emmeans)
+Reinforcement.by.Time.UV<-emmeans(Model.1,~Reinforcement|Time,model = "univariate" )
+joint_tests(Reinforcement.by.Time.UV, by = "Time")
+```
+Only the middle two time points differ.
+
+```{r}
+Pairs.UV<-pairs(Reinforcement.by.Time.UV, adjust ='tukey')
+Pairs.UV
+```
+
+##### Effect Sizes
+Select the error term very carefully. If you follow up the interaction, use the interaction error term and match the edf to the df reported for the contrast. **This is not yet correct; I am still determining what to enter.**
+
+```{r}
+SD.I = sqrt(Model.1$anova_table$MSE[3])
+eff_size(Pairs.UV, sigma = SD.I, edf =62.8, method='identity') %>% summary()
+```
+
+##### Follow-Up of the Main Effect
+This is a trend analysis of Time. You must calculate this BY HAND for the effect sizes to make sense.
+
+```{r}
+Time.Main.Effect<-emmeans(Model.1,~Time,model = "univariate" )
+Time.Main.Effect
+Poly.Time<-contrast(Time.Main.Effect, 'poly')
+```
+
+Effect sizes for the polynomial contrast: **I am still working on the code.**
+
+
+## Guidelines
+
+- Graph your results with corrected error bars and examine spaghetti plots. This is the MOST important thing you can do in a repeated-measures design. You can see assumption violations, unusual participants or conditions, and participant-by-condition interactions. These patterns should guide your choice of follow-up tests and help you understand how the ANOVA parses the variance.
+
+- Design repeated-measures studies with trend analyses in mind. Think ordinally when possible. When that is not possible, limit the number of levels you examine. Each additional level increases the chance of violating sphericity and inflating Type I error.
+
+ 
+### Follow-Ups
+
+- When you use the more powerful univariate approach, report the packages used in your Method section.
+- Apply an alpha correction and use a more conservative approach than you would for a between-subjects test.
+- If you use the old-school method, avoid using the repeated-measures ANOVA error term for pairwise testing.
+    - Yes, it buys power, but at a large cost of Type I error.    
+        - Conduct as few tests as possible so Bonferroni corrections do not destroy your power.
+
+
+
+## References
+Bakeman, R. (2005). Recommended effect size statistics for repeated measures designs. *Behavior Research Methods*, 37(3), 379-384.
+
+Cousineau, D., & O'Brien, F. (2014). Error bars in within-subject designs: a comment on Baguley (2012). *Behavior Research Methods*, 46(4), 1149-1151.
+
+Olejnik, S., & Algina, J. (2003). Generalized eta and omega squared statistics: Measures of effect size for some common research designs. *Psychological Methods*, 8(4), 434-447. doi:10.1037/1082-989X.8.4.434

@@ -33,36 +33,9 @@ MCQ.chi.2 <- chisq.test(MCQ.Study.2, correct = TRUE)
 MCQ.chi.2.plain <- chisq.test(MCQ.Study.2, correct = FALSE)
 ```
 
-<!-- ---Alex--- New cold open, which you approved on 2026-08-17. The device is the
-     indict-the-tool move from Ch10/Ch15: hand a t-test the Best counts and watch R
-     produce a completely respectable-looking p = .41 out of a table it does not
-     understand. The payoff is an identity, not a callback: t.test() reports a mean of
-     111, and 111 is exactly the expected frequency f_e that the hand calculation uses
-     three sections later. That is called out at the hand calculation. The old opening
-     (the parametric/nonparametric taxonomy) now sits directly underneath, where the
-     reader has a reason to want it. Delete this comment if you keep the prose. -->
-
-Here is a real result, and it is two numbers.
+## Here is a real result, and it is two numbers.
 
 @best1979 watched 261 introductory psychology students take a multiple-choice exam and counted what happened every time somebody changed an answer. 27 changes went from right to wrong. 195 went from wrong to right.
-
-You have spent this entire book learning how to test things. So test it.
-
-```{r}
-#| label: cold-open-ttest
-#| echo: true
-t.test(c(27, 195))
-```
-
-R did not stop me. It did not even hesitate. It reported a mean of 111, a *t*-value, a *p*-value of .41, and a confidence interval running from about $-956$ to about $1178$. Read that output at face value and you would conclude there is nothing here, then go tell every student in the country to stay with their first answer.
-
-That would be one of the more wrong things in this book. Changing an answer helped roughly seven times as often as it hurt.
-
-The arithmetic is not the problem. The arithmetic is flawless. The problem is that 111 is not anything. No student made 111 answer changes. There is no person, no score, and no variable that 111 is the average of. I handed a *t*-test a two-cell frequency table, and a *t*-test does not know what a frequency table is. It knows how to average numbers, so it averaged them.
-
-*R will average anything you hand it. That is not the same as the average meaning something.*
-
-That is why this chapter exists. Every test you have met so far takes a column of measurements and asks how far apart the means are. This study never measured anybody on anything: it counted events and sorted them into bins. Counts need a test of their own, and that test asks a different question.
 
 > Do the observed counts differ from the counts we would expect by chance?
 
@@ -276,12 +249,6 @@ So when we say a result is “unlikely due to chance,” what we really mean is:
 
 > “If this were just chance, we would expect to see something this extreme only about 5% of the time.”
 
-<!-- ---Alex--- Both critical-region plots had a clipped label in the rendered PNG:
-     at df = 1 "(critical region)" ran off the bottom edge, and at df = 5 the first
-     line was cut to "5% of chance va" on the right. Invisible in the code, obvious in
-     the image. The label is now parked in the empty upper right with an arrow pointing
-     at the shaded wedge, and ylim is set explicitly so the position is deterministic.
-     Nothing about the statistics changed. -->
 ```{r}
 #| label: crit-region-df1
 #| echo: false
@@ -457,7 +424,6 @@ Again, in APA format, we would say,
 Students were significantly more likely to change an answer from wrong to right (`r round(195 / sum(MCQ.Study) * 100, 2)`%) than from right to wrong (`r round(27 / sum(MCQ.Study) * 100, 2)`%), $\chi^2(1, N = 222) =$ `r round(MCQ.chi$statistic, 2)`, $p < .001$.
 
 
-
 ## Two-Way Pearson's Chi-Square [Test of Independence]
 
 "Maybe we should only change our answers on easy items, but on hard items, we should trust ourselves."
@@ -475,11 +441,11 @@ We need to do a Two-Way Chi-Square [Test of Independence]. It asks whether obser
 
 The null hypothesis is that for each, the value obtained for one variable is not related to or influenced by the second variable.  This idea can be expressed in two versions:
 
-- Version 1: A single sample is measured on two separate variables. For example, knowing your personality will help predict your color preference (alternative). Knowing your personality will NOT help you predict your color preference (null) [Personality and color preference are measured per person]
+- **Version 1:** A single sample is measured on two separate variables. For example, knowing your personality will help predict your color preference (alternative). Knowing your personality will NOT help you predict your color preference (null) [Personality and color preference are measured per person]
     -	Null: The variables are not related. 
     -	Alternative: The variables are related. 
 
-- Version 2: Two (or more) samples are measured and compared to see if there are differences. For example, the same proportions of extroverts (group 1) and introverts (group 2) prefer the same color (null).  If the proportions are different for the two groups, then you have the alternative hypothesis
+- **Version 2:** Two (or more) samples are measured and compared to see if there are differences. For example, the same proportions of extroverts (group 1) and introverts (group 2) prefer the same color (null).  If the proportions are different for the two groups, then you have the alternative hypothesis
     -	Null: The samples are independent 
     -	Alternative: The samples are not independent
 

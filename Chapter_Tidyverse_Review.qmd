@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 ## Why Is This at the End of the Book?
 
-This is not a second statistics course hiding behind a fake mustache. It is a compact reference for the R operations you will repeatedly forget five minutes after learning them. That is normal. Professional R users also look things up constantly; they have merely developed more dignified facial expressions while doing it.
+This is not a second statistics course hiding in the closet. It is a compact reference for the R operations you will repeatedly forget five minutes after learning them. That is normal. Professional R users also look things up constantly; they have merely developed more dignified facial expressions while doing it.
 
 The **tidyverse** is a collection of R packages designed around consistent ways of storing, transforming, summarizing, and plotting data. We will focus on two:
 
@@ -42,11 +42,9 @@ library(ggplot2)
 
 Installing is moving the furniture into your apartment. Loading is taking the furniture out of the closet so you can sit on it. Do not reinstall the sofa every morning.
 
-## Our Deeply Serious Caffeine Study
+## Caffeine Study
 
-The old lecture expected a file called `caffeine.csv` to materialize from a working directory last seen in 2019. We will simulate the data instead, which makes the example reproducible and removes the need to perform archaeological research inside Alex's Dropbox.
-
-In this completely fictional study, 160 students consume different amounts of caffeine. We record sleep, anxiety, hatred of group projects, and whether the student begins hearing colors. No students actually consumed these doses. The IRB has stopped returning our calls for unrelated reasons.
+We will simulate the data a completely fictional study, where 160 students consume different amounts of caffeine. We record sleep, anxiety, hatred of group projects, and whether the student begins hearing colors. No students actually consumed these doses. The IRB has stopped returning our calls for unrelated reasons.
 
 ```{r}
 #| label: simulate-caffeine-data
@@ -130,7 +128,7 @@ lab_students |>
   head()
 ```
 
-Older R code often uses `%>%`, the pipe from `magrittr` and `dplyr`. It is still valid and appears throughout older lectures, published code, and the ancient inscriptions found beneath BSB. For everyday `dplyr` work the two mean the same thing, so when you find `%>%` on Stack Overflow you can read it as `|>` and carry on. This book uses `|>` everywhere, including the earlier chapters, which were swept so you would never have to wonder whether the difference mattered.
+Older R code often uses `%>%`, the pipe from `magrittr` and `dplyr`. It is still valid, you will see it in published code (including my own), and the ancient inscriptions found beneath our Behavioral Science Building at UIC close to where we keep the chained demons. For everyday `dplyr` work the two mean the same thing, so when you find `%>%` on Stack Overflow you can read it as `|>` and carry on. This book uses `|>` everywhere, including the earlier chapters, which were swept so you would never have to wonder whether the difference mattered.
 
 ## The Five Verbs You Will Use Constantly
 

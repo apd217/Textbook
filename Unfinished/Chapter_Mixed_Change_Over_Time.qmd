@@ -3,27 +3,6 @@ title: "Mixed Regression Over Time: More Than Two Occasions"
 bibliography: references.bib
 ---
 
-<!-- ---Alex--- STATUS: DRAFT, extracted 2026-08-16, not in _quarto.yml.
-
-This is the 2x4 half that came out of Chapter_Mixed_Regression when you said the jump from a
-two-level design to a 2x4 with random slopes was too fast. Nothing here is new writing except
-the opening section and the closing note: the rest is the material you already had, converted
-from glmmTMB to lmer + lmerTest, with every number re-run.
-
-What is verified: all model output below was executed before the prose was written. The
-categorical-time model genuinely needs the bobyqa optimizer, the LRT is chi2(1) = 63.54, and
-emtrends gives Control -0.295 against CBT -1.322.
-
-What is NOT done, because it needs you:
-  1. It is not in _quarto.yml. Nothing links to it and nothing links out of it except the
-     salmon cross-reference and the pointer back to Ch18.
-  2. CH18-DUP01. Chapter_Mixed_Designs.qmd, in its uncommitted working-tree state, has its own
-     "Two Groups by Continuous Time" section covering nearly this same ground on different data
-     (seed 346, n = 96, Symptoms/Therapy). One of the two has to win. This file is the verified
-     one; that one is of unknown provenance.
-  3. The file name is a guess. Rename freely.
-  4. No self-check questions, and the voice pass stopped where the extraction stopped.
--->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(

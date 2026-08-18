@@ -1,0 +1,14 @@
+---
+title: "Historical ANOVA Lectures"
+---
+
+## About These Chapters
+
+This section contains historical lectures on how to conduct, interpret, and write up analyses of variance (ANOVAs) in R. The lectures cover:
+
+- one-way and two-way between-subjects ANOVAs;
+- one-way and two-way within-subjects ANOVAs;
+- mixed-design ANOVAs; and
+- common follow-up analyses.
+
+These lectures have not yet been adapted to read like the other chapters in this book. They are included in their original lecture style for readers who need to conduct an ANOVA now. They will eventually be revised and integrated more fully with the rest of the book.

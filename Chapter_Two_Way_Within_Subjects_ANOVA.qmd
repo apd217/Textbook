@@ -1,0 +1,303 @@
+---
+title: "Two-Way Within-Subjects ANOVA: Analysis and Graphing"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.width = 4.75,
+  fig.height = 2.75
+)
+```
+
+## Two Repeated Factors
+> In the previous class, we saw that eating a small amount of chocolate increased fixation on the lecture. However, because we averaged fixation across the entire class, we do not know how long the effect lasts. To understand how chocolate modulates attention, we designed a fully within-subjects 4 x 3 study. We tracked graduate students' eyes during the first 20 minutes of class and measured their mean fixation time on the screen in seconds per glance. During the next 20 minutes, students received a fun-size Snickers to encourage them to pay attention. However, we were not sure how to "encourage" them. We could give them more Snickers as they spent more time looking at the screen, positive reinforcement, or encourage them to look back when they looked away for too long, negative reinforcement. The machine continued distributing Snickers for the rest of class based on the condition used during that lecture. We also needed a no-reinforcement control condition to understand how attention changed across the 80-minute lecture. Mean fixation time was recorded at the end of each 20-minute interval, producing four intervals. The order of the No, Positive, and Negative Reinforcement conditions was counterbalanced across lecture topics: Power Analysis, Bootstrapping Theory, and Probability Theory, which were matched on the thrillingness of the topic. We simulate $n = 9$ students. If classical learning theory is correct, positively rewarded students will pay more attention, while negatively rewarded students will learn that they receive more chocolate when they pay less attention. If graduate students are intrinsically motivated, negative reinforcement might not reduce attention as strongly as classical learning theory predicts. We also expect fatigue to reduce attention in all conditions.
+
+```{r, echo=FALSE}
+library(MASS)
+library(tidyr)
+library(dplyr)
+set.seed(9)
+n = 9; 
+## means
+M1A=11; M2A=15; M3A=14; M4A=7
+M1B=11; M2B=15; M3B=9; M4B=7
+M1C=11; M2C=11; M3C=7; M4C=7
+## Generate Cov matrix
+# create k x k matrix populated with sigma
+sigma=9
+sigma.mat <- rep(sigma, 4*3)
+S <- matrix(sigma.mat, ncol=length(sigma.mat), nrow=length(sigma.mat))
+rho=.9
+# compute covariance between measures
+Sigma <- t(S) * S * rho  
+# put the variances on the diagonal 
+diag(Sigma) <- sigma^2  
+
+Simulation = mvrnorm(n=n, mu=c(M1A,M2A,M3A,M4A,
+                            M1B,M2B,M3B,M4B,
+                            M1C,M2C,M3C,M4C), Sigma=Sigma, empirical=FALSE)
+
+DataSim1<-data.frame(Simulation)
+DataSim2<-gather(DataSim1,key = "Key", value = "Fixation",X1:X12)
+DataSim2$ID<-as.factor(rep(seq(1:n),12))
+DataSim2$Time<-as.factor(rep(c("0-19", "20-39","40-59","60-79"),each=9))
+DataSim2$Reinforcement<-as.factor(rep(c("Positive", "Negative", "None"),each=9*4))
+DataSim2$Time<-factor(DataSim2$Time, 
+       levels=c("0-19", "20-39","40-59","60-79"),
+       labels=c("0-19", "20-39","40-59","60-79"))
+DataSim2$Reinforcement<-factor(DataSim2$Reinforcement, 
+       levels=c("Positive", "Negative", "None"),
+       labels=c("Positive", "Negative", "None"))
+DataSim2$Fixation<-round(DataSim2$Fixation,0)
+DataSim2$Fixation<-if_else(DataSim2$Fixation < 0,0,DataSim2$Fixation)
+```
+
+
+### Plot of Simulation
+#### Spaghetti Plot
+Each line represents a person's score across conditions.
+
+```{r, echo=FALSE,fig.width=6}
+library(ggplot2)
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+
+Spaghetti.1 <-ggplot(data = DataSim2, aes(x = Time, y=Fixation, group=ID))+
+  facet_grid(~Reinforcement)+
+  scale_y_continuous(limits=c(0,30),breaks = seq(0,30,2))+
+  geom_point(aes(colour = ID))+
+  geom_line(aes(colour = ID))+
+  ylab("Fixation (in Seconds)")+xlab("Time (in Minutes)")+
+  theme(legend.position = "none")
+Spaghetti.1
+```
+
+#### Means Plot
+For now, we will plot the means as lines without error bars. Error bars work differently in repeated-measures designs, and we will return to them later.
+
+```{r, echo=FALSE,fig.width=6}
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+
+Means.Table<-
+  DataSim2 %>% 
+  group_by(Time,Reinforcement) %>%
+  summarise(Fix.Mean=mean(Fixation))
+  
+
+Means.Lines <-ggplot(data = Means.Table, aes(x = Time, y=Fix.Mean, group=Reinforcement))+
+  scale_y_continuous(limits=c(0,20),breaks = seq(0,20,2))+
+  geom_line(aes(colour = Reinforcement), size=2)+
+  ylab("Fixation (in Seconds)")+xlab("Time (in Minutes)")+
+  theme(legend.position = "right")
+Means.Lines
+```
+
+Are there main effects of Time or Reinforcement, and do Time and Reinforcement interact?
+
+### Two-Way Repeated-Measures ANOVA Logic
+As in a two-way ANOVA, a two-way repeated-measures ANOVA has two main effects and an interaction. However, the error terms are more complicated.
+As in a one-way repeated-measures ANOVA, we identify variance due to individual differences. We estimate it from the row sums, which are the sums of each participant's scores.
+
+
+#### One-way RM ANOVA Table With the formulas (conceptually simplified)
+
+| Source                   | SS                                        | DF           | MS  | F   |
+| :----------------------- | :---------------------------------------- | :----------- | :-- | :-- |
+| $RM_1$                   | $nSS_{Treat\,1\,cell\,means}$             | $C-1$        | $\frac{SS_{RM}}{df_{RM}}$ | $\frac{MS_{RM_1}}{MS_{E_1}}$ |
+| Within                   | $\displaystyle \sum SS_{within}$          |              |     |     |
+| $\,Subject\,[Sub]$       | $\frac{1}{C} SS_{subjects:\, rows\,sums}$ | $n-1$        | $\frac{SS_{sub}}{df_{sub}}$ |     |
+| $\,Error [Sub\,x\,RM_1]$ | $SS_W-SS_{sub}$                           | $(n-1)(c-1)$ | $\frac{SS_{E_1}}{df_{E_1}}$ |     |
+| Total                    | $SS_{scores}$                             | $N-1$        |     |     |
+
+Note: $SS_{sub} + SS_E = SS_W$, $SS_{RM} + SS_W = SS_T$, and $df_{RM} + df_W = df_T$.
+
+#### Two-way RM ANOVA Table With the formulas (conceptually simplified)
+
+Source        | SS                  | DF          | MS   | F
+--------------|---------------------|-------------|------|---
+$RM_1$ | $C_2nSS_{treat\,1\,cell\,means}$ | $C_1-1$| $\frac{SS_{RM_1}}{df_{RM_1}}$ | $\frac{MS_{RM_1}}{MS_{E_1}}$
+$RM_2$ | $C_1nSS_{treat\,2\,cell\,means}$ | $C_2-1$| $\frac{SS_{RM_2}}{df_{RM_2}}$ |$\frac{MS_{RM_2}}{MS_{E_2}}$
+$RM_{1x2}$ | $nSS_{all\,treat\,cells}-SS_{RM_1} - SS_{RM_2}$ | $(C_1-1)(C_2-1)$| $\frac{SS_{RM_{1x2}}}{df_{RM_{1x2}}}$ | $\frac{MS_{RM_{1x2}}}{MS_{E_{1x2}}}$
+Within  | $\displaystyle \sum SS_{within}$     | $(n-1)(C_1C_2)$ | $\frac{SS_w}{df_w}$  |   
+$\,Subject\,[Sub]$  | $\frac{1}{C_1}\frac{1}{C_2} SS_{subjects:\, rows\,sums}$     | $n-1$     | $\frac{SS_{sub}}{df_{sub}}$ | 
+$\,Error_1 [Sub\,x\,RM_1]$  | $C_2SS_{treat\,1\,cells}-SS_{RM_1}-SS_{sub}$     | $(n-1)(C_1-1)$     | $\frac{SS_{E_1}}{df_{E_1}}$ | 
+$\,Error_2 [Sub\,x\,RM_2]$  | $C_1SS_{treat\,2\,cells}-SS_{RM_2}-SS_{sub}$     | $(n-1)(C_2-1)$     | $\frac{SS_{E_2}}{df_{E_2}}$ | 
+$\,Error_{1x2} [Sub\,x\,RM_{1x2}]$  | $SS_{w}-SS_{sub}-SS_{E_1}-SS_{E_2}$     | $(n-1)(C_1-1)(C_2-1)$     | $\frac{SS_{E_{1x2}}}{df_{E_{1x2}}}$ | 
+Total   | $SS_{scores}$      | $N-1$ 
+
+Note: 
+
+$SS_{sub} + SS_{E_1} + SS_{E_2} +SS_{E_{1x2}} = SS_W$  
+
+$SS_{RM1} + SS_{RM2} +SS_{RM1x2} + SS_W = SS_T$ 
+
+$df_{RM1} + df_{RM2} +df_{RM1x2} + df_W = df_T$ 
+
+
+##### Explained vs. Unexplained Terms
+
+**Explained:** 
+
+- $SS_{RM_1}$ = variance caused by Treatment 1.
+- $SS_{RM_2}$ = variance caused by Treatment 2.
+- $SS_{RM_{1x2}}$ = variance caused by the Treatment 1 x Treatment 2 interaction.
+- $SS_{sub}$ = individual differences. We do not know why people differ, but we can parse this variance, so we have *explained it*.
+
+**Unexplained:** 
+
+- $SS_{E_1}$ = noise associated with ${RM_1}$.
+- $SS_{E_2}$ = noise associated with ${RM_2}$.
+- $SS_{E_{1x2}}$ = noise associated with $RM_{1x2}$.
+
+### R ANOVA Calculations
+#### R Defaults
+- `afex` calculates the repeated-measures ANOVA and automatically corrects for sphericity violations.
+- `Error(Subject ID/RM Factor 1 X RM Factor 2)`: This tells `afex` that participants vary as a function of the repeated-measures conditions.
+- It reports $\eta_g^2$ assuming a manipulated treatment.
+
+```{r}
+library(afex)
+Model.1<-aov_car(Fixation~ Time*Reinforcement + Error(ID/Time*Reinforcement), 
+        data = DataSim2,include_aov = TRUE)
+Model.1
+```
+
+#### Assumptions
+##### Sphericity
+As in a one-way repeated-measures ANOVA, we examine Mauchly's test of sphericity for each term with more than two levels.
+
+```{r}
+aov_car(Fixation~ Time*Reinforcement + Error(ID/Time*Reinforcement), 
+        data = DataSim2, return="univariate")
+```
+
+##### Covariance Matrix 
+
+For most repeated-measures ANOVAs, we assume compound symmetry:
+
+$$
+\mathbf{Cov} = \sigma^2\left[\begin{array}
+          {rrrr}
+          1 & \rho & \rho & \rho  \\
+          \rho & 1 & \rho & \rho  \\
+          \rho & \rho & 1 & \rho  \\
+          \rho & \rho & \rho & 1\\
+          \end{array}\right]
+$$ 
+
+However, as in the study we examined today, people's responses do not always have the same correlation across time. Think about a longitudinal study spanning weeks or months. Time introduces a problem called autoregression, or autocorrelation: what I do now affects what I do next. Remember that Time cannot be counterbalanced.
+
+Many other covariance structures are possible, but not in a repeated-measures ANOVA. A repeated-measures ANOVA is a special case of a linear mixed model. Next semester, we will explore linear mixed models, which handle time more flexibly.
+
+Here is a covariance matrix designed for time: first-order autoregressive, or AR(1).
+
+$$
+\mathbf{Cov} = \sigma^2\left[\begin{array}
+          {rrrr}
+          1 & \rho & \rho^2 & \rho^3  \\
+          \rho & 1 & \rho & \rho^2  \\
+          \rho^2 & \rho & 1 & \rho  \\
+          \rho^3 & \rho^2 & \rho & 1\\
+          \end{array}\right]
+$$ 
+
+
+## Plot Results
+### Problems with Error Bars
+Within-subjects designs create several problems when we plot error bars to approximate significance visually. The main problem is that the error within each cell includes individual differences. The gray band over the data is the 95% confidence interval.
+
+```{r, echo=FALSE,fig.width=6}
+theme_set(theme_bw(base_size = 12, base_family = "")) 
+
+Means.Table<-
+  DataSim2 %>% 
+  group_by(Time,Reinforcement) %>%
+  summarise(n=n(),
+            Means=mean(Fixation),
+            SE=sd(Fixation)/n^.5,
+            ci = qt(1 - (0.05 / 2), n - 1) * SE)
+
+Means.Between.CI <-ggplot(data = Means.Table, aes(x = Time, y=Means))+
+  facet_grid(~Reinforcement)+
+  scale_y_continuous(limits=c(0,30),breaks = seq(0,30,2))+
+  geom_line(data = DataSim2, aes(x = Time, y=Fixation, group=ID, colour = ID), size=1)+
+  geom_line(group=1, size=1, alpha=.3)+
+  geom_ribbon(data = Means.Table, aes(ymin=Means-ci, ymax=Means+ci), group=1, alpha=.5)+
+    ylab("Fixation (in Seconds)")+xlab("Time (in Minutes)")+
+  theme(legend.position = "right")
+Means.Between.CI
+```
+
+#### Uncorrected Error Bars
+When we collapse the lines and plot the confidence intervals, they overlap completely. We might conclude that there are no significant differences between groups. The problem is that we have not removed the individual differences, which we can account for.
+
+```{r, echo=FALSE,fig.width=6}
+Means.BT.SE <-ggplot(data = Means.Table, aes(x = Time, y=Means, group=Reinforcement))+
+  scale_y_continuous(breaks = seq(0,20,2))+
+  geom_line(aes(colour = Reinforcement), size=2)+
+    geom_ribbon(aes(ymin=Means-ci, ymax=Means+ci, fill=Reinforcement), alpha=.5)+
+  ylab("Fixation (in Seconds)")+xlab("Time (in Minutes)")+
+  theme(legend.position = "right")
+Means.BT.SE
+```
+
+#### Within-Subjects Error Bars: Confidence Intervals
+We will use Cousineau-Morey corrected error bars, which remove individual differences. See Figure 1 in Morey (2008) for a visual comparison of error-bar types and Cousineau and O'Brien (2014) for a review. First, we center each participant by removing their mean across all conditions. This makes each person's mean equal to 0 across conditions. Next, we recalculate the standard error or confidence interval from these centered means. Finally, we correct for bias because this method underestimates the variance. The correction is $\sqrt{\frac{J}{J-1}}$, where $J$ is the number of within-subjects conditions. The corrected SE or confidence interval equals the value from the centered data multiplied by this correction.
+
+The `afex_plot()` function now performs the Cousineau-Morey correction directly, so we no longer need the old custom helper functions. Set `error = "within"` for within-subject error bars. The default is a 95% confidence interval. Compare these corrected intervals with the uncorrected intervals above. The difference here is not massive.
+
+```{r,fig.width=6}
+Means.Within.CI <- afex_plot(
+  Model.1,
+  x = "Time",
+  trace = "Reinforcement",
+  error = "within",
+  error_ci = TRUE
+) +
+  scale_y_continuous(breaks = seq(0, 20, 2)) +
+  ylab("Fixation (in Seconds)") +
+  xlab("Time (in Minutes)") +
+  theme(legend.position = "right")
+Means.Within.CI
+```
+
+
+For corrected within-subjects error bars, you can visually approximate significance under suitable conditions (Cumming & Finch, 2005).
+
+95% CIs: 
+
+- $p < .05$: when the proportional overlap is about .50
+- $p < .01$: when the proportional overlap is about 0
+
+#### Within-Subjects Error Bars: SE
+
+```{r,fig.width=6}
+Means.Within.SE <- afex_plot(
+  Model.1,
+  x = "Time",
+  trace = "Reinforcement",
+  error = "within",
+  error_ci = FALSE
+) +
+  scale_y_continuous(breaks = seq(0, 20, 2)) +
+  ylab("Fixation (in Seconds)") +
+  xlab("Time (in Minutes)") +
+  theme(legend.position = "right")
+Means.Within.SE
+```
+
+SE bars: 
+
+- $p < .05$: when the gap is about one SE-bar length
+- $p < .01$: when the gap is about two SE-bar lengths
+
+
+## References
+Bakeman, R. (2005). Recommended effect size statistics for repeated measures designs. *Behavior Research Methods*, 37(3), 379-384.
+
+Cousineau, D., & O'Brien, F. (2014). Error bars in within-subject designs: a comment on Baguley (2012). *Behavior Research Methods*, 46(4), 1149-1151.
+
+Olejnik, S., & Algina, J. (2003). Generalized eta and omega squared statistics: Measures of effect size for some common research designs. *Psychological Methods*, 8(4), 434-447. doi:10.1037/1082-989X.8.4.434

@@ -26,7 +26,7 @@ Resampling did not appear from a statistical volcano fully formed.
 - **The bootstrap:** Efron's 1979 paper was titled *Bootstrap Methods: Another Look at the Jackknife*. The name referred to pulling oneself up by one's bootstraps: using the sample itself to learn about repeated samples when the population is unavailable.
 - **The computer changes everything:** The jackknife was designed when computation was expensive. The bootstrap became practical because computers could repeatedly resample and recalculate statistics. By 2003, Efron described the bootstrap as a method with roots in jackknife work on bias and variance, but with a much wider reach [@efron2003].
 
-The history matters because the jackknife and bootstrap are not two unrelated buttons in R. They answer the same basic question in different ways: **how sensitive is our estimate to the particular observations we happened to collect?**
+The history matters because the jackknife and bootstrap are not two unrelated approaches. They answer the same basic question in different ways: **how sensitive is our estimate to the particular observations we happened to collect?**
 
 ## The Jackknife: Remove One Person at a Time
 
@@ -35,14 +35,14 @@ Suppose our sample has $n$ observations and the statistic from all observations 
 The average leave-one-out estimate is
 
 $$
-\overline{\theta}_{(.)}=\frac{1}{n}\sum_{i=1}^{n}\widehat\theta_{(i)}.
+\overline{\theta}_{(.)}=\frac{1}{n}\sum_{i=1}^{n}\widehat\theta_{(i)}
 $$
 
 The jackknife estimate of bias is
 
 $$
 \widehat{Bias}_{jack}=(n-1)
-\left(\overline{\theta}_{(.)}-\widehat\theta\right),
+\left(\overline{\theta}_{(.)}-\widehat\theta\right)
 $$
 
 and the jackknife standard error is
@@ -52,7 +52,7 @@ SE_{jack}=\sqrt{
 \frac{n-1}{n}
 \sum_{i=1}^{n}
 \left(\widehat\theta_{(i)}-\overline{\theta}_{(.)}\right)^2
-}.
+}
 $$
 
 That standard error asks how much the estimate changes when each person temporarily vanishes. This is a statistical disappearance, not a proposal for managing annoying group members.
@@ -105,13 +105,13 @@ The last leave-one-out estimate moves far more than the others. The jackknife th
 The jackknife pseudovalue for observation $i$ is
 
 $$
-PV_i=n\widehat\theta-(n-1)\widehat\theta_{(i)}.
+PV_i=n\widehat\theta-(n-1)\widehat\theta_{(i)}
 $$
 
 The mean of the pseudovalues is the jackknife bias-corrected estimate:
 
 $$
-\widehat\theta_{jack}=n\widehat\theta-(n-1)\overline\theta_{(.)}.
+\widehat\theta_{jack}=n\widehat\theta-(n-1)\overline\theta_{(.)}
 $$
 
 Pseudovalues transform the leave-one-out results so they behave more like observation-level contributions to the estimate. You will encounter them in older methods and in some specialized modern procedures. You do not need to place them under your pillow and hope they become intuitive overnight.
@@ -149,13 +149,13 @@ With replacement means that after selecting a participant, we return that partic
 Let $F$ represent the unknown population distribution and let $\widehat F$ represent the empirical distribution created from our sample. If the population quantity is
 
 $$
-\theta=t(F),
+\theta=t(F)
 $$
 
 we estimate it by plugging in the empirical distribution:
 
 $$
-\widehat\theta=t(\widehat F).
+\widehat\theta=t(\widehat F)
 $$
 
 The bootstrap then draws $F_1^*,F_2^*,\ldots,F_B^*$ from $\widehat F$ and calculates
@@ -175,7 +175,7 @@ The observed sample temporarily plays the role of the population. If the sample 
 In one bootstrap sample, the probability that a particular case is never selected is
 
 $$
-\left(1-\frac{1}{n}\right)^n.
+\left(1-\frac{1}{n}\right)^n
 $$
 
 As $n$ grows, this approaches $e^{-1}\approx .368$. Therefore, a typical bootstrap sample contains about $1-.368=.632$, or 63.2%, of the original cases at least once. The remaining positions are duplicates. Nothing is missing from R; repetition is the entire point.
@@ -235,13 +235,13 @@ SE_{boot}=\sqrt{
 \frac{1}{B-1}
 \sum_{b=1}^{B}
 (\widehat\theta_b^*-\overline\theta^*)^2
-}.
+}
 $$
 
 The bootstrap estimate of bias is
 
 $$
-\widehat{Bias}_{boot}=\overline\theta^*-\widehat\theta.
+\widehat{Bias}_{boot}=\overline\theta^*-\widehat\theta
 $$
 
 ```{r bootstrap-summary}
@@ -264,7 +264,7 @@ There is no single thing called *the bootstrap confidence interval*. Several met
 The normal interval uses the bootstrap standard error in a familiar symmetric interval:
 
 $$
-\widehat\theta\pm z_{1-\alpha/2}SE_{boot}.
+\widehat\theta\pm z_{1-\alpha/2}SE_{boot}
 $$
 
 It is simple, but symmetry may be a bad approximation when the bootstrap distribution is skewed.
@@ -274,7 +274,7 @@ It is simple, but symmetry may be a bad approximation when the bootstrap distrib
 The percentile interval uses the bootstrap quantiles directly:
 
 $$
-[q^*_{\alpha/2},q^*_{1-\alpha/2}].
+[q^*_{\alpha/2},q^*_{1-\alpha/2}]
 $$
 
 For a 95% interval, take the 2.5th and 97.5th percentiles. This is intuitive, but intuition and good coverage are not always roommates.
@@ -285,7 +285,7 @@ The basic interval reflects the bootstrap errors around the original estimate:
 
 $$
 [2\widehat\theta-q^*_{.975},
-  2\widehat\theta-q^*_{.025}].
+  2\widehat\theta-q^*_{.025}]
 $$
 
 If the bootstrap estimates tend to fall above the observed estimate, the basic interval reflects that pattern below it.
@@ -295,7 +295,7 @@ If the bootstrap estimates tend to fall above the observed estimate, the basic i
 The studentized method bootstraps a standardized pivot:
 
 $$
-t_b^*=\frac{\widehat\theta_b^*-\widehat\theta}{SE_b^*}.
+t_b^*=\frac{\widehat\theta_b^*-\widehat\theta}{SE_b^*}
 $$
 
 It then uses quantiles of the $t_b^*$ distribution to construct the interval. This can achieve better coverage, but every bootstrap sample needs its own standard-error estimate. That may require a second bootstrap inside the first bootstrap, because apparently the Probability Gods enjoy nesting dolls.
@@ -376,7 +376,7 @@ Resample complete rows $(Y_i,X_i)$. This preserves the relationship among all va
 Fit the model, hold $X$ fixed, resample centered residuals, and create
 
 $$
-Y_i^*=\widehat Y_i+e_i^*.
+Y_i^*=\widehat Y_i+e_i^*
 $$
 
 This treats the design matrix as fixed and assumes the residuals are exchangeable. Ordinary residual resampling is therefore questionable under heteroscedasticity because small-variance and large-variance residuals are thrown into one communal bucket.
@@ -399,7 +399,7 @@ sd(ResidualSlopes)
 A wild bootstrap keeps each residual attached to its predictor location but multiplies it by a random weight with mean zero and variance one:
 
 $$
-Y_i^*=\widehat Y_i+e_iw_i.
+Y_i^*=\widehat Y_i+e_iw_i
 $$
 
 This preserves the way residual size changes across $X$ better than shuffling residuals. Wild-bootstrap ideas grew from work on resampling regression under heteroscedasticity [@wu1986].
@@ -444,7 +444,7 @@ So the flavor is not a stylistic preference. Under heteroscedasticity, one of th
 A parametric bootstrap simulates new outcomes from the fitted probability model. For a Gaussian regression, we might simulate
 
 $$
-Y_i^*\sim N(\widehat Y_i,\widehat\sigma^2).
+Y_i^*\sim N(\widehat Y_i,\widehat\sigma^2)
 $$
 
 For logistic regression, we might simulate binary outcomes using each fitted probability. This method can be efficient when the model is correct. If the model is wrong, the simulation faithfully reenacts the wrong model thousands of times.
@@ -512,4 +512,4 @@ Efron called attention to both the power and the limits of the plug-in principle
 - **$B$ controls Monte Carlo error, not information.** More replications stabilize the calculation. They do not add participants, fix a biased sample, or repair a resampling plan that ignores the design.
 - **Estimation is not null-hypothesis testing.** A bootstrap distribution is centered on your estimate, not on the null. To test, first make the null true, then resample.
 
-And remember that computation is not forgiveness.
+

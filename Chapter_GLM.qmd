@@ -1,470 +1,422 @@
 ---
-title: "Advanced: Generalized Linear Models"
+title: "Generalized Linear Models"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 5,
+  fig.height = 3.75,
+  fig.align = "center"
+)
 ```
 
-## When Y Refuses to Be Normally Distributed
-
-Ordinary linear regression expects a continuous outcome whose conditional mean can be modeled on the original scale with approximately constant residual variance. Psychology routinely produces outcomes that reject this lifestyle:
-
-- Passed or failed treatment.
-- Chose the frightening image or the boring image.
-- Number of panic symptoms.
-- Proportion of trials answered correctly.
-
-A **generalized linear model** keeps the linear predictor but changes the outcome distribution and the function connecting that predictor to the outcome [@mccullagh1989].
-
-## The Three Pieces
-
-1. A response distribution from the exponential family.
-2. A linear predictor:
-
-$$
-\eta_i=\beta_0+\beta_1X_{1i}+\cdots+\beta_kX_{ki}.
-$$
-
-3. A link function:
-
-$$
-g(\mu_i)=\eta_i,
-$$
-
-where $\mu_i=E(Y_i\mid X_i)$.
-
-Common combinations include:
-
-| Outcome | Family | Common link | What the model predicts linearly |
-|---|---|---|---|
-| Continuous | Gaussian | Identity | Mean outcome |
-| Binary or successes out of trials | Binomial | Logit or probit | Log-odds or a latent normal score |
-| Count | Poisson | Log | Log expected count |
-| Overdispersed count | Negative binomial | Log | Log expected count |
-
-The **inverse link** translates $\eta$ back to the outcome scale. For the identity link, $\mu=\eta$. For the logit link, $p=1/(1+e^{-\eta})$. For the log link, $\mu=e^\eta$.
-
-::: {.callout-note title="The Model Is Linear on the Link Scale"}
-Logistic regression is linear in log-odds, not probability. Poisson regression is linear in log expected counts, not counts. The transformed scale is not software decoration; it determines coefficient interpretation.
+::: {.callout-warning title="Historical Lecture"}
+This chapter has not yet been adapted to match the format and style of the rest of the book. It is included in its original lecture structure for readers who need to use generalized linear models.
 :::
 
-## Why Ordinary Regression Misbehaves with a Binary Outcome
+## Generalized Linear Models (GLMs)
 
-We can technically hand a 0/1 outcome to `lm()`. R will not leap from the computer and stop us. That does not make the model appropriate.
+- **This is an entire area of regression, and we could spend a full semester on it. Today's goal is a crash course on the basics of the most common GLM: logistic regression.**
+- So far, you have been using a special case of the GLM in which we assume that the underlying distribution is Gaussian.
+- Now we will expand our approach to examine the larger family.
+- When you run a GLM, you need to state the family and link function you will use.
 
-Suppose we predict whether a student passes from sleep. An ordinary regression line can predict values below 0 and above 1. Its residual variance must also change with the fitted probability because for a Bernoulli outcome
+### Family and Link
 
-$$
-Var(Y\mid X)=p(1-p).
-$$
+- Linear regression assumes that the DV is Gaussian, with mean $\mu$, standard deviation $\sigma$, and a possible response range from $-\infty$ to $\infty$.
+- GLMs allow us to examine categorical and count responses that cannot satisfy the same requirements as linear regression.
+- Other distributions, such as the binomial and Poisson, require a different relationship between the mean and variance.
+- We use a link function to connect the mean of the DV to the linear predictor.
+- Here are common families used in psychology.
 
-The variance is largest near $p=.50$ and approaches zero near $p=0$ or $p=1$. Constant variance was never invited.
+Family    | Variance  | Link
+----------| -------- | -------
+Gaussian  | Gaussian | identity
+Binomial  | Binomial | logit/probit
+Poisson   | Poisson  | log
 
-```{r binary-ols-problem, fig.width=7, fig.height=4.5}
-set.seed(342)
-BinaryExample <- data.frame(Sleep = runif(160, 1, 11))
-BinaryExample$Pass <- rbinom(
-  nrow(BinaryExample),
-  1,
-  plogis(-4 + .75 * BinaryExample$Sleep)
-)
 
-WrongLinearModel <- lm(Pass ~ Sleep, data = BinaryExample)
-BinaryExample$WrongPrediction <- predict(WrongLinearModel)
+## Linear Regression on a Binomial DV
 
-plot(
-  BinaryExample$Sleep,
-  jitter(BinaryExample$Pass, amount = .035),
-  pch = 19, col = rgb(.2, .2, .2, .22),
-  xlab = "Hours of sleep", ylab = "Pass: 0 or 1",
-  main = "A straight line does not respect probability boundaries"
-)
-abline(WrongLinearModel, lwd = 3, col = "#D55E00")
-abline(h = c(0, 1), lty = 3)
+- Let's simulate what happens when we analyze a binomial DV as if it were a plain old regression.
+- My grandmother had a very hard time predicting gender in the 90s because clothing became big and baggy, men wore earrings and also started sporting long hair
+- Let's simulate her prediction process: gender (DV; 0 = male, 1 = female) based on the hair length (IV; -3 to 3) and bagginess of clothing (IV; -3 to 3) of the person she was looking at.
+- The goal is to predict gender, not the hair length of each gender, so *t*-tests are out. We can also add other predictors later.
+
+```{r}
+library(ggplot2)
+
+set.seed(42)
+n=30
+x = runif(n,-3,3) #  Hair length centered [-3 short, 3 = long]
+j = runif(n,-3,3) #  Baggy clothing centered [-3 not baggy, 3 = really baggy]
+z =  .8*x - .2*j         
+pr = 1/(1+exp(-z))  # pass through an inv-logit function
+y = rbinom(n,1,pr)  # response variable
+ 
+ #now feed it to glm:
+LogisticStudy1= data.frame(Gender=y,HairLength=x, baggy=j)
+
+ggplot(LogisticStudy1, aes(x=HairLength, y=Gender)) + geom_point() + 
+  stat_smooth(method="lm", formula=y~x, se=FALSE)+
+  theme_classic()
+ggplot(LogisticStudy1, aes(x=baggy, y=Gender)) + geom_point() + 
+  stat_smooth(method="lm", formula=y~x, se=FALSE)+
+  theme_classic()
+
 ```
 
-This is called the **linear probability model**. It can have specialized uses, but it is not the default solution for binary data. Logistic regression bends the fitted relationship so its predictions remain between 0 and 1 and uses a variance model appropriate for binary outcomes.
+\pagebreak
 
-## The Binomial Family
+```{r}
+LM.1 <- lm(Gender ~ HairLength + baggy, data = LogisticStudy1)
+summary(LM.1)
 
-For $K$ successes in $N$ independent trials with common success probability $p$,
-
-$$
-P(K=k)=\binom{N}{k}p^k(1-p)^{N-k}.
-$$
-
-A Bernoulli outcome is the special case $N=1$. Its expected value is $p$, and its variance is $p(1-p)$. For grouped data, the binomial model can analyze the number correct out of a known number of trials. Do not convert those counts to proportions and then forget that 8 out of 10 and 800 out of 1,000 contain radically different amounts of information.
-
-```{r binomial-shapes, fig.width=8, fig.height=4}
-old_par <- par(mfrow = c(1, 3), mar = c(4, 4, 3, 1))
-for (p in c(.15, .50, .85)) {
-  k <- 0:20
-  barplot(
-    dbinom(k, size = 20, prob = p),
-    names.arg = k,
-    border = NA, col = "#9ECAE1",
-    main = paste("p =", p),
-    xlab = "Successes out of 20", ylab = "Probability",
-    cex.names = .55
-  )
-}
-par(old_par)
 ```
+
+- The intercept reflects the predicted value of gender at the mean hair length and mean clothing bagginess.
+- The slope for hair says that as hair gets longer, the model predicts a greater probability of female.
+- The slope for bagginess says that as clothes get baggier, the model predicts a greater probability of male, but the slope is not significant.
+- How do the residuals look?
+
+```{r}
+plot(LM.1, which =1)
+```
+
+- That looks odd because the fitted values are continuous, but the response is binomial.
+- Let's see how well we predicted the result for each individual.
+
+
+```{r}
+LogisticStudy1$Predicted.Value<-predict(LM.1)
+summary(LogisticStudy1$Predicted.Value)
+```
+
+- Yikes. The model predicted values outside the possible range.
+- Let's say any prediction above .5 is female and anything at or below .5 is male.
+- Then we will examine a contingency table comparing predicted and observed results.
+
+
+```{r}
+LogisticStudy1$Predicted.Gender<-ifelse(LogisticStudy1$Predicted.Value > .5,1,0)
+C.Table<-with(LogisticStudy1,
+   table(Predicted.Gender, Gender))
+C.Table
+```
+
+- Correct predictions are 0-0 and 1-1; incorrect predictions are mismatches.
+
+```{r}
+PercentPredicted<-(C.Table[1,1]+C.Table[2,2])/sum(C.Table)*100
+PercentPredicted
+```
+
+- The model did a good job making predictions in this simple case, but the ordinary $R^2$ is not appropriate for a binary outcome.
+
+### Summary
+
+- Using linear regression on these data produced predictions outside the bounded range, a violation of homoscedasticity, and an $R^2$ that is not appropriate for this outcome.
+- Instead, let's try a GLM. First, we need to understand the binomial distribution and logit link function.
 
 ## Logistic Regression
 
-For a binary outcome $Y\in\{0,1\}$,
+- Logistic regression is the regression model we use here to analyze a binomial DV.
 
-$$
-Y_i\sim Bernoulli(p_i),
-$$
+### Binomial Distribution
 
-and the logit link is:
+- The binomial probability mass function can be expressed as follows:
 
-$$
-\log\left(\frac{p_i}{1-p_i}\right)
-=\beta_0+\beta_1X_i.
-$$
+$$p(n\mid N) = \binom{N}{n}p^n(1-p)^{N-n}$$
 
-Suppose we predict whether a student passes an exam from hours of sleep. No participants are chased with chainsaws because this outcome already contains enough anxiety.
+- Here, $n$ is the number of successes in $N$ trials at a specified probability $p$.
+- The distribution changes as a function of the underlying probability of obtaining a 0 or 1.
+- The plot below shows $N=10$ trials, with probability changing from 0 to 1 in increments of .25.
 
-```{r logistic-data}
-set.seed(343)
-n <- 300
-LogisticData <- data.frame(Sleep = runif(n, 2, 10))
-LogOdds <- -3.5 + .62 * LogisticData$Sleep
-LogisticData$Pass <- rbinom(n, size = 1, prob = plogis(LogOdds))
+```{r, fig.width=7.5, fig.height=3.0}
 
-LogisticModel <- glm(Pass ~ Sleep, data = LogisticData, family = binomial())
-summary(LogisticModel)
-```
-
-### Log-Odds, Odds Ratios, and Probabilities
-
-The slope is the change in log-odds for a one-unit increase in $X$. Exponentiating gives an odds ratio:
-
-$$
-OR=e^{\beta_1}.
-$$
-
-```{r odds-ratio}
-exp(coef(LogisticModel))
-```
-
-An odds ratio of 1 means no change in odds. Values above 1 indicate increasing odds; values below 1 indicate decreasing odds.
-
-Odds are not probabilities:
-
-$$
-Odds=\frac{p}{1-p},
-\qquad
-p=\frac{Odds}{1+Odds}.
-$$
-
-::: {.callout-warning title="An Odds Ratio Is Not a Probability Ratio"}
-An odds ratio of 2 does not generally mean the outcome became twice as probable. The difference is small for rare outcomes and can become substantial for common outcomes. Report predicted probabilities when readers live on the probability scale, which is nearly everyone.
-:::
-
-### Work Through One Prediction
-
-Suppose the fitted equation is
-
-$$
-\widehat\eta=-3.5+.62(Sleep).
-$$
-
-For a student who slept 6 hours:
-
-$$
-\begin{aligned}
-\widehat\eta &=-3.5+.62(6)=.22,\\
-\widehat{Odds} &=e^{.22}=1.25,\\
-\widehat p &=\frac{1.25}{1+1.25}=.56.
-\end{aligned}
-$$
-
-The coefficient $e^{.62}=1.86$ is a **multiplicative change in odds** for one extra hour of sleep. It is not the probability of passing, and converting the slope alone with `plogis(.62)` does not create a meaningful probability change. A probability requires the entire linear predictor: the intercept plus values for every predictor.
-
-```{r logistic-prediction-table}
-PredictionExamples <- data.frame(Sleep = c(3, 5, 7, 9))
-PredictionExamples$LogOdds <- predict(
-  LogisticModel,
-  newdata = PredictionExamples,
-  type = "link"
-)
-PredictionExamples$Odds <- exp(PredictionExamples$LogOdds)
-PredictionExamples$Probability <- predict(
-  LogisticModel,
-  newdata = PredictionExamples,
-  type = "response"
-)
-knitr::kable(PredictionExamples, digits = 3)
-```
-
-::: {.callout-note title="Probability Changes Are Not Constant"}
-The same one-unit increase in $X$ produces a constant change in log-odds and a constant odds ratio. It does **not** produce a constant change in probability. Probability changes most steeply near .50 and barely moves near 0 or 1. Show predicted probabilities at meaningful predictor values.
-:::
-
-```{r probability-plot, fig.width=7, fig.height=4.5}
-SleepGrid <- data.frame(Sleep = seq(2, 10, length.out = 150))
-SleepGrid$Probability <- predict(LogisticModel, newdata = SleepGrid, type = "response")
-
-plot(
-  jitter(LogisticData$Sleep), jitter(LogisticData$Pass, amount = .04),
-  pch = 19, col = rgb(0.2, 0.2, 0.2, .18),
-  xlab = "Hours of sleep", ylab = "Probability of passing",
-  main = "Logistic regression bends to stay between zero and one"
-)
-lines(SleepGrid$Sleep, SleepGrid$Probability, lwd = 3, col = "#0072B2")
-```
-
-## Testing Model Improvement
-
-Generalized models use likelihood rather than ordinary least squares. For nested models,
-
-$$
-LR=2(\ell_{Full}-\ell_{Reduced}),
-$$
-
-which is commonly compared with a chi-square distribution.
-
-```{r logistic-lrt}
-NullLogistic <- glm(Pass ~ 1, data = LogisticData, family = binomial())
-anova(NullLogistic, LogisticModel, test = "Chisq")
-```
-
-There is no single GLM $R^2$ identical to ordinary regression $R^2$. Pseudo-$R^2$ measures answer different questions and must be named rather than reported as if one number inherited the family business.
-
-### Likelihood and Maximum Likelihood
-
-For the binary model, each observed outcome contributes
-
-$$
-L_i=p_i^{Y_i}(1-p_i)^{1-Y_i}.
-$$
-
-The likelihood of the full dataset is
-
-$$
-L(\boldsymbol\beta)=\prod_{i=1}^{n}
-p_i^{Y_i}(1-p_i)^{1-Y_i}.
-$$
-
-Maximum likelihood chooses the coefficients that make the observed outcomes most likely under the model. Products of many probabilities become microscopic, so software works with the log-likelihood:
-
-$$
-\ell(\boldsymbol\beta)=\sum_{i=1}^{n}
-\left[Y_i\log(p_i)+(1-Y_i)\log(1-p_i)\right].
-$$
-
-Unlike ordinary least squares, logistic coefficients are generally obtained by numerical iteration. R proposes coefficients, checks the likelihood, adjusts them, and repeats until further adjustments accomplish almost nothing. This is optimization, not the computer "trying every answer."
-
-### Wald Tests and Likelihood-Ratio Tests
-
-The coefficient table reports a Wald statistic:
-
-$$
-z=\frac{\widehat\beta_j}{SE(\widehat\beta_j)}.
-$$
-
-Squaring the statistic gives a one-degree-of-freedom Wald chi-square. Wald tests are convenient, but they can behave poorly with small samples, sparse outcomes, large coefficients, or estimates near a boundary. A likelihood-ratio test compares a reduced model with a fuller nested model and is often preferable for testing a block of predictors.
-
-```{r block-likelihood-ratio-test}
-SleepPlusCurve <- glm(
-  Pass ~ Sleep + I(Sleep^2),
-  data = LogisticData,
-  family = binomial()
-)
-
-anova(LogisticModel, SleepPlusCurve, test = "Chisq")
-```
-
-The comparison tests whether adding the curved term improves fit. Order does not matter when we explicitly compare two named nested models. It can matter in a sequential one-model ANOVA table, so state which models answer your theoretical question.
-
-### Pseudo-$R^2$ Is a Family of Distant Cousins
-
-Several measures borrow the name $R^2$, but none is the ordinary proportion of outcome variance explained.
-
-McFadden's measure is
-
-$$
-R^2_{McFadden}=1-
-\frac{\ell_{Full}}{\ell_{Null}}.
-$$
-
-Cox-Snell and Nagelkerke measures use other transformations of likelihood improvement. Nagelkerke rescales Cox-Snell so its theoretical maximum is 1. These values often differ substantially for the same model. Name the measure, do not interpret it using Cohen's ordinary-$R^2$ benchmarks, and accompany it with likelihood comparisons, predicted probabilities, or prediction measures that answer a clearer question.
-
-```{r mcfadden-r2}
-McFaddenR2 <- 1 -
-  as.numeric(logLik(LogisticModel)) / as.numeric(logLik(NullLogistic))
-McFaddenR2
-```
-
-## Count Outcomes
-
-For counts, a Poisson model uses:
-
-$$
-Y_i\sim Poisson(\mu_i),
-\qquad
-\log(\mu_i)=\eta_i.
-$$
-
-The Poisson distribution assumes $Var(Y_i)=E(Y_i)$. Psychological counts are often **overdispersed**, meaning variance exceeds the mean. Negative-binomial models add a dispersion parameter and are often more realistic.
-
-```{r count-preview}
-set.seed(344)
-CountData <- data.frame(Stress = runif(250, 0, 10))
-CountData$Complaints <- rpois(250, lambda = exp(.2 + .15 * CountData$Stress))
-PoissonModel <- glm(Complaints ~ Stress, data = CountData, family = poisson())
-summary(PoissonModel)
-```
-
-Exponentiated Poisson coefficients are multiplicative changes in the expected count. If $e^{\beta_1}=1.20$, a one-unit increase in $X$ multiplies the expected count by 1.20, or increases it by about 20%, holding other predictors constant.
-
-For $Y\sim Poisson(\mu)$,
-
-$$
-P(Y=y)=\frac{e^{-\mu}\mu^y}{y!}.
-$$
-
-Counts must be nonnegative integers, although the Poisson distribution is not appropriate for every nonnegative variable. Reaction time is positive but continuous; treating milliseconds as 834 events would cause the Distribution Gods to file a complaint.
-
-```{r count-rate-ratio}
-exp(coef(PoissonModel))
-```
-
-## Diagnostics Change with the Distribution
-
-Binary and count residuals do not behave like Gaussian residuals. Check:
-
-- Separation in logistic regression.
-- Overdispersion in count models.
-- Excess zeros.
-- Nonlinearity on the link scale.
-- Influential cases.
-- Calibration and predictive performance.
-
-::: {.callout-important title="Choose the Family from the Outcome, Not the P-Value"}
-Do not try several distributions and keep whichever one produces the friendliest asterisk. Use the outcome's support, generating process, diagnostics, and scientific meaning to choose a model.
-:::
-
-### Separation
-
-**Complete separation** occurs when a predictor or combination of predictors perfectly divides all 0 outcomes from all 1 outcomes. The likelihood keeps improving as a coefficient runs toward positive or negative infinity, so estimates and standard errors can become enormous. More data, penalized estimation, or a better-specified model may be needed. Deleting the warning and reporting the gigantic odds ratio is not a method.
-
-### Calibration and Discrimination
-
-**Discrimination** asks whether the model assigns higher probabilities to cases that experience the outcome. The area under a receiver-operating-characteristic curve summarizes discrimination across thresholds.
-
-**Calibration** asks whether predicted probabilities match observed rates. If cases assigned probabilities near .70 experience the outcome only 40% of the time, the model may rank people correctly while being badly calibrated.
-
-Accuracy at a cutoff such as .50 can be misleading. If only 5% of people experience the outcome, predicting "no" for everyone is 95% accurate and scientifically useless.
-
-```{r classification-table}
-LogisticData$PredictedProbability <- predict(LogisticModel, type = "response")
-LogisticData$PredictedClass <- as.integer(LogisticData$PredictedProbability >= .50)
-
-Confusion <- table(
-  Predicted = LogisticData$PredictedClass,
-  Observed = LogisticData$Pass
-)
-
-Sensitivity <- Confusion["1", "1"] / sum(Confusion[, "1"])
-Specificity <- Confusion["0", "0"] / sum(Confusion[, "0"])
-Accuracy <- sum(diag(Confusion)) / sum(Confusion)
-
-Confusion
-c(Sensitivity = Sensitivity, Specificity = Specificity, Accuracy = Accuracy)
-```
-
-::: {.callout-warning title="A Cutoff Creates Consequences"}
-Changing the classification cutoff trades false positives against false negatives. The correct tradeoff depends on the consequences. Missing a dangerous condition and sending one extra student a reminder email do not have the same cost. Do not let `.50` make the ethical decision merely because it was already sitting in the code.
-:::
-
-## Interactions in Logistic Regression
-
-The product-term logic remains the same on the link scale:
-
-$$
-\log\left(\frac{p}{1-p}\right)=
-\beta_0+\beta_1X+\beta_2Z+\beta_3XZ.
-$$
-
-However, a constant interaction on the log-odds scale does not translate into a constant difference of differences in probability. Interpret the coefficient on its model scale, then plot or calculate predicted probabilities.
-
-```{r logistic-interaction, fig.width=7, fig.height=4.5}
-set.seed(350)
-LogitInteractionData <- data.frame(
-  Sleep = runif(500, 3, 9),
-  Deadline = factor(sample(c("Next week", "Tomorrow"), 500, replace = TRUE))
-)
-Tomorrow <- as.numeric(LogitInteractionData$Deadline == "Tomorrow")
-Eta <- -4 + .65 * LogitInteractionData$Sleep - 1.5 * Tomorrow +
-  .28 * LogitInteractionData$Sleep * Tomorrow
-LogitInteractionData$Pass <- rbinom(500, 1, plogis(Eta))
-
-LogitInteractionModel <- glm(
-  Pass ~ Sleep * Deadline,
-  data = LogitInteractionData,
-  family = binomial()
-)
-
-Grid <- expand.grid(
-  Sleep = seq(3, 9, length.out = 100),
-  Deadline = levels(LogitInteractionData$Deadline)
-)
-Grid$Probability <- predict(
-  LogitInteractionModel,
-  newdata = Grid,
-  type = "response"
-)
-
-plot(
-  NA, xlim = c(3, 9), ylim = c(0, 1),
-  xlab = "Hours of sleep", ylab = "Predicted probability of passing",
-  main = "Interpret logistic interactions on the probability scale"
-)
-InteractionColors <- c("#0072B2", "#D55E00")
-for (j in seq_along(levels(Grid$Deadline))) {
-  Current <- Grid$Deadline == levels(Grid$Deadline)[j]
-  lines(Grid$Sleep[Current], Grid$Probability[Current],
-        lwd = 3, col = InteractionColors[j])
+par(mfrow=c(1, 5))
+for(p in seq(0, 1, len=5))
+{
+    x <- dbinom(0:10, size=10, p=p)
+    barplot(x, names.arg=0:10, space=0)
 }
-legend("bottomright", levels(Grid$Deadline), col = InteractionColors, lwd = 3, bty = "n")
+
 ```
 
-## The Bridge to Generalized Mixed Models
+- As the number of trials increases, the distribution looks more normal except near the boundaries. Here are 100 trials.
 
-When binary or count observations are repeated or clustered, we add random effects:
+```{r, fig.width=7.5, fig.height=3.0}
+par(mfrow=c(1, 5))
+for(p in seq(0, 1, len=5))
+{
+    x <- dbinom(0:100, size=100, p=p)
+    barplot(x, names.arg=0:100, space=0)
+}
+```
 
-$$
-g(E[Y\mid b])=X\beta+Zb.
-$$
+### Logit Link Function
 
-That is a generalized linear mixed model. The graduate mixed-model section uses `glmmTMB` so the same framework can handle Gaussian, binomial, Poisson, negative-binomial, and zero-inflated outcomes.
+- We can bound our results by making the best-fitting curve asymptotic to the response boundaries.
+- To make this work, we need to switch from a straight line to a sigmoid curve.
+- The linear predictor can range from $-\infty$ to $\infty$, so we transform the probability with the logit link.
 
-## Deviance and Model Comparison
+$$\operatorname{logit}(p) = \log\left(\frac{p}{1-p}\right)$$
 
-GLMs are commonly fit by maximum likelihood. **Deviance** measures discrepancy between the fitted model and a saturated model that reproduces the observed data as closely as possible:
+- I will use $\log$ for the natural logarithm to be consistent with R. Some texts write the natural logarithm as $\ln$.
 
-$$
-D=2\left[\ell(\text{saturated})-\ell(\text{fitted})\right].
-$$
+```{r, fig.width=3.5, fig.height=3.0}
+logit.Transform<-function(p) {log(p/(1-p)) }
 
-For nested models, the difference in deviance is a likelihood-ratio statistic under regularity conditions. This lets us ask whether a block of predictors improves fit without pretending every coefficient must be judged separately by a Wald z-test.
+plot(logit.Transform(seq(0,1,.0001)),seq(0,1,.0001),
+     main="Logit Transform",ylim = c(0,1),
+  xlab="Logit",ylab="Probability")
 
-## Overdispersion and Count Outcomes
+```
 
-A Poisson model assumes
 
-$$
-E(Y\mid X)=Var(Y\mid X)=\mu.
-$$
+### Fit the Logistic Regression
 
-Psychological counts often have variance much larger than the mean because people differ in unmodeled ways or because zeros breed in dark corners of the dataset. This is **overdispersion**. It can make Poisson standard errors too small. A negative-binomial model adds a dispersion parameter; a zero-inflated model represents an additional process generating excess zeros. Do not choose among them solely by whichever one produces the most attractive *p*-value.
+- $\operatorname{logit}(Gender) = B_1(HairLength) + B_2(baggy) + B_0$
+- We can accomplish this by changing the function in R from `lm()` to `glm()` and specifying the family as `binomial(link = "logit")`.
+- First, let's fit the model and then make sense of the parameters.
 
-## The Short Story
+```{r}
+LR.1 <- glm(
+  Gender ~ HairLength + baggy,
+  data = LogisticStudy1,
+  family = binomial(link = "logit")
+)
+summary(LR.1)
 
-GLMs combine a distribution, a linear predictor, and a link function. Logistic coefficients live in log-odds; count-model coefficients often live on a log scale. Translate results back into probabilities or expected counts before asking ordinary humans to interpret them.
+```
+
+
+```{r, fig.width=3.5, fig.height=3.0}
+library(ggplot2)
+ggplot(LogisticStudy1, aes(x=HairLength, y=Gender)) + geom_point() + 
+  stat_smooth(method="glm", method.args=list(family="binomial"), se=FALSE)+
+  theme_classic()
+
+ggplot(LogisticStudy1, aes(x=baggy, y=Gender)) + geom_point() + 
+  stat_smooth(method="glm", method.args=list(family="binomial"), se=FALSE)+
+  theme_classic()
+
+```
+
+### Plot in Probabilities
+
+- The y-axis shows the predicted probability of gender as a function of hair length.
+
+```{r, fig.width=5.5, fig.height=3.0}
+library(effects)
+PredictedData<-allEffects(LR.1)
+plot(PredictedData)
+```
+
+- How did we get the probability from the logit?
+
+### Interpret Coefficients
+
+- Raw coefficients are in log-odds, which are difficult to interpret directly.
+- We can transform them into odds or predicted probabilities.
+- The odds of success are the ratio of the probability of success to the probability of failure.
+- A 50% probability corresponds to odds of 1 to 1.
+ $$Odds = e^{logit(x)}$$ 
+
+```{r, fig.width=3.5, fig.height=3.0}
+L.to.O.Transform<-function(p) {exp(logit.Transform(p))}
+
+plot((logit.Transform(seq(0,.99,.01))),L.to.O.Transform(seq(0,.99,.01)),
+     main="Logit to Odds Transform",
+  xlab="Logit",ylab="Odds")
+
+```
+
+- Here are our regression estimates expressed as odds ratios.
+
+```{r, fig.width=3.5, fig.height=3.0}
+LR.1.Odds.Ratios <- exp(coef(LR.1))
+LR.1.Odds.Ratios
+```
+
+
+- Physicians often discuss odds, but psychologists usually prefer probabilities.
+$$P = \frac{Odds} {1 + Odds}$$
+
+```{r, fig.width=3.5, fig.height=3.0}
+O.to.P.Transform <- function(odds) odds / (1 + odds)
+odds <- seq(0, 20, .1)
+
+plot(odds, O.to.P.Transform(odds),
+     main="Odds to Probability Transform",
+  xlab="Odds",ylab="Probability")
+
+```
+
+- We can convert the complete regression equation to obtain predicted probabilities directly.
+
+$$p_{(Gender)} =\frac{e^{(B_1(HairLength)+B_2(baggy) + B_0})}{1+e^{(B_1(HairLength)+B_2(baggy) + B_0})}$$
+
+- Or, more simply:
+
+$$p_{(Gender)} =\frac{1}{1+e^{-(B_1(HairLength)+B_2(baggy) + B_0})}$$
+
+
+
+```{r, fig.width=3.5, fig.height=3.0}
+prediction_grid <- data.frame(
+  HairLength = c(-2, 0, 2),
+  baggy = 0
+)
+prediction_grid$Predicted.Probability <- predict(
+  LR.1,
+  newdata = prediction_grid,
+  type = "response"
+)
+prediction_grid
+```
+
+- Report the coefficients from the logistic regression, and translate important results into odds ratios or predicted probabilities.
+- A coefficient cannot be converted into a probability by itself because the probability depends on the complete linear predictor, including the intercept and values of the other predictors.
+- As in linear regression, add the relevant predictor terms first and then apply the inverse-logit transformation shown above.
+
+### Wait: What About My R-Squared?
+
+- Ordinary least-squares $R^2$ does not carry over unchanged to these models.
+- A binary outcome's conditional variance depends on its mean, so homoscedasticity does not apply in the same way.
+- Researchers have developed several pseudo-$R^2$ measures to describe fit or improvement over a null model.
+- Common versions include Cox and Snell, Nagelkerke, McFadden, and Efron.
+- An accessible description of these measures is available from [UCLA Statistical Consulting](https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-what-are-pseudo-r-squareds/).
+- Because many of these measures compare a fitted model with a restricted or null model, we first need to examine model fitting for GLMs.
+
+#### Deviance Testing
+
+- Ordinary least squares provides the fitting criterion for linear regression. GLMs commonly use maximum likelihood instead.
+- In OLS regression, we used this decomposition: $$SS_{Resid} = SS_Y - SS_{Regression}$$
+- In other words, residual = observed value - fitted value.
+- For most GLMs, the fitting algorithm iterates until it finds the parameter values that maximize the likelihood.
+- The null model contains only an intercept. A more complex model contains the intercept plus predictors.
+
+$$\text{Likelihood ratio} = \frac{L_{Simple}}{L_{Complex}}$$
+
+- The likelihood-ratio statistic is:
+
+$$G^2 = -2\log\left(\frac{L_{Simple}}{L_{Complex}}\right) = 2(LL_{Complex}-LL_{Simple})$$
+
+First, I will show you pseudo-$R^2$. Then we will examine how to test differences in model fit.
+
+- Null deviance:
+
+$$D_{Null} = -2[\log(L_{Null}) - \log(L_{Saturated})]$$
+
+- Model deviance:
+
+$$D_{K} = -2[\log(L_{K}) - \log(L_{Saturated})]$$
+
+- This plays a role similar to residual sums of squares in OLS.
+
+#### Pseudo-R-Squared
+
+- We need deviance scores for some pseudo-$R^2$ measures. For example:
+$$R_L^2 = \frac{D_{Null} -D_{k}}{D_{Null}}$$
+- SPSS reports Cox and Snell, so people use it often.
+- Nagelkerke rescales Cox and Snell so that its maximum can reach 1.
+- McFadden's version is also common.
+$$R_{McFadden}^2 = 1 - \frac{LL_{k}}{LL_{Null}}$$
+ 
+- We can obtain several measures from the `pscl` package.
+- `llh` is the log-likelihood from the fitted model.
+- `llhNull` is the log-likelihood from the intercept-only restricted model.
+- $G^2 = 2(LL_{K} - LL_{NULL})$ is the likelihood-ratio statistic comparing the fitted and null models.
+- McFadden = McFadden pseudo-$R^2$
+- r2ML = Cox & Snell pseudo-$R^2$
+- r2CU = Nagelkerke pseudo-$R^2$
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+library(pscl)
+pR2(LR.1)
+```
+ 
+#### Wait, Why Do I See *z* and Not *t*-Values?
+
+- Tests of individual predictors use Wald *z*-statistics rather than *t*-tests.
+- The Wald *z*-statistic for a coefficient is:
+
+$$z = \frac{B_j}{SE_{B_j}}$$
+
+- Squaring this statistic gives a one-degree-of-freedom Wald chi-square statistic:
+
+$$\chi^2_{Wald} = \left(\frac{B_j}{SE_{B_j}}\right)^2$$
+
+- You can also request sequential likelihood-ratio tests. The order of predictors matters for this table.
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+anova(LR.1, test="Chisq")
+```
+ 
+### Hierarchical Testing
+
+- Sequential testing can be difficult if you have many predictors.
+- Instead of testing a change in ordinary $R^2$, we compare the deviance of nested models.
+- A likelihood-ratio test compares the models using a chi-square reference distribution.
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+LR.Model.1<-glm(Gender~baggy,data=LogisticStudy1, family=binomial(link = "logit"))
+LR.Model.2<-glm(Gender~baggy+HairLength,data=LogisticStudy1, family=binomial(link = "logit"))
+anova(LR.Model.1,LR.Model.2,test = "Chisq")
+```
+
+- Here, Model 2 has lower residual deviance and fits better, so hair length improved prediction.
+
+### How Well Am I Predicting?
+- Model 1
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+fitted.results <- predict(LR.Model.1,newdata=LogisticStudy1,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != LogisticStudy1$Gender)
+print(paste('Accuracy = ',round(1-misClasificError,3)))
+```
+- Model 2
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+fitted.results <- predict(LR.Model.2,newdata=LogisticStudy1,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != LogisticStudy1$Gender)
+print(paste('Accuracy = ',round(1-misClasificError,3)))
+```
+
+- This is not the only way to examine accuracy.
+- We have correct responses, misses, and false alarms. Remember our Type I and Type II error boxes.
+- To visualize this relationship, we will examine a receiver operating characteristic (ROC) curve.
+- We will calculate the area under the curve as a measure of discrimination. Values closer to 1 indicate better discrimination, whereas .5 indicates chance-level discrimination.
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+library(ROCR)
+fitted.results <- predict(LR.Model.2,newdata=LogisticStudy1,type='response')
+pr <- prediction(fitted.results, LogisticStudy1$Gender)
+
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+print(paste('Area under the Curve = ',round(auc,3)))
+
+```
+
+
+### Some New Things to Keep in Mind
+
+- Should I use a logistic model? Is a sigmoid the right shape for the relationship?
+- The Hosmer-Lemeshow test compares observed event proportions with predicted probabilities across subgroups using a chi-square statistic.
+- Historically, a nonsignificant result was treated as evidence of adequate fit. Do not rely on this test alone; also inspect calibration, discrimination, and model specification.
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE}
+library(MKmisc)
+HLgof.test(fit = fitted(LR.Model.2), obs = LogisticStudy1$Gender)
+```
+

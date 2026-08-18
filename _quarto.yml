@@ -43,14 +43,20 @@ book:
         - Chapter_Advanced_Regression_Diagnostics.qmd
         - Chapter_Multiple_Comparisons.qmd
         - Chapter_Advanced_Interactions.qmd
-        #- Chapter_Advanced_Contrasts_ANOVA.qmd
-       # - Chapter_Missing_Data.qmd
-      #  - Chapter_GLM.qmd
-      #  - Chapter_Mediation.qmd
-      #  - Chapter_Moderated_Mediation.qmd
-  #  - part: "ANOVA is dead, Long Live ANOVA"
-  #    chapters:
-  
+        - Chapter_GLM.qmd
+        - Chapter_Mediation.qmd
+        - Chapter_Moderated_Mediation.qmd
+    - part: "ANOVA is dead, Long Live ANOVA"
+      chapters:
+        - Chapter_ANOVA_Introduction.qmd
+        - Chapter_One_Way_ANOVA.qmd
+        - Chapter_One_Way_ANOVA_Follow_Ups.qmd
+        - Chapter_Two_Way_Between_Subjects_ANOVA.qmd
+        - Chapter_Two_Way_Between_Subjects_ANOVA_Follow_Ups.qmd
+        - Chapter_One_Way_Within_Subjects_ANOVA.qmd
+        - Chapter_Two_Way_Within_Subjects_ANOVA.qmd
+        - Chapter_Two_Way_Within_Subjects_ANOVA_Follow_Ups.qmd
+        - Chapter_Mixed_ANOVA.qmd
   #  - part: "Mixed Models: An Ultra Quick Tour of the Basics"
   #    chapters:
   #      - Chapter_Mixed_Foundations.qmd
@@ -63,9 +69,7 @@ book:
         - Chapter_Nonparametric_Tests.qmd
         - Chapter_Bootstrapping.qmd
      #  - Chapter_EFA.qmd
-    # Renamed from "When R Inevitably Betrays You" (CH25-B01): that title promised
-    # troubleshooting and the part contains a reporting guide and a tidyverse review.
-    - part: "The Paperwork"
+    - part: "When R Inevitably Betrays You"
       chapters:
         - Chapter_Reporting.qmd
         - Chapter_Tidyverse_Review.qmd
