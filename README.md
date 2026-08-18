@@ -8,6 +8,10 @@ This repository contains the source files for Alexander P. Demos's introductory 
 
 [Download *Psychological Statistics: Stats for Kids Who Don't Read Good* (PDF)](output/pdf/Psychological_Statistics_with_R.pdf)
 
+## Chapter Source Files
+
+Students may [browse and download the active Quarto chapter files](CHAPTER_SOURCES.md), or [download the complete repository](https://github.com/apd217/Textbook/archive/refs/heads/main.zip) to get the chapters together with their supporting data and images.
+
 ## License
 
 Except where otherwise noted, the original text, figures, data, and example code in this repository are licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).
