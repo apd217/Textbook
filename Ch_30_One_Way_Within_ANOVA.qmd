@@ -127,11 +127,17 @@ knitr::kable(Vars)
 The variances are not very homogeneous, but we have an $N$ of only 5.
 
 ### Conduct a Paired *t*-Test in R
-We use the `t.test()` function with the argument `paired = TRUE`. Make sure the data are sorted by ID when you read them into R. The $df$ equals the number of participants minus 1.
+We use the `t.test()` function with the argument `paired = TRUE`. First, we reshape the data so that each row contains one participant's scores in both conditions. This makes the pairing explicit. The $df$ equals the number of participants minus 1.
 
 ```{r}
-T1<-t.test(Fixation~Chocolate, paired=TRUE,
-           data = DataSim1)
+DataSim1_Wide <- DataSim1 %>%
+  dplyr::select(SS, Chocolate, Fixation) %>%
+  pivot_wider(names_from = Chocolate, values_from = Fixation)
+
+T1 <- with(
+  DataSim1_Wide,
+  t.test(`Fun Size Snickers`, `No Snickers`, paired = TRUE)
+)
 T1
 ```
 
