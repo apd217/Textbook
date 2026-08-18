@@ -14,6 +14,27 @@ execute:
   freeze: auto
 
 book:
+  title: "Psychological Statistics"
+  subtitle: "Stats for Kids Who Don't Read Good"
+  author: "Alexander P. Demos, PhD"
+  description: "An accessible, example-driven introduction to psychological statistics and R."
+  site-url: https://apd217.github.io/Textbook/
+  repo-url: https://github.com/apd217/Textbook
+  repo-branch: main
+  repo-actions: [source, issue]
+  search:
+    location: sidebar
+    type: textbox
+  reader-mode: true
+  page-navigation: true
+  downloads: [pdf]
+  sidebar:
+    style: docked
+    background: light
+    collapse-level: 1
+  page-footer:
+    left: "© 2026 Alexander P. Demos. Licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)."
+    right: "Built with [Quarto](https://quarto.org/)."
   output-file: Psychological_Statistics_with_R
   chapters:
     - index.qmd
@@ -103,6 +124,8 @@ format:
     fig-pos: 'H'
     include-in-header:
       text: |
+        % The HTML book uses book-level title metadata; keep the custom PDF cover as the only title page.
+        \renewcommand{\maketitle}{}
         \usepackage{microtype}
         \usepackage{setspace}
         \usepackage{xcolor}
