@@ -63,7 +63,7 @@ knitr::kable(Descriptives, digits = 2, caption = "Descriptive statistics")
 
 ## Extract Results from the Model Object
 
-Never type changing results manually into a table when R can extract them. Manual transcription creates opportunities to report the coefficient from Model 4, the p-value from Model 6, and the confidence interval from a model no one remembers fitting.
+Never type changing results manually into a table when R can extract them. Manual transcription creates opportunities to report the coefficient from Model 4, the *p*-value from Model 6, and the confidence interval from a model no one remembers fitting.
 
 ```{r reporting-table}
 CoefficientTable <- broom::tidy(ReportModel, conf.int = TRUE)
@@ -89,7 +89,7 @@ library(sjPlot)
 tab_model(ReportModel)
 ```
 
-It gives you estimates, confidence intervals, p-values, $R^2$, and $N$ without you typing a single number. Use it. Just remember that a beautiful table of a bad model is still a bad model: the checklist in the next section governs what belongs in the table, no matter who typeset it.
+It gives you estimates, confidence intervals, *p*-values, $R^2$, and $N$ without you typing a single number. Use it. Just remember that a beautiful table of a bad model is still a bad model: the checklist in the next section governs what belongs in the table, no matter who typeset it.
 
 ## What Belongs in a Regression Table?
 
@@ -98,7 +98,7 @@ At minimum:
 - Predictor names readers understand.
 - Unstandardized estimates.
 - Standard errors or confidence intervals.
-- Test statistics and p-values when required.
+- Test statistics and *p*-values when required.
 - Sample size.
 - Model $R^2$ and adjusted $R^2$ for ordinary regression.
 
@@ -218,7 +218,7 @@ Future You will not remember why `Model.Final.2.REAL.useThisOne` excludes partic
 
 - **Lead with the scientific result, not the software.** "Each additional hour of sleep predicted about 3.6 more memory points" is a finding. "The regression was significant" is a status update.
 - **Report the estimate, its uncertainty, an effect size or model fit, and the limits.** A coefficient with no interval is half a result.
-- **Generate every number from the fitted object.** Inline code and `broom::tidy()` cost less than one round of manual transcription, and they cannot report Model 4's coefficient beside Model 6's p-value.
+- **Generate every number from the fitted object.** Inline code and `broom::tidy()` cost less than one round of manual transcription, and they cannot report Model 4's coefficient beside Model 6's *p*-value.
 - **Say what the result does not support.** A coefficient compatible with zero gets described as compatible with zero.
 - **Follow the formatting rules above.** Italics, leading zeros, exact *p*, df in parentheses. They are free points.
 - **Leave a reproducible trail**, because Future You is an unreliable collaborator who will not remember why participant 88 is missing.

@@ -521,7 +521,7 @@ Five things worth noticing, because these are the five things students get wrong
 1. **`t = 2.4138` is the number you just computed by hand.** Scroll up. It matches. R did not do anything mysterious, it did the same division faster.
 2. **`df = 9`, not 10.** Degrees of freedom are $n - 1$. You have ten children and nine degrees of freedom, and this is the number you take to the t-table, not your sample size.
 3. **The `alternative hypothesis` line is R repeating your own instructions back to you.** It says "not equal to 50" because you typed `mu = 50` and `alternative = "two.sided"`. If that line does not describe the test you meant to run, you typed the wrong thing, and this is the line that tells you so. Read it every single time.
-4. **The confidence interval is around your sample mean, not around 50.** It runs from 50.19 to 55.91, and the interesting thing is what it does *not* contain: 50, our hypothesized value, sits just outside the bottom end. That is the same conclusion as the p-value, arriving by a different road.
+4. **The confidence interval is around your sample mean, not around 50.** It runs from 50.19 to 55.91, and the interesting thing is what it does *not* contain: 50, our hypothesized value, sits just outside the bottom end. That is the same conclusion as the *p*-value, arriving by a different road.
 5. **`sample estimates: mean of x` is just the mean of your data.** R labels it `x` because that is the argument name you filled in. It is not a new quantity, it is `mean(kids.1)`.
 
 What R does *not* give you: an effect size. There is no $d$ anywhere in that output. That absence is the whole reason for the next chapter.
@@ -539,14 +539,14 @@ Our $t_{critical}$ values for $df = `r df`$ would be:
 
 This *t*-test value is greater than our upper value. 
 
-Further from the R *t*-test function, we can see our exact p-value which is below $p < .05$.
+Further from the R *t*-test function, we can see our exact *p*-value which is below $p < .05$.
 
 ::: {.callout-important title="The p-Value, Actually Defined (That IOU from Chapter 1)"}
 Back in Chapter 1 I promised you a real definition of statistical significance once you had some probability theory. Here it is, at the first moment you actually need it.
 
-**The p-value is the probability of getting a test statistic at least this far from the null value, *if* the null hypothesis and the model's assumptions were true.**
+**The *p*-value is the probability of getting a test statistic at least this far from the null value, *if* the null hypothesis and the model's assumptions were true.**
 
-Look back at the shaded red tails in the figure above. Your observed $t$ lands somewhere on that curve, and the p-value is the area past it in both directions. Small p means your data sit far out in a region the null model rarely produces.
+Look back at the shaded red tails in the figure above. Your observed $t$ lands somewhere on that curve, and the *p*-value is the area past it in both directions. Small p means your data sit far out in a region the null model rarely produces.
 
 Note what the definition does not say. It is a statement about the data given an assumption, not a statement about the assumption given the data. It is not the probability that the null hypothesis is true, not the probability that you are wrong, and not the probability that the result will replicate.
 :::
@@ -567,8 +567,8 @@ There are two possible outcomes:
 
 **YES, our $t_{test}$ > $t_{critical}$, so we REJECT the null hypothesis.**
 
-- We report: $t_{test}$ = `r round(Kids.t.test$statistic, 3)`, $p =$ `r round(Kids.t.test$p.value, 3)` (since we know the exact p-value).
-- In modern APA format, it is recommended to report the exact p-value.
+- We report: $t_{test}$ = `r round(Kids.t.test$statistic, 3)`, $p =$ `r round(Kids.t.test$p.value, 3)` (since we know the exact *p*-value).
+- In modern APA format, it is recommended to report the exact *p*-value.
 
 ### One-sample *t*-test in APA format
 
@@ -582,7 +582,7 @@ Wait, what is the $d$ thing at the end? The problem with significance testing is
 ::: {.callout-note title="The d Is a Cliffhanger, and the Next Chapter Is the Payoff"}
 That $d$ is **Cohen's d**, an *effect size*. All you need for now is the one-sentence version: it reports how far apart things are in standard deviation units, so a $d$ of `r format(round((mean(kids.1) - 50) / sd(kids.1), 2), nsmall = 2)` means our cookie-fed children sit about that many standard deviations above the value we tested against.
 
-Report it beside your p-value, every time. A p-value tells the reader that *something* is there. Only the effect size tells them whether it is worth crossing the room for.
+Report it beside your *p*-value, every time. A *p*-value tells the reader that *something* is there. Only the effect size tells them whether it is worth crossing the room for.
 
 Where it comes from, why radar operators invented it, what counts as small or large, and what it costs you to detect one, all of that is the [next chapter](Chapter_Power_Effect_Size.qmd). It is the reason the next chapter exists.
 :::
@@ -597,7 +597,7 @@ Hypothesis testing is an inferential process because we do **not** know the actu
 
 ### Type I Error
 
-Type I Error, also called a "false alarm" or "alpha error" occurs when a researcher rejects a null hypothesis that is actually **true**. In other words, we reject the null even though the treatment does **nothing**. Before observing the data, the $\alpha$ level sets the long-run Type I error rate for the testing procedure when the null hypothesis and its assumptions hold. Choosing $\alpha=.05$ does not mean there is a 5% probability that this particular rejected null hypothesis is true. The p-value cannot read the hidden state of the universe.
+Type I Error, also called a "false alarm" or "alpha error" occurs when a researcher rejects a null hypothesis that is actually **true**. In other words, we reject the null even though the treatment does **nothing**. Before observing the data, the $\alpha$ level sets the long-run Type I error rate for the testing procedure when the null hypothesis and its assumptions hold. Choosing $\alpha=.05$ does not mean there is a 5% probability that this particular rejected null hypothesis is true. The *p*-value cannot read the hidden state of the universe.
 
 **Example:** Testing zinc or ColdEase on colds using self-report as a measure of improvement. Colds get better on their own, and people who paid for zinc lozenges want to believe they helped. So the study can happily "detect" an improvement that is really just the cold ending on schedule plus some hopeful self-report. The null was true and we rejected it anyway.
 
@@ -629,12 +629,12 @@ You met the extreme version of this in the [Probability chapter](Chapter_Probabi
 
 - A one-sample *t*-test compares a sample mean with a hypothesized population value.
 - The t statistic is the observed difference divided by its standard error.
-- A p-value measures compatibility with the null model; it is not the probability that the null is true.
+- A *p*-value measures compatibility with the null model; it is not the probability that the null is true.
 - “Fail to reject” does not mean “prove no effect.” Sometimes the study simply arrived carrying a tiny sample and no flashlight.
-- Report the estimate, confidence interval, p-value, and effect size. The asterisk cannot do all the talking.
+- Report the estimate, confidence interval, *p*-value, and effect size. The asterisk cannot do all the talking.
 
 ::: {.callout-important title="The t Statistic Is Signal Divided by Noise"}
-The numerator is how far the sample mean sits from the null value. The denominator is the standard error of that mean. A large t statistic can come from a large difference, a precise estimate, or both, so report the effect and its uncertainty, not merely the ceremonial p-value.
+The numerator is how far the sample mean sits from the null value. The denominator is the standard error of that mean. A large t statistic can come from a large difference, a precise estimate, or both, so report the effect and its uncertainty, not merely the ceremonial *p*-value.
 :::
 
 ::: {.callout-note title="What Comes Next?"}

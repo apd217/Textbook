@@ -294,7 +294,7 @@ Let's read this output carefully. The `anova()` output when comparing two models
 - **RSS** (Residual Sum of Squares): the total unexplained variance in each model. A lower RSS means a better-fitting model.
 - **Df**: the residual degrees of freedom for each model, and the change in degrees of freedom between models.
 - **F**: the *F*-statistic for the comparison.
-- **Pr(>F)**: the p-value for that *F*-statistic.
+- **Pr(>F)**: the *p*-value for that *F*-statistic.
 
 The key row to focus on is the second one. That is where the comparison lives. The *F*-statistic tells you whether the drop in residual sum of squares (i.e., the gain in explained variance) between Model 1 and Model 3 is statistically significant.
 

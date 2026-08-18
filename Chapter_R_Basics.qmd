@@ -252,7 +252,7 @@ It is **not** making the numbers less random. The sequence is just as unpredicta
 Two habits worth forming now:
 
 - When you see `set.seed()` in this book, it is there so your output matches mine. If your numbers differ from the page, check that you ran the seed line too.
-- In real analysis, set a seed any time chance is involved: random assignment, bootstrapping, cross-validation, simulations. It is the difference between "I got p = .04" and "I got p = .04 and here is how you get it too." Future You will need that, and so will Reviewer 2.
+- In real analysis, set a seed any time chance is involved: random assignment, bootstrapping, cross-validation, simulations. It is the difference between "I got *p* = .04" and "I got *p* = .04 and here is how you get it too." Future You will need that, and so will Reviewer 2.
 :::
 
 ## Packages: Install Once, Load Each Session

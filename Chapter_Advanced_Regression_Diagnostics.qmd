@@ -188,7 +188,7 @@ Notice that the $4/N$ line flags `r sum(cooks.distance(TherapyModel) > 4 / n)` p
 
 ### The Sensitivity Refit, Done Properly
 
-The opening of this chapter refit the model without participant 60 as a stunt, to show you that it mattered. This is the same comparison written the way you would actually report it, with the standard errors and p-values attached, because "the coefficient moved" is not a finding until the reader can see how much of that movement is noise.
+The opening of this chapter refit the model without participant 60 as a stunt, to show you that it mattered. This is the same comparison written the way you would actually report it, with the standard errors and *p*-values attached, because "the coefficient moved" is not a finding until the reader can see how much of that movement is noise.
 
 ```{r sensitivity-refit}
 SideBySide <- cbind(

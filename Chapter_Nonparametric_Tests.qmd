@@ -45,7 +45,7 @@ The table is a map, not an oracle. A map can get you to the correct neighborhood
 
 ### Fisher's Exact Test
 
-Pearson's chi-square uses an approximation that works well when expected counts are reasonably large. When a $2 \times 2$ table is tiny or sparse, **Fisher's exact test** calculates an exact p-value under fixed margins.
+Pearson's chi-square uses an approximation that works well when expected counts are reasonably large. When a $2 \times 2$ table is tiny or sparse, **Fisher's exact test** calculates an exact *p*-value under fixed margins.
 
 Suppose sixteen students volunteer for an escape-room study. Half receive calm-breathing instructions. Half are pursued by a research assistant holding a foam chainsaw and repeatedly yelling, "This was approved by the IRB!" The outcome is whether they escape before the timer expires.
 
@@ -67,7 +67,7 @@ chisq.test(escape_table)$expected
 fisher.test(escape_table)
 ```
 
-Fisher's test is not merely "chi-square for small samples," but that is its most common job in an introductory workflow. Unlike Pearson's large-sample approximation, it obtains the p-value from the possible tables with the same margins. It also returns an odds-ratio estimate and confidence interval.
+Fisher's test is not merely "chi-square for small samples," but that is its most common job in an introductory workflow. Unlike Pearson's large-sample approximation, it obtains the *p*-value from the possible tables with the same margins. It also returns an odds-ratio estimate and confidence interval.
 
 Do not automatically use Fisher's test for every table. For larger tables it can become computationally expensive, and the exact question depends on how the margins are treated. When expected counts are healthy, Pearson's chi-square is usually perfectly happy doing its job.
 
@@ -87,7 +87,7 @@ binom.test(
 )
 ```
 
-The p-value asks how unusual 18 or a result at least this far from the expected 12 would be if the true probability were .50. The confidence interval estimates the probability of hearing colors. Neither number establishes that caffeine **caused** chromatic audition. Perhaps these students already heard mauve every Thursday. Design still matters.
+The *p*-value asks how unusual 18 or a result at least this far from the expected 12 would be if the true probability were .50. The confidence interval estimates the probability of hearing colors. Neither number establishes that caffeine **caused** chromatic audition. Perhaps these students already heard mauve every Thursday. Design still matters.
 
 ### The Sign Test
 
@@ -143,7 +143,7 @@ wilcox.test(
 )
 ```
 
-`exact = FALSE` asks for the normal approximation. Psychology data tie constantly, and with tied ranks R cannot compute an exact p-value: it warns you and falls back to the approximation anyway. We are just telling it upfront so nobody panics at a red message. Every rank test in this chapter does the same thing for the same reason.
+`exact = FALSE` asks for the normal approximation. Psychology data tie constantly, and with tied ranks R cannot compute an exact *p*-value: it warns you and falls back to the approximation anyway. We are just telling it upfront so nobody panics at a red message. Every rank test in this chapter does the same thing for the same reason.
 
 The groups are independent because each student appears in only one training condition. If Alex secretly reuses the same students because recruitment is annoying, the design becomes paired and the analysis must change. Laziness is not a covariance structure.
 
@@ -263,7 +263,7 @@ fear_matrix
 friedman.test(fear_matrix)
 ```
 
-The blocking variable is the student: every student contributes one score to every condition. Follow-up paired Wilcoxon tests can compare condition pairs, again with corrected p-values.
+The blocking variable is the student: every student contributes one score to every condition. Follow-up paired Wilcoxon tests can compare condition pairs, again with corrected *p*-values.
 
 ```{r}
 #| label: friedman-followups
@@ -302,10 +302,10 @@ They can also have lower power than a well-chosen parametric model when that mod
 Report enough information for a reader to understand both the result and the data:
 
 1. Name the test and the design.
-2. Report the test statistic, degrees of freedom when applicable, and p-value.
+2. Report the test statistic, degrees of freedom when applicable, and *p*-value.
 3. Describe each condition with counts, proportions, medians, and interquartile ranges as appropriate.
 4. Include an effect size and confidence interval when a defensible one is available.
-5. State how ties, zero differences, exact p-values, and multiple comparisons were handled.
+5. State how ties, zero differences, exact *p*-values, and multiple comparisons were handled.
 
 The test is only one sentence in the argument. The data, design, effect size, uncertainty, and actual psychological question still have to show up for work.
 

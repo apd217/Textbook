@@ -133,7 +133,7 @@ That block is the most-stared-at object in your regression course. You will meet
 - **Estimate** is $B$. The intercept row is $B_0$, the `Scoops` row is $B_1$.
 - **Std. Error** is the standard error *of that estimate*. Same species as the SEM from the standard error chapter: run the study again with 80 different people and the slope would bounce around by roughly this much.
 - **t value** is Estimate divided by Std. Error. That is the one-sample *t*-test logic, wearing a different kimono: how many standard errors is this estimate away from zero?
-- **Pr(>|t|)** is that *t*'s p-value, testing the null that this coefficient is really zero (no slope).
+- **Pr(>|t|)** is that *t*'s *p*-value, testing the null that this coefficient is really zero (no slope).
 
 **Residual standard error.** The typical size of a miss, in the outcome's own units. Ours is `r round(summary(Happy.Model.1)$sigma, 2)`, so a typical prediction is off by about `r round(summary(Happy.Model.1)$sigma, 1)` happiness points. The `on 78 degrees of freedom` is the $N-2$ we paid for in the correlation chapter, and for the same reason: two parameters estimated, this time an intercept and a slope.
 
@@ -151,9 +151,9 @@ summary(Happy.Model.1)$fstatistic[1]   # the model's F
 Identical. With one predictor, $F = t^2$, because "is this one slope non-zero" and "does this model do anything at all" are the same question asked twice. That stops being true the moment we add a second predictor, which is precisely when $F$ starts earning its keep, in the hierarchical regression chapter.
 
 ::: {.callout-tip title="The Two Numbers Everyone Skips"}
-Students read the Estimate and the p-value and stop. The two most useful numbers in that block are the ones they scroll past: the **Std. Error**, which tells you how much to trust the estimate, and the **Residual standard error**, which tells you in plain units how wrong a typical prediction is.
+Students read the Estimate and the *p*-value and stop. The two most useful numbers in that block are the ones they scroll past: the **Std. Error**, which tells you how much to trust the estimate, and the **Residual standard error**, which tells you in plain units how wrong a typical prediction is.
 
-A slope of `r round(Happy.Model.1$coefficients[2], 2)` with typical misses of `r round(summary(Happy.Model.1)$sigma, 1)` happiness points is a very different finding from the same slope with typical misses of 0.2. The p-value cannot tell those apart. You can.
+A slope of `r round(Happy.Model.1$coefficients[2], 2)` with typical misses of `r round(summary(Happy.Model.1)$sigma, 1)` happiness points is a very different finding from the same slope with typical misses of 0.2. The *p*-value cannot tell those apart. You can.
 :::
 
 ### Intercept
@@ -367,7 +367,7 @@ summary(std.reg)
 
 ### What didn't change?
 
-The **t-statistic and p-value** for the slope. These don't change under any *linear* rescaling: adding constants, multiplying by constants, z-scoring. Shift and stretch the axes all you like and the significance test is untouched.
+The **t-statistic and *p*-value** for the slope. These don't change under any *linear* rescaling: adding constants, multiplying by constants, z-scoring. Shift and stretch the axes all you like and the significance test is untouched.
 
 Nonlinear transformations are a different animal. Logs, square roots, and powers change the model itself, along with $t$, $p$, and what the slope even means. The correlation chapter showed this the hard way with ice cream raised to the fourth power, where a perfectly good relationship fell apart the moment we bent the scale.
 
@@ -439,7 +439,7 @@ A few things to notice, because this paragraph is the template for every regress
 - The plain-English sentence is not optional decoration. Being able to say what your slope means in the units your grandmother would understand is a graded skill, in this course and in every paper you will ever write.
 
 ::: {.callout-warning title="p < .001 Is a Claim, Not a Default"}
-The write-up above says $p < .001$ because this model's p-value genuinely is `r format(m$coefficients["Scoops", "Pr(>|t|)"], digits = 3)`. Report the exact value to two or three decimals whenever it is larger than .001, and never copy `p < .001` out of an example because it looked authoritative.
+The write-up above says $p < .001$ because this model's *p*-value genuinely is `r format(m$coefficients["Scoops", "Pr(>|t|)"], digits = 3)`. Report the exact value to two or three decimals whenever it is larger than .001, and never copy `p < .001` out of an example because it looked authoritative.
 :::
 
 

@@ -463,7 +463,7 @@ $$
 E(Y\mid X)=Var(Y\mid X)=\mu.
 $$
 
-Psychological counts often have variance much larger than the mean because people differ in unmodeled ways or because zeros breed in dark corners of the dataset. This is **overdispersion**. It can make Poisson standard errors too small. A negative-binomial model adds a dispersion parameter; a zero-inflated model represents an additional process generating excess zeros. Do not choose among them solely by whichever one produces the most attractive p-value.
+Psychological counts often have variance much larger than the mean because people differ in unmodeled ways or because zeros breed in dark corners of the dataset. This is **overdispersion**. It can make Poisson standard errors too small. A negative-binomial model adds a dispersion parameter; a zero-inflated model represents an additional process generating excess zeros. Do not choose among them solely by whichever one produces the most attractive *p*-value.
 
 ## The Short Story
 

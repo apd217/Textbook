@@ -307,9 +307,9 @@ apa_values
 ```
 
 ::: {.callout-warning title="Never Write p = 0"}
-Modern APA wants the exact p-value, reported to two or three decimal places: $p = .03$, $p = .008$. The one exception is when p is very small. Below .001 you stop counting zeros and write $p < .001$, which is what our output above deserves.
+Modern APA wants the exact *p*-value, reported to two or three decimal places: $p = .03$, $p = .008$. The one exception is when p is very small. Below .001 you stop counting zeros and write $p < .001$, which is what our output above deserves.
 
-What you must never write is $p = 0$. A p-value is the probability of data at least this extreme under the null, and that probability is never exactly zero. Your software prints `2e-16` because it ran out of decimal places, not because the universe ruled the possibility out. Rounding that to zero claims something no test can deliver.
+What you must never write is $p = 0$. A *p*-value is the probability of data at least this extreme under the null, and that probability is never exactly zero. Your software prints `2e-16` because it ran out of decimal places, not because the universe ruled the possibility out. Rounding that to zero claims something no test can deliver.
 :::
 
 ## Step 7: Cohen's d
@@ -357,7 +357,7 @@ Participants in the every-7-minutes condition ($M =$ `r round(M1, 2)`, $SD =$ `r
 In this simulated experiment, increasing train frequency produced a very large difference in reported attitudes. In real life, the CTA has declined our invitation to be manipulated with `set.seed(343)`.
 
 ::: {.callout-important title="Welch by Default; Effect Size Beside It"}
-Welch's *t*-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The p-value cannot tell the reader how far apart the groups are.
+Welch's *t*-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The *p*-value cannot tell the reader how far apart the groups are.
 :::
 
 ## Power: How Many Riders Would You Actually Need?
@@ -446,7 +446,7 @@ A true $d$ of .8 estimated from five people per group is meaningfully inflated. 
 - Welch's version is R's default and the better habit. The pooled version assumes equal variances and is what your lab computes by hand to show you the machinery.
 - Formula syntax (`Liking ~ Condition`) is the shape everything in Part 2 will use. R subtracts groups in factor-level order, so if the sign looks backwards, check your levels before you check your arithmetic.
 - Random assignment, not the *t*-test, is what licenses a causal sentence.
-- Cohen's $d$ puts the gap in pooled standard-deviation units. Report the interval and the effect size; a lone p-value tells the reader nothing about size.
+- Cohen's $d$ puts the gap in pooled standard-deviation units. Report the interval and the effect size; a lone *p*-value tells the reader nothing about size.
 
 ::: {.callout-note title="Which Test Comes Next?"}
 Use the independent-samples *t*-test when two *different* groups of people are compared on one measure.

@@ -199,7 +199,7 @@ difference_result <- t.test(paired_wide$difference, mu = 0)
 difference_result
 ```
 
-The t statistic, degrees of freedom, and p-value match. R has not discovered two separate truths. We asked the same question twice.
+The t statistic, degrees of freedom, and *p*-value match. R has not discovered two separate truths. We asked the same question twice.
 
 ::: {.callout-important title="The Unit of Analysis Is the Pair"}
 We began with 96 scores, but the test has 48 difference scores. Therefore, $df=n-1=47$. Counting every measurement as an independent person would double the apparent sample size and create confidence unsupported by the design. The spreadsheet may have 96 rows. The study still has 48 humans.
@@ -375,7 +375,7 @@ So: repeated measures usually *do* buy power, sometimes dramatically. But do not
 - A paired-samples *t*-test is a one-sample *t*-test on those differences.
 - The unit of analysis is the pair, not the individual measurement.
 - Inspect the distribution and outliers of the **differences**.
-- Report the mean change, confidence interval, p-value, and the specific paired effect size you used.
+- Report the mean change, confidence interval, *p*-value, and the specific paired effect size you used.
 - When the design grows beyond one clean pair of scores, continue to the mixed-regression chapter.
 
 The grand lesson is not "memorize another command." It is "keep the two scores attached to the human who produced them." The humans already know they are the same person. R needs paperwork.

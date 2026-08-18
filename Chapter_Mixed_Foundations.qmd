@@ -123,7 +123,7 @@ unlist(SeparateSlopes)
 mean(unlist(SeparateSlopes))
 ```
 
-The slopes are positive, but each regression uses only 20 students. Individual p-values will stagger around because chance is fickle. Averaging the slopes also treats a noisy estimate and a precise estimate as equally trustworthy unless we carry their uncertainty forward correctly. With 40 classrooms, this becomes 40 regressions and an excellent reason to begin screaming into a desk drawer.
+The slopes are positive, but each regression uses only 20 students. Individual *p*-values will stagger around because chance is fickle. Averaging the slopes also treats a noisy estimate and a precise estimate as equally trustworthy unless we carry their uncertainty forward correctly. With 40 classrooms, this becomes 40 regressions and an excellent reason to begin screaming into a desk drawer.
 
 ### Old-School Approach 2: Center Everything Within Classroom
 

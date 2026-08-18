@@ -166,7 +166,7 @@ Setting $\alpha = .05$ does **not** mean any of the following:
 - 5% of published findings are wrong;
 - your result has a 95% chance of replicating.
 
-It means that *if* the null hypothesis and its assumptions hold, this **procedure** falsely rejects about 5% of the time in the long run. The p-value is a statement about a procedure. It cannot read the hidden state of the universe, and it has never once tried.
+It means that *if* the null hypothesis and its assumptions hold, this **procedure** falsely rejects about 5% of the time in the long run. The *p*-value is a statement about a procedure. It cannot read the hidden state of the universe, and it has never once tried.
 :::
 
 ### The Errors Are Not Symmetric in Cost
@@ -402,7 +402,7 @@ We used to tell people to go find a meta-analysis. Then it turned out meta-analy
 Post-hoc power is meaningless. It is worse than meaningless, because it looks like information.
 
 ::: {.callout-important title="Post-Hoc Power Is a Ghost"}
-Observed power is a one-to-one function of your p-value. A significant result *always* yields high observed power; a non-significant result *always* yields low observed power. It cannot tell you anything your p-value did not already tell you, and it is frequently used to argue "our null result was just underpowered," which is circular reasoning with a calculator [@hoenig2001].
+Observed power is a one-to-one function of your *p*-value. A significant result *always* yields high observed power; a non-significant result *always* yields low observed power. It cannot tell you anything your *p*-value did not already tell you, and it is frequently used to argue "our null result was just underpowered," which is circular reasoning with a calculator [@hoenig2001].
 
 Worse, the effect size feeding it is biased. As we saw at the start of this chapter, small samples underestimate $\sigma$. A smaller denominator makes $d$ bigger. Your observed effect is flattering you, and post-hoc power then launders the flattery into a number with a decimal point.
 
@@ -704,7 +704,7 @@ Come back here for the concepts. Go there for the arithmetic.
 - Type I error is a false alarm and its rate is $\alpha$, which you choose. Type II error is a miss and its rate is $\beta$, which you must earn your way out of.
 - Power is $1 - \beta$: the probability of finding a real effect. It depends on the effect size, the sample size, and $\alpha$.
 - Effect size lives in standard deviation units. Significance lives in standard error units. Adding participants narrows the curves without moving the peaks.
-- Compute power **before** you run the study. Post-hoc power is a restatement of your p-value wearing a disguise.
+- Compute power **before** you run the study. Post-hoc power is a restatement of your *p*-value wearing a disguise.
 - `power.t.test()` solves for whatever you leave `NULL`. Set `sd = 1` and put $d$ in `delta`.
 - The other two *t*-tests use the same function with `type` changed, and each is powered in its own chapter. For `two.sample`, `n` is per group, so double it. For `paired`, `n` is the number of pairs and `delta` is $d_z$.
 - Non-significant does not mean no effect. Very often it means no chance.

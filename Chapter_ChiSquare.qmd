@@ -144,7 +144,7 @@ If people were making chance guesses from a population of people who don't have 
 
 ### Find Expected Frequencies
 
-If we expect by chance people would have gotten p = .50 on wrong-to-right and right to wrong, $f_e = pn$  
+If we expect by chance people would have gotten *p* = .50 on wrong-to-right and right to wrong, $f_e = pn$  
 
 $F_{e_{right-to-wrong}}= .5*222=111$
 $F_{e_{wrong-to-right}}= .5*222=111$
@@ -342,10 +342,10 @@ We ask where is our chi-square value relative to this chance distribution given 
 This function answers the question:
 
 - “What chi-square value cuts off a certain percentage of chance outcomes?”
-  - p = .05
+  - `p = .05`
 - We are defining the 5% region, the part of the distribution that happens only about 5% of the time under chance.
 
-- df = 1
+- `df = 1`
   - This tells R which chi-square distribution to use.
     - With two categories, the degrees of freedom is 1.
 
@@ -364,7 +364,7 @@ We get the crit = `r round(Crit.MCQ, 2)` < `r round(MCQ.chi$statistic, 2)` (expe
 
 $\chi^2(df, N) = X.XX$, $p = .XXX$
 
-Since our p-value was below .05, we rejected the null. Report the exact p-value to two or three decimals, and only fall back on $p < .001$ when it is smaller than that. Ours is far smaller than that.
+Since our *p*-value was below .05, we rejected the null. Report the exact *p*-value to two or three decimals, and only fall back on $p < .001$ when it is smaller than that. Ours is far smaller than that.
 
 Students were significantly more likely to change an answer from wrong to right (`r round(195 / sum(MCQ.Study) * 100, 2)`%) than from right to wrong (`r round(27 / sum(MCQ.Study) * 100, 2)`%), $\chi^2(1, N = 222) =$ `r round(MCQ.chi$statistic, 2)`, $p < .001$.
 
@@ -593,7 +593,7 @@ In tests of independence, R calculates the expected frequencies for you. For a $
 
 $$\chi^2_{Yates} = \sum \frac{(|f_o-f_e| - .5)^2}{f_e}$$
 
-*Note*: You can view the observed and expected frequencies. For larger sparse tables, `chisq.test(..., simulate.p.value = TRUE)` can estimate a p-value by simulation.
+*Note*: You can view the observed and expected frequencies. For larger sparse tables, `chisq.test(..., simulate.p.value = TRUE)` can estimate a *p*-value by simulation.
 
 ```{r}
 #| label: independence-test
@@ -737,7 +737,7 @@ All four values here are the same size because a $2 \times 2$ table has one degr
 
 - Chi-square works with **counts**, not percentages, means, or the emotional intensity with which you typed the numbers.
 - The observations must be independent. One person should not quietly appear in several cells unless the design and model explicitly handle repeated observations.
-- The approximation becomes unreliable when expected counts are very small. A common guideline is that no expected count should be below 1 and no more than 20% should be below 5, but this is a guideline rather than a commandment. For a small $2 \times 2$ table, use Fisher's exact test. For larger sparse tables, a simulated p-value may be useful.
+- The approximation becomes unreliable when expected counts are very small. A common guideline is that no expected count should be below 1 and no more than 20% should be below 5, but this is a guideline rather than a commandment. For a small $2 \times 2$ table, use Fisher's exact test. For larger sparse tables, a simulated *p*-value may be useful.
 - Chi-square cannot be negative because every discrepancy is squared. It can equal zero when every observed count equals its expected count, an event normally witnessed immediately before the Probability Gods demand another sacrifice.
 - A cell contributes more when its observed and expected counts differ by a large amount **relative to the expected count**.
 - A significant omnibus test says that some association exists. It does not identify every cell responsible for it. Standardized residuals are the first place to look, and follow-up comparisons then create a multiple-testing problem, which is what [Multiple Comparisons](Chapter_Multiple_Comparisons.qmd) was for, before the asterisks multiply and form a union.

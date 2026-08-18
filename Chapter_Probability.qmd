@@ -231,7 +231,7 @@ Conditional probabilities answer questions about a restricted group. For example
 - $P(\text{passes}\mid\text{attended review})$ asks only about students who attended the review.
 - $P(\text{attended review}\mid\text{passes})$ asks something different.
 
-Reversing the condition reverses the question. The probability that a person is tall given that they play basketball is not the probability that they play basketball given that they are tall. Likewise, a p-value will eventually describe how probable data this extreme---or more extreme---would be if $H_0$ and the model assumptions were true. It does not describe the probability that $H_0$ is true. Swapping those is one of psychology's favorite avoidable catastrophes.
+Reversing the condition reverses the question. The probability that a person is tall given that they play basketball is not the probability that they play basketball given that they are tall. Likewise, a *p*-value will eventually describe how probable data this extreme---or more extreme---would be if $H_0$ and the model assumptions were true. It does not describe the probability that $H_0$ is true. Swapping those is one of psychology's favorite avoidable catastrophes.
 
 ::: {.callout-important title="The Direction of the Bar Matters"}
 $$

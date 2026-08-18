@@ -442,7 +442,7 @@ Corr.Result.1<-cor.test(~Happiness + IceCream, data= CorrData,
 ```
 
 ### P-value for Pearson's Correlation
-The classical p-value for Pearson's correlation is adapted from the *t*-distribution which we covered in chapter on one-sample *t*-test.
+The classical *p*-value for Pearson's correlation is adapted from the *t*-distribution which we covered in chapter on one-sample *t*-test.
 
 The statistic is built from $r$ and the sample size, and nothing else:
 
@@ -473,7 +473,7 @@ No matter the mean differences or range of scores, the Pearson's r will give the
 This is worth proving rather than saying with fancy words, so the next four sections do the same analysis four times while abusing the measurement scale in a different way each time. Watch the reported $r$ in the corner of each plot. Three of the four will not move.
 
 ::: {.callout-warning title="That Corner Label Is Not APA, and That Is Fine Here"}
-The correlation printed on these plots comes from `ggpubr`, and it takes liberties. It writes a capital $R$ where APA wants a lowercase italic $r$. It reports no degrees of freedom at all. It prints the p-value in scientific notation instead of as $p < .001$.
+The correlation printed on these plots comes from `ggpubr`, and it takes liberties. It writes a capital $R$ where APA wants a lowercase italic $r$. It reports no degrees of freedom at all. It prints the *p*-value in scientific notation instead of as $p < .001$.
 
 None of that belongs in a manuscript. All of it is fine right now, because these four plots exist so we can glance at a graph and see whether the number moved. Writing mountains of code to produce a journal-ready figure, just to check something with our own eyes, is a waste of an afternoon.
 
@@ -659,7 +659,7 @@ Tied <- c(2, 5, 5, 9)
 rank(Tied)
 ```
 
-The two fives would have occupied positions 2 and 3, so they each get 2.5. This is also the tie-handling that costs us an exact p-value later.
+The two fives would have occupied positions 2 and 3, so they each get 2.5. This is also the tie-handling that costs us an exact *p*-value later.
 
 Now let's rank order our random correlated data.  You must rank each variable independently first (where ties are averaged).
 
@@ -679,7 +679,7 @@ cor_apa(cor.test(CorrData$IceCream.rank, CorrData$Happiness.rank, method = c("pe
 
 Notice that the output above labels this $r$ and not $r_s$. The function is not confused. We literally ran a Pearson correlation, on ranks, which is what Spearman's correlation *is*.
 
-Use the built-in Spearman correlation with `cor.test(..., method = "spearman")`. It ranks the raw data automatically and calculates the appropriate p-value.
+Use the built-in Spearman correlation with `cor.test(..., method = "spearman")`. It ranks the raw data automatically and calculates the appropriate *p*-value.
 
 ```{r spearman-apa}
 # APA format (note the S should be subscript)
@@ -728,7 +728,7 @@ cor_apa(cor.test(CorrNL$Var1, CorrNL$Var2, method = c("spearman"), exact =TRUE))
 # exact = exact p-value is calculated. Otherwise it uses an approximation (a t-dist). See the help for more details on the algorithm.
 ```
 
-One thing to expect the first time you try this on your own data. Asking for `exact = TRUE` works here because none of these values are tied, but with tied ranks R cannot compute an exact p-value, so it warns you and quietly falls back on the t-approximation. That is fine, not a mistake. Likert-scale data ties constantly, so if you run a Spearman on questionnaire items you should count on seeing that warning every time.
+One thing to expect the first time you try this on your own data. Asking for `exact = TRUE` works here because none of these values are tied, but with tied ranks R cannot compute an exact *p*-value, so it warns you and quietly falls back on the t-approximation. That is fine, not a mistake. Likert-scale data ties constantly, so if you run a Spearman on questionnaire items you should count on seeing that warning every time.
 
 ### Correlation Matrices 
 
@@ -776,7 +776,7 @@ The matrix is **symmetrical**. The panel for Happiness and Oreos below the diago
 
 Those asterisks next to each correlation are the significance stars from the [one-sample *t*-test chapter](Chapter_OneSample_t_test.qmd), doing the same job here:
 
-| Stars | p-value |
+| Stars | *p*-value |
 |-------|---------|
 | `***` | less than .001 |
 | `**`  | less than .01 |

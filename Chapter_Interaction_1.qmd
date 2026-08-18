@@ -562,7 +562,7 @@ The intercept also comes with a *p*-value, testing whether that predicted value 
 
 This is called a **simple effect** rather than a main effect, because it is not the effect of Being Nice *on average across groups*: it is the effect of Being Nice *within one specific group*. Specifically, it is the rate of change along the blue line.
 
-The p-value for `BeingNice.C` tests: **is the slope of the "Stay in" line significantly different from zero?**
+The *p*-value for `BeingNice.C` tests: **is the slope of the "Stay in" line significantly different from zero?**
 
 Looking at the output, this slope is small and non-significant ($p \approx$ `r round(summary(Model.2)$coefficients["BeingNice.C", 4], 3)`). This is exactly what the flat blue line in our plot tells you: for students who stay in, being nicer is not significantly predictive of closer friendships. There is essentially no relationship there.
 

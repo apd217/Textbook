@@ -51,8 +51,10 @@ example write-up contains no numbers.
   a nine-row rule/wrong/right table plus two paragraphs on the italic rule.
 
   **The open question was put to Alex first and he chose the full sweep**: writing the table
-  means committing to italic `p`, `r`, `M`, `SD`, `N`, `df` book-wide. That sweep is
-  logged separately as G06b/G01-italics and is its own commit, not this one.
+  means committing to italic `p`, `r`, `M`, `SD`, `N`, `df` book-wide. **That sweep is DONE**,
+  as its own commit, with a new tool at `book_review/tools/italicize_stats.R`. 63 symbols
+  across 19 files. See the block at the bottom of this file for what it does and does not
+  touch, and for the bug it nearly shipped.
 
   Two corrections to the item's own list, both made after checking APA 7 rather than
   writing from memory:
@@ -117,6 +119,52 @@ the same pass as CH19/21/24).
 - **YAML was already clean.** No hidden `load-libraries` block, so G05b does not apply.
   `library(sjPlot)` sits at first use; `broom` and `knitr` are called with `::`, which was
   already the chapter's style and was left alone.
+
+### The italics sweep (the open question from 2026-08-15, now closed)
+
+**Alex answered on 2026-08-17: write the table AND sweep the book.** Done, in its own commit.
+Tool: `book_review/tools/italicize_stats.R`, a companion to `italicize_tF.R`. **63 symbols
+across 19 files.** Run it dry first; it prints every proposed change.
+
+**Scope is deliberately narrow, and narrower than "italicize p, r, M, SD, N, df" sounds.**
+Only two shapes are touched:
+
+1. A symbol immediately before a comparator: `p = .03`, `SD = 1`, `N = 222`. **5 hits.**
+2. The compound `p-value` / `p-values`, the same shape `italicize_tF.R` swept for *t* and
+   *F*. **58 hits**, which is where nearly all the value is.
+
+**Bare `p` and bare `r` in running prose are still not swept, and should not be.** The survey
+that killed the bare-*t* sweep in the 14+15 session applies unchanged: a regex confident
+enough to catch a bare letter is confident enough to corrupt every "r" in the book.
+
+**The bug this nearly shipped, which is the reusable lesson.** `italicize_tF.R` protects
+inline code and math with one alternation, scanning left to right. That is not safe here,
+because a `$` can live *inside* a code span. On this line in
+`Chapter_Regression with Cat Variables.qmd`:
+
+```
+$t(`r tl$df`) =$ `r round(tl$t.ratio, 2)`, $p < .001$
+```
+
+the `$` in `` `r tl$df` `` makes the math matcher pair the wrong dollars, which leaves the
+real `$p < .001$` unprotected. The first dry run proposed writing `$*p* < .001$` into two
+finished chapters, where it would have rendered as literal asterisks inside math.
+**Mask code spans first, then find math in the code-masked text.** The new tool does, and
+that chapter correctly drops out of the sweep entirely.
+
+Three other exclusions were added after auditing the dry run one hit at a time:
+
+- **Callout fence lines** (`::: {.callout-... title="Never Write p = 0"}`). Quarto parses
+  `title=` as an attribute, not as markdown, so asterisks would show up literally.
+- **HTML comment blocks**, tracked across lines rather than by delimiter, so `---Alex---`
+  notes are left alone.
+- Two bullets in `Chapter_ChiSquare.qmd` that looked like statistics but were **`qchisq()`
+  argument names** (`p = .05`, `df = 1`). Those wanted code font, not italics, and were
+  changed to backticks by hand instead.
+
+**Verification:** all 16 affected book chapters re-render clean, the rendered HTML shows
+`<em>p</em>-value`, and a grep confirms no asterisks landed inside any math span and no
+emphasis got nested.
 
 **Not flagged (deliberate):** "Lead with the Scientific Result" callout (arguably the most
 important callout in the book); the Future You callout; "Model.Final.2.REAL.useThisOne";

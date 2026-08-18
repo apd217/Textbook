@@ -8,7 +8,7 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
 
 ## The Model Fitted. Now What?
 
-Mixed models contain fixed effects, random effects, variance components, and sometimes non-Gaussian distributions. There is no single p-value ritual that is best in every design.
+Mixed models contain fixed effects, random effects, variance components, and sometimes non-Gaussian distributions. There is no single *p*-value ritual that is best in every design.
 
 This chapter uses `glmmTMB` as the default engine. If a field requires ANOVA-style denominator degrees of freedom for a Gaussian model, we deliberately refit with `lmerTest`. That is a specialized detour, not the main road.
 
@@ -62,7 +62,7 @@ broom.mixed::tidy(
 )
 ```
 
-The p-value uses a large-sample standard-normal approximation. It does not estimate denominator degrees of freedom.
+The *p*-value uses a large-sample standard-normal approximation. It does not estimate denominator degrees of freedom.
 
 Wald inference is convenient and often reasonable when the model is stable and information is adequate. It may be unreliable with few clusters, weakly identified parameters, extreme coefficients, boundary estimates, separation, or an unhealthy Hessian.
 

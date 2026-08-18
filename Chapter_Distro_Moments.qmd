@@ -416,7 +416,7 @@ $$S = \sqrt{S^2}$$
 SD.calc <- sd(Normal.Sample.1)
 ```
 
-Sample SD = `r round(SD.calc,2)`
+Sample *SD* = `r round(SD.calc,2)`
 
 ::: {.callout-note title="Variance Has Weird Units; SD Comes Back Home"}
 Variance is measured in **squared units**.
@@ -679,7 +679,7 @@ Looks scary. The concept is simple:
 - Values far from the mean $\rightarrow$ lower density
 - Shape is fully determined by $\mu$ and $\sigma$
 
-In practice, we convert to **z-scores** so that mean = 0 and SD = 1, which makes everything easier.
+In practice, we convert to **z-scores** so that mean = 0 and *SD* = 1, which makes everything easier.
 
 ### Z-scores
 
