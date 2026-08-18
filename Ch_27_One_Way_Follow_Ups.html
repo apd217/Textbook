@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>27&nbsp; Follow-Ups to One-Way ANOVAs – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_28_Two_Way_Between_ANOVA.html" rel="next">
+<link href="./Ch_26_One_Way_ANOVA.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_25_ANOVA_Introduction.html">ANOVA is dead, Long Live ANOVA</a></li><li class="breadcrumb-item"><a href="./Ch_27_One_Way_Follow_Ups.html"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_25_ANOVA_Introduction.html">ANOVA is dead, Long Live ANOVA</a></li><li class="breadcrumb-item"><a href="./Ch_27_One_Way_Follow_Ups.html"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="experimentwise-error-rate" class="level2" data-number="27.1">
+<h2 data-number="27.1" class="anchored" data-anchor-id="experimentwise-error-rate"><span class="header-section-number">27.1</span> Experimentwise Error Rate</h2>
+<p>The experimentwise error rate is the likelihood that you will make at least one Type I error in your experiment as you run more and more <em>t</em>-tests. Each test has a <em>per-comparison</em> error rate (<span class="math inline">\(\alpha_{pc}\)</span>).</p>
+<p><span class="math display">\[ \alpha_{EW} = 1-(1-\alpha_{pc})^j\]</span></p>
+<p>where <span class="math inline">\(j\)</span> is the number of comparisons.</p>
+<p><span class="math display">\[ j = \frac{K(K-1)}{2} \]</span></p>
+<p>[This calculation assumes that each comparison is independent and that sampling is conducted with replacement.]</p>
+<p>We call this the experimentwise error rate (<span class="math inline">\(\alpha_{EW}\)</span>). If we set <span class="math inline">\(\alpha_{pc} = .05\)</span> and increase <span class="math inline">\(K\)</span> from 2 to 15, we can see what happens as the number of conditions grows and we make all possible pairwise comparisons.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Aew <span class="ot">&lt;-</span><span class="cf">function</span>(alpha,K){<span class="dv">1</span><span class="sc">-</span>(<span class="dv">1</span><span class="sc">-</span>alpha)<span class="sc">^</span>(K<span class="sc">*</span>(K<span class="dv">-1</span>)<span class="sc">/</span><span class="dv">2</span>)} </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>K<span class="ot">=</span><span class="fu">seq</span>(<span class="dv">2</span>,<span class="dv">15</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Aew.Report<span class="ot">&lt;-</span><span class="fu">mapply</span>(Aew, <span class="at">alpha=</span>.<span class="dv">05</span>, K)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(K,Aew.Report, <span class="at">type=</span><span class="st">'l'</span>, </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"# of Conditions"</span>, <span class="at">ylab=</span><span class="st">"Experimentwise Error Rate"</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span>.<span class="dv">05</span>, <span class="at">col=</span><span class="st">'red'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_27_One_Way_Follow_Ups_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we conduct more tests, we become increasingly likely to commit a Type I error.</p>
+<section id="familywise-error" class="level3" data-number="27.1.1">
+<h3 data-number="27.1.1" class="anchored" data-anchor-id="familywise-error"><span class="header-section-number">27.1.1</span> Familywise Error</h3>
+<p>This is similar to experimentwise error, but it focuses on the risk of a Type I error within a “family” of tests. A family of tests will make more sense when we get to two-way ANOVA follow-ups. In the example at the end, I treat the planned contrasts as one family and the unplanned contrasts as another. The logic will become clearer later this semester.</p>
+<p>[Note: Experimentwise error is also called familywise error.]</p>
+</section>
+<section id="design-example-1-for-last-class" class="level3" data-number="27.1.2">
+<h3 data-number="27.1.2" class="anchored" data-anchor-id="design-example-1-for-last-class"><span class="header-section-number">27.1.2</span> Design Example 1 for Last Class</h3>
+<blockquote class="blockquote">
+<p>We are interested in how much people trust a partner after engaging in different levels of joint action. Two people enter the lab, one of whom is a confederate. They are asked to either (a) move chairs independently, (b) move a couch together while the confederate helps, or (c) move a couch together while the confederate hinders. Moving a couch requires the two people to coordinate their actions. After the study ends, participants rate how trustworthy their partner seems from 1 to 7, with 7 indicating high trust.</p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>No Joint Action</th>
+<th>Helpful Joint Action</th>
+<th>Disrupted Joint Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td>5</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>7</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>4</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>5</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>M = 3</td>
+<td>M = 5</td>
+<td>M = 2</td>
+</tr>
+</tbody>
+</table>
+<section id="run-the-anova" class="level4" data-number="27.1.2.1">
+<h4 data-number="27.1.2.1" class="anchored" data-anchor-id="run-the-anova"><span class="header-section-number">27.1.2.1</span> Run the ANOVA</h4>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(afex) <span class="co"># </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>ANOVA.Table<span class="ot">&lt;-</span><span class="fu">aov_car</span>(DV<span class="sc">~</span>Condition <span class="sc">+</span> <span class="fu">Error</span>(SubNum), </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data=</span>JA.Study)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ANOVA.Table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type 3 tests)
+
+Response: DV
+     Effect    df  MSE       F  ges p.value
+1 Condition 2, 12 1.33 8.75 ** .593    .005
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '+' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>So, we need to track down which groups are different.</p>
+</section>
+</section>
+<section id="which-groups-are-different" class="level3" data-number="27.1.3">
+<h3 data-number="27.1.3" class="anchored" data-anchor-id="which-groups-are-different"><span class="header-section-number">27.1.3</span> Which Groups Are Different?</h3>
+<p>If we run three <em>t</em>-tests with <span class="math inline">\(\alpha_{pc} = .05\)</span>, then with <span class="math inline">\(j = 3\)</span> our experimentwise error rate is <span class="math inline">\(\alpha_{EW}\)</span> = 0.143.</p>
+</section>
+<section id="philosophy-i-familywise-correction-for-error-rate" class="level3" data-number="27.1.4">
+<h3 data-number="27.1.4" class="anchored" data-anchor-id="philosophy-i-familywise-correction-for-error-rate"><span class="header-section-number">27.1.4</span> Philosophy I (Familywise) Correction for Error Rate</h3>
+<p>This is the dominant philosophy in experimental psychology. Neuroscience is a different story, which we will cover next week.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 37%">
+<col style="width: 36%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Declared</th>
+<th>Null is True (no difference)</th>
+<th>Null is False (difference)</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sig</td>
+<td>Type 1 (V)</td>
+<td>True Positives (S)</td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>Non-Sig</td>
+<td>True Negative (U)</td>
+<td>Type II (T)</td>
+<td>m-R</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td>Mo</td>
+<td>M-Mo</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>V / Mo = Probability of getting at least one wrong: we want to keep this at 5%</p>
+<p><strong>Different correction methods have been proposed over the years, ranging from the most anti-conservative to the most conservative.</strong> They come in and out of favor based on the fashion of the times within each subfield.</p>
+</section>
+<section id="approaches-to-follow-up-testing" class="level3" data-number="27.1.5">
+<h3 data-number="27.1.5" class="anchored" data-anchor-id="approaches-to-follow-up-testing"><span class="header-section-number">27.1.5</span> Approaches to Follow-Up Testing</h3>
+<section id="confirmatory-hypothesis-driven-follow-up" class="level4" data-number="27.1.5.1">
+<h4 data-number="27.1.5.1" class="anchored" data-anchor-id="confirmatory-hypothesis-driven-follow-up"><span class="header-section-number">27.1.5.1</span> Confirmatory: Hypothesis-Driven Follow-Up</h4>
+<p><strong>Preferred approach</strong>: Examine only the conditions you predicted would differ. That means you must formulate your predictions carefully. This is hard and takes time to learn. It causes people the most frustration. It is required for preregistered reports and is increasingly required by reviewers. We are starting to leave the dark ages when reviewers asked for everything to be compared with everything because Type I error problems are better understood.</p>
+<ul>
+<li>Pros: You will conduct fewer tests and commit fewer Type I errors. Because you run fewer tests, your follow-ups can be less conservative, which also produces fewer Type II errors, as you will see below.</li>
+<li>Cons: You might miss something interesting. However, many people argue that chasing those interesting findings helped cause the replication crisis.</li>
+</ul>
+<p>Summary: Low Type I and low Type II error rates, but a risk of missing something novel, assuming it is not a Type I error.</p>
+</section>
+<section id="exploratory-test-everything-approach" class="level4" data-number="27.1.5.2">
+<h4 data-number="27.1.5.2" class="anchored" data-anchor-id="exploratory-test-everything-approach"><span class="header-section-number">27.1.5.2</span> Exploratory: Test-Everything Approach</h4>
+<p><strong>Out of favor</strong>: Test all comparisons and anything else you find interesting. This is the easiest approach to understand and was once common, but it is becoming difficult to publish. It requires very conservative follow-up methods because the risk of Type I error is high.</p>
+<ul>
+<li>Pros: You see everything</li>
+<li>Cons: If you do not do it correctly, much of what you find will be a Type I error. If you do it correctly, you will commit many Type II errors.</li>
+</ul>
+<p>Summary: If you do it correctly, you have low Type I and very high Type II error rates. If you do it incorrectly, you have very high Type I and low Type II error rates.</p>
+</section>
+<section id="hybrid-approach" class="level4" data-number="27.1.5.3">
+<h4 data-number="27.1.5.3" class="anchored" data-anchor-id="hybrid-approach"><span class="header-section-number">27.1.5.3</span> Hybrid Approach</h4>
+<p><strong>Happy medium?</strong> Use the confirmatory approach for planned comparisons. Test anything exploratory as conservatively as you can with unplanned comparisons. Carefully distinguish the two approaches for your reader. Otherwise, it may look as though you selected different corrections for no clear reason.</p>
+</section>
+</section>
+</section>
+<section id="contrasts" class="level2" data-number="27.2">
+<h2 data-number="27.2" class="anchored" data-anchor-id="contrasts"><span class="header-section-number">27.2</span> Contrasts</h2>
+<p>A contrast lets you customize what you want to compare. It is the best way to conduct confirmatory testing. You can use pairwise comparisons or more complex tests that merge and compare groups. This is a huge topic, so we will cover only the basic types today and return to advanced forms, such as orthogonal and polynomial contrasts, later in the semester.</p>
+<section id="linear-contrast" class="level3" data-number="27.2.1">
+<h3 data-number="27.2.1" class="anchored" data-anchor-id="linear-contrast"><span class="header-section-number">27.2.1</span> Linear Contrast</h3>
+<p>This is basically an <em>F</em>-test in which you compare only the groups of interest. It also lets you merge groups for a comparison.</p>
+<p><span class="math display">\[F_{contrast} = \frac{MS_{contrast}}{MS_W} \]</span> Note: your book says:</p>
+<p><span class="math display">\[F_{contrast} = \frac{SS_{contrast}}{MS_W} \]</span></p>
+<p>That is correct because <span class="math inline">\(df_{contrast}\)</span> always equals 1 when we compare two groups at once (<span class="math inline">\(2-1 = 1\)</span>). Thus, <span class="math inline">\(MS_{contrast} = \frac{SS_{contrast}}{1}\)</span>. We can skip the <span class="math inline">\(MS_{contrast}\)</span> step because <span class="math inline">\(MS_{contrast} = SS_{contrast}\)</span>.</p>
+</section>
+<section id="pairwise-linear-contrast" class="level3" data-number="27.2.2">
+<h3 data-number="27.2.2" class="anchored" data-anchor-id="pairwise-linear-contrast"><span class="header-section-number">27.2.2</span> Pairwise (linear) Contrast</h3>
+<section id="step-1" class="level4" data-number="27.2.2.1">
+<h4 data-number="27.2.2.1" class="anchored" data-anchor-id="step-1"><span class="header-section-number">27.2.2.1</span> Step 1</h4>
+<p>Decide how you want to weight the cells. We call each weight <span class="math inline">\(C\)</span>, and <strong>the weights must add to zero</strong>. I want to compare No versus Helpful (H1), No versus Disrupted (H2), and Helpful versus Disrupted (H3). The specific numbers you choose are arbitrary.</p>
+<p>If we conduct three hypothesis tests, they form a family. We can review the code above to see our error rate for three tests: <span class="math inline">\(\alpha_{EW}\)</span> = 0.143.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 21%">
+<col style="width: 30%">
+<col style="width: 32%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th>No Joint Action</th>
+<th>Helpful Joint Action</th>
+<th>Disrupted Joint Action</th>
+<th>Sum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(M\)</span></td>
+<td>3</td>
+<td>5</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(C_{H1}\)</span></td>
+<td>-1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(C_{H2}\)</span></td>
+<td>-1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(C_{H3}\)</span></td>
+<td>0</td>
+<td>-1</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step-2" class="level4" data-number="27.2.2.2">
+<h4 data-number="27.2.2.2" class="anchored" data-anchor-id="step-2"><span class="header-section-number">27.2.2.2</span> Step 2</h4>
+<p>Linear Sum (<span class="math inline">\(L_{H1}\)</span>)</p>
+<p><span class="math display">\[ L = \displaystyle\sum_{i=1}^{k}C_iM_i\]</span> <span class="math display">\[ L = -1*3 + 1*5 + 0*2  = 2 \]</span></p>
+</section>
+<section id="step-3" class="level4" data-number="27.2.2.3">
+<h4 data-number="27.2.2.3" class="anchored" data-anchor-id="step-3"><span class="header-section-number">27.2.2.3</span> Step 3</h4>
+<p>Calculate the <span class="math inline">\(MS\)</span>/<span class="math inline">\(SS_{contrast}\)</span></p>
+<p><span class="math display">\[MS_{contrast} = \frac{nL^2}{\sum{C^2}}\]</span></p>
+<p><span class="math display">\[MS_{contrast} = \frac{nL^2}{\sum{C^2}} =  \frac{5*2^2}{{(-1)^2+(1)^2+(0)^2}} = \frac{20}{2} = 10\]</span></p>
+</section>
+<section id="step-4" class="level4" data-number="27.2.2.4">
+<h4 data-number="27.2.2.4" class="anchored" data-anchor-id="step-4"><span class="header-section-number">27.2.2.4</span> Step 4</h4>
+<p>Calculate <span class="math inline">\(F_{contrast}\)</span></p>
+<p><span class="math display">\[F_{contrast} = \frac{MS_{contrast}}{MS_W} = \frac{10}{1.33} = 7.5\]</span></p>
+<p>Note: You can convert it to <span class="math inline">\(t\)</span> as follows:</p>
+<p><span class="math display">\[\sqrt{F_{contrast}} = t_{contrast}\]</span></p>
+<p><span class="math display">\[\sqrt{7.5} = 2.739\]</span></p>
+</section>
+<section id="step-5" class="level4" data-number="27.2.2.5">
+<h4 data-number="27.2.2.5" class="anchored" data-anchor-id="step-5"><span class="header-section-number">27.2.2.5</span> Step 5</h4>
+<p>Look up <span class="math inline">\(F_{crit}\)</span> using <span class="math inline">\(df = (1,df_w)\)</span> or <span class="math inline">\(t_{crit}\)</span> using <span class="math inline">\(df = df_w\)</span>.</p>
+</section>
+</section>
+<section id="doing-contrasts-in-r" class="level3" data-number="27.2.3">
+<h3 data-number="27.2.3" class="anchored" data-anchor-id="doing-contrasts-in-r"><span class="header-section-number">27.2.3</span> Doing Contrasts in R</h3>
+<p>The <code>emmeans</code> package brings the ANOVA error term into the contrast. <code>emmeans</code> stands for estimated marginal means. When we get to two-way ANOVAs, the meaning of marginal means will become clearer. First, we run the ANOVA and pass the resulting <code>afex</code> object to <code>emmeans</code>. Estimated marginal means are based on the model’s fitted values rather than the raw data. ANOVA is a special case of regression, so this method also works for regression analysis.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Fitted.Model<span class="ot">&lt;-</span><span class="fu">emmeans</span>(ANOVA.Table, <span class="sc">~</span>Condition)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>Fitted.Model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition  emmean    SE df lower.CL upper.CL
+ Distrupted      2 0.516 12    0.875     3.13
+ Helpful         5 0.516 12    3.875     6.13
+ No              3 0.516 12    1.875     4.13
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>Notice that we created a new object containing the estimated marginal mean for each cell, the SE, the <span class="math inline">\(df_w\)</span> term, and the confidence intervals. The SE is the same for all cells because it is created from <span class="math inline">\(MS_W\)</span> when sample sizes are equal: <span class="math inline">\(SE = \frac{MS_w}{\sqrt{n}}\)</span>.</p>
+<p><strong>Pay attention to the order of the object. It does not match our table, so be careful.</strong></p>
+<p><em>Set up the hypotheses (make sure the order matches your fitted emmeans object!)</em></p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>set1 <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">H1_No.VS.H =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">H2_No.VS.D =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="sc">-</span><span class="dv">1</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">H3_D.VS.H =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Check: Do they each sum to zero?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">sum</span>(set1<span class="sc">$</span>H1_No.VS.H),<span class="fu">sum</span>(set1<span class="sc">$</span>H2_No.VS.D),<span class="fu">sum</span>(set1<span class="sc">$</span>H3_D.VS.H))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0 0 0</code></pre>
+</div>
+</div>
+<p>Run the contrast. <code>adjust = "none"</code> means that the p-value is not corrected for multiple comparisons.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrast</span>(Fitted.Model, set1, <span class="at">adjust =</span> <span class="st">"none"</span>) <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast   estimate   SE df lower.CL upper.CL t.ratio p.value
+ H1_No.VS.H        2 0.73 12    0.409    3.591   2.739  0.0180
+ H2_No.VS.D       -1 0.73 12   -2.591    0.591  -1.369  0.1960
+ H3_D.VS.H         3 0.73 12    1.409    4.591   4.108  0.0015
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>It matches the by-hand calculation!</p>
+<section id="pairwise-contrast-fishers-protected-t-test-aka-lsd" class="level4" data-number="27.2.3.1">
+<h4 data-number="27.2.3.1" class="anchored" data-anchor-id="pairwise-contrast-fishers-protected-t-test-aka-lsd"><span class="header-section-number">27.2.3.1</span> Pairwise Contrast = Fisher’s Protected <em>t</em>-Test (aka LSD)</h4>
+<p>LSD stands for Least Significant Difference. It is the most anti-conservative method because it provides <em>almost</em> no protection against Type I error, although it is used as the base pairwise method for other approaches. It modifies the <em>t</em>-test formula directly:</p>
+<p><span class="math display">\[  t = \frac{M_1 - M_2} {\sqrt{\frac{S^2_p}{n_1}+ \frac{S^2_p}{n_2}}}\]</span></p>
+<p><span class="math display">\[LSD= \frac{M_1 - M_2} {\sqrt{\frac{MS_W}{n_1}+ \frac{MS_W}{n_2}}} \]</span></p>
+<p>This works because <span class="math inline">\(MS_W\)</span> is basically <span class="math inline">\(S^2_p\)</span>: <span class="math inline">\(MS_W\)</span> is the pooled variance across all groups, while <span class="math inline">\(S^2_p\)</span> uses only the groups of interest. The error term therefore contains the pooled variance of all groups, making this a safer version of the <em>t</em>-test formula for our follow-up tests.</p>
+<p><strong>LSD is only appropriate for confirmatory testing with three or fewer comparisons.</strong></p>
+<p><span class="math display">\[LSD_{SE}=  \sqrt{\frac{MS_W}{n_1}+ \frac{MS_W}{n_2}}\]</span></p>
+<p><span class="math display">\[LSD_{SE}=  \sqrt{\frac{1.33}{5}+ \frac{1.33}{5}}\]</span></p>
+<p><span class="math inline">\(LSD_{SE}= .73\)</span>, which matches our contrast SE.</p>
+<section id="doing-lsd-in-r" class="level5" data-number="27.2.3.1.1">
+<h5 data-number="27.2.3.1.1" class="anchored" data-anchor-id="doing-lsd-in-r"><span class="header-section-number">27.2.3.1.1</span> Doing LSD in R</h5>
+<p>LSD can be calculated automatically and is a little easier than writing the linear contrast.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Fitted.Model<span class="ot">&lt;-</span><span class="fu">emmeans</span>(ANOVA.Table, <span class="sc">~</span>Condition)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">pairs</span>(Fitted.Model, <span class="at">adjust=</span><span class="st">'none'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast             estimate   SE df t.ratio p.value
+ Distrupted - Helpful       -3 0.73 12  -4.108  0.0015
+ Distrupted - No            -1 0.73 12  -1.369  0.1960
+ Helpful - No                2 0.73 12   2.739  0.0180</code></pre>
+</div>
+</div>
+<p>The estimate is now the mean difference between groups. The SE comes from the LSD equation, and the test uses <span class="math inline">\(df_W\)</span> to calculate p-values. This is identical to our linear contrast.</p>
+</section>
+</section>
+</section>
+<section id="custom-contrast" class="level3" data-number="27.2.4">
+<h3 data-number="27.2.4" class="anchored" data-anchor-id="custom-contrast"><span class="header-section-number">27.2.4</span> “Custom” Contrast</h3>
+<p>A custom contrast compares merged groups.</p>
+<section id="step-1-1" class="level4" data-number="27.2.4.1">
+<h4 data-number="27.2.4.1" class="anchored" data-anchor-id="step-1-1"><span class="header-section-number">27.2.4.1</span> Step 1</h4>
+<p>Decide how you want to weight the cells. We call each weight <span class="math inline">\(C\)</span>, and the weights must add to zero. I want to compare No + Disrupted versus Helpful.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 23%">
+<col style="width: 32%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th>No Joint Action</th>
+<th>Helpful Joint Action</th>
+<th>Disrupted Joint Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(M\)</span></td>
+<td>3</td>
+<td>5</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(C_{H4}\)</span></td>
+<td>-.5</td>
+<td>1</td>
+<td>-.5</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step-2-1" class="level4" data-number="27.2.4.2">
+<h4 data-number="27.2.4.2" class="anchored" data-anchor-id="step-2-1"><span class="header-section-number">27.2.4.2</span> Step 2</h4>
+<p>Linear Sum (<span class="math inline">\(L\)</span>)</p>
+<p><span class="math display">\[ L = \displaystyle\sum_{i=1}^{k}C_iM_i\]</span> <span class="math display">\[ L = -.5*3 +1*5 + -.5*2  = 2.5 \]</span></p>
+</section>
+<section id="step-3-1" class="level4" data-number="27.2.4.3">
+<h4 data-number="27.2.4.3" class="anchored" data-anchor-id="step-3-1"><span class="header-section-number">27.2.4.3</span> Step 3</h4>
+<p>Calculate the <span class="math inline">\(MS\)</span>/<span class="math inline">\(SS_{contrast}\)</span></p>
+<p><span class="math display">\[MS_{contrast} = \frac{nL^2}{\sum{C^2}}\]</span></p>
+<p><span class="math display">\[MS_{contrast} = \frac{nL^2}{\sum{C^2}} =  \frac{5*2.5^2}{{(-.5)^2+(1)^2+(-.5)^2}} = \frac{31.25}{1.5} = 20.833\]</span></p>
+</section>
+<section id="step-4-1" class="level4" data-number="27.2.4.4">
+<h4 data-number="27.2.4.4" class="anchored" data-anchor-id="step-4-1"><span class="header-section-number">27.2.4.4</span> Step 4</h4>
+<p>Calculate <span class="math inline">\(F_{contrast}\)</span></p>
+<p><span class="math display">\[F_{contrast} = \frac{MS_{contrast}}{MS_W} = \frac{20.833}{1.33} = 15.625\]</span></p>
+<p>Note: You can convert it to a <em>t</em>-test as follows:</p>
+<p><span class="math display">\[\sqrt{F_{contrast}} = t_{contrast}\]</span></p>
+<p><span class="math display">\[\sqrt{15.625} = 3.953\]</span></p>
+</section>
+<section id="step-5-1" class="level4" data-number="27.2.4.5">
+<h4 data-number="27.2.4.5" class="anchored" data-anchor-id="step-5-1"><span class="header-section-number">27.2.4.5</span> Step 5</h4>
+<p>Look up <span class="math inline">\(F_{crit}\)</span> using <span class="math inline">\(df = (1,df_w)\)</span> or <span class="math inline">\(t_{crit}\)</span> using <span class="math inline">\(df = df_w\)</span>.</p>
+</section>
+</section>
+<section id="doing-custom-contrasts-in-r" class="level3" data-number="27.2.5">
+<h3 data-number="27.2.5" class="anchored" data-anchor-id="doing-custom-contrasts-in-r"><span class="header-section-number">27.2.5</span> Doing Custom Contrasts in R</h3>
+<p>Check the order of my fitted values.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted.Model&lt;-emmeans(ANOVA.Table, ~Condition) #we already created this</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Fitted.Model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition  emmean    SE df lower.CL upper.CL
+ Distrupted      2 0.516 12    0.875     3.13
+ Helpful         5 0.516 12    3.875     6.13
+ No              3 0.516 12    1.875     4.13
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<ul>
+<li>Set up the hypothesis (make sure the order matches your fitted emmeans object!)</li>
+<li><em>Make sure that the numbers add to 1 within each group you merge.</em> This does not affect the contrast, but it matters for the estimate used in the effect-size calculation.</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>set2 <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">H4 =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">5</span>,<span class="dv">1</span>,<span class="sc">-</span>.<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<ul>
+<li>Check: Do they each sum to zero?</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(set2<span class="sc">$</span>H4)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<ul>
+<li>Run the contrast</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrast</span>(Fitted.Model, set2, <span class="at">adjust =</span> <span class="st">"none"</span>)   <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast estimate    SE df lower.CL upper.CL t.ratio p.value
+ H4            2.5 0.632 12     1.12     3.88   3.953  0.0019
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>It matches the by-hand calculation!</p>
+</section>
+</section>
+<section id="correcting-p-values-for-multiple-comparisons" class="level2" data-number="27.3">
+<h2 data-number="27.3" class="anchored" data-anchor-id="correcting-p-values-for-multiple-comparisons"><span class="header-section-number">27.3</span> Correcting p-Values for Multiple Comparisons</h2>
+<p>There are several ways to correct p-values for multiple comparisons, ranging from anti-conservative to ultra-conservative. By default, <code>emmeans</code> corrects within a set of comparisons. Our pairwise contrast has <span class="math inline">\(j=3\)</span>, while our custom contrast has <span class="math inline">\(j=1\)</span>, because we ran them as separate families of tests. <code>emmeans</code> therefore will not correct for four tests, nor will it correct the custom contrast, no matter what you tell it to do. <em>It will ignore you. Look for the note below the contrast to see whether a correction was applied.</em></p>
+<section id="tukeys-hsd" class="level3" data-number="27.3.1">
+<h3 data-number="27.3.1" class="anchored" data-anchor-id="tukeys-hsd"><span class="header-section-number">27.3.1</span> Tukey’s HSD</h3>
+<p>The Honestly Significant Difference test, also called Tukey’s test, protects against Type I error better than LSD. It is popular for <em>pairwise</em> comparisons because it is more conservative than LSD, but it does not destroy power and is easy to understand. I think people like it because they do not “lose” all their effects, although it is still not very conservative overall. The formulas are similar to LSD, but Tukey uses the studentized-range distribution and its q-table to produce more conservative critical values. You compare <span class="math inline">\(q_{exp}\)</span> with <span class="math inline">\(q_{crit}\)</span> as you would in a <em>t</em>-test.</p>
+<p><span class="math display">\[q= \frac{M_1 - M_2} {\sqrt{\frac{MS_W}{n}}} \]</span> Here is the simple formula used to calculate HSD by hand. If a mean difference is greater than the HSD value, the difference is significant.</p>
+<p><span class="math display">\[HSD = q_{crit} {\sqrt{\frac{MS_W}{n}}}\]</span></p>
+<section id="doing-hsd-in-r" class="level4" data-number="27.3.1.1">
+<h4 data-number="27.3.1.1" class="anchored" data-anchor-id="doing-hsd-in-r"><span class="header-section-number">27.3.1.1</span> Doing HSD in R</h4>
+<p>The <code>emmeans</code> package provides a <em>t</em>-value, as with LSD, and corrects the p-values automatically. The computer can also correct for unequal sample sizes using the Tukey-Kramer method, while the formulas I gave you cannot.</p>
+<p>Correcting a pairwise contrast to HSD (<strong>note: You cannot technically apply HSD to a custom contrast, but you can use an MVT adjustment, which is very similar</strong>).</p>
+<p>Correcting LSD to HSD</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted.Model&lt;-emmeans(ANOVA.Table, ~Condition) #we already created this</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(Fitted.Model, <span class="at">adjust=</span><span class="st">'tukey'</span>) <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast             estimate   SE df lower.CL upper.CL t.ratio p.value
+ Distrupted - Helpful       -3 0.73 12  -4.9483   -1.052  -4.108  0.0038
+ Distrupted - No            -1 0.73 12  -2.9483    0.948  -1.369  0.3866
+ Helpful - No                2 0.73 12   0.0517    3.948   2.739  0.0441
+
+Confidence level used: 0.95 
+Conf-level adjustment: tukey method for comparing a family of 3 estimates 
+P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
+</div>
+</div>
+<p>Note the message at the bottom: <em>P value adjustment: Tukey method for comparing a family of 3 estimates</em>. This corrects for three tests. We will need to be careful about this when we move to two-way ANOVAs. <strong>Read the notes carefully because <code>emmeans</code> sometimes declines a request that does not make statistical sense.</strong></p>
+<p>Correcting contrast to MVT</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted.Model&lt;-emmeans(ANOVA.Table, ~Condition) #we already created this</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">contrast</span>(Fitted.Model, set1, <span class="at">adjust =</span> <span class="st">"mvt"</span>)  <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast   estimate   SE df lower.CL upper.CL t.ratio p.value
+ H1_No.VS.H        2 0.73 12   0.0528    3.947   2.739  0.0439
+ H2_No.VS.D       -1 0.73 12  -2.9472    0.947  -1.369  0.3866
+ H3_D.VS.H         3 0.73 12   1.0528    4.947   4.108  0.0037
+
+Confidence level used: 0.95 
+Conf-level adjustment: mvt method for 3 estimates 
+P value adjustment: mvt method for 3 tests </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="bonferroni-family" class="level3" data-number="27.3.2">
+<h3 data-number="27.3.2" class="anchored" data-anchor-id="bonferroni-family"><span class="header-section-number">27.3.2</span> Bonferroni Family</h3>
+<p>The logic of these tests is to lower <span class="math inline">\(\alpha_{pc}\)</span> based on the number of tests until <span class="math inline">\(\alpha_{EW} = .05\)</span>, or another rate you set. These tests are extremely conservative and reduce power, although psychologists use them often. Methodologists have created many corrections that protect against Type I error without inflating Type II error as much in between-subjects designs.</p>
+<section id="bonferroni-correction" class="level4" data-number="27.3.2.1">
+<h4 data-number="27.3.2.1" class="anchored" data-anchor-id="bonferroni-correction"><span class="header-section-number">27.3.2.1</span> Bonferroni Correction</h4>
+<p>This is the most conservative and least powerful approach. <span class="math display">\[\alpha_{pc} = \frac{\alpha_{EW}}{j} \]</span></p>
+<p>For our study that means:</p>
+<p><span class="math display">\[\alpha_{pc} = \frac{\alpha_{EW}}{j} = \frac{.05}{3} = .0167\]</span></p>
+<p>Thus, we would run LSD tests with <span class="math inline">\(\alpha_{pc} = .0167\)</span> instead of .05.</p>
+<section id="doing-bonferroni-in-r" class="level5" data-number="27.3.2.1.1">
+<h5 data-number="27.3.2.1.1" class="anchored" data-anchor-id="doing-bonferroni-in-r"><span class="header-section-number">27.3.2.1.1</span> Doing Bonferroni in R</h5>
+<p><code>emmeans</code> calculates the contrast, or LSD, and corrects the p-values based on the number of tests in the family.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fitted.Model&lt;-emmeans(ANOVA.Table, ~Condition) #we already created this</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">contrast</span>(Fitted.Model, set1, <span class="at">adjust =</span> <span class="st">"bon"</span>)<span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast   estimate   SE df lower.CL upper.CL t.ratio p.value
+ H1_No.VS.H        2 0.73 12  -0.0298     4.03   2.739  0.0539
+ H2_No.VS.D       -1 0.73 12  -3.0298     1.03  -1.369  0.5880
+ H3_D.VS.H         3 0.73 12   0.9702     5.03   4.108  0.0044
+
+Confidence level used: 0.95 
+Conf-level adjustment: bonferroni method for 3 estimates 
+P value adjustment: bonferroni method for 3 tests </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sidak-correction" class="level4" data-number="27.3.2.2">
+<h4 data-number="27.3.2.2" class="anchored" data-anchor-id="sidak-correction"><span class="header-section-number">27.3.2.2</span> Sidak Correction</h4>
+<p>This approach is less conservative than Bonferroni, but still very conservative.</p>
+<p><span class="math display">\[ \alpha_{new} = 1-(1-\alpha_{pc})^{1/j}\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">contrast</span>(Fitted.Model, set1, <span class="at">adjust =</span> <span class="st">"sidak"</span>)  <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast   estimate   SE df lower.CL upper.CL t.ratio p.value
+ H1_No.VS.H        2 0.73 12  -0.0231     4.02   2.739  0.0530
+ H2_No.VS.D       -1 0.73 12  -3.0231     1.02  -1.369  0.4803
+ H3_D.VS.H         3 0.73 12   0.9769     5.02   4.108  0.0043
+
+Confidence level used: 0.95 
+Conf-level adjustment: sidak method for 3 estimates 
+P value adjustment: sidak method for 3 tests </code></pre>
+</div>
+</div>
+</section>
+<section id="notes" class="level4" data-number="27.3.2.3">
+<h4 data-number="27.3.2.3" class="anchored" data-anchor-id="notes"><span class="header-section-number">27.3.2.3</span> Notes</h4>
+<p>There are many other types of corrections. They are most often applied to pairwise approaches using the familywise philosophy.</p>
+</section>
+</section>
+</section>
+<section id="effect-sizes-for-contrasts" class="level2" data-number="27.4">
+<h2 data-number="27.4" class="anchored" data-anchor-id="effect-sizes-for-contrasts"><span class="header-section-number">27.4</span> Effect Sizes for Contrasts</h2>
+<p>If you assume HOV, you can modify Cohen’s <span class="math inline">\(d\)</span> by using <span class="math inline">\(MS_W\)</span> in these follow-up tests.</p>
+<p><span class="math display">\[d = \frac{M_1-M_2}{\sqrt{S_p^2}} = \frac{M_1-M_2}{\sqrt{MS_w}}\]</span></p>
+<p>You can extract <span class="math inline">\(MS_W\)</span> from the ANOVA with this script. Make sure to change the object name to match your ANOVA.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>SD.pooled <span class="ot">=</span> <span class="fu">sqrt</span>(ANOVA.Table<span class="sc">$</span>anova_table<span class="sc">$</span>MSE)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>SD.pooled</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.154701</code></pre>
+</div>
+</div>
+<p>That value is your pooled SD, which you need for the next step.</p>
+<p>Pass the estimated marginal means to the built-in <code>eff_size</code> function along with <span class="math inline">\(DF_W\)</span>, the residual df from the model. You can also request a confidence interval around the effect size with <code>%&gt;% summary()</code>.</p>
+<section id="pairwise-effect-size" class="level4" data-number="27.4.0.1">
+<h4 data-number="27.4.0.1" class="anchored" data-anchor-id="pairwise-effect-size"><span class="header-section-number">27.4.0.1</span> Pairwise Effect Size</h4>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>Con.with.d<span class="ot">&lt;-</span><span class="fu">emmeans</span>(Fitted.Model, <span class="sc">~</span> Condition,<span class="at">adjust=</span><span class="st">'none'</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">eff_size</span>(Con.with.d, <span class="at">sigma =</span> SD.pooled, <span class="at">edf =</span> <span class="dv">12</span>, <span class="at">method=</span><span class="st">'pairwise'</span>) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast             effect.size    SE df lower.CL upper.CL
+ Distrupted - Helpful      -2.598 0.825 12   -4.396   -0.800
+ Distrupted - No           -0.866 0.657 12   -2.297    0.565
+ Helpful - No               1.732 0.725 12    0.153    3.311
+
+sigma used for effect sizes: 1.155 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+</section>
+<section id="custom-contrast-effect-size" class="level4" data-number="27.4.0.2">
+<h4 data-number="27.4.0.2" class="anchored" data-anchor-id="custom-contrast-effect-size"><span class="header-section-number">27.4.0.2</span> Custom Contrast Effect Size</h4>
+<p>Make sure to set <code>method = "identity"</code>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>Con.with.d<span class="fl">.2</span><span class="ot">&lt;-</span><span class="fu">contrast</span>(Fitted.Model, set2, <span class="at">adjust =</span> <span class="st">"none"</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">eff_size</span>(Con.with.d<span class="fl">.2</span>, <span class="at">sigma =</span> SD.pooled, <span class="at">edf =</span> <span class="dv">12</span>, <span class="at">method=</span><span class="st">'identity'</span>) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast effect.size    SE df lower.CL upper.CL
+ H4              2.17 0.704 12    0.632      3.7
+
+sigma used for effect sizes: 1.155 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="a-priori-power-and-contrasts" class="level2" data-number="27.5">
+<h2 data-number="27.5" class="anchored" data-anchor-id="a-priori-power-and-contrasts"><span class="header-section-number">27.5</span> <em>A Priori</em> Power and Contrasts</h2>
+<p>Remember, <em>a priori</em> power is determined by <span class="math inline">\(\alpha_{pc}\)</span>, effect size, and sample size. Let’s examine power for the ANOVA and the follow-up tests when we change alpha.</p>
+<p>For power analysis with a one-way ANOVA, we need Cohen’s <span class="math inline">\(f\)</span>, which plays a role similar to <span class="math inline">\(d\)</span> for <em>t</em>-tests.</p>
+<p><span class="math display">\[f = \sqrt{\frac{K-1}{K}\frac{F}{n}}\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>ES</th>
+<th>Value</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(f\)</span></td>
+<td>.1</td>
+<td>Small effect</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(f\)</span></td>
+<td>.25</td>
+<td>Medium effect</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(f\)</span></td>
+<td>.4</td>
+<td>Large effect</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">\(f_{observed}\)</span> = 1.08, a large effect for our study. Remember that these values may be inflated in small-<span class="math inline">\(N\)</span> studies. For now, we will believe it and use it to calculate <em>post hoc</em> power, which does not predict our <em>a priori</em> power in the wild.</p>
+<p>Note: You can approximate <span class="math inline">\(f\)</span> from <span class="math inline">\(\eta^2\)</span> using <span class="math inline">\(f = \sqrt{\frac{\eta^2}{1 - \eta^2}}\)</span>, but it will not be bias-corrected like the formula above.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pwr)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.anova.test</span>(<span class="at">k =</span> <span class="dv">3</span>, <span class="at">n =</span> <span class="dv">5</span>, <span class="at">f =</span> <span class="fl">1.08</span>, <span class="at">sig.level =</span> <span class="fl">0.05</span>, <span class="at">power =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Balanced one-way analysis of variance power calculation 
+
+              k = 3
+              n = 5
+              f = 1.08
+      sig.level = 0.05
+          power = 0.9169511
+
+NOTE: n is number in each group</code></pre>
+</div>
+</div>
+<p>We can convert <span class="math inline">\(f\)</span> into <span class="math inline">\(d\)</span> to estimate the overall effect size: <span class="math inline">\(d = 2f\)</span>. <strong>Note:</strong> This is only a conceptual formula; Cohen provides different versions for different patterns of data.</p>
+<p><span class="math inline">\(d\)</span> = 2.16</p>
+<p>At <span class="math inline">\(\alpha_{pc} = .05\)</span>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.t.test</span>(<span class="at">n =</span> <span class="dv">5</span>, <span class="at">d =</span> <span class="fl">2.16</span>, <span class="at">power =</span> <span class="cn">NULL</span>, <span class="at">sig.level =</span> .<span class="dv">05</span>,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"two.sample"</span>), <span class="at">alternative =</span> <span class="fu">c</span>(<span class="st">"two.sided"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Two-sample t test power calculation 
+
+              n = 5
+              d = 2.16
+      sig.level = 0.05
+          power = 0.8476039
+    alternative = two.sided
+
+NOTE: n is number in *each* group</code></pre>
+</div>
+</div>
+<p>We are above .80.</p>
+<p>If we apply a Bonferroni correction, <span class="math inline">\(\alpha_{pc} = .05/3 = .0167\)</span>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pwr.t.test</span>(<span class="at">n =</span> <span class="dv">5</span>, <span class="at">d =</span> <span class="fl">2.16</span>, <span class="at">power =</span> <span class="cn">NULL</span>, <span class="at">sig.level =</span> .<span class="dv">0167</span>,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"two.sample"</span>), <span class="at">alternative =</span> <span class="fu">c</span>(<span class="st">"two.sided"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Two-sample t test power calculation 
+
+              n = 5
+              d = 2.16
+      sig.level = 0.0167
+          power = 0.6569859
+    alternative = two.sided
+
+NOTE: n is number in *each* group</code></pre>
+</div>
+</div>
+<p><strong>The power dropped!</strong> Your ANOVA might find the effect while the Bonferroni-corrected tests miss it. This happens often. The next question people ask me is, which result is <strong>real</strong>, the ANOVA or the Bonferroni tests?</p>
+</section>
+<section id="suggestions-for-the-review-process" class="level2" data-number="27.6">
+<h2 data-number="27.6" class="anchored" data-anchor-id="suggestions-for-the-review-process"><span class="header-section-number">27.6</span> Suggestions for the Review Process</h2>
+<p>Follow-up testing is the hardest part of many analyses. There is often no single correct answer, and it is where reviewers will fight you the hardest.</p>
+<blockquote class="blockquote">
+<p>Reviewers often have their own perspectives on what they want to see and how they want to see it. Perhaps (a) you misunderstood your own hypothesis, (b) they misunderstood your hypothesis because you explained it badly or they simply did not read, or (c) one reviewer demands all comparisons while another demands that you remove them. Reviewer 1 versus Reviewer 3 on the same paper!</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>They may be fine with what you tested but disagree with how you tested it. Perhaps (a) they want only a Bonferroni correction because they want to control Type I error, want to kill your effect cause they do not like it, cynical, I know, or were taught that LSD/HSD is the devil; (b) they want specialized contrasts when you used pairwise comparisons, or the reverse; or (c) they want you to use, or not use, the ANOVA error term in an LSD or contrast approach. If you violated assumptions, they may be right in specific cases, but they need to explain their rationale.</p>
+</blockquote>
+<p>First, reviewers are not always right. However, assume that <strong>YOU</strong> did not clearly explain what you did. Rewrite in plain English what you tested and whether the tests were planned or unplanned. Use simple sentences. This is technical writing, not English literature. Make it clear <strong>visually</strong> and <strong>verbally</strong> what you did and why by guiding the reader with graphs or tables. Cite sources supporting your approach to follow-up testing. Do not assume that readers know what you did or why. In your response, explain how you changed the wording and thank the reviewer for helping you make it clearer.</p>
+<p>Second, do not play games with readers. If <span class="math inline">\(p = .07\)</span> supports your hypothesis and you call it significant, but later call <span class="math inline">\(p = .06\)</span> nonsignificant because it contradicts your hypothesis, readers will notice. This is a huge red flag that you are biased at best or p-hacking at worst. Your paper might be rejected without an invitation to revise, and the editor and reviewers may remember you. Most psychology journals are not double-blind.</p>
+<p>Third, do not p-hack. Do not hunt for a correction that makes your result significant after a more conservative test fails. If you get a reviewer who is paying attention, they will eat you alive! That lack of trust makes reviewers say to Bonferroni-correct everything. If you use a confirmatory approach, you can put the exploratory material in the appendix and apply Bonferroni there. Reviewers will trust you more when you show that you understand p-hacking and avoid drawing too many conclusions.</p>
+<p>Finally, reviewers might be right. Thank the reviewer for the careful reading and correct your paper or withdraw it from the review process. Yes, it sucks, but that is why we have reviewers. If they do their job well, everyone benefits!</p>
+</section>
+<section id="apa-style-report" class="level2" data-number="27.7">
+<h2 data-number="27.7" class="anchored" data-anchor-id="apa-style-report"><span class="header-section-number">27.7</span> APA-Style Report</h2>
+<p>[Note: I cannot center everything in R, but you can render to Word and correct the formatting there. If you download the <code>.qmd</code> file, you will see my complete analysis.]</p>
+<p>When people perform joint actions, their trust in one another increases (Launay, Dean, &amp; Bailes, 2013). Feelings of affiliation also increase when joint action occurs synchronously (Hove &amp; Risen, 2009), while poor synchronization decreases feelings of social affiliation (Demos et al., 2017). However, it remains unclear whether trust results from moving in time together (Hove &amp; Risen, 2009) or simply sharing a task (Demos et al., 2012). To test this question, we designed a study with three conditions: helpful joint action, disrupted joint action, and no joint action. In the helpful condition, a confederate tried to remain synchronous with the participant. In the disrupted condition, the confederate performed the joint action asynchronously. In the control condition, the participant and confederate completed a task together but not jointly. We predicted that synchronous joint action would increase trust compared with no joint action or asynchronous movement.</p>
+<center>
+<strong>Methods</strong>
+</center>
+<p><strong>Procedure</strong></p>
+<p>Two people entered the lab: a participant and a confederate whose status was unknown to the participant. They were asked to either (a) move chairs independently, (b) move a couch together while the confederate followed the participant’s lead, or (c) move a couch together while the confederate hindered the participant. Moving a couch required the two people to coordinate their actions. After the study, participants rated how trustworthy their partner seemed from 1 to 7, with 7 indicating high trust.</p>
+<p><strong>Data Analysis</strong></p>
+<p>Analyses were conducted in R (4.2.1). The <em>afex</em> package (1.1-1; Singmann et al., 2018) was used to calculate the ANOVAs, and the <em>emmeans</em> package (1.8.0; Lenth, 2018) was used for follow-up testing. Data wrangling and plots were generated with the <em>tidyverse</em> package (1.3.2; Wickham et al., 2019). Planned comparisons were tested with linear contrasts. Unplanned contrasts were Sidak-corrected.</p>
+<p><strong>Results</strong></p>
+<p>A one-way between-subjects ANOVA was conducted to compare the effect of joint action on trust across the no, helpful, and disrupted joint-action conditions. There was a significant effect of joint action on trust, <span class="math inline">\(F(2,12) = 8.75, MS_W = 1.33, p &lt; 0.01, \eta_g^2 = 0.59\)</span>. The planned contrast showed that trust was higher in the helpful joint-action condition (<em>M</em> = 5.00, <em>SD</em> = 1.22) than in the combined no and disrupted joint-action conditions (<em>M</em> = 2.50, <em>SD</em> = 1.18), <em>t</em>(12) = 3.95, <em>p</em> = .0019, <em>d</em> = 4.33. As shown in Figure 1, the planned contrast between the disrupted and no joint-action conditions was not significant, <em>t</em>(12) = 1.369, <em>p</em> = .20, <em>d</em> = -0.87. Sidak-corrected unplanned contrasts showed significantly higher trust in the helpful condition than in the disrupted condition, <em>t</em>(12) = 4.11, <em>p</em> = .003, <em>d</em> = 2.6, and the no joint-action condition, <em>t</em>(12) = 2.74, <em>p</em> = .04, <em>d</em> = 1.73. These results suggest that trust may result from synchronous action rather than joint action alone.</p>
+<p><strong>Figure 1</strong></p>
+<p><em>Mean trust ratings (1-7) across the three joint-action conditions. Error bars show +/- 1 SE.</em></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_27_One_Way_Follow_Ups_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="288"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="references" class="level2" data-number="27.8">
+<h2 data-number="27.8" class="anchored" data-anchor-id="references"><span class="header-section-number">27.8</span> References</h2>
+<p>Demos, A.P., Carter, D.J., Wanderley, M.M., &amp; Palmer, C (2017). The unresponsive partner: Roles of social status, auditory feedback, and animacy in coordination of joint music performance. <em>Frontiers in Psychology</em>, 149(8).</p>
+<p>Demos, A.P., Chaffin, R., Begosh, K. T., Daniels, J. R., &amp; Marsh, K. L. (2012). Rocking to the beat: Effects of music and partner’s movements on spontaneous interpersonal coordination. <em>Journal of Experimental Psychology: General</em>, 141(1), 49-53.</p>
+<p>Hove, M. J., &amp; Risen, J. L. (2009). It’s all in the timing: Interpersonal synchrony increases affiliation. <em>Social Cognition</em>, 27(6), 949-960.</p>
+<p>Launay, J., Dean, R. T., &amp; Bailes, F. (2013). Synchronization can influence trust following virtual interaction. <em>Experimental Psychology</em>, 60(1), 53-63.</p>
+<p>Lenth, R. (2018). emmeans: Estimated Marginal Means, aka Least-Squares Means. R Package Version 1.6.3. Available at: https://CRAN.R-project.org/package=emmeans.</p>
+<p>Singmann, H., Bolker, B., Westfall, J., and Aust, F. (2021). afex: Analysis of Factorial Experiments. R Package Version 1.0-1. Available at: https://CRAN.R-project.org/package=afex.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_26_One_Way_ANOVA.html" class="pagination-link" aria-label="Introduction to Analysis of Variance (ANOVA)">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="pagination-link" aria-label="Calculating the Two-Way Between-Subjects ANOVA">
+        <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_27_One_Way_Follow_Ups.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

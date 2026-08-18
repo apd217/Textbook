@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>3&nbsp; Probability: The Gods Are Fickle – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_04_Distributions.html" rel="next">
+<link href="./Ch_02_R_Basics.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_01_Introduction.html">The Necessary Slog</a></li><li class="breadcrumb-item"><a href="./Ch_03_Probability.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_01_Introduction.html">The Necessary Slog</a></li><li class="breadcrumb-item"><a href="./Ch_03_Probability.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="a-car-two-goats-and-a-terrible-decision" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="a-car-two-goats-and-a-terrible-decision"><span class="header-section-number">3.1</span> A Car, Two Goats, and a Terrible Decision</h2>
+<p>You are on a game show. There are three doors. Behind one is a car. Behind the other two are goats. <em>My guess is you want the car, but I don’t know why. Goats have several advantages: a) they make funny sounds when they scream, b) some faint when frightened, and c) you can use one to cast a Greek curse on the Chicago Cubs so they never win another game!</em></p>
+<p>You choose Door 1. The host, Monty, knows where the car is. He opens one of the other doors and reveals a goat. He then offers you a choice: <strong>stay</strong> with Door 1 or <strong>switch</strong> to the remaining closed door.</p>
+<p>Should you <strong>stay</strong>, <strong>switch</strong>, or <strong>does it make no difference</strong> what you do? <strong>I think you should declare that goats are better than cars and ask for a goat!</strong></p>
+<p>So what should you do?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="What Most People Do">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What Most People Do
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Most people stay. Some believe a deity secretly loves them above all others and guided them to the correct door. Switching would insult the deity. Others know they would be furious if they chose the correct door and then switched away from it. Finally, some people use their giant frontal cortex to conclude that two remaining doors must mean a 50/50 chance.</p>
+<p>All three groups stay. All three groups are wrong.</p>
+</div>
+</div>
+<p>Well, people are really bad at probability, and it is not 50/50. <em>You should switch</em>. Staying with your first door wins about <span class="math inline">\(1/3\)</span> of the time; switching wins about <span class="math inline">\(2/3\)</span> of the time.</p>
+<p>Why? Your original choice had a <span class="math inline">\(1/3\)</span> chance of being correct and a <span class="math inline">\(2/3\)</span> chance of being wrong. Monty did not open a random door. He used his knowledge to remove a goat from the two doors you did not choose. If your first choice was wrong—which happens <span class="math inline">\(2/3\)</span> of the time—switching fixes it.</p>
+<p>Do not believe me. Believing me is not the point of this class. Make R play the game ten thousand times and check:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>play_monty <span class="ot">&lt;-</span> <span class="cf">function</span>(switch_doors) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  car <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">1</span>)          <span class="co"># where the car actually is</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  pick <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">1</span>)         <span class="co"># your first guess</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (switch_doors) {</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Monty removes a goat door, so switching lands on the car</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># whenever your first guess was wrong.</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    pick <span class="sc">!=</span> car</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    pick <span class="sc">==</span> car</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>stay   <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, <span class="fu">play_monty</span>(<span class="at">switch_doors =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span> <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, <span class="fu">play_monty</span>(<span class="at">switch_doors =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">stay =</span> <span class="fu">mean</span>(stay), <span class="at">switch =</span> <span class="fu">mean</span>(<span class="cf">switch</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  stay switch 
+0.3382 0.6616 </code></pre>
+</div>
+</div>
+<p>Two-thirds. R has no intuition to override, which is exactly why it got this right and we did not.</p>
+<p>If the simulation still feels like a trick, draw the whole game out. There are only three ways it can start, because there are only three doors the car can be behind, and each is equally likely:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_03_Probability_files/figure-html/monty-tree-1.png" class="img-fluid figure-img" alt="A tree diagram starting from a box reading you pick Door 1. It splits into three equally likely branches for where the car is: Door 1, Door 2, and Door 3. Under each branch a box shows what Monty must open and what switching gets you. Switching loses only in the branch where the car was behind Door 1, and wins in the other two, which are shaded." width="816"></p>
+<figcaption>Every possible game, assuming you picked Door 1. Switching wins in two branches out of three.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The middle and right branches are where the whole thing turns. In both of them Monty has <strong>no choice at all</strong> about which door to open, because one door has the car and the other has your original pick. His hand is forced, and that forced move is what hands you the information. Only in the left branch, where you already had the car, does he get a free choice, and that is the one branch where switching costs you.</p>
+<p>This answer depends on the rules: Monty knows where the car is, always opens a goat door, and always offers the switch. If the host sometimes opens the car, chooses doors randomly, or offers a switch only when he is bored, the probability changes. A probability depends on the rules that produce the outcomes. Change the rules, and you may change the probability. Keeping the old probability after quietly changing the rules is how nonsense enters wearing a lab coat.</p>
+<p>The Monty Hall problem feels wrong because people often treat all visible options as equally likely. They are not. Two possible outcomes do not automatically mean 50/50 <span class="citation" data-cites="ang2014">(<a href="#ref-ang2014" role="doc-biblioref">Ang and Shahrill 2014</a>)</span>. A hypothesis test can also end with two possible decisions. That does not mean each decision had a 50% probability.</p>
+</section>
+<section id="what-probability-means-and-what-it-will-never-promise-you" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="what-probability-means-and-what-it-will-never-promise-you"><span class="header-section-number">3.2</span> What Probability Means, and What It Will Never Promise You</h2>
+<p>A probability is a number from 0 to 1 describing how likely an event is under stated assumptions.</p>
+<ul>
+<li>An impossible event has probability 0.</li>
+<li>A certain event has probability 1.</li>
+<li><span class="math inline">\(P(A)=.50\)</span> means that across many comparable opportunities, event <span class="math inline">\(A\)</span> should occur about half the time.</li>
+</ul>
+<p>That last sentence is important. Probability does not promise that exactly 10 of your next 20 coin flips will be heads. It describes what happens over many repetitions. In a small sample, chance can behave like a raccoon inside a convenience store: energetic, destructive, and technically following the laws of nature.</p>
+<p>The <strong>sample space</strong> is the set of possible outcomes. For one ordinary six-sided die:</p>
+<p><span class="math display">\[
+S = \{1,2,3,4,5,6\}.
+\]</span></p>
+<p>If the die is fair, the probability of rolling a 2 is</p>
+<p><span class="math display">\[
+P(2)=\frac{1}{6}=.167.
+\]</span></p>
+<p>The word <strong>fair</strong> is an assumption. Statistics is full of assumptions. We will test some and defend others. Occasionally, we will discover that an assumption came from someone in 1974 who “felt” it was right. Everyone else cited them and put their fingers in their ears.</p>
+</section>
+<section id="three-rules-that-do-most-of-the-work" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="three-rules-that-do-most-of-the-work"><span class="header-section-number">3.3</span> Three Rules That Do Most of the Work</h2>
+<section id="the-complement-rule-not-a" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="the-complement-rule-not-a"><span class="header-section-number">3.3.1</span> The complement rule: “not A”</h3>
+<p>The probability that an event does not occur is</p>
+<p><span class="math display">\[
+P(\text{not }A)=1-P(A).
+\]</span></p>
+<p>Let event <span class="math inline">\(A\)</span> mean a participant figures out what your study is really about. Suppose:</p>
+<p><span class="math display">\[
+P(A)=.20
+\]</span></p>
+<p>The probability that the participant does <strong>not</strong> notice them is:</p>
+<p><span class="math display">\[
+P(\text{not }A)=1-.20=.80
+\]</span></p>
+<p>This example does not include a research assistant revving a chainsaw to increase the participant’s heart rate. Everyone would notice that, so <span class="math inline">\(P(\text{not }A)=0\)</span>. More importantly, the ethics board already rejected it.</p>
+</section>
+<section id="the-addition-rule-a-or-b" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="the-addition-rule-a-or-b"><span class="header-section-number">3.3.2</span> The addition rule: “A or B”</h3>
+<p>For events that cannot occur together,</p>
+<p><span class="math display">\[
+P(A \text{ or } B)=P(A)+P(B).
+\]</span></p>
+<p>On one die roll, the probability of a 1 or a 2 is <span class="math inline">\(1/6+1/6=2/6\)</span>.</p>
+<p>If events can overlap, subtract the overlap so it is not counted twice:</p>
+<p><span class="math display">\[
+P(A \text{ or }B)=P(A)+P(B)-P(A \text{ and }B).
+\]</span></p>
+</section>
+<section id="the-multiplication-rule-a-and-b" class="level3" data-number="3.3.3">
+<h3 data-number="3.3.3" class="anchored" data-anchor-id="the-multiplication-rule-a-and-b"><span class="header-section-number">3.3.3</span> The multiplication rule: “A and B”</h3>
+<p>If two events are <strong>independent</strong>, knowing one occurred tells us nothing about the probability of the other:</p>
+<p><span class="math display">\[
+P(A \text{ and }B)=P(A)P(B).
+\]</span></p>
+<p>The probability of getting heads twice with a fair coin is <span class="math inline">\(.5\times.5=.25\)</span>.</p>
+<p>Independent does not mean “different.” It means one event does not change the probability of the other.</p>
+<p>The next example uses a standard deck: 52 cards, 13 of them hearts. <strong>With replacement</strong> means you put the card back and reshuffle, so the deck resets and forgets you. <strong>Without replacement</strong> means the card stays out, so the deck remembers. That distinction returns much later, when we resample our own data with replacement and call it bootstrapping.</p>
+<p>Drawing two hearts <strong>with replacement</strong> gives</p>
+<p><span class="math display">\[
+\frac{13}{52}\times\frac{13}{52}=.0625.
+\]</span></p>
+<p>Without replacement, the first card changes what remains:</p>
+<p><span class="math display">\[
+\frac{13}{52}\times\frac{12}{51}=.0588.
+\]</span></p>
+<p>The second probability is <strong>conditional</strong> on what happened first.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Mutually Exclusive Is Not the Same as Independent">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Mutually Exclusive Is Not the Same as Independent
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Mutually exclusive</strong> events cannot happen together. If one occurs, the other becomes impossible.</p>
+<p><strong>Independent</strong> events can happen together, but one does not change the probability of the other.</p>
+<p>For one die roll, rolling a 2 and rolling a 5 are mutually exclusive. They are not independent. Once you roll a 2, the probability that the same roll was a 5 collapses to zero.</p>
+<p>These terms sound vaguely similar and are waiting for an opportunity to ruin your exam.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="conditional-probability-the-vertical-bar-is-not-decoration" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="conditional-probability-the-vertical-bar-is-not-decoration"><span class="header-section-number">3.4</span> Conditional Probability: The Vertical Bar Is Not Decoration</h2>
+<p><span class="math inline">\(P(B\mid A)\)</span> means “the probability of <span class="math inline">\(B\)</span> given that <span class="math inline">\(A\)</span> occurred.”</p>
+<p>The general multiplication rule is</p>
+<p><span class="math display">\[
+P(A \text{ and }B)=P(A)P(B\mid A).
+\]</span></p>
+<p>Conditional probabilities answer questions about a restricted group. For example:</p>
+<ul>
+<li><span class="math inline">\(P(\text{passes})\)</span> asks about everyone.</li>
+<li><span class="math inline">\(P(\text{passes}\mid\text{attended review})\)</span> asks only about students who attended the review.</li>
+<li><span class="math inline">\(P(\text{attended review}\mid\text{passes})\)</span> asks something different.</li>
+</ul>
+<p>Reversing the condition reverses the question. The probability that a person is tall given that they play basketball is not the probability that they play basketball given that they are tall. Likewise, a <em>p</em>-value will eventually describe how probable data this extreme—or more extreme—would be if <span class="math inline">\(H_0\)</span> and the model assumptions were true. It does not describe the probability that <span class="math inline">\(H_0\)</span> is true. Swapping those is one of psychology’s favorite avoidable catastrophes.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="The Direction of the Bar Matters">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Direction of the Bar Matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[
+P(B\mid A) \neq P(A\mid B)
+\]</span></p>
+<p>The probability of playing basketball <strong>given that someone is tall</strong> is not the probability of being tall <strong>given that someone plays basketball</strong>.</p>
+<p>Read everything after the vertical bar first. It identifies the group we are standing inside. Reversing the bar changes the group and usually changes the answer.</p>
+</div>
+</div>
+</section>
+<section id="chance-is-fickle-not-obligated-to-look-random" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="chance-is-fickle-not-obligated-to-look-random"><span class="header-section-number">3.5</span> Chance Is Fickle, Not Obligated to Look Random</h2>
+<p>Imagine 20 coin flips. Humans usually invent sequences with roughly equal heads and tails, few long streaks, and tasteful amounts of alternation. Real coins have no taste. They produce clusters and streaks because <strong>streaks are part of randomness</strong>.</p>
+<p>The chance of getting exactly 10 heads in 20 fair flips is only about 17.6%. Getting between 8 and 12 heads happens about 73.7% of the time. A result outside that range is not impossible. The Probability Gods did not violate a contract; you invented a contract they never signed.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Three Ways Your Brain Gets This Wrong (They Have Names)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Three Ways Your Brain Gets This Wrong (They Have Names)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Gambler’s fallacy.</strong> After five heads you feel a tail is “due.” It is not. The coin has no memory, no sense of fairness, and no idea you are watching.</p>
+<p><strong>Representativeness.</strong> Real randomness looks streakier than the tidy sequences people invent. You just watched yourself expect the wrong thing.</p>
+<p><strong>Availability.</strong> Vivid events feel more probable than they are. Plane crashes make the news; car crashes make the traffic report. Guess which one kills more people.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">242343</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>flips <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>paths <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">8</span>, <span class="fu">cumsum</span>(<span class="fu">rbinom</span>(flips, <span class="dv">1</span>, .<span class="dv">5</span>)) <span class="sc">/</span> <span class="fu">seq_len</span>(flips))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">matplot</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seq_len</span>(flips), paths,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="fl">1.7</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> grDevices<span class="sc">::</span><span class="fu">hcl.colors</span>(<span class="dv">8</span>, <span class="st">"Dark 3"</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Number of flips"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Running proportion of heads"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"The Probability Gods eventually become less dramatic"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">las =</span> <span class="dv">1</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> .<span class="dv">5</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"black"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-fickle-probability" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="Eight colored lines showing the running proportion of heads across 500 coin flips. All eight swing wildly in the first fifty flips, some as far as 0.2 or 0.8, then gradually converge toward the dashed reference line at 0.50.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fickle-probability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Ch_03_Probability_files/figure-html/fig-fickle-probability-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Eight colored lines showing the running proportion of heads across 500 coin flips. All eight swing wildly in the first fifty flips, some as far as 0.2 or 0.8, then gradually converge toward the dashed reference line at 0.50." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fickle-probability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: The running proportion of heads in eight fair-coin experiments. Early estimates stagger around; with more flips, they become more stable around .50.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Larger samples do not force the estimate to be correct. They make wildly inaccurate estimates less common. With 20 therapy clients, the Probability Gods might hand you 20 people who adore the treatment, or 20 people who hate your face. With 200 clients, finding enough unusually delighted or face-hating people to hijack the entire result becomes much harder.</p>
+<p>This is the <strong>law of large numbers</strong>: as the number of independent observations increases, a sample average or proportion tends to settle near its expected value. It is not the law of small numbers. Twenty people do not become a population because the grant ran out.</p>
+</section>
+<section id="expected-value-is-a-long-run-average-not-a-prophecy" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="expected-value-is-a-long-run-average-not-a-prophecy"><span class="header-section-number">3.6</span> Expected Value Is a Long-Run Average, Not a Prophecy</h2>
+<p>The <strong>expected value</strong> is the probability-weighted average outcome over many repetitions:</p>
+<p><span class="math display">\[
+E(X)=\sum xP(x).
+\]</span></p>
+<p>Suppose a legitimate carnival game charges <span class="math inline">\(\$2\)</span>. You win <span class="math inline">\(\$10\)</span> with probability <span class="math inline">\(.10\)</span> and <span class="math inline">\(\$0\)</span> otherwise. Your expected winnings are</p>
+<p><span class="math display">\[
+E(X)=\$10(.10)+\$0(.90)=\$1.
+\]</span></p>
+<p>After paying <span class="math inline">\(\$2\)</span>, your expected net result is <span class="math inline">\(-\$1\)</span> per game. You could still win <span class="math inline">\(\$8\)</span> on the first play. Expected value does not predict one event; it describes the long-run average. The carnival can stay in business because it has patience and your money.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Expected Does Not Mean Most Likely">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Expected Does Not Mean Most Likely
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An expected value does not have to be an outcome that can actually occur.</p>
+<p>The expected number of children in a family might be 1.7. Nobody has to produce seven-tenths of a child. The value describes the long-run average across many families.</p>
+<p>Expected value is an average, not a prophecy or a declaration from the Probability Gods.</p>
+</div>
+</div>
+<section id="numbers-bounce" class="level3" data-number="3.6.1">
+<h3 data-number="3.6.1" class="anchored" data-anchor-id="numbers-bounce"><span class="header-section-number">3.6.1</span> Numbers Bounce</h3>
+<p>Here is the picture to keep for the rest of the book, because we are going to need it constantly.</p>
+<p>Drop a rubber ball on the sidewalk. You know roughly where it is going to end up. You are not surprised by where it lands, and you would not accept a bet that it will roll into traffic. But it bounces on the way down, and it almost never comes to rest on the exact spot you were aiming at. Sometimes it settles an inch away. Once in a while it catches an edge and ends up under a parked car.</p>
+<p>Numbers that come out of chance behave the same way. They have a place they are aimed at, which is the expected value, and they have a bounce, which is everything else. The aim is predictable. The bounce is not.</p>
+<p>Almost every worry in the rest of this book is one of two questions about that ball. <strong>Where was it aimed?</strong> That is estimation: means, proportions, effect sizes. <strong>How far does it bounce?</strong> That is the standard error, and it is the reason we cannot simply read a number off a sample and believe it.</p>
+<p>So when a later chapter says a sample mean <em>bounces around</em>, this is the ball. It does not mean the number is wrong. It means the number is one landing out of many that could have happened, and that if you drop the ball again you should expect a slightly different answer.</p>
+</section>
+</section>
+<section id="advanced-section-bayes-base-rates-and-a-scary-positive-test" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="advanced-section-bayes-base-rates-and-a-scary-positive-test"><span class="header-section-number">3.7</span> Advanced Section: Bayes, Base Rates, and a Scary Positive Test</h2>
+<p>You test positive for a rare condition that will turn you into a goat. The condition affects 1% of people. The test correctly detects 95% of cases and has a 5% false-positive rate. What is the probability that you actually have the condition and turn into a goat?</p>
+<p>The tempting answer is 95%. That answer has ignored almost everyone who does not have the condition.</p>
+<p>Imagine testing 10,000 people. Assume:</p>
+<ul>
+<li>1% actually have the condition.</li>
+<li>The test correctly detects 95% of people who have it.</li>
+<li>The test incorrectly gives a positive result to 5% of people who do not have it.</li>
+</ul>
+<section id="step-1-who-has-the-condition" class="level3" data-number="3.7.1">
+<h3 data-number="3.7.1" class="anchored" data-anchor-id="step-1-who-has-the-condition"><span class="header-section-number">3.7.1</span> Step 1: Who Has the Condition?</h3>
+<p><span class="math display">\[
+10{,}000 \times .01 = 100
+\]</span></p>
+<p>So 100 people have the condition. The other 9,900 do not.</p>
+</section>
+<section id="step-2-test-the-100-people-who-have-it" class="level3" data-number="3.7.2">
+<h3 data-number="3.7.2" class="anchored" data-anchor-id="step-2-test-the-100-people-who-have-it"><span class="header-section-number">3.7.2</span> Step 2: Test the 100 People Who Have It</h3>
+<p>The test correctly identifies 95% of them:</p>
+<p><span class="math display">\[
+100 \times .95 = 95
+\]</span></p>
+<p>Therefore:</p>
+<ul>
+<li>95 receive a <strong>true positive</strong>.</li>
+<li>5 receive a <strong>false negative</strong>.</li>
+</ul>
+</section>
+<section id="step-3-test-the-9900-people-who-do-not-have-it" class="level3" data-number="3.7.3">
+<h3 data-number="3.7.3" class="anchored" data-anchor-id="step-3-test-the-9900-people-who-do-not-have-it"><span class="header-section-number">3.7.3</span> Step 3: Test the 9,900 People Who Do Not Have It</h3>
+<p>The test incorrectly gives a positive result to 5% of them:</p>
+<p><span class="math display">\[
+9{,}900 \times .05 = 495
+\]</span></p>
+<p>Therefore:</p>
+<ul>
+<li>495 receive a <strong>false positive</strong>.</li>
+<li>9,405 receive a <strong>true negative</strong>.</li>
+</ul>
+</section>
+<section id="step-4-count-everyone-who-tested-positive" class="level3" data-number="3.7.4">
+<h3 data-number="3.7.4" class="anchored" data-anchor-id="step-4-count-everyone-who-tested-positive"><span class="header-section-number">3.7.4</span> Step 4: Count Everyone Who Tested Positive</h3>
+<p>The positive results include 95 true positives and 495 false positives:</p>
+<p><span class="math display">\[
+95 + 495 = 590
+\]</span></p>
+<p>A total of 590 people test positive. However, only 95 of them actually have the condition.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_03_Probability_files/figure-html/bayes-tree-1.png" class="img-fluid figure-img" alt="A tree diagram starting from a box of 10,000 people. It splits into 100 who have the condition and 9,900 who do not. The 100 split into 95 true positives and 5 false negatives. The 9,900 split into 495 false positives and 9,405 true negatives. The 95 true positives and 495 false positives are shaded to show that together they make up the 590 people who tested positive." width="816"></p>
+<figcaption>Ten thousand imaginary people, none of whom will email my department head. The two shaded boxes are everyone who tested positive. Most of them are fine.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="step-5-find-the-probability-of-having-the-condition-after-testing-positive" class="level3" data-number="3.7.5">
+<h3 data-number="3.7.5" class="anchored" data-anchor-id="step-5-find-the-probability-of-having-the-condition-after-testing-positive"><span class="header-section-number">3.7.5</span> Step 5: Find the Probability of Having the Condition After Testing Positive</h3>
+<p><span class="math display">\[
+P(\text{Condition}\mid\text{Positive})
+=
+\frac{95}{590}
+=
+.161
+\]</span></p>
+<p>Therefore, a person who tests positive has about a <strong>16.1% probability</strong> of actually having the condition.</p>
+<p>The test is fairly accurate, but the condition is rare. That leaves the Probability Gods plenty of healthy people to terrify with false predictions that they will turn into goats tomorrow.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="A 95% Detection Rate Is Not a 95% Diagnosis">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A 95% Detection Rate Is Not a 95% Diagnosis
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The test detects 95% of people who have the condition:</p>
+<p><span class="math display">\[
+P(\text{Positive}\mid\text{Condition})=.95
+\]</span></p>
+<p>Our actual question reverses the condition:</p>
+<p><span class="math display">\[
+P(\text{Condition}\mid\text{Positive})=.161
+\]</span></p>
+<p>Those are different probabilities. Test performance, false-positive rates, and the base rate must all be considered before the test can accuse you of becoming a goat.</p>
+</div>
+</div>
+<p>The <strong>base rate</strong> describes how common the condition is before we consider the new evidence. When the condition is rare, even a fairly accurate test can produce many false alarms. This is why probability questions are easier when we turn percentages into counts of actual imaginary people. The imaginary people are easier to organize and much less likely to contact my department head to complain about being turned into goats.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Now Let the Test Pass Sentence">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Now Let the Test Pass Sentence
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Screening someone is one thing. Acting on the result is another.</p>
+<p>Suppose we fired all the doctors and let the test decide, Judge Dredd style: the machine is judge, jury, and executioner, and there is no appeal. Of the 590 people it convicts, 495 are innocent. That is an 84% wrongful-conviction rate from a test that is 95% accurate.</p>
+<p>The accuracy was never the problem. The base rate was.</p>
+</div>
+</div>
+<p>Bayes’ theorem formalizes the update:</p>
+<p><span class="math display">\[
+P(H\mid E)=
+\frac{P(E\mid H)P(H)}
+{P(E\mid H)P(H)+P(E\mid \text{not }H)P(\text{not }H)}.
+\]</span></p>
+<p><span class="math inline">\(P(H)\)</span> is the <strong>prior probability</strong> or base rate. <span class="math inline">\(P(E\mid H)\)</span> tells us how expected the evidence is if the hypothesis is true. <span class="math inline">\(P(H\mid E)\)</span> is the <strong>posterior probability</strong> after combining the prior and evidence.</p>
+<p>You do not need to become a Bayesian statistician today. You do need to remember that evidence does not arrive in an empty universe. Base rates matter, and <span class="math inline">\(P(E\mid H)\)</span> is not interchangeable with <span class="math inline">\(P(H\mid E)\)</span>.</p>
+</section>
+</section>
+<section id="what-this-has-to-do-with-statistics-everything-unfortunately" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="what-this-has-to-do-with-statistics-everything-unfortunately"><span class="header-section-number">3.8</span> What This Has to Do with Statistics (Everything, Unfortunately)</h2>
+<p>Every study will produce a pattern. One group will have a higher mean. One correlation will be farther from zero. One brain image will contain a bright blob, possibly inside a dead salmon if you run enough tests <span class="citation" data-cites="bennett2010">(<a href="#ref-bennett2010" role="doc-biblioref">Bennett et al. 2010</a>)</span>. That is a real study, and we will meet the salmon again in the multiple comparisons chapter.</p>
+<p>Statistics asks whether the pattern is larger than we would reasonably expect from a specified chance process. To answer that question, we need to know:</p>
+<ul>
+<li>what outcomes were possible;</li>
+<li>what assumptions define the probability model;</li>
+<li>whether events are independent;</li>
+<li>what information we conditioned on;</li>
+<li>how much data we collected; and</li>
+<li>how often our entire analysis gave chance an opportunity to create something exciting.</li>
+</ul>
+</section>
+<section id="the-short-story" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">3.9</span> The Short Story</h2>
+<ul>
+<li>A probability is a number from 0 to 1, and it only means something under a stated set of rules. Change the rules and you change the answer.</li>
+<li>The three rules do most of the work: “not A” is <span class="math inline">\(1-P(A)\)</span>, “A or B” adds (minus the overlap), “A and B” multiplies when the events are independent.</li>
+<li><span class="math inline">\(P(B \mid A)\)</span> is not <span class="math inline">\(P(A \mid B)\)</span>. Read everything after the bar first—it tells you which group you are standing inside.</li>
+<li>Streaks are part of randomness, not evidence against it. Your brain will insist otherwise, and your brain has names for how it does this.</li>
+<li>Expected value is a long-run average. It does not predict your next outcome, and it does not have to be an outcome that can happen.</li>
+<li>When a condition is rare, even an accurate test produces mostly false alarms. Base rates decide how to read the evidence.</li>
+<li>Larger samples give chance fewer chances. That is the whole reason the rest of this book exists.</li>
+</ul>
+<p>Probability is not a promise about what must happen next. It is a language for uncertainty. The Probability Gods remain fickle, but they are not completely lawless. Our job is to learn the laws well enough that we stop blaming divine intervention for bad design.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-ang2014" class="csl-entry" role="listitem">
+Ang, L. H., and Masitah Shahrill. 2014. <span>“Identifying Students’ Specific Misconceptions in Learning Probability.”</span> <em>International Journal of Probability and Statistics</em> 3 (2): 23–29.
+</div>
+<div id="ref-bennett2010" class="csl-entry" role="listitem">
+Bennett, Craig M., Abigail A. Baird, Michael B. Miller, and George L. Wolford. 2010. <span>“Neural Correlates of Interspecies Perspective Taking in the Post-Mortem Atlantic Salmon: An Argument for Proper Multiple Comparisons Correction.”</span> <em>Journal of Serendipitous and Unexpected Results</em> 1 (1): 1–5.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_02_R_Basics.html" class="pagination-link" aria-label="R: The Extremely Short Survival Guide">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_04_Distributions.html" class="pagination-link" aria-label="Distributions and their Moments">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_03_Probability.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

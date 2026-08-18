@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>20&nbsp; P-Values and Multiple Comparisons – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_21_Advanced_Interactions.html" rel="next">
+<link href="./Ch_19_Regression_Diagnostics.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html">Okay, But What If It’s Complicated?</a></li><li class="breadcrumb-item"><a href="./Ch_20_Multiple_Comparisons.html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html">Okay, But What If It’s Complicated?</a></li><li class="breadcrumb-item"><a href="./Ch_20_Multiple_Comparisons.html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Advanced topic
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This chapter assumes that you already understand null hypotheses, Type I and Type II errors, power, effect sizes, and confidence intervals. Undergraduates may continue, but should bring snacks and a responsible graduate student. Graduate students should bring two snacks because they are expected to pretend this is easy.</p>
+</div>
+</div>
+<section id="first-let-us-put-a-dead-fish-in-an-mri" class="level2" data-number="20.1">
+<h2 data-number="20.1" class="anchored" data-anchor-id="first-let-us-put-a-dead-fish-in-an-mri"><span class="header-section-number">20.1</span> First, Let Us Put a Dead Fish in an MRI</h2>
+<p>Bennett and colleagues placed a mature Atlantic salmon in an fMRI scanner and showed it photographs of people in social situations. The salmon was asked to decide what emotion each person was experiencing. There was a slight methodological complication: <strong>the salmon was dead</strong> <span class="citation" data-cites="bennett2010">(<a href="#ref-bennett2010" role="doc-biblioref">Bennett et al. 2010</a>)</span>.</p>
+<p>The researchers ran tens of thousands of voxel-by-voxel tests. With an uncorrected threshold of <span class="math inline">\(p &lt; .001\)</span>, they found apparently active voxels in the salmon’s brain cavity and spinal column. After proper familywise-error and false-discovery-rate corrections, the salmon’s social-cognitive abilities vanished. Even relaxed corrected thresholds found nothing, which is generally what we hope to discover about the thoughts of a dead fish.</p>
+<p>If Atlantic salmon become difficult to recruit, Alex can substitute for the fish because he is approximately as brain-dead. The major design problem is that Alex may twitch, complain, demand cookies, and ask whether the scan counts toward tenure.</p>
+<p>The study was deliberately absurd, but the statistical problem was real. If you conduct enough tests, fickle chance receives enough opportunities to manufacture something exciting. A tiny <em>p</em>-value attached to one selected result does not tell us how many other tests were run before that result crawled out of the computer wearing a crown.</p>
+<p>Before we control many <em>p</em>-values, however, we should establish what one <em>p</em>-value means. This seems obvious. It is not. Researchers have spent nearly a century proving that they can misunderstand a definition with remarkable consistency.</p>
+</section>
+<section id="what-a-p-value-actually-is" class="level2" data-number="20.2">
+<h2 data-number="20.2" class="anchored" data-anchor-id="what-a-p-value-actually-is"><span class="header-section-number">20.2</span> What a P-Value Actually Is</h2>
+<p>A <em>p</em>-value answers this conditional question:</p>
+<blockquote class="blockquote">
+<p><strong>Assuming the null hypothesis and the statistical model are correct, how probable are results at least as incompatible with the null hypothesis as the result we observed?</strong></p>
+</blockquote>
+<p>In shorthand:</p>
+<p><span class="math display">\[
+p = P(\text{data this extreme or more extreme} \mid H_0, \text{model})
+\]</span></p>
+<p>Small <em>p</em>-values say that the observed result does not sit comfortably inside the null model. They do not identify which assumption is wrong. Perhaps the null hypothesis is a poor description. Perhaps independence failed, the model was misspecified, the measurement was terrible, or one participant completed the experiment while being chased by a goat Statistics can tell you that the whole package looks strained. It cannot interrogate the goat.</p>
+<p><strong>Statistical significance</strong> is a decision rule. If the <em>p</em>-value is at or below a threshold chosen in advance, usually <span class="math inline">\(\alpha = .05\)</span>, we call the result statistically significant. The threshold is a convention, not a cliff in nature. A result with <span class="math inline">\(p = .049\)</span> and one with <span class="math inline">\(p = .051\)</span> are not members of different species.</p>
+<section id="the-conditional-probability-trap" class="level3" data-number="20.2.1">
+<h3 data-number="20.2.1" class="anchored" data-anchor-id="the-conditional-probability-trap"><span class="header-section-number">20.2.1</span> The Conditional-Probability Trap</h3>
+<p>The most famous mistake is reversing the condition:</p>
+<p><span class="math display">\[
+P(D \mid H_0) \neq P(H_0 \mid D)
+\]</span></p>
+<p>The probability of screaming <strong>given that</strong> a foam-bat-wielding research assistant is chasing you is probably high. The probability that a foam-bat-wielding research assistant is chasing you <strong>given that</strong> you are screaming is not necessarily high. You may have seen your tuition bill.</p>
+<p>Cohen emphasized that a <em>p</em>-value gives <span class="math inline">\(P(D \mid H_0)\)</span>, not the probability that the null is true after seeing the data <span class="citation" data-cites="cohen1994">(<a href="#ref-cohen1994" role="doc-biblioref">Cohen 1994</a>)</span>. To calculate <span class="math inline">\(P(H_0 \mid D)\)</span>, we would need additional information, including prior probabilities and an explicit alternative model. Quietly turning one conditional probability around does not make it Bayesian. It makes it wrong.</p>
+</section>
+<section id="a-p-value-is-not-any-of-these-things" class="level3" data-number="20.2.2">
+<h3 data-number="20.2.2" class="anchored" data-anchor-id="a-p-value-is-not-any-of-these-things"><span class="header-section-number">20.2.2</span> A P-Value Is Not Any of These Things</h3>
+<p>A <em>p</em>-value is <strong>not</strong>:</p>
+<ul>
+<li>The probability that the null hypothesis is true.</li>
+<li>The probability that the research hypothesis is false.</li>
+<li>The probability that the result happened “because of chance.”</li>
+<li>The Type I error rate for this particular result.</li>
+<li>The probability that the study will replicate.</li>
+<li>The size or practical importance of the effect.</li>
+<li>A tiny certificate declaring the study free of confounds, bias, fraud, or nonsense.</li>
+</ul>
+<p>Lane-Getaz documented thirteen recurring <em>p</em>-value misconceptions in statistics students and experienced researchers <span class="citation" data-cites="lanegetaz2005">(<a href="#ref-lanegetaz2005" role="doc-biblioref">Lane-Getaz 2005</a>)</span>. Even graduate students who had survived multiple statistics courses often confused <em>p</em>-values with the probability of a hypothesis, replicability, effect size, or Type I error. Taking another statistics course helps, but apparently does not exorcise the demon automatically.</p>
+</section>
+</section>
+<section id="cohens-complaint-the-ritual-ate-the-science" class="level2" data-number="20.3">
+<h2 data-number="20.3" class="anchored" data-anchor-id="cohens-complaint-the-ritual-ate-the-science"><span class="header-section-number">20.3</span> Cohen’s Complaint: The Ritual Ate the Science</h2>
+<p>Cohen’s title, <em>The Earth Is Round (<span class="math inline">\(p &lt; .05\)</span>)</em>, mocked the habit of testing a nearly certain or scientifically uninteresting null and then acting impressed when it was rejected <span class="citation" data-cites="cohen1994">(<a href="#ref-cohen1994" role="doc-biblioref">Cohen 1994</a>)</span>. In much of psychology, an exact <strong>nil hypothesis</strong>, a population difference or correlation of precisely zero, is implausible. With a large enough sample, a trivial departure from zero can become statistically significant.</p>
+<p>That produces two failures:</p>
+<ol type="1">
+<li>Researchers mistake “detectable” for “important.”</li>
+<li>Researchers treat rejection of one null model as confirmation of their favorite theory, even though confounds, measurement problems, alternative theories, and several Probability Gods remain available.</li>
+</ol>
+<p>Cohen did not offer a new sacred test to solve this problem. He recommended exploratory data analysis, graphs, effect sizes, confidence intervals, better measurement, power planning, and replication. In other words: look at what happened, estimate how much happened, admit the uncertainty, and see whether it happens again. Annoyingly, the solution is scientific judgment rather than purchasing a newer computer that can do a more powerful fancy test.</p>
+</section>
+<section id="significant-here-not-significant-there" class="level2" data-number="20.4">
+<h2 data-number="20.4" class="anchored" data-anchor-id="significant-here-not-significant-there"><span class="header-section-number">20.4</span> Significant Here, Not Significant There</h2>
+<p>Gelman and Stern identified another extremely common error: concluding that two effects differ because one is statistically significant and the other is not <span class="citation" data-cites="gelman2006">(<a href="#ref-gelman2006" role="doc-biblioref">Gelman and Stern 2006</a>)</span>.</p>
+<p>Suppose two independent studies estimate effects of:</p>
+<p><span class="math display">\[
+25 \pm 10 \qquad \text{and} \qquad 10 \pm 10
+\]</span></p>
+<p>The first estimate is statistically significant and the second is not. But their estimated <strong>difference</strong> is <span class="math inline">\(15\)</span>, with a standard error of:</p>
+<p><span class="math display">\[
+SE_{difference} = \sqrt{10^2 + 10^2} = 14.14
+\]</span></p>
+<p>The two effects are only about 1.06 standard errors apart. That difference is not statistically significant. “Treatment A worked but Treatment B did not” is not evidence that Treatment A worked <strong>better</strong> than Treatment B. Test the comparison you want to claim.</p>
+<p>This matters for interactions, subgroups, replications, and breathless headlines. If an effect is significant for women but not men, younger adults but not older adults, or Tuesday but not Wednesday, you have not established a group difference until you test that difference directly.</p>
+</section>
+<section id="one-test-at-a-time-creates-a-family-problem" class="level2" data-number="20.5">
+<h2 data-number="20.5" class="anchored" data-anchor-id="one-test-at-a-time-creates-a-family-problem"><span class="header-section-number">20.5</span> One Test at a Time Creates a Family Problem</h2>
+<p>Set <span class="math inline">\(\alpha = .05\)</span> for one true null hypothesis. In repeated use, that test falsely rejects the null about 5% of the time. Now run <span class="math inline">\(j\)</span> independent tests, all with true null hypotheses. The probability of <strong>at least one</strong> false positive is:</p>
+<p><span class="math display">\[
+FWER = 1 - (1 - \alpha)^j
+\]</span></p>
+<p>With 20 independent tests:</p>
+<p><span class="math display">\[
+1 - .95^{20} = .642
+\]</span></p>
+<p>There is about a 64% chance of at least one false positive. You did not change <span class="math inline">\(\alpha\)</span> for any individual test. You simply gave fickle chance twenty auditions and published whichever one could sing.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> .<span class="dv">05</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m_grid <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">100</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>theoretical_fwer <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> alpha)<span class="sc">^</span>m_grid</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>simulated_at <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">100</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>simulated_fwer <span class="ot">&lt;-</span> <span class="fu">vapply</span>(simulated_at, <span class="cf">function</span>(m) {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  p_values <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">runif</span>(<span class="dv">20000</span> <span class="sc">*</span> m), <span class="at">ncol =</span> m)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">rowSums</span>(p_values <span class="sc">&lt;=</span> alpha) <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}, <span class="fu">numeric</span>(<span class="dv">1</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  m_grid, theoretical_fwer,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"#1F4E79"</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Number of tests in the family"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Probability of one or more false positives"</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(simulated_at, simulated_fwer, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"#D55E00"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> .<span class="dv">05</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"gray50"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"bottomright"</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">inset =</span> <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">10</span>),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"Theoretical FWER"</span>, <span class="st">"Simulation"</span>),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"#1F4E79"</span>, <span class="st">"#D55E00"</span>),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">lty =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>), <span class="at">pch =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">19</span>), <span class="at">bty =</span> <span class="st">"n"</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">78</span>, .<span class="dv">075</span>, <span class="st">"5% reference"</span>, <span class="at">col =</span> <span class="st">"gray40"</span>, <span class="at">cex =</span> .<span class="dv">82</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-fwer-growth" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Line graph with the number of tests in the family from 1 to 100 on the x axis and the probability of one or more false positives from 0 to 1 on the y axis. A dark blue curve starts at 0.05 for a single test, climbs steeply to about 0.40 by 10 tests and about 0.64 by 20, then flattens as it approaches 1, reaching about 0.92 at 50 tests and nearly 1 at 100. Six orange simulated points at 1, 5, 10, 20, 50 and 100 tests sit directly on the curve. A dashed grey horizontal line near the bottom marks the 5 percent reference level, which the curve leaves immediately." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fwer-growth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Ch_20_Multiple_Comparisons_files/figure-html/fig-fwer-growth-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Line graph with the number of tests in the family from 1 to 100 on the x axis and the probability of one or more false positives from 0 to 1 on the y axis. A dark blue curve starts at 0.05 for a single test, climbs steeply to about 0.40 by 10 tests and about 0.64 by 20, then flattens as it approaches 1, reaching about 0.92 at 50 tests and nearly 1 at 100. Six orange simulated points at 1, 5, 10, 20, 50 and 100 tests sit directly on the curve. A dashed grey horizontal line near the bottom marks the 5 percent reference level, which the curve leaves immediately." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fwer-growth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;20.1: The probability of at least one false positive grows rapidly as more independent true null hypotheses are tested at alpha = .05. Simulated points sit on the theoretical curve.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The independence formula is not exact for correlated tests, such as neighboring fMRI voxels. Dependence changes the arithmetic but does not make the problem disappear. Specialized methods can exploit that dependence; pretending the other tests never happened cannot.</p>
+<section id="what-counts-as-a-family" class="level3" data-number="20.5.1">
+<h3 data-number="20.5.1" class="anchored" data-anchor-id="what-counts-as-a-family"><span class="header-section-number">20.5.1</span> What Counts as a Family?</h3>
+<p>A <strong>family</strong> is the set of tests over which you want a joint error guarantee. Defining it requires scientific judgment.</p>
+<ul>
+<li>All pairwise comparisons following one omnibus test often form a family.</li>
+<li>All outcomes used to support one broad claim may form a family.</li>
+<li>Thousands of voxels in one brain contrast form a family.</li>
+<li>Every analysis ever conducted by everyone named Alex does not form one useful family, although it may form a cry for help.</li>
+</ul>
+<p>The family should be defined by the claim and analysis plan, preferably before looking at results. Dividing twenty tests into twenty “families of one” after seeing the <em>p</em>-values is not a clever solution. It is p-hacking with office supplies.</p>
+</section>
+</section>
+<section id="familywise-error-rate-protect-the-whole-family" class="level2" data-number="20.6">
+<h2 data-number="20.6" class="anchored" data-anchor-id="familywise-error-rate-protect-the-whole-family"><span class="header-section-number">20.6</span> Familywise Error Rate: Protect the Whole Family</h2>
+<p>The <strong>familywise error rate</strong> (FWER) is the probability of making <strong>one or more Type I errors anywhere in the family</strong>:</p>
+<p><span class="math display">\[
+FWER = P(V \geq 1)
+\]</span></p>
+<p>Here, <span class="math inline">\(V\)</span> is the number of false rejections. FWER control is strict. It is appropriate when even one false positive would be costly or when a small, confirmatory set of claims is being tested.</p>
+<section id="bonferroni" class="level3" data-number="20.6.1">
+<h3 data-number="20.6.1" class="anchored" data-anchor-id="bonferroni"><span class="header-section-number">20.6.1</span> Bonferroni</h3>
+<p>For <span class="math inline">\(j\)</span> tests, Bonferroni compares each <em>p</em>-value with <span class="math inline">\(\alpha/j\)</span>, or multiplies each <em>p</em>-value by <span class="math inline">\(j\)</span> and caps the result at 1:</p>
+<p><span class="math display">\[
+p_{Bonferroni} = \min(jp, 1)
+\]</span></p>
+<p>Bonferroni works under arbitrary dependence, which is useful, but it can sacrifice substantial power when there are many tests. Reviewer 2 always asks for this correction cause they want to kill your power and thus your paper. Don’t do it unless you powered for it in advance.</p>
+</section>
+<section id="holms-sequential-method" class="level3" data-number="20.6.2">
+<h3 data-number="20.6.2" class="anchored" data-anchor-id="holms-sequential-method"><span class="header-section-number">20.6.2</span> Holm’s Sequential Method</h3>
+<p>Holm’s procedure orders the <em>p</em>-values and tests them sequentially <span class="citation" data-cites="holm1979">(<a href="#ref-holm1979" role="doc-biblioref">Holm 1979</a>)</span>. It controls FWER under the same broad conditions as Bonferroni and is never less powerful. If your entire justification for plain Bonferroni is “that is the one I remember,” R remembers Holm for you.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>raw_p <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">001</span>, .<span class="dv">012</span>, .<span class="dv">021</span>, .<span class="dv">046</span>, .<span class="dv">210</span>, .<span class="dv">730</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">test =</span> <span class="fu">paste</span>(<span class="st">"Hypothesis"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(raw_p)),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">raw =</span> raw_p,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">bonferroni =</span> <span class="fu">p.adjust</span>(raw_p, <span class="at">method =</span> <span class="st">"bonferroni"</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">holm =</span> <span class="fu">p.adjust</span>(raw_p, <span class="at">method =</span> <span class="st">"holm"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          test   raw bonferroni  holm
+1 Hypothesis 1 0.001      0.006 0.006
+2 Hypothesis 2 0.012      0.072 0.060
+3 Hypothesis 3 0.021      0.126 0.084
+4 Hypothesis 4 0.046      0.276 0.138
+5 Hypothesis 5 0.210      1.000 0.420
+6 Hypothesis 6 0.730      1.000 0.730</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="false-discovery-rate-permit-some-risk-among-discoveries" class="level2" data-number="20.7">
+<h2 data-number="20.7" class="anchored" data-anchor-id="false-discovery-rate-permit-some-risk-among-discoveries"><span class="header-section-number">20.7</span> False Discovery Rate: Permit Some Risk Among Discoveries</h2>
+<p>In large exploratory analyses, strict FWER control may erase too many real signals. The <strong>false discovery rate</strong> (FDR) instead controls the expected proportion of false positives among the rejected hypotheses:</p>
+<p><span class="math display">\[
+FDR = E\left(\frac{V}{\max(R,1)}\right)
+\]</span></p>
+<p><span class="math inline">\(V\)</span> is the number of false rejections and <span class="math inline">\(R\)</span> is the total number of rejections. The <code>max(R,1)</code> convention sets the proportion to zero when nothing is rejected.</p>
+<p>Benjamini and Hochberg’s procedure controls FDR under independence and certain forms of positive dependence <span class="citation" data-cites="benjamini1995">(<a href="#ref-benjamini1995" role="doc-biblioref">Benjamini and Hochberg 1995</a>)</span>. It is commonly available in R as <code>method = "BH"</code>.</p>
+<p>FDR of .05 does <strong>not</strong> guarantee that exactly 5% of one study’s discoveries are false. Some studies will have none, some will have more, and some will reject nothing. The control applies to the expected false-discovery proportion over repeated uses of the procedure.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">test =</span> <span class="fu">paste</span>(<span class="st">"Hypothesis"</span>, <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(raw_p)),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">raw =</span> raw_p,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">holm_fwer =</span> <span class="fu">p.adjust</span>(raw_p, <span class="at">method =</span> <span class="st">"holm"</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">bh_fdr =</span> <span class="fu">p.adjust</span>(raw_p, <span class="at">method =</span> <span class="st">"BH"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          test   raw holm_fwer bh_fdr
+1 Hypothesis 1 0.001     0.006  0.006
+2 Hypothesis 2 0.012     0.060  0.036
+3 Hypothesis 3 0.021     0.084  0.042
+4 Hypothesis 4 0.046     0.138  0.069
+5 Hypothesis 5 0.210     0.420  0.252
+6 Hypothesis 6 0.730     0.730  0.730</code></pre>
+</div>
+</div>
+<section id="what-fdr-is-actually-for" class="level3" data-number="20.7.1">
+<h3 data-number="20.7.1" class="anchored" data-anchor-id="what-fdr-is-actually-for"><span class="header-section-number">20.7.1</span> What FDR Is Actually For</h3>
+<p>FDR gets described as the lenient option, which makes it sound like the correction you reach for when the real ones were inconvenient. That is not what it is. FDR is the right tool for a particular question, and the question is not “is this specific comparison real?” It is:</p>
+<blockquote class="blockquote">
+<p><strong>Is anything happening here at all, and if so, where should I look next?</strong></p>
+</blockquote>
+<p>That is a screening question. It is what you ask of ten thousand voxels, twenty thousand genes, or a battery of forty outcomes you collected because the grant said you could. You are not making forty claims. You are trying to find the handful worth a second study, and you can tolerate a few dead ends in that handful, because the second study is what settles it.</p>
+<p>The obvious worry is that a method willing to tolerate false discoveries will manufacture them out of nothing. So let us hand it nothing.</p>
+<p>Here is a brain with no activity in it whatsoever: ten thousand voxels, every null true, every <em>p</em>-value pure noise. This is the salmon.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>n_voxels <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>dead_brain <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_voxels)   <span class="co"># nothing is happening anywhere, by construction</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>DeadCounts <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">uncorrected.p05  =</span> <span class="fu">sum</span>(dead_brain <span class="sc">&lt;</span> .<span class="dv">05</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">uncorrected.p001 =</span> <span class="fu">sum</span>(dead_brain <span class="sc">&lt;</span> .<span class="dv">001</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">BH_FDR           =</span> <span class="fu">sum</span>(<span class="fu">p.adjust</span>(dead_brain, <span class="st">"BH"</span>) <span class="sc">&lt;</span> .<span class="dv">05</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Holm             =</span> <span class="fu">sum</span>(<span class="fu">p.adjust</span>(dead_brain, <span class="st">"holm"</span>) <span class="sc">&lt;</span> .<span class="dv">05</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>DeadCounts</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> uncorrected.p05 uncorrected.p001           BH_FDR             Holm 
+             542               10                0                0 </code></pre>
+</div>
+</div>
+<p>Read that top row and then remember it is a corpse. An uncorrected threshold of <span class="math inline">\(.05\)</span> finds 542 active voxels in a dead brain. At the salmon paper’s own uncorrected threshold of <span class="math inline">\(p &lt; .001\)</span>, it still finds 10, which is the same order as what Bennett and colleagues reported, because it is the same arithmetic doing the same thing.</p>
+<p><strong>BH finds zero.</strong> So does Holm. The correction that supposedly waves things through waved nothing through, because there was nothing to wave.</p>
+<p>That is not a lucky seed either. Run two thousand dead brains and count how often BH declares even one discovery:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>any_discovery <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">2000</span>, {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">any</span>(<span class="fu">p.adjust</span>(<span class="fu">runif</span>(n_voxels), <span class="st">"BH"</span>) <span class="sc">&lt;</span> .<span class="dv">05</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>CryWolfRate <span class="ot">&lt;-</span> <span class="fu">mean</span>(any_discovery)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>CryWolfRate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0445</code></pre>
+</div>
+</div>
+<p>About 4.4%, which is the guarantee working. When every null is true there is nothing to discover, so the false-discovery proportion is either 0 or 1, and controlling its expectation at <span class="math inline">\(.05\)</span> means declaring anything at all no more than 5% of the time. <strong>Under a global null, FDR control gives you familywise control for free.</strong></p>
+<p>Now give it a brain with something in it: the same ten thousand voxels, two hundred of them genuinely active.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_voxels)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>z[<span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>] <span class="ot">&lt;-</span> z[<span class="dv">1</span><span class="sc">:</span><span class="dv">200</span>] <span class="sc">+</span> <span class="dv">4</span>          <span class="co"># 200 real effects, 9,800 true nulls</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>live_brain <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>Real  <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">200</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>Noise <span class="ot">&lt;-</span> <span class="dv">201</span><span class="sc">:</span>n_voxels</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>CountUp <span class="ot">&lt;-</span> <span class="cf">function</span>(adjusted) {</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">found =</span> <span class="fu">sum</span>(adjusted <span class="sc">&lt;</span> .<span class="dv">05</span>),</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">real  =</span> <span class="fu">sum</span>(adjusted[Real] <span class="sc">&lt;</span> .<span class="dv">05</span>),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">false =</span> <span class="fu">sum</span>(adjusted[Noise] <span class="sc">&lt;</span> .<span class="dv">05</span>))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>BrainTable <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">Uncorrected =</span> <span class="fu">CountUp</span>(live_brain),</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">BH_FDR      =</span> <span class="fu">CountUp</span>(<span class="fu">p.adjust</span>(live_brain, <span class="st">"BH"</span>)),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">Holm        =</span> <span class="fu">CountUp</span>(<span class="fu">p.adjust</span>(live_brain, <span class="st">"holm"</span>))</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>BrainTable</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            found real false
+Uncorrected   690  198   492
+BH_FDR        166  154    12
+Holm           58   58     0</code></pre>
+</div>
+</div>
+<p>This is the entire argument in three rows.</p>
+<p><strong>Uncorrected</strong> reports 690 findings, and 492 of them are noise. Most of that table is garbage and it looks exactly like the real part.</p>
+<p><strong>Holm</strong> makes no mistakes at all: 0 false discoveries out of 58. It also misses 142 of the 200 real effects, which in a screening study means 142 things you will never look at again.</p>
+<p><strong>BH</strong> recovers 154 of the 200 and pays 12 false ones for them. That is the trade, stated plainly: you accept that roughly one in twenty of the things on your follow-up list is a dead end, in exchange for a follow-up list that actually contains the findings.</p>
+<p>Note that the observed false-discovery proportion here is 0.072, slightly above the <span class="math inline">\(.05\)</span> you asked for. That is not a bug, and it is the point made two paragraphs above the first table in this section: FDR controls the <em>expected</em> proportion across repeated uses, so any single study can land above or below it.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Why the Salmon Is the Right Test of a Correction">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why the Salmon Is the Right Test of a Correction
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The dead salmon is usually told as a joke about fMRI. It is better understood as a <strong>calibration check</strong>, and it is one every method in this chapter passes.</p>
+<p>A correction is a promise about how often you will be fooled. The cheapest way to test such a promise is to hand the procedure data with nothing in it and confirm that it says nothing. The salmon is a physical version of the simulation above, and both give the same answer: the uncorrected threshold hallucinates, and every corrected one, FDR included, does not.</p>
+<p>So when someone objects that FDR is too permissive for serious work, the reply is that it is permissive about <em>which</em> discoveries it lets through, not about <em>whether</em> there is anything there. On a dead fish it reports a dead fish.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="what-the-corrections-trade-away" class="level2" data-number="20.8">
+<h2 data-number="20.8" class="anchored" data-anchor-id="what-the-corrections-trade-away"><span class="header-section-number">20.8</span> What the Corrections Trade Away</h2>
+<p>No method is perfect. Tight false-positive control usually reduces the ability to detect real effects. The useful question is not “Which correction is best?” It is “Which error promise matches this research goal?”</p>
+<p>The simulation below contains 20 tests per study. Five hypotheses have real standardized signals and fifteen null hypotheses are true. We compare no adjustment, Bonferroni, Holm, and Benjamini–Hochberg over 5,000 simulated studies.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>n_families <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>n_tests <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>n_real <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>z_values <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n_families <span class="sc">*</span> n_tests), <span class="at">nrow =</span> n_families)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>z_values[, <span class="dv">1</span><span class="sc">:</span>n_real] <span class="ot">&lt;-</span> z_values[, <span class="dv">1</span><span class="sc">:</span>n_real] <span class="sc">+</span> <span class="fl">2.5</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>p_matrix <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="sc">-</span><span class="fu">abs</span>(z_values))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>adjust_rows <span class="ot">&lt;-</span> <span class="cf">function</span>(method) {</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>(<span class="fu">apply</span>(p_matrix, <span class="dv">1</span>, <span class="cf">function</span>(p) <span class="fu">p.adjust</span>(p, <span class="at">method =</span> method) <span class="sc">&lt;=</span> .<span class="dv">05</span>))</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>rejections <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Unadjusted =</span> p_matrix <span class="sc">&lt;=</span> .<span class="dv">05</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bonferroni =</span> <span class="fu">adjust_rows</span>(<span class="st">"bonferroni"</span>),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">Holm =</span> <span class="fu">adjust_rows</span>(<span class="st">"holm"</span>),</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">BH_FDR =</span> <span class="fu">adjust_rows</span>(<span class="st">"BH"</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>summarize_method <span class="ot">&lt;-</span> <span class="cf">function</span>(reject) {</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  true_discoveries <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(reject[, <span class="dv">1</span><span class="sc">:</span>n_real, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  false_discoveries <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(reject[, (n_real <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>n_tests, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  total_discoveries <span class="ot">&lt;-</span> true_discoveries <span class="sc">+</span> false_discoveries</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  false_discovery_proportion <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    total_discoveries <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    false_discoveries <span class="sc">/</span> total_discoveries</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_true_discoveries =</span> <span class="fu">mean</span>(true_discoveries),</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">probability_any_false_positive =</span> <span class="fu">mean</span>(false_discoveries <span class="sc">&gt;</span> <span class="dv">0</span>),</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_false_discovery_proportion =</span> <span class="fu">mean</span>(false_discovery_proportion)</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">t</span>(<span class="fu">vapply</span>(rejections, summarize_method, <span class="fu">numeric</span>(<span class="dv">3</span>))), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           average_true_discoveries probability_any_false_positive
+Unadjusted                    3.501                          0.526
+Bonferroni                    1.503                          0.037
+Holm                          1.539                          0.039
+BH_FDR                        2.076                          0.122
+           average_false_discovery_proportion
+Unadjusted                              0.152
+Bonferroni                              0.018
+Holm                                    0.019
+BH_FDR                                  0.039</code></pre>
+</div>
+</div>
+<p>The unadjusted method finds more real signals but also produces at least one false positive far too often. Bonferroni and Holm protect strongly against any false positive, with Holm usually retaining a little more power. BH accepts a higher chance that a study contains some false positives in exchange for finding more real signals, while controlling their expected proportion among the discoveries.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Goal</th>
+<th>Sensible default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A few planned, confirmatory tests where any false claim is costly</td>
+<td>Holm FWER control</td>
+</tr>
+<tr class="even">
+<td>A simple method that remains valid under broad dependence</td>
+<td>Bonferroni, accepting lower power</td>
+</tr>
+<tr class="odd">
+<td>Many exploratory tests where some false leads can be tolerated and checked later</td>
+<td>Benjamini–Hochberg FDR control</td>
+</tr>
+<tr class="even">
+<td>A small number of clearly preregistered primary tests</td>
+<td>Test those primary hypotheses as planned; correct the separate exploratory family</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="multiple-comparisons-in-regression" class="level2" data-number="20.9">
+<h2 data-number="20.9" class="anchored" data-anchor-id="multiple-comparisons-in-regression"><span class="header-section-number">20.9</span> Multiple Comparisons in Regression</h2>
+<p>A regression with many coefficients is also a collection of tests. The correct family depends on the claim.</p>
+<p>If one coefficient was the preregistered primary hypothesis and the others were prespecified covariates, automatically correcting every coefficient together may not represent the design. If you added 84 predictors, 31 interactions, six subgroups, and the participant’s astrological sign until something became significant, you have a multiple-testing problem plus a confession.</p>
+<p>Store the <em>p</em>-values you intend to treat as one family and adjust them directly. Here is the kitchen-sink model described above, built small enough to inspect: 100 people, twelve predictors, and only the first two doing anything at all. The other ten are <code>rnorm()</code> with a job title.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>kitchen_sink <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">matrix</span>(<span class="fu">rnorm</span>(n_people <span class="sc">*</span> <span class="dv">12</span>), <span class="at">nrow =</span> n_people))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(kitchen_sink) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"V"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Only V1 and V2 are real. V3 through V12 are noise.</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>kitchen_sink<span class="sc">$</span>Focus <span class="ot">&lt;-</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.45</span> <span class="sc">*</span> kitchen_sink<span class="sc">$</span>V1 <span class="sc">-</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.38</span> <span class="sc">*</span> kitchen_sink<span class="sc">$</span>V2 <span class="sc">+</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n_people)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>sink_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Focus <span class="sc">~</span> ., <span class="at">data =</span> kitchen_sink)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>coefficient_p <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(sink_model))[<span class="sc">-</span><span class="dv">1</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">raw  =</span> coefficient_p,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">holm =</span> <span class="fu">p.adjust</span>(coefficient_p, <span class="at">method =</span> <span class="st">"holm"</span>),</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">BH   =</span> <span class="fu">p.adjust</span>(coefficient_p, <span class="at">method =</span> <span class="st">"BH"</span>)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       raw   holm     BH
+V1  0.0000 0.0004 0.0004
+V2  0.0034 0.0379 0.0207
+V3  0.7522 1.0000 0.8242
+V4  0.8672 1.0000 0.8672
+V5  0.3091 1.0000 0.6183
+V6  0.4809 1.0000 0.7888
+V7  0.2578 1.0000 0.6183
+V8  0.5569 1.0000 0.7888
+V9  0.1922 1.0000 0.5766
+V10 0.5916 1.0000 0.7888
+V11 0.0411 0.4105 0.1642
+V12 0.7555 1.0000 0.8242</code></pre>
+</div>
+</div>
+<p>Read the <code>raw</code> column first and pretend you do not know how the data were made. Three predictors clear <span class="math inline">\(.05\)</span>: V1, V2, V11. Two of them are real. The third, V11, is a column of random numbers that happened to line up, at <span class="math inline">\(p =\)</span> 0.041.</p>
+<p>This was not arranged. Ten true nulls tested at <span class="math inline">\(\alpha = .05\)</span> give about a 40% chance of at least one false positive, so meeting one here is the ordinary outcome rather than bad luck. Run this chunk with a different seed and you will sometimes get none and occasionally get two.</p>
+<p>Both corrections do their job. Holm and Benjamini-Hochberg each keep V1 and V2, the two real effects, and both kill the impostor. Notice also that BH is gentler than Holm on the survivors, which is the trade the previous section measured: it is buying power by promising less.</p>
+<p>For planned contrasts, use software that can adjust the contrast family explicitly. Always report the method, the family of tests, and whether the analyses were confirmatory or exploratory.</p>
+</section>
+<section id="where-you-will-actually-meet-this-emmeans" class="level2" data-number="20.10">
+<h2 data-number="20.10" class="anchored" data-anchor-id="where-you-will-actually-meet-this-emmeans"><span class="header-section-number">20.10</span> Where You Will Actually Meet This: emmeans</h2>
+<p>Everything above is theory you will use once a year. This section is the thing you will type next month.</p>
+<p>In this book’s pipeline, multiplicity arrives in exactly one place: <code>pairs(emmeans(...))</code> after a model with a categorical predictor. The <a href="./Ch_12_Categorical_Regression.html">categorical predictors chapter</a> left a promise here. It ran three unadjusted comparisons behind a significant omnibus <em>F</em>, which is Fisher’s protected LSD, and it warned that the protection expires at exactly three groups. So let us arrive with four.</p>
+<p>The study is the same distracted-driving design, with one more condition added and a deliberately modest sample, because a correction that never changes anything teaches nothing.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>drive_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Condition =</span> <span class="fu">factor</span>(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"No Distraction"</span>, <span class="st">"Podcast"</span>, <span class="st">"Lecture"</span>, <span class="st">"Texting"</span>), <span class="at">each =</span> n),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"No Distraction"</span>, <span class="st">"Podcast"</span>, <span class="st">"Lecture"</span>, <span class="st">"Texting"</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">RT =</span> <span class="fu">c</span>(</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(n, <span class="fl">0.70</span>, <span class="fl">0.25</span>),</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(n, <span class="fl">0.86</span>, <span class="fl">0.25</span>),</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(n, <span class="fl">0.92</span>, <span class="fl">0.25</span>),</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rnorm</span>(n, <span class="fl">1.08</span>, <span class="fl">0.25</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>drive_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(RT <span class="sc">~</span> Condition, <span class="at">data =</span> drive_data)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(drive_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: RT
+          Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+Condition  3 2.2645 0.75484  17.744 7.952e-09 ***
+Residuals 76 3.2330 0.04254                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>The omnibus test is significant, so under the old three-group rule we would now be entitled to look at pairs. With four groups there are six pairs, and the entitlement has expired.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>drive_means <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(drive_model, <span class="sc">~</span> Condition)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(drive_means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast                 estimate     SE df t.ratio p.value
+ No Distraction - Podcast  -0.2816 0.0652 76  -4.318  0.0003
+ No Distraction - Lecture  -0.3269 0.0652 76  -5.011 &lt;0.0001
+ No Distraction - Texting  -0.4623 0.0652 76  -7.088 &lt;0.0001
+ Podcast - Lecture         -0.0452 0.0652 76  -0.693  0.8993
+ Podcast - Texting         -0.1807 0.0652 76  -2.770  0.0348
+ Lecture - Texting         -0.1354 0.0652 76  -2.077  0.1701
+
+P value adjustment: tukey method for comparing a family of 4 estimates </code></pre>
+</div>
+</div>
+<p><strong>Read the last line of that output.</strong> It says <code>P value adjustment: tukey method for comparing a family of 4 estimates</code>. You did not ask for that. <code>emmeans</code> decided that six all-pairwise comparisons constitute a family, applied Tukey, and mentioned it in a footnote below the table you were reading.</p>
+<p>This is the single most important fact in this section, and it cuts both ways. The default is defensible, because Tukey was built for precisely this situation. But a reader who does not know it is there will report Tukey-adjusted <em>p</em>-values while describing them as ordinary ones, and a reader who wanted something else will not get it by hoping.</p>
+<section id="what-tukey-actually-is" class="level3" data-number="20.10.1">
+<h3 data-number="20.10.1" class="anchored" data-anchor-id="what-tukey-actually-is"><span class="header-section-number">20.10.1</span> What Tukey Actually Is</h3>
+<p>Tukey’s HSD is the correction psychologists meet most often and explain least often, so it is worth knowing what it does instead of treating it as the button labelled “post hoc.”</p>
+<p>Every other method in this chapter takes a pile of <em>p</em>-values and adjusts them, without caring where they came from. Tukey does not work that way. It asks a specific question about a specific design: <strong>if all <span class="math inline">\(k\)</span> group means came from the same population, how far apart would the largest and smallest of them drift by chance alone?</strong></p>
+<p>That quantity has its own distribution, the <strong>studentized range</strong>, usually written <span class="math inline">\(q\)</span>. Tukey compares every pair against it. The logic is worth sitting with for a moment, because it is genuinely clever: if you protect the <em>biggest</em> gap in the set, every smaller gap is protected automatically. You do not have to buy six comparisons separately, because six comparisons among four means are not six independent questions. They are six views of four numbers.</p>
+<p>That is why Tukey is not just another cautious correction. With equal group sizes and roughly equal variances it controls the familywise error rate <strong>exactly</strong>, rather than by being conservative and hoping. Bonferroni and Holm are valid under <em>any</em> dependence structure, which sounds like a stronger property and is really the concession: they are generic because they know nothing about your design, so they cannot take advantage of the fact that your comparisons share means.</p>
+<p><strong>The assumption doing all of that work is that the groups are independent.</strong> The studentized range is derived for <span class="math inline">\(k\)</span> separate samples with one common error variance. That is a between-subjects design, and it is why the honest answer to “when should I use Tukey?” contains a design rather than a number of tests.</p>
+<p>Here is the same comparison with the correction turned off, and with Holm instead.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(drive_means, <span class="at">adjust =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast                 estimate     SE df t.ratio p.value
+ No Distraction - Podcast  -0.2816 0.0652 76  -4.318 &lt;0.0001
+ No Distraction - Lecture  -0.3269 0.0652 76  -5.011 &lt;0.0001
+ No Distraction - Texting  -0.4623 0.0652 76  -7.088 &lt;0.0001
+ Podcast - Lecture         -0.0452 0.0652 76  -0.693  0.4901
+ Podcast - Texting         -0.1807 0.0652 76  -2.770  0.0070
+ Lecture - Texting         -0.1354 0.0652 76  -2.077  0.0412</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(drive_means, <span class="at">adjust =</span> <span class="st">"holm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast                 estimate     SE df t.ratio p.value
+ No Distraction - Podcast  -0.2816 0.0652 76  -4.318  0.0002
+ No Distraction - Lecture  -0.3269 0.0652 76  -5.011 &lt;0.0001
+ No Distraction - Texting  -0.4623 0.0652 76  -7.088 &lt;0.0001
+ Podcast - Lecture         -0.0452 0.0652 76  -0.693  0.4901
+ Podcast - Texting         -0.1807 0.0652 76  -2.770  0.0211
+ Lecture - Texting         -0.1354 0.0652 76  -2.077  0.0824
+
+P value adjustment: holm method for 6 tests </code></pre>
+</div>
+</div>
+<p>Put the three side by side.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>adjust_column <span class="ot">&lt;-</span> <span class="cf">function</span>(method) {</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">pairs</span>(drive_means, <span class="at">adjust =</span> method))<span class="sc">$</span>p.value</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">contrast =</span> <span class="fu">as.data.frame</span>(<span class="fu">pairs</span>(drive_means))<span class="sc">$</span>contrast,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">none     =</span> <span class="fu">round</span>(<span class="fu">adjust_column</span>(<span class="st">"none"</span>), <span class="dv">4</span>),</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">tukey    =</span> <span class="fu">round</span>(<span class="fu">adjust_column</span>(<span class="st">"tukey"</span>), <span class="dv">4</span>),</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">holm     =</span> <span class="fu">round</span>(<span class="fu">adjust_column</span>(<span class="st">"holm"</span>), <span class="dv">4</span>)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  contrast   none  tukey   holm
+1 No Distraction - Podcast 0.0000 0.0003 0.0002
+2 No Distraction - Lecture 0.0000 0.0000 0.0000
+3 No Distraction - Texting 0.0000 0.0000 0.0000
+4        Podcast - Lecture 0.4901 0.8993 0.4901
+5        Podcast - Texting 0.0070 0.0348 0.0211
+6        Lecture - Texting 0.0412 0.1701 0.0824</code></pre>
+</div>
+</div>
+<p>Five of the six comparisons say the same thing under all three methods, which is the usual and slightly boring result. The sixth does not. <strong>Lecture versus Texting</strong> is significant unadjusted at <span class="math inline">\(p =\)</span> 0.0412, and survives neither correction: Tukey puts it at 0.17 and Holm at 0.082.</p>
+<p>That single row is the entire chapter in miniature. “Texting is worse than listening to a lecture” is a claim you may publish if you looked at that pair alone, and may not publish if you looked at all six and picked this one. The data did not change. The number of chances you gave yourself did.</p>
+</section>
+<section id="where-holm-helps-and-where-it-does-not" class="level3" data-number="20.10.2">
+<h3 data-number="20.10.2" class="anchored" data-anchor-id="where-holm-helps-and-where-it-does-not"><span class="header-section-number">20.10.2</span> Where Holm Helps and Where It Does Not</h3>
+<p>Look down the Tukey and Holm columns and something awkward appears: Holm gives the smaller number in five of the six rows. If Tukey is the tailored tool for this design, why is the generic one winning?</p>
+<p>Because “which is more powerful” is the wrong question, and the answer depends on <em>where in the list</em> you are standing.</p>
+<p>Holm is a <strong>step-down</strong> procedure. Sort the <em>p</em>-values smallest to largest, then multiply the smallest by <span class="math inline">\(m\)</span>, the next by <span class="math inline">\(m-1\)</span>, the next by <span class="math inline">\(m-2\)</span>, and so on. That first step deserves your attention:</p>
+<blockquote class="blockquote">
+<p><strong>Holm’s adjustment for the smallest <em>p</em>-value in the family is exactly Bonferroni.</strong></p>
+</blockquote>
+<p>Not similar. Identical. Both multiply that one <em>p</em>-value by the full family size, and R will confirm it on the strongest comparison in the table above:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>SmallestOf <span class="ot">&lt;-</span> <span class="cf">function</span>(method) {</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">min</span>(<span class="fu">as.data.frame</span>(<span class="fu">pairs</span>(drive_means, <span class="at">adjust =</span> method))<span class="sc">$</span>p.value)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">raw          =</span> <span class="fu">SmallestOf</span>(<span class="st">"none"</span>),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">raw.times.6  =</span> <span class="dv">6</span> <span class="sc">*</span> <span class="fu">SmallestOf</span>(<span class="st">"none"</span>),</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">holm         =</span> <span class="fu">SmallestOf</span>(<span class="st">"holm"</span>),</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">bonferroni   =</span> <span class="fu">SmallestOf</span>(<span class="st">"bonferroni"</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         raw  raw.times.6         holm   bonferroni 
+5.991865e-10 3.595119e-09 3.595119e-09 3.595119e-09 </code></pre>
+</div>
+</div>
+<p>Holm is never <em>worse</em> than Bonferroni, which is why this chapter recommends it over Bonferroni, but the improvement is entirely in the comparisons after the first. <strong>If your headline finding is the single strongest contrast in the family, Holm has done nothing for you that Bonferroni would not have done.</strong></p>
+<p>That is the real cost, and it is why Holm hurts most in the design where you can least afford it. Between-subjects studies spend their sample on telling people apart, so the standard errors are large, and the one comparison the paper is about is usually the one at the top of the sorted list, taking the full <span class="math inline">\(\times m\)</span> penalty.</p>
+<p>Within-subjects designs are the opposite situation. Each person serves as their own control, between-person variance drops out of the error term, and the same number of humans buys much smaller standard errors. There you can usually afford Holm’s conservatism, and you often need something like it, because Tukey’s studentized range assumes independent groups and repeated measures are not independent. Holm’s indifference to dependence stops being a concession and becomes the reason to use it.</p>
+<p>So the two facts point in the same direction:</p>
+<ul>
+<li><strong>Between-subjects, exploring which means differ:</strong> Tukey. It is built for exactly this and it is exact, not conservative.</li>
+<li><strong>Within-subjects, or a handful of theory-chosen contrasts:</strong> Holm. It stays valid when observations are correlated, and the design has usually bought you the power to pay for it.</li>
+</ul>
+<p>One honest footnote on magnitude. Tukey’s edge over Bonferroni at the top of the list is real but modest here, about 1.03 times, because four groups do not offer much dependence to exploit. That advantage grows as groups are added, since the number of pairs grows much faster than the number of means. With eight groups you have 28 comparisons carrying only 7 degrees of freedom between them, and Tukey’s willingness to notice that starts to matter a great deal.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Which `adjust=` Do I Want? Answer With Your Design">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Which <code>adjust=</code> Do I Want? Answer With Your Design
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Pick by what the study is and what you are trying to learn, not by how many tests happen to be on the screen.</p>
+<ul>
+<li><strong>Between-subjects, all pairwise, working out which conditions differ?</strong> Leave the default. <code>adjust = "tukey"</code> is built for exactly this and <code>emmeans</code> is already applying it. Say so in the write-up.</li>
+<li><strong>Within-subjects or repeated measures?</strong> <code>adjust = "holm"</code>. Tukey’s studentized range assumes independent groups, which you do not have, and Holm stays valid under any dependence. The design has usually bought you the power to afford it.</li>
+<li><strong>A handful of contrasts your theory named in advance?</strong> <code>adjust = "holm"</code> again, and the family is those planned contrasts, not every pair the software is willing to generate.</li>
+<li><strong>Exactly three groups behind a significant omnibus <em>F</em>?</strong> <code>adjust = "none"</code> is defensible, and only there. That is the protected LSD case from the <a href="./Ch_12_Categorical_Regression.html">categorical predictors chapter</a>. At four groups, as above, it is the inflation problem wearing a lab coat.</li>
+<li><strong>Screening a large pile of outcomes to decide what to study next?</strong> <code>adjust = "fdr"</code>, and call the results exploratory, because that is what you have promised. The dead-brain demonstration earlier in this chapter is what that promise buys you.</li>
+</ul>
+<p><strong>The trap to avoid:</strong> reaching for Holm in a between-subjects pairwise design because it sounds more rigorous than the default. On your strongest comparison Holm <em>is</em> Bonferroni, so that instinct costs you power at the exact place your paper needs it, and buys nothing Tukey was not already giving you.</p>
+<p>Whatever you pick, name it and name the family. “Pairwise comparisons were Tukey-adjusted across all six condition pairs” is one clause, and it is the difference between a reader trusting your table and a reader rebuilding it.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-point-is-not-to-fear-p-values" class="level2" data-number="20.11">
+<h2 data-number="20.11" class="anchored" data-anchor-id="the-point-is-not-to-fear-p-values"><span class="header-section-number">20.11</span> The Point Is Not to Fear P-Values</h2>
+<p>P-values are not evil. They are also not tiny judges who determine whether a theory is innocent or guilty. They describe how incompatible the data are with a specified null model, under a pile of assumptions that must remain attached.</p>
+<p>A defensible statistical argument uses:</p>
+<ul>
+<li>The design and quality of the measurement.</li>
+<li>The estimated effect and its confidence interval.</li>
+<li>The <em>p</em>-value as one piece of evidence rather than a personality test for the hypothesis.</li>
+<li>A correction that matches the family and scientific goal.</li>
+<li>Transparency about how many analyses were attempted.</li>
+<li>Replication, because one clever correction cannot make a single study carry an entire theory on its back.</li>
+</ul>
+<p>The dead salmon did not teach us that fMRI is fake. It taught us that if we give chance enough opportunities, eventually even dinner appears to think. Correct the tests, show the effects, admit the uncertainty, and please stop asking deceased seafood to perform social cognition without preregistration.</p>
+</section>
+<section id="the-short-story" class="level2" data-number="20.12">
+<h2 data-number="20.12" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">20.12</span> The Short Story</h2>
+<ul>
+<li><span class="math inline">\(p = P(\text{data this weird or weirder} \mid H_0 \text{ and the model})\)</span>. Never the reverse, and never the probability that your hypothesis is wrong.</li>
+<li><strong>“Significant here, not significant there” is not a comparison.</strong> If you want to claim two effects differ, test the difference.</li>
+<li><strong>A family is defined by the claim</strong>, and defined before you peek. Splitting twenty tests into twenty families of one after seeing the <em>p</em>-values is p-hacking with office supplies.</li>
+<li><strong>FWER when any single false claim would be costly</strong>, and prefer Holm to Bonferroni, since it is never less powerful. <strong>BH-FDR when you are exploring</strong> and false leads are survivable.</li>
+<li><strong>Choose the pairwise correction by design, not by test count.</strong> Between-subjects, working out which conditions differ: Tukey, which is exact for that job because the studentized range is built for independent groups. Within-subjects: Holm, which stays valid when observations are correlated, in a design that has usually bought you the power to pay for it.</li>
+<li><strong>On the strongest comparison in a family, Holm <em>is</em> Bonferroni.</strong> The step-down only helps the comparisons after the first, so reaching for Holm in a between-subjects pairwise design costs power exactly where the paper needs it.</li>
+<li><strong>FDR answers “is anything here, and where do I look next?”</strong> It is a screening tool, not a lenient one. On a dead brain it reports a dead brain.</li>
+<li>FDR of .05 is a promise about the long run, not a guarantee that 5% of <em>this</em> study’s discoveries are false.</li>
+<li><strong><code>emmeans</code> already adjusted your pairwise comparisons.</strong> It defaults to Tukey and says so in a footnote. Know what your software chose before you describe it in a sentence.</li>
+<li><strong>Report the method and the family</strong>, every time. One clause does it.</li>
+<li>No correction rescues a study from bad measurement, and no correction is a substitute for replication.</li>
+<li>The salmon was dead the whole time.</li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-benjamini1995" class="csl-entry" role="listitem">
+Benjamini, Yoav, and Yosef Hochberg. 1995. <span>“Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing.”</span> <em>Journal of the Royal Statistical Society: Series B (Methodological)</em> 57 (1): 289–300. <a href="https://doi.org/10.1111/j.2517-6161.1995.tb02031.x">https://doi.org/10.1111/j.2517-6161.1995.tb02031.x</a>.
+</div>
+<div id="ref-bennett2010" class="csl-entry" role="listitem">
+Bennett, Craig M., Abigail A. Baird, Michael B. Miller, and George L. Wolford. 2010. <span>“Neural Correlates of Interspecies Perspective Taking in the Post-Mortem Atlantic Salmon: An Argument for Proper Multiple Comparisons Correction.”</span> <em>Journal of Serendipitous and Unexpected Results</em> 1 (1): 1–5.
+</div>
+<div id="ref-cohen1994" class="csl-entry" role="listitem">
+Cohen, Jacob. 1994. <span>“The Earth Is Round (p &lt; .05).”</span> <em>American Psychologist</em> 49 (12): 997–1003. <a href="https://doi.org/10.1037/0003-066X.49.12.997">https://doi.org/10.1037/0003-066X.49.12.997</a>.
+</div>
+<div id="ref-gelman2006" class="csl-entry" role="listitem">
+Gelman, Andrew, and Hal Stern. 2006. <span>“The Difference Between <span>‘Significant’</span> and <span>‘Not Significant’</span> Is Not Itself Statistically Significant.”</span> <em>The American Statistician</em> 60 (4): 328–31. <a href="https://doi.org/10.1198/000313006X152649">https://doi.org/10.1198/000313006X152649</a>.
+</div>
+<div id="ref-holm1979" class="csl-entry" role="listitem">
+Holm, Sture. 1979. <span>“A Simple Sequentially Rejective Multiple Test Procedure.”</span> <em>Scandinavian Journal of Statistics</em> 6 (2): 65–70.
+</div>
+<div id="ref-lanegetaz2005" class="csl-entry" role="listitem">
+Lane-Getaz, Sharon J. 2005. <span>“Summary of p-Value Survey Research.”</span> <em>Proceedings of the 2005 United States Conference on Teaching Statistics</em>, 13–17.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_19_Regression_Diagnostics.html" class="pagination-link" aria-label="Advanced: Regression Diagnostics and Influential Weirdos">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_21_Advanced_Interactions.html" class="pagination-link" aria-label="Advanced: Continuous and Higher-Order Interactions">
+        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_20_Multiple_Comparisons.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

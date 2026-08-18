@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>13&nbsp; Multiple Regression: Statistical Control – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_14_Hierarchical_Regression.html" rel="next">
+<link href="./Ch_12_Categorical_Regression.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_13_Multiple_Regression.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_13_Multiple_Regression.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction-why-one-predictor-is-never-enough" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="introduction-why-one-predictor-is-never-enough"><span class="header-section-number">13.1</span> Introduction: Why One Predictor Is Never Enough</h2>
+<p>People are complicated. When a student does well on an exam, is it because they studied? Because they weren’t anxious? Because they found the material interesting? It’s all of the above and more.</p>
+<p>So far we’ve used <strong>simple linear regression</strong> (1 DV, 1 IV). But real prediction involves multiple factors at once. <strong>Multiple regression</strong> lets us predict an outcome from two or more predictors simultaneously.</p>
+<p>The key concept: <strong>statistical control</strong>: estimating the association between X and Y while <em>holding other measured variables constant</em>. This lets us ask not just “does studying predict performance?” but “does studying predict performance <strong>above and beyond</strong> what anxiety alone explains?”</p>
+<p>Without statistical control, you can’t untangle those two things. With multiple regression, you can.</p>
+</section>
+<section id="a-study-on-exam-performance" class="level2" data-number="13.2">
+<h2 data-number="13.2" class="anchored" data-anchor-id="a-study-on-exam-performance"><span class="header-section-number">13.2</span> A Study on Exam Performance</h2>
+<p>Let’s ground this in a specific example. Imagine you are a researcher interested in what predicts student exam performance. After reading the literature, you identify two strong candidates:</p>
+<ol type="1">
+<li><strong>Study Hours</strong> (X1): how many hours per week a student spends studying for the exam. More studying should lead to better scores.</li>
+<li><strong>Test Anxiety</strong> (X2): how anxious a student feels about the exam (measured on a 0–100 scale, where 0 = no anxiety and 100 = extreme anxiety). More anxiety is expected to hurt performance.</li>
+</ol>
+<p>You recruit 100 undergraduate students and collect these measures before a major exam. After the exam, you record their score (0–100).</p>
+<section id="the-complication-our-two-predictors-are-correlated" class="level3" data-number="13.2.1">
+<h3 data-number="13.2.1" class="anchored" data-anchor-id="the-complication-our-two-predictors-are-correlated"><span class="header-section-number">13.2.1</span> The Complication: Our Two Predictors Are Correlated</h3>
+<p>Here is the twist. It turns out that Study Hours and Test Anxiety are <strong>not independent of each other</strong>. Students who study more tend to feel <em>less</em> anxious, perhaps because preparation builds confidence, or because anxious students have trouble sitting down to study in the first place.</p>
+<p>This means:</p>
+<ul>
+<li>Students with <em>high</em> Study Hours tend to have <em>low</em> Test Anxiety.</li>
+<li>Students with <em>low</em> Study Hours tend to have <em>high</em> Test Anxiety.</li>
+</ul>
+<p>In other words, Study Hours and Test Anxiety are <strong>negatively correlated</strong> with each other.</p>
+<p>This creates a problem. If you only look at Study Hours → Exam Score, some of the apparent benefit of studying might actually be coming from lower anxiety, not from the studying itself. And if you only look at Anxiety → Exam Score, some of the apparent harm of anxiety might be coming from studying <em>less</em>, not from the anxiety per se.</p>
+<p>Multiple regression lets us disentangle these overlapping influences.</p>
+</section>
+<section id="expected-correlations" class="level3" data-number="13.2.2">
+<h3 data-number="13.2.2" class="anchored" data-anchor-id="expected-correlations"><span class="header-section-number">13.2.2</span> Expected Correlations</h3>
+<p>Here are the correlations we expect to find in our data:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Study Hours</th>
+<th>Test Anxiety</th>
+<th>Exam Score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Study Hours</strong></td>
+<td>—</td>
+<td>−.35</td>
+<td>+.45</td>
+</tr>
+<tr class="even">
+<td><strong>Test Anxiety</strong></td>
+<td>−.35</td>
+<td>—</td>
+<td>−.40</td>
+</tr>
+<tr class="odd">
+<td><strong>Exam Score</strong></td>
+<td>+.45</td>
+<td>−.40</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Study Hours <em>positively</em> predicts exam scores (<span class="math inline">\(r = .45\)</span>): more studying, better scores.</li>
+<li>Test Anxiety <em>negatively</em> predicts exam scores (<span class="math inline">\(r = -.40\)</span>): more anxiety, lower scores.</li>
+<li>Study Hours and Test Anxiety are <em>negatively correlated</em> (<span class="math inline">\(r = -.35\)</span>): students who study more tend to be less anxious.</li>
+</ul>
+<p>That third correlation is the key complication and the reason we need multiple regression.</p>
+</section>
+<section id="simulating-the-data" class="level3" data-number="13.2.3">
+<h3 data-number="13.2.3" class="anchored" data-anchor-id="simulating-the-data"><span class="header-section-number">13.2.3</span> Simulating the Data</h3>
+<p>Always look at your data before running any analysis. Let’s check the first few rows and the summary statistics.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Exam StudyHours Anxiety
+1 43.1        5.3    61.3
+2 72.7       10.5    40.4
+3 88.8        6.3    45.9
+4 73.2        7.4    24.3
+5 66.8        6.7    64.5
+6 65.7        8.7    57.9</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(dat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Exam         StudyHours        Anxiety     
+ Min.   :43.10   Min.   : 1.500   Min.   :19.20  
+ 1st Qu.:65.85   1st Qu.: 5.850   1st Qu.:44.45  
+ Median :74.40   Median : 7.700   Median :50.30  
+ Mean   :75.00   Mean   : 7.999   Mean   :50.00  
+ 3rd Qu.:85.28   3rd Qu.:10.025   3rd Qu.:56.73  
+ Max.   :97.40   Max.   :17.500   Max.   :72.20  </code></pre>
+</div>
+</div>
+<p>And here is a pairs plot showing all three pairwise relationships simultaneously. Each panel in the lower triangle shows a scatterplot, and the diagonal shows histograms for each variable.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggpairs</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  dat,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"smooth"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">diag  =</span> <span class="fu">list</span>(<span class="at">continuous =</span> <span class="st">"barDiag"</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_13_Multiple_Regression_files/figure-html/pairs plot-1.png" class="img-fluid figure-img" alt="A three-by-three matrix comparing study hours, anxiety, and exam score. The diagonal shows each variable's density curve, the lower triangle shows scatterplots, and the upper triangle shows correlations with significance stars." width="528"></p>
+<figcaption>All three variables against each other. Read it the way we read the matrix in the correlation chapter: diagonal is each variable alone, below is the scatterplot, above is the number.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot is compact because each variable takes a turn as both an x-axis and a y-axis. Read one panel at a time. Do not stare at the whole matrix until a causal theory appears.</p>
+<p>You can see all three correlations in the scatterplots:</p>
+<ul>
+<li><strong>Bottom left:</strong> Study Hours and Test Anxiety slope downward, so students who study more tend to be less anxious.</li>
+<li><strong>Bottom middle:</strong> Test Anxiety and Exam Score slope downward, so more anxious students tend to score lower.</li>
+<li><strong>Bottom right:</strong> Study Hours and Exam Score slope upward, so more studying is associated with higher scores.</li>
+</ul>
+</section>
+</section>
+<section id="understanding-overlapping-variance" class="level2" data-number="13.3">
+<h2 data-number="13.3" class="anchored" data-anchor-id="understanding-overlapping-variance"><span class="header-section-number">13.3</span> Understanding Overlapping Variance</h2>
+<p>Before we run the multiple regression, we need to understand <em>why</em> having two correlated predictors creates the problem we described above. The key concept is <strong>overlapping variance</strong>.</p>
+<section id="the-venn-diagram-approach" class="level3" data-number="13.3.1">
+<h3 data-number="13.3.1" class="anchored" data-anchor-id="the-venn-diagram-approach"><span class="header-section-number">13.3.1</span> The Venn Diagram Approach</h3>
+<p>When you use simple regression with a single predictor, things are straightforward: X either predicts Y or it does not. We can visualize this as two circles, one for X and one for Y, where the <em>overlap</em> represents the shared variance between them. As you already know, that overlap, when squared, gives us <span class="math inline">\(R^2\)</span>.</p>
+<p>When we add a second predictor, things get more interesting. Now we have three circles (X1, X2, and Y), and some of the circles overlap with each other:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_13_Multiple_Regression_files/figure-html/ballantine-overlap-1.png" class="img-fluid figure-img" alt="Three overlapping circles labelled Study Hours, Test Anxiety, and Exam Score. The overlaps between each predictor and the outcome are labelled a and b, and the region where all three overlap is labelled c." width="624"></p>
+<figcaption>A Ballantine for Study Hours, Test Anxiety, and Exam Score. The areas are conceptual, not drawn to scale.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In this diagram, we can label four distinct regions:</p>
+<ul>
+<li><strong>Region a</strong> = variance in Y that is <strong>uniquely explained by X1</strong> (Study Hours), above and beyond X2.</li>
+<li><strong>Region b</strong> = variance in Y that is <strong>uniquely explained by X2</strong> (Test Anxiety), above and beyond X1.</li>
+<li><strong>Region c</strong> = variance in Y that <strong>both X1 and X2 share</strong>. Neither predictor can claim exclusive credit for this part.</li>
+<li><strong>Region e</strong> = variance in Y that is <strong>unexplained</strong> by either predictor (residual error).</li>
+</ul>
+<p>The total variance in Y explained by the model is <span class="math inline">\(a + b + c\)</span>.</p>
+</section>
+<section id="the-problem-with-region-c" class="level3" data-number="13.3.2">
+<h3 data-number="13.3.2" class="anchored" data-anchor-id="the-problem-with-region-c"><span class="header-section-number">13.3.2</span> The Problem with Region c</h3>
+<p>Region <span class="math inline">\(c\)</span> is the heart of the matter. It represents variance in exam scores that both Study Hours and Anxiety are <em>jointly</em> associated with, because the two predictors are correlated with each other.</p>
+<p>Here is the problem that region <span class="math inline">\(c\)</span> creates:</p>
+<ul>
+<li>If you only look at <strong>Study Hours → Exam</strong> (simple regression), the observed relationship includes region <span class="math inline">\(a\)</span> <em>and</em> region <span class="math inline">\(c\)</span>. Part of what looks like a “Study Hours effect” is actually shared with Anxiety, because students who study more tend to be less anxious, and less anxious students score higher.</li>
+<li>If you only look at <strong>Anxiety → Exam</strong> (simple regression), the observed relationship includes region <span class="math inline">\(b\)</span> <em>and</em> region <span class="math inline">\(c\)</span>. Part of what looks like an “Anxiety effect” is actually shared with Study Hours, for the same reason.</li>
+</ul>
+<p>So the bivariate slopes mix unique and shared information. In this particular example, each slope is larger in absolute value when examined alone because it also has access to variance shared with the other predictor.</p>
+<p><strong>Multiple regression solves this</strong> by estimating each predictor’s unique contribution. In the multiple regression model, Study Hours gets credit only for region <span class="math inline">\(a\)</span>, and Anxiety gets credit only for region <span class="math inline">\(b\)</span>. Region <span class="math inline">\(c\)</span> is acknowledged as shared variance and included in <span class="math inline">\(R^2\)</span>, but it is not falsely assigned to either predictor.</p>
+<p>In these simulated data, the multiple-regression slopes will be <strong>smaller</strong> than the corresponding simple-regression slopes. That is not a universal rule. Depending on the correlation pattern, adding a control can make a slope shrink, grow, or reverse. The controlled slopes answer a different question: what does each predictor contribute conditionally, given the other predictor in the model?</p>
+</section>
+</section>
+<section id="the-multiple-regression-equation" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="the-multiple-regression-equation"><span class="header-section-number">13.4</span> The Multiple Regression Equation</h2>
+<p>You already know the simple regression equation:</p>
+<p><span class="math display">\[Y = B_0 + B_1 X + e\]</span></p>
+<p><strong>Multiple regression</strong> extends this to two (or more) predictors:</p>
+<p><span class="math display">\[Y = B_0 + B_1 X_1 + B_2 X_2 + e\]</span></p>
+<p>Where:</p>
+<ul>
+<li><span class="math inline">\(B_0\)</span> = intercept (predicted Y when all predictors = 0)</li>
+<li><span class="math inline">\(B_1\)</span> = slope for X1 (Study Hours)</li>
+<li><span class="math inline">\(B_2\)</span> = slope for X2 (Test Anxiety)</li>
+<li><span class="math inline">\(e\)</span> = residual error (observed − predicted)</li>
+</ul>
+<p>In our example:</p>
+<p><span class="math display">\[\widehat{Exam} = B_0 + B_1 \cdot StudyHours + B_2 \cdot Anxiety\]</span></p>
+<p>The equation looks very similar to simple regression. But the <strong>interpretation of the slopes has changed in an important way</strong>.</p>
+<section id="what-controlling-for-means" class="level3" data-number="13.4.1">
+<h3 data-number="13.4.1" class="anchored" data-anchor-id="what-controlling-for-means"><span class="header-section-number">13.4.1</span> What “Controlling For” Means</h3>
+<p>In simple regression, <span class="math inline">\(B_1\)</span> tells you: <em>“For each one-unit increase in X, how much does Y change?”</em></p>
+<p>In multiple regression, <span class="math inline">\(B_1\)</span> tells you something more precise: <em>“For each one-unit increase in X1, how much does Y change, <strong>among people who have the same value of X2</strong>?”</em></p>
+<p>This is what <strong>statistical control</strong> means. The slope for Study Hours in our multiple regression model describes the Study Hours–Exam association <em>as if we were comparing students at the same anxiety level.</em> We are estimating that association after holding anxiety <strong>constant</strong>, or equivalently, after <strong>controlling for</strong> anxiety.</p>
+<p>Think of it this way: imagine sorting all 100 students into groups based on their anxiety score. Within the low-anxiety group, every student has roughly the same anxiety, so exam differences cannot be attributed to measured anxiety differences inside that group. They may be associated with study hours, or with other variables we did not measure. Now imagine doing the same thing for the medium-anxiety group and the high-anxiety group. Multiple regression performs a continuous version of this comparison for every value of Anxiety to isolate the unique predictive contribution of Study Hours.</p>
+<p><strong>The key insight:</strong> a slope in multiple regression is the association between that predictor and Y after accounting for the predictor’s linear relationship with the other predictors in the model. It is the unique predictive contribution of X1 above and beyond what X2 already explains. It is not automatically a causal effect.</p>
+</section>
+</section>
+<section id="running-the-analysis-in-r" class="level2" data-number="13.5">
+<h2 data-number="13.5" class="anchored" data-anchor-id="running-the-analysis-in-r"><span class="header-section-number">13.5</span> Running the Analysis in R</h2>
+<p>Let’s run the analysis step by step. We will start with simple regression for each predictor alone, then combine them. This approach lets you see exactly what changes, and why, when you add the second predictor.</p>
+<section id="step-1-study-hours-alone" class="level3" data-number="13.5.1">
+<h3 data-number="13.5.1" class="anchored" data-anchor-id="step-1-study-hours-alone"><span class="header-section-number">13.5.1</span> Step 1: Study Hours Alone</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Model<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(Exam <span class="sc">~</span> StudyHours, <span class="at">data =</span> dat)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Model<span class="fl">.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Exam ~ StudyHours, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-27.041  -8.274   1.174   8.799  26.996 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  60.6078     3.0717  19.731  &lt; 2e-16 ***
+StudyHours    1.7987     0.3597   5.001  2.5e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 10.76 on 98 degrees of freedom
+Multiple R-squared:  0.2033,    Adjusted R-squared:  0.1952 
+F-statistic: 25.01 on 1 and 98 DF,  p-value: 2.501e-06</code></pre>
+</div>
+</div>
+<p>So, looking at Study Hours alone:</p>
+<ul>
+<li>For every additional hour of studying per week, exam scores increase by about 1.8 points.</li>
+<li>This is a statistically significant positive effect.</li>
+<li>Study Hours alone explains about 20.3% of the variance in exam scores (<span class="math inline">\(R^2 =\)</span> 0.203).</li>
+</ul>
+</section>
+<section id="step-2-test-anxiety-alone" class="level3" data-number="13.5.2">
+<h3 data-number="13.5.2" class="anchored" data-anchor-id="step-2-test-anxiety-alone"><span class="header-section-number">13.5.2</span> Step 2: Test Anxiety Alone</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Model<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(Exam <span class="sc">~</span> Anxiety, <span class="at">data =</span> dat)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Model<span class="fl">.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Exam ~ Anxiety, data = dat)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-26.482  -8.321  -1.005   8.369  26.716 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  98.9535     5.6637  17.472  &lt; 2e-16 ***
+Anxiety      -0.4792     0.1111  -4.313 3.84e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 11.06 on 98 degrees of freedom
+Multiple R-squared:  0.1595,    Adjusted R-squared:  0.151 
+F-statistic:  18.6 on 1 and 98 DF,  p-value: 3.844e-05</code></pre>
+</div>
+</div>
+<p>Looking at Test Anxiety alone:</p>
+<ul>
+<li>For every 1-point increase in test anxiety, exam scores decrease by about 0.48 points.</li>
+<li>This is also statistically significant.</li>
+<li>Anxiety alone explains about 16% of the variance (<span class="math inline">\(R^2 =\)</span> 0.16).</li>
+</ul>
+</section>
+<section id="step-3-both-predictors-together" class="level3" data-number="13.5.3">
+<h3 data-number="13.5.3" class="anchored" data-anchor-id="step-3-both-predictors-together"><span class="header-section-number">13.5.3</span> Step 3: Both Predictors Together</h3>
+<p>Now for the key step of entering both predictors simultaneously. In R, we add a second predictor using the <code>+</code> sign in the formula:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Model<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(Exam <span class="sc">~</span> StudyHours <span class="sc">+</span> Anxiety, <span class="at">data =</span> dat)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Model<span class="fl">.3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Exam ~ StudyHours + Anxiety, data = dat)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-24.3420  -7.8649  -0.3942   7.4378  22.0359 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  80.2059     7.2176  11.112  &lt; 2e-16 ***
+StudyHours    1.4149     0.3693   3.831 0.000226 ***
+Anxiety      -0.3306     0.1111  -2.976 0.003684 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 10.36 on 97 degrees of freedom
+Multiple R-squared:   0.27, Adjusted R-squared:  0.2549 
+F-statistic: 17.94 on 2 and 97 DF,  p-value: 2.351e-07</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="interpreting-the-multiple-regression-output" class="level2" data-number="13.6">
+<h2 data-number="13.6" class="anchored" data-anchor-id="interpreting-the-multiple-regression-output"><span class="header-section-number">13.6</span> Interpreting the Multiple Regression Output</h2>
+<p>Let’s work through what changed when we added both predictors.</p>
+<section id="the-slopes-have-shrunk.-why" class="level3" data-number="13.6.1">
+<h3 data-number="13.6.1" class="anchored" data-anchor-id="the-slopes-have-shrunk.-why"><span class="header-section-number">13.6.1</span> The Slopes Have Shrunk. Why?</h3>
+<p>Compare the slope estimates across all three models:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Predictor</th>
+<th>Simple Regression (Alone)</th>
+<th>Multiple Regression (Controlling for the Other)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Study Hours</td>
+<td>1.799</td>
+<td>1.415</td>
+</tr>
+<tr class="even">
+<td>Test Anxiety</td>
+<td>-0.479</td>
+<td>-0.331</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Both slopes are smaller in absolute value</strong> when the two predictors are in the model together. This is exactly what the Venn diagram predicts. Here is why:</p>
+<p>When Study Hours was the <em>only</em> predictor (Model 1), its prediction included region <span class="math inline">\(a\)</span> <em>and</em> region <span class="math inline">\(c\)</span>: its unique association with exam performance plus variance shared with Anxiety. Once both predictors enter Model 3, the Study Hours coefficient is based on Study Hours variation that Anxiety does not linearly predict. Region <span class="math inline">\(c\)</span> still contributes to the model’s overall <span class="math inline">\(R^2\)</span>, but neither coefficient can claim it as uniquely its own.</p>
+<p>The same logic applies in reverse: Anxiety’s slope shrinks from -0.479 to -0.331 because some of its bivariate association with Exam Score overlaps with lower Study Hours.</p>
+<p>This shrinkage is <strong>not a problem</strong>. Model 3 is answering the conditional question we asked. Its slopes estimate each predictor’s unique association with Exam Score given the other measured predictor. They are not automatically “truer,” more causal, or less biased; that depends on the research design, measurement quality, and whether controlling for that variable makes theoretical sense.</p>
+</section>
+<section id="interpreting-each-controlled-slope" class="level3" data-number="13.6.2">
+<h3 data-number="13.6.2" class="anchored" data-anchor-id="interpreting-each-controlled-slope"><span class="header-section-number">13.6.2</span> Interpreting Each Controlled Slope</h3>
+<p>Here is how to interpret each slope in Model 3 in plain language:</p>
+<p><strong>Study Hours</strong> (<span class="math inline">\(B_1 =\)</span> 1.41):</p>
+<blockquote class="blockquote">
+<p>“For students with the <em>same</em> level of test anxiety, each additional hour of weekly study is associated with a 1.41-point increase in exam score.”</p>
+</blockquote>
+<p><strong>Test Anxiety</strong> (<span class="math inline">\(B_2 =\)</span> -0.33):</p>
+<blockquote class="blockquote">
+<p>“For students who study the <em>same</em> number of hours per week, each one-point increase in test anxiety is associated with a 0.33-point decrease in exam score.”</p>
+</blockquote>
+<p>The phrase <strong>“for students with the same [other variable]”</strong> is the key to interpreting any slope in multiple regression. When you see a slope reported in a multiple regression model, it always carries that “holding everything else constant” qualifier even when it is not stated explicitly.</p>
+</section>
+<section id="the-intercept" class="level3" data-number="13.6.3">
+<h3 data-number="13.6.3" class="anchored" data-anchor-id="the-intercept"><span class="header-section-number">13.6.3</span> The Intercept</h3>
+<p>The intercept (<span class="math inline">\(B_0 =\)</span> 80.21) is the predicted exam score when <strong>both</strong> Study Hours = 0 <strong>and</strong> Anxiety = 0. Since no student in our sample studied for zero hours <em>and</em> had zero anxiety simultaneously, this is not a prediction we would ever actually make. Like in simple regression, the intercept just anchors the equation mathematically. It becomes more meaningful when predictors are mean-centered (but we will save that for another time).</p>
+</section>
+<section id="making-a-prediction" class="level3" data-number="13.6.4">
+<h3 data-number="13.6.4" class="anchored" data-anchor-id="making-a-prediction"><span class="header-section-number">13.6.4</span> Making a Prediction</h3>
+<p>Now that we have the full equation, we can make predictions. For a student who studies 10 hours per week and has an anxiety score of 45:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Predicted exam score for a student with 10 study hours and anxiety = 45</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>B0 <span class="ot">&lt;-</span> Model<span class="fl">.3</span><span class="sc">$</span>coefficients[<span class="dv">1</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>B1 <span class="ot">&lt;-</span> Model<span class="fl">.3</span><span class="sc">$</span>coefficients[<span class="dv">2</span>]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>B2 <span class="ot">&lt;-</span> Model<span class="fl">.3</span><span class="sc">$</span>coefficients[<span class="dv">3</span>]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>predicted <span class="ot">&lt;-</span> B0 <span class="sc">+</span> B1 <span class="sc">*</span> <span class="dv">10</span> <span class="sc">+</span> B2 <span class="sc">*</span> <span class="dv">45</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(predicted, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+       79.5 </code></pre>
+</div>
+</div>
+<p>This student would be predicted to score about 79.5 on the exam.</p>
+</section>
+</section>
+<section id="how-well-does-the-model-fit-r2" class="level2" data-number="13.7">
+<h2 data-number="13.7" class="anchored" data-anchor-id="how-well-does-the-model-fit-r2"><span class="header-section-number">13.7</span> How Well Does the Model Fit? R^2</h2>
+<p>Let’s look at how the model’s explanatory power (<span class="math inline">\(R^2\)</span>) changes across our three models.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>r2_model1 <span class="ot">&lt;-</span> <span class="fu">summary</span>(Model<span class="fl">.1</span>)<span class="sc">$</span>r.squared</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>r2_model2 <span class="ot">&lt;-</span> <span class="fu">summary</span>(Model<span class="fl">.2</span>)<span class="sc">$</span>r.squared</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>r2_model3 <span class="ot">&lt;-</span> <span class="fu">summary</span>(Model<span class="fl">.3</span>)<span class="sc">$</span>r.squared</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 1 (Study Hours only): R-squared = 0.203 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 2 (Anxiety only):     R-squared = 0.16 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 3 (Both predictors):  R-squared = 0.27 </code></pre>
+</div>
+</div>
+<p>The full model (<span class="math inline">\(R^2 =\)</span> 0.27) explains more variance than either predictor alone. But notice something: the combined model does <strong>not</strong> explain as much as the simple sum of the two individual <span class="math inline">\(R^2\)</span> values (0.203 + 0.16 = 0.363). Why not?</p>
+<p>Go back to the Venn diagram. When Study Hours was the only predictor, it explained regions <span class="math inline">\(a + c\)</span>. When Anxiety was the only predictor, it explained regions <span class="math inline">\(b + c\)</span>. Together, they explain regions <span class="math inline">\(a + b + c\)</span>. But notice that region <span class="math inline">\(c\)</span> was already counted in Model 1’s <span class="math inline">\(R^2\)</span>. Adding Anxiety on top of Study Hours can only add region <span class="math inline">\(b\)</span> to what was already explained. It cannot double-count region <span class="math inline">\(c\)</span>.</p>
+<p>This is why <span class="math inline">\(R^2\)</span> does not add up neatly when predictors are correlated. The combined model explains more than either predictor alone, but less than the naive sum of their individual <span class="math inline">\(R^2\)</span> values.</p>
+<section id="breaking-down-the-venn-diagram-numerically" class="level3" data-number="13.7.1">
+<h3 data-number="13.7.1" class="anchored" data-anchor-id="breaking-down-the-venn-diagram-numerically"><span class="header-section-number">13.7.1</span> Breaking Down the Venn Diagram Numerically</h3>
+<p>We can actually estimate the size of each region in the Venn diagram using simple subtraction:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Unique variance of Study Hours (region a)</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>region_a <span class="ot">&lt;-</span> r2_model3 <span class="sc">-</span> r2_model2</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Unique variance of Anxiety (region b)</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>region_b <span class="ot">&lt;-</span> r2_model3 <span class="sc">-</span> r2_model1</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Shared variance (region c)</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>region_c <span class="ot">&lt;-</span> r2_model1 <span class="sc">+</span> r2_model2 <span class="sc">-</span> r2_model3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Region a - unique to Study Hours: 0.11 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Region b - unique to Anxiety:     0.067 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Region c - shared variance:       0.093 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total R-squared:                  0.27 </code></pre>
+</div>
+</div>
+<p>In our data:</p>
+<ul>
+<li>Study Hours has about 11% unique variance in exam scores, its unique predictive contribution after accounting for anxiety (region <span class="math inline">\(a\)</span>).</li>
+<li>Anxiety has about 6.7% unique variance, its unique predictive contribution after accounting for study hours (region <span class="math inline">\(b\)</span>).</li>
+<li>About 9.3% of the variance in exam scores is shared between the two predictors: variance that both contribute to together, but neither can claim exclusively (region <span class="math inline">\(c\)</span>).</li>
+</ul>
+<p>This numerical breakdown puts the Venn diagram concept in concrete terms. The <strong>squared semi-partial correlations</strong> correspond directly to regions <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. The regression slopes are based on the same unique predictor variation, but express the expected outcome change in Exam Score units.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="If Region c Comes Out Negative, You Found Something">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>If Region c Comes Out Negative, You Found Something
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run this subtraction on your own data and region <span class="math inline">\(c\)</span> can come back <strong>negative</strong>, which is impossible for an overlapping area and tends to make students assume they broke the arithmetic.</p>
+<p>You did not. A negative <span class="math inline">\(c\)</span> means the two predictors are doing something called <strong>suppression</strong>, where adding one predictor makes the other’s contribution <em>larger</em> rather than smaller. It is real, it is not rare, and it is the point at which the Venn diagram metaphor quietly resigns and goes home with its ball. The next chapter takes suppression apart properly. Grad readers who want the full explaination should see Cohen, Cohen, West and Aiken, chapter 3.</p>
+</div>
+</div>
+</section>
+<section id="adding-predictors-always-increases-r2" class="level3" data-number="13.7.2">
+<h3 data-number="13.7.2" class="anchored" data-anchor-id="adding-predictors-always-increases-r2"><span class="header-section-number">13.7.2</span> Adding Predictors Always Increases R^2</h3>
+<p>There is an important quirk about <span class="math inline">\(R^2\)</span>: it will <strong>always increase</strong> when you add another predictor to the model, even if that predictor is completely useless random noise. This is simply because any variable, no matter how irrelevant, will share at least a tiny sliver of variance with Y by chance in any given sample.</p>
+<p>This means if you kept piling more and more predictors into a model, <span class="math inline">\(R^2\)</span> would keep creeping upward, not because those predictors were genuinely meaningful, but just because of sampling variability.</p>
+</section>
+<section id="adjusted-r2" class="level3" data-number="13.7.3">
+<h3 data-number="13.7.3" class="anchored" data-anchor-id="adjusted-r2"><span class="header-section-number">13.7.3</span> Adjusted R^2</h3>
+<p><strong>Adjusted <span class="math inline">\(R^2\)</span></strong> corrects for this problem by applying a penalty for each additional predictor:</p>
+<p><span class="math display">\[\text{Adjusted } R^2 = 1 - \left(1 - R^2\right) \frac{n - 1}{n - k - 1}\]</span></p>
+<p>Where <span class="math inline">\(n\)</span> = sample size and <span class="math inline">\(k\)</span> = number of predictors in the model. With a small sample and many predictors, the penalty is larger. With a large sample and few predictors, the penalty is small.</p>
+<p>Raw <span class="math inline">\(R^2\)</span> describes how well the model fits <strong>this sample</strong>. Adjusted <span class="math inline">\(R^2\)</span> asks a slightly less flattering question: after penalizing us for the number of predictors we used, how much variance does the model appear to explain? Because raw <span class="math inline">\(R^2\)</span> capitalizes on accidental relationships in the current sample, adjusted <span class="math inline">\(R^2\)</span> is usually closer to what we might expect in the population or a new sample. It is not a prophecy, but it is less easily impressed.</p>
+<p>Adjusted <span class="math inline">\(R^2\)</span> can increase when a new predictor improves the model enough to overcome the penalty. It can decrease when the added predictor contributes too little. This makes it a fairer comparison tool when models contain different numbers of predictors.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>adj_r2_model1 <span class="ot">&lt;-</span> <span class="fu">summary</span>(Model<span class="fl">.1</span>)<span class="sc">$</span>adj.r.squared</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>adj_r2_model3 <span class="ot">&lt;-</span> <span class="fu">summary</span>(Model<span class="fl">.3</span>)<span class="sc">$</span>adj.r.squared</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 1 Adjusted R-squared: 0.195 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model 3 Adjusted R-squared: 0.255 </code></pre>
+</div>
+</div>
+<p>Our adjusted <span class="math inline">\(R^2\)</span> increased from 0.195 to 0.255 when we added Anxiety. This confirms that Anxiety is genuinely useful after the penalty for adding a predictor, the model still explains meaningfully more variance.</p>
+<p>People commonly report <strong>both</strong> <span class="math inline">\(R^2\)</span> and adjusted <span class="math inline">\(R^2\)</span>. Raw <span class="math inline">\(R^2\)</span> describes the variance explained in the observed sample. Adjusted <span class="math inline">\(R^2\)</span> provides the more conservative estimate after accounting for model size and is often the better guess about how much explanatory power will survive beyond this particular group of exploited undergraduates.</p>
+</section>
+</section>
+<section id="visualizing-multiple-regression" class="level2" data-number="13.8">
+<h2 data-number="13.8" class="anchored" data-anchor-id="visualizing-multiple-regression"><span class="header-section-number">13.8</span> Visualizing Multiple Regression</h2>
+<p>Tables of numbers are useful, but plots help build intuition. Let’s visualize what is happening.</p>
+<section id="the-study-hours-slope-before-and-after-controlling" class="level3" data-number="13.8.1">
+<h3 data-number="13.8.1" class="anchored" data-anchor-id="the-study-hours-slope-before-and-after-controlling"><span class="header-section-number">13.8.1</span> The Study Hours Slope Before and After Controlling</h3>
+<p>This first pair of plots shows the predicted relationship between Study Hours and Exam Score in the two models. The key question is: how does the slope change when we control for Anxiety?</p>
+<p>We draw these with <code>plot_model()</code> from the <strong>sjPlot</strong> package, which is also the tool your homework asks for, so it is worth reading the code rather than just the picture. It takes predictions straight out of a fitted model: <code>type = "pred"</code> means “show me predicted values,” and <code>terms</code> picks which predictor goes on the x-axis. Both panels are locked to the same y-axis with <code>coord_cartesian()</code>, because a slope comparison across two differently scaled plots is not a comparison at all.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>p.study.before <span class="ot">&lt;-</span> <span class="fu">plot_model</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  Model<span class="fl">.1</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type       =</span> <span class="st">"pred"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">terms      =</span> <span class="st">"StudyHours"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">colors     =</span> <span class="st">"blue"</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">title      =</span> <span class="st">"Study Hours and Exam</span><span class="sc">\n</span><span class="st">(Without controlling for Anxiety)"</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title =</span> <span class="fu">c</span>(<span class="st">"Study Hours per Week"</span>, <span class="st">"Predicted Exam Score"</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>)) <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>p.study.after <span class="ot">&lt;-</span> <span class="fu">plot_model</span>(</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  Model<span class="fl">.3</span>,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">type       =</span> <span class="st">"pred"</span>,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">terms      =</span> <span class="st">"StudyHours"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">colors     =</span> <span class="st">"blue"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">title      =</span> <span class="st">"Study Hours and Exam</span><span class="sc">\n</span><span class="st">(Controlling for Anxiety)"</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title =</span> <span class="fu">c</span>(<span class="st">"Study Hours per Week"</span>, <span class="st">"Predicted Exam Score"</span>)</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>)) <span class="sc">+</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>p.study.before <span class="sc">+</span> p.study.after</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_13_Multiple_Regression_files/figure-html/plot study before-1.png" class="img-fluid figure-img" alt="Two line plots side by side, both showing predicted exam score rising with study hours. The right panel, which controls for anxiety, rises slightly less steeply than the left." width="864"></p>
+<figcaption>The Study Hours slope, before and after controlling for Anxiety. Same y-axis on both panels, so the difference you see is real.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The slope becomes slightly shallower after controlling for Anxiety. This is statistical control in action: some of the original Study Hours effect was shared with (and partially driven by) lower anxiety levels in high-studying students.</p>
+<p>Be careful about what the controlled slope is, though. It answers the <strong>conditional</strong> question: what studying is associated with among students at the same anxiety level.</p>
+<p>What it is <em>not</em> is more <strong>precise</strong>. Precision means the standard error, and here the controlled slope’s standard error is slightly <em>larger</em> than the uncontrolled one. That is the normal pattern: correlated predictors share information, and the more of it they share, the less each one is separately pinned down. A later chapter measures exactly this with something called <em>variance inflation</em>.</p>
+</section>
+<section id="the-anxiety-slope-before-and-after-controlling" class="level3" data-number="13.8.2">
+<h3 data-number="13.8.2" class="anchored" data-anchor-id="the-anxiety-slope-before-and-after-controlling"><span class="header-section-number">13.8.2</span> The Anxiety Slope Before and After Controlling</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>p.anx.before <span class="ot">&lt;-</span> <span class="fu">plot_model</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  Model<span class="fl">.2</span>,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">type       =</span> <span class="st">"pred"</span>,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">terms      =</span> <span class="st">"Anxiety"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">colors     =</span> <span class="st">"red"</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">title      =</span> <span class="st">"Anxiety and Exam</span><span class="sc">\n</span><span class="st">(Without controlling for Study Hours)"</span>,</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title =</span> <span class="fu">c</span>(<span class="st">"Test Anxiety (0-100)"</span>, <span class="st">"Predicted Exam Score"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>)) <span class="sc">+</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>p.anx.after <span class="ot">&lt;-</span> <span class="fu">plot_model</span>(</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  Model<span class="fl">.3</span>,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">type       =</span> <span class="st">"pred"</span>,</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">terms      =</span> <span class="st">"Anxiety"</span>,</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">colors     =</span> <span class="st">"red"</span>,</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">title      =</span> <span class="st">"Anxiety and Exam</span><span class="sc">\n</span><span class="st">(Controlling for Study Hours)"</span>,</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title =</span> <span class="fu">c</span>(<span class="st">"Test Anxiety (0-100)"</span>, <span class="st">"Predicted Exam Score"</span>)</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>)) <span class="sc">+</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>p.anx.before <span class="sc">+</span> p.anx.after</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_13_Multiple_Regression_files/figure-html/plot anxiety before-1.png" class="img-fluid figure-img" alt="Two line plots side by side, both showing predicted exam score falling as anxiety rises. The right panel, which controls for study hours, falls slightly less steeply than the left." width="864"></p>
+<figcaption>The Anxiety slope, before and after controlling for Study Hours. Same y-axis again.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The same pattern appears in reverse: the negative slope for Anxiety becomes slightly smaller after we account for the fact that highly anxious students also tend to study less. The controlled slope describes Anxiety’s conditional association with performance while Study Hours is held constant.</p>
+</section>
+<section id="the-full-model-both-predictors-together" class="level3" data-number="13.8.3">
+<h3 data-number="13.8.3" class="anchored" data-anchor-id="the-full-model-both-predictors-together"><span class="header-section-number">13.8.3</span> The Full Model: Both Predictors Together</h3>
+<p>We can also visualize both predictors simultaneously. The plot below shows how predicted exam scores change with Study Hours, for students at three different anxiety levels (low, average, and high).</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_model</span>(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  Model<span class="fl">.3</span>,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">type         =</span> <span class="st">"pred"</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">terms        =</span> <span class="fu">c</span>(<span class="st">"StudyHours"</span>, <span class="st">"Anxiety [40, 50, 60]"</span>),</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">title        =</span> <span class="st">"Predicted Exam Score by Study Hours and Anxiety Level"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend.title =</span> <span class="st">"Test Anxiety"</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">axis.title   =</span> <span class="fu">c</span>(<span class="st">"Study Hours per Week"</span>, <span class="st">"Predicted Exam Score"</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">95</span>)) <span class="sc">+</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_13_Multiple_Regression_files/figure-html/plot full model-1.png" class="img-fluid figure-img" alt="Three parallel upward-sloping lines showing predicted exam score against study hours, one line each for low, average, and high anxiety. The lines are stacked vertically and never cross." width="480"></p>
+<figcaption>Predicted exam score by study hours, drawn separately for low, average, and high anxiety. The lines are parallel, and that is the point.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Each line represents students at a different anxiety level: low anxiety (40), average anxiety (50), and high anxiety (60). Notice:</p>
+<ul>
+<li><strong>More studying always helps</strong>: all three lines slope upward, regardless of anxiety level.</li>
+<li><strong>Higher anxiety always hurts</strong>: the lines are shifted downward for higher-anxiety students.</li>
+<li><strong>The lines are parallel</strong>: the predicted difference associated with each additional study hour is the same at every anxiety level. This is what it means for the terms to be <strong>additive</strong> in our model: the model contains separate Study Hours and Anxiety slopes but no interaction between them.</li>
+</ul>
+<p>This plot gives you a visual intuition for what “controlling for” means: the slope of each line within one anxiety group represents the Study Hours association holding Anxiety constant, exactly what the multiple regression coefficient estimates.</p>
+</section>
+</section>
+<section id="a-note-on-what-did-not-change" class="level2" data-number="13.9">
+<h2 data-number="13.9" class="anchored" data-anchor-id="a-note-on-what-did-not-change"><span class="header-section-number">13.9</span> A Note on What Did Not Change</h2>
+<p>In Model 3, <strong>both predictors remain statistically significant</strong> after controlling for each other. The fact that both slopes shrank does not mean either predictor is unimportant. Both retain unique predictive associations with Exam Score: Study Hours contributes above and beyond Anxiety (region <span class="math inline">\(a\)</span>), and Anxiety contributes above and beyond Study Hours (region <span class="math inline">\(b\)</span>).</p>
+<p>The meaning: <strong>a slope that shrinks when you add a control variable is not automatically a sign of a weak finding.</strong> It means the controlled and uncontrolled models answer different questions. In this example, the controlled slope is based on predictor variance not linearly explained by the other predictor.</p>
+<p>Adding a control variable can also make a slope grow, disappear, reverse, or change statistical significance. Those patterns can reflect confounding, suppression, collinearity, measurement problems, or a poorly chosen control. The <a href="./Ch_15_Statistical_Control.html">Statistical Control</a> chapter takes apart what statistical control is actually doing.</p>
+</section>
+<section id="apa-write-up" class="level2" data-number="13.10">
+<h2 data-number="13.10" class="anchored" data-anchor-id="apa-write-up"><span class="header-section-number">13.10</span> APA Write-Up</h2>
+<p>Here is how you would write up these results in APA format:</p>
+<p>Prior to the main analysis, zero-order correlations were examined. Study hours positively correlated with exam performance (<span class="math inline">\(r = .45\)</span>, <span class="math inline">\(p &lt; .001\)</span>), and test anxiety negatively correlated with exam performance (<span class="math inline">\(r = -.40\)</span>, <span class="math inline">\(p &lt; .001\)</span>). The two predictors were also significantly correlated with each other (<span class="math inline">\(r = -.35\)</span>, <span class="math inline">\(p &lt; .001\)</span>), indicating that students who studied more tended to report lower anxiety.</p>
+<p>A multiple linear regression was conducted with exam score as the outcome and study hours and test anxiety as predictors. The overall model was statistically significant, <span class="math inline">\(F(2, 97) =\)</span> 17.94, <span class="math inline">\(p &lt; .001\)</span>, <span class="math inline">\(R^2 =\)</span> 0.27, adjusted <span class="math inline">\(R^2 =\)</span> 0.255.</p>
+<p>After controlling for test anxiety, study hours significantly predicted exam performance, <span class="math inline">\(b =\)</span> 1.41, <span class="math inline">\(SE =\)</span> 0.37, <span class="math inline">\(t(97) =\)</span> 3.83, <span class="math inline">\(p &lt; .001\)</span>. After controlling for study hours, test anxiety significantly predicted exam performance, <span class="math inline">\(b =\)</span> -0.33, <span class="math inline">\(SE =\)</span> 0.11, <span class="math inline">\(t(97) =\)</span> -2.98, <span class="math inline">\(p &lt;\)</span> 0.004.</p>
+<p>Together, these results indicate that Study Hours and Test Anxiety each uniquely predict Exam Score in this model: students who study more and experience less anxiety tend to perform better, and both associations remain after accounting for the correlation between the predictors.</p>
+<p>A few things to notice in this write-up:</p>
+<ul>
+<li>We tend to report the zero-order correlations first, so readers understand the bivariate relationships before seeing the controlled effects.</li>
+<li>We use the phrase <strong>“after controlling for…”</strong> (or equivalently, “above and beyond” or “holding constant”) to signal that a multiple regression slope is being reported.</li>
+<li>We report <span class="math inline">\(F\)</span>, <span class="math inline">\(R^2\)</span>, and adjusted <span class="math inline">\(R^2\)</span> for the overall model, then report <span class="math inline">\(b\)</span>, <span class="math inline">\(SE\)</span>, <span class="math inline">\(t\)</span>, and <span class="math inline">\(p\)</span> for each individual predictor.</li>
+<li>We do not report Cohen’s <span class="math inline">\(d\)</span> here. In regression, <span class="math inline">\(b\)</span> (the unstandardized slope) is the primary effect size. The overall model’s <span class="math inline">\(R^2\)</span> tells us the total proportion of variance explained.</li>
+</ul>
+</section>
+<section id="the-short-story" class="level2" data-number="13.11">
+<h2 data-number="13.11" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">13.11</span> The Short Story</h2>
+<ul>
+<li>One predictor is never enough, because predictors are correlated with each other. That is not a nuisance, it is the normal condition of psychological data.</li>
+<li>A slope in multiple regression is a <strong>unique</strong> association: what this predictor is worth while holding the other predictors constant. Every such slope carries an invisible “holding the others constant” clause, and you should read it aloud every time.</li>
+<li>Slopes can shrink, grow, disappear, or flip sign when a control enters. None of those outcomes is the “true” one. Each model answers a different question, and you have to know which question you asked.</li>
+<li><span class="math inline">\(R^2\)</span> values do not add up across models, because the variance the predictors share (region <span class="math inline">\(c\)</span>) only gets counted once.</li>
+<li>Adjusted <span class="math inline">\(R^2\)</span> charges rent for every predictor you add, which is why it can go down when you add a useless one.</li>
+<li>Statistical control is not experimental control. Holding a variable constant in an equation is not the same as holding it constant in the world, and only design decides which causal stories survive.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="Next: Did the Second Predictor Earn Its Keep?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Next: Did the Second Predictor Earn Its Keep?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The next chapter, <a href="./Ch_14_Hierarchical_Regression.html">Hierarchical Regression</a>, picks up Models 1 and 3 where we just left them and asks whether adding Test Anxiety improved the model by more than chance. After that, <a href="./Ch_15_Statistical_Control.html">Statistical Control: What Are We Actually Removing?</a> uses these same students to show exactly how residuals, semi-partial correlation, partial correlation, standardized beta, and change in <span class="math inline">\(R^2\)</span> fit together. No new imaginary undergraduates will be recruited until the current ones have finished the exam.</p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_12_Categorical_Regression.html" class="pagination-link" aria-label="Linear Regression with Categorical Variables">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_14_Hierarchical_Regression.html" class="pagination-link" aria-label="Hierarchical Regression: Testing Whether Your Model Improves">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_13_Multiple_Regression.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

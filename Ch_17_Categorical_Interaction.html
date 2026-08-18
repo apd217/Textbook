@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>17&nbsp; Categorical-by-Categorical Interactions: The 2-by-2 Design – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_18_Mixed_Regression.html" rel="next">
+<link href="./Ch_16_Continuous_Categorical_Interaction.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_17_Categorical_Interaction.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_17_Categorical_Interaction.html"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-design-psychology-cannot-stop-running" class="level2" data-number="17.1">
+<h2 data-number="17.1" class="anchored" data-anchor-id="the-design-psychology-cannot-stop-running"><span class="header-section-number">17.1</span> The Design Psychology Cannot Stop Running</h2>
+<p>Open a psychology journal to a random page. There is a very good chance the analysis you land on is a 2 × 2: two variables, two levels each, four groups, and one figure with two lines that either are or are not parallel. Drug versus placebo crossed with young versus old. Threat crossed with reassurance. Word lists crossed with sleep. It is the most-run design in the field, and if you go to graduate school in this discipline you will run one within the year.</p>
+<p>So let us run one. Same friendship study as the prior chapter, same hypothesis, same 200 students.</p>
+<p>There is one obstacle. A 2 × 2 needs two categorical variables, and Being Nice is not categorical. It is a perfectly good continuous rating from 0 to 10. So we are going to keep the least agreeable students, keep the most agreeable students, throw the 119 people in the middle of the scale directly into the bin, and call what survives <strong>Low Nice</strong> and <strong>High Nice</strong>.</p>
+<p>Yes, that is roughly as bad as it sounds. We will come back to exactly how bad, and to why this book is allowed to do it and you are not, at the moment we actually do it.</p>
+</section>
+<section id="where-we-are-and-where-we-are-going" class="level2" data-number="17.2">
+<h2 data-number="17.2" class="anchored" data-anchor-id="where-we-are-and-where-we-are-going"><span class="header-section-number">17.2</span> Where We Are and Where We Are Going</h2>
+<p>In the prior chapter you learned how to detect, estimate, and interpret an interaction between a <em>continuous</em> predictor and a <em>categorical</em> one. In the friendship study, Being Nice (0–10 scale) was continuous and Going Out (Stay in vs.&nbsp;Go out) was categorical. The interaction told you that the <strong>slope</strong> of Being Nice on friendship closeness was different for students who went out compared to those who stayed in.</p>
+<p>That kind of interaction is very common in psychology research. But so is a second kind: interactions where <strong>both predictors are categorical</strong>. This is the foundation of the <strong>two-way factorial ANOVA</strong>, and the 2 × 2 is its simplest and most common version.</p>
+<p>This chapter assumes you have already read the prior chapter material. You know what an interaction is, you know how to interpret the interaction model equation, and you know how to use <code>anova()</code> to compare a main effects model to an interaction model. What is new here is what changes, and what stays the same, when both predictors are categorical.</p>
+<section id="what-changes-from-prior-chapter" class="level3" data-number="17.2.1">
+<h3 data-number="17.2.1" class="anchored" data-anchor-id="what-changes-from-prior-chapter"><span class="header-section-number">17.2.1</span> What Changes from prior chapter</h3>
+<p>The biggest conceptual change is this: <strong>there is no continuous variable to center.</strong> In the prior chapter centering was necessary because the intercept needed a meaningful zero point on the continuous scale. When both predictors are categorical, every predictor already takes on a small set of discrete values, and the “zero point” is simply the reference category of each variable, a specific cell in the design, not an abstract mean.</p>
+<p>Everything else follows from that:</p>
+<ul>
+<li>No centering is needed. Both variables just need dummy coding.</li>
+<li>The interaction coefficient is no longer a “difference in slopes.” There are no slopes here. Instead, <span class="math inline">\(B_3\)</span> is the <strong>difference in group differences</strong>, sometimes called the “difference of differences.” We will unpack this carefully.</li>
+<li>The follow-up to the interaction is <strong>simple effects analysis</strong>: testing, within each level of one variable, whether the levels of the other variable differ significantly. We use <code>pairs()</code> from the <code>emmeans</code> package instead of <code>emtrends()</code>.</li>
+<li>Effect sizes for pairwise comparisons are expressed as <strong>Cohen’s <em>d</em></strong>, not unstandardized slopes.</li>
+</ul>
+<p>What <strong>stays the same</strong>: the interaction is still about “it depends.” The visual signature is still non-parallel lines (or unequal gaps in a bar chart). The model comparison is still done with <code>anova()</code> and <span class="math inline">\(\Delta R^2\)</span>. The APA write-up still follows the same structure.</p>
+</section>
+<section id="what-the-22-looks-like-as-a-table" class="level3" data-number="17.2.2">
+<h3 data-number="17.2.2" class="anchored" data-anchor-id="what-the-22-looks-like-as-a-table"><span class="header-section-number">17.2.2</span> What the 2×2 Looks Like as a Table</h3>
+<p>Before we touch any data, it helps to lay out the full design as a 2 × 2 table. Each cell represents a unique combination of the two categorical predictors, and we expect a separate (estimated) mean outcome in each cell.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Stay in</strong></th>
+<th><strong>Go out</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Low Nice</strong></td>
+<td><span class="math inline">\(\mu_{11}\)</span>: Low Nice × Stay in</td>
+<td><span class="math inline">\(\mu_{12}\)</span>: Low Nice × Go out</td>
+</tr>
+<tr class="even">
+<td><strong>High Nice</strong></td>
+<td><span class="math inline">\(\mu_{21}\)</span>: High Nice × Stay in</td>
+<td><span class="math inline">\(\mu_{22}\)</span>: High Nice × Go out</td>
+</tr>
+</tbody>
+</table>
+<p>The interaction question is: <strong>is the difference between High Nice and Low Nice the same in both columns (Going Out groups)?</strong> Or equivalently: <strong>is the difference between Go out and Stay in the same in both rows (Niceness groups)?</strong></p>
+<p>Both questions ask the same thing. The answer is the interaction.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Same Two IVs, Same One DV, Still Nobody Measured Twice">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Same Two IVs, Same One DV, Still Nobody Measured Twice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A quick inventory, since the parts have been renamed but not replaced.</p>
+<p>The <strong>DV</strong> (the outcome) is still friendship closeness, 0 to 100. The <strong>IVs</strong> (the predictors) are still two: Niceness Group and Going Out. Two IVs is what makes an interaction possible; that has not changed. What changed is only that both IVs are now categorical.</p>
+<p>Both are still <strong>between subjects</strong>: one row per student, one cell per student, nobody measured twice. A 2 × 2 in which the same people turn up in more than one cell is a repeated-measures design, which is a different model and a later chapter.</p>
+<p>And it is still true that <strong>regression does not care whether an IV was randomly assigned or merely observed.</strong> Neither of ours was assigned. We did not randomly allocate students to be agreeable, and we did not send half of them out to parties. The 2 × 2 table you are about to see will look exactly like a table from a real experiment, the <em>F</em> values are computed exactly the same way, and none of that buys you a causal claim. The design decides what you may conclude. The arithmetic never does.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-core-concept-the-difference-of-differences" class="level2" data-number="17.3">
+<h2 data-number="17.3" class="anchored" data-anchor-id="the-core-concept-the-difference-of-differences"><span class="header-section-number">17.3</span> The Core Concept: The “Difference of Differences”</h2>
+<section id="what-it-means-when-both-predictors-are-categorical" class="level3" data-number="17.3.1">
+<h3 data-number="17.3.1" class="anchored" data-anchor-id="what-it-means-when-both-predictors-are-categorical"><span class="header-section-number">17.3.1</span> What It Means When Both Predictors Are Categorical</h3>
+<p>In the prior chapter, the interaction coefficient <span class="math inline">\(B_3\)</span> told you how much steeper the slope of Being Nice was for the “Go out” group compared to the “Stay in” group. Slopes are a continuous concept: the rate at which friendship closeness increases as niceness increases by one unit.</p>
+<p>When Being Nice is categorical (Low vs.&nbsp;High), there are no slopes. Instead, there is a <strong>gap</strong>: the difference in predicted friendship closeness between High Nice and Low Nice students. The interaction now asks whether that gap is the same size in both Going Out groups.</p>
+<p>Here is the idea in formula form. Define:</p>
+<ul>
+<li><strong>Effect of Niceness for Stay-in students</strong> = <span class="math inline">\(\mu_{21} - \mu_{11}\)</span> (High Nice – Low Nice, among those who stay in)</li>
+<li><strong>Effect of Niceness for Go-out students</strong> = <span class="math inline">\(\mu_{22} - \mu_{12}\)</span> (High Nice – Low Nice, among those who go out)</li>
+</ul>
+<p>The <strong>interaction</strong> is the difference between these two effects:</p>
+<p><span class="math display">\[B_3 = (\mu_{22} - \mu_{12}) - (\mu_{21} - \mu_{11})\]</span></p>
+<p>This is the “difference of differences.” If there is no interaction, the effect of Niceness is the same size in both Going Out groups, and <span class="math inline">\(B_3 = 0\)</span>. If there is an interaction, the effect of Niceness is larger in one group than the other, and <span class="math inline">\(B_3 \neq 0\)</span>.</p>
+<p>Equivalently (and this is worth pausing on), you can write it the other way:</p>
+<p><span class="math display">\[B_3 = (\mu_{22} - \mu_{21}) - (\mu_{12} - \mu_{11})\]</span></p>
+<p>This version asks: is the effect of Going Out (Go out – Stay in) the same for High Nice and Low Nice students? The two formulations are mathematically identical and represent the same interaction. Which framing you use depends on which story you want to tell. In our study, we are primarily interested in whether the <strong>benefit of being nice depends on whether you go out</strong>, so we will usually use the first framing.</p>
+</section>
+<section id="visual-hypotheses-what-we-expect-to-see" class="level3" data-number="17.3.2">
+<h3 data-number="17.3.2" class="anchored" data-anchor-id="visual-hypotheses-what-we-expect-to-see"><span class="header-section-number">17.3.2</span> Visual Hypotheses: What We Expect to See</h3>
+<p>As in the prior chapter, we can sketch out our two competing possibilities before running a single model.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_17_Categorical_Interaction_files/figure-html/hypothesis-plots-1.png" class="img-fluid figure-img" alt="Two side-by-side line graphs, each with Low Nice and High Nice on the x axis and predicted closeness from 0 to 75 on the y axis, and two connected points per Going Out group. In the left panel, Hypothesis A No Interaction, the Stay in line rises from 15 to 20 and the Go out line rises from 20 to 25, so the two lines are parallel and the vertical gap stays at 5. In the right panel, Hypothesis B Interaction Present, both lines start at 15 for Low Nice, but the Stay in line rises only to 16 while the Go out line jumps to 61, opening a large gap at the right." width="672"></p>
+<figcaption>The 2 × 2 version of the two hypotheses. With only two levels on the x axis, non-parallel no longer means different slopes; it means differently sized gaps.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Notice the visualization has changed from the prior chapter. Instead of regression lines across a continuous X-axis, we now have two points connected by a line for each Going Out group. The key visual signature of an interaction is still <strong>non-parallel lines</strong>. But “non-parallel” now means the <strong>gaps between the two groups are different sizes</strong> across the niceness levels, rather than different slopes.</p>
+<ul>
+<li>In <strong>Hypothesis A</strong>, the two lines are parallel: the gap between “Go out” and “Stay in” is the same for Low Nice and High Nice students. Being nice adds a fixed amount regardless of going out.</li>
+<li>In <strong>Hypothesis B</strong>, the lines fan out: the gap between “Go out” and “Stay in” is tiny for Low Nice students but enormous for High Nice students. This is our interaction hypothesis: being nice only pays off substantially if you are also out there meeting people.</li>
+</ul>
+</section>
+</section>
+<section id="before-we-run-the-models-dummy-coding-both-variables" class="level2" data-number="17.4">
+<h2 data-number="17.4" class="anchored" data-anchor-id="before-we-run-the-models-dummy-coding-both-variables"><span class="header-section-number">17.4</span> Before We Run the Models: Dummy Coding Both Variables</h2>
+<section id="no-centering-required" class="level3" data-number="17.4.1">
+<h3 data-number="17.4.1" class="anchored" data-anchor-id="no-centering-required"><span class="header-section-number">17.4.1</span> No Centering Required</h3>
+<p>In the prior chapter, you had to center the continuous predictor (Being Nice) before building the interaction model. Centering shifted the scale so that zero represented the average person, making the intercept interpretable.</p>
+<p>When both predictors are categorical, there is nothing to center. Each predictor already takes on discrete values. The “zero point” for each predictor is simply its <strong>reference category</strong>, whichever group we designate as the baseline.</p>
+<p>This is actually simpler than the prior chapter. The only setup step is making sure both variables are properly factored in R, with the reference groups ordered first.</p>
+</section>
+<section id="dummy-coding-both-variables" class="level3" data-number="17.4.2">
+<h3 data-number="17.4.2" class="anchored" data-anchor-id="dummy-coding-both-variables"><span class="header-section-number">17.4.2</span> Dummy Coding Both Variables</h3>
+<p>We have two categorical predictors, each with two levels:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Levels</th>
+<th>Reference group (coded 0)</th>
+<th>Comparison group (coded 1)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>NiceGroup</strong></td>
+<td>Low Nice, High Nice</td>
+<td>Low Nice</td>
+<td>High Nice</td>
+</tr>
+<tr class="even">
+<td><strong>GoingOut</strong></td>
+<td>Stay in, Go out</td>
+<td>Stay in</td>
+<td>Go out</td>
+</tr>
+</tbody>
+</table>
+<p>With this coding, the <strong>four coefficients</strong> in the interaction model have the following meanings:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>What it represents</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(B_0\)</span> (Intercept)</td>
+<td>Predicted closeness for <strong>Low Nice × Stay in</strong> students, the baseline cell</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(B_1\)</span> (NiceGroup: High Nice)</td>
+<td>High Nice – Low Nice <strong>among Stay-in students</strong> (simple effect of niceness for stay-in group)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(B_2\)</span> (GoingOut: Go out)</td>
+<td>Go out – Stay in <strong>among Low Nice students</strong> (simple effect of going out for low-nice group)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(B_3\)</span> (NiceGroup × GoingOut)</td>
+<td>The “difference of differences”: does the effect of niceness differ by going-out group?</td>
+</tr>
+</tbody>
+</table>
+<p>Notice that <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span> are no longer main effects in the traditional sense: they are <strong>simple effects</strong>, each representing the effect of one variable <em>holding the other variable at its reference level</em>. This is the same logic as in the prior chapter, where <span class="math inline">\(B_1\)</span> was the slope for the reference group only. Here, <span class="math inline">\(B_1\)</span> is the niceness gap for the reference going-out group only.</p>
+</section>
+<section id="recovering-all-four-cell-means" class="level3" data-number="17.4.3">
+<h3 data-number="17.4.3" class="anchored" data-anchor-id="recovering-all-four-cell-means"><span class="header-section-number">17.4.3</span> Recovering All Four Cell Means</h3>
+<p>One of the useful features of the 2 × 2 interaction model is that you can reconstruct <strong>every cell mean</strong> directly from the coefficients. Here is the formula for each cell:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th>Formula</th>
+<th>Plain meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Low Nice × Stay in</td>
+<td><span class="math inline">\(B_0\)</span></td>
+<td>Baseline</td>
+</tr>
+<tr class="even">
+<td>High Nice × Stay in</td>
+<td><span class="math inline">\(B_0 + B_1\)</span></td>
+<td>Baseline + niceness effect (Stay in)</td>
+</tr>
+<tr class="odd">
+<td>Low Nice × Go out</td>
+<td><span class="math inline">\(B_0 + B_2\)</span></td>
+<td>Baseline + going-out effect (Low Nice)</td>
+</tr>
+<tr class="even">
+<td>High Nice × Go out</td>
+<td><span class="math inline">\(B_0 + B_1 + B_2 + B_3\)</span></td>
+<td>All four terms</td>
+</tr>
+</tbody>
+</table>
+<p>The final cell is the most important: for High Nice students who also go out, the prediction is the baseline plus the simple effect of niceness, plus the simple effect of going out, <strong>plus the interaction term</strong>. The interaction term <span class="math inline">\(B_3\)</span> adjusts the prediction for the cell where both variables are at their non-reference level. If there is no interaction (<span class="math inline">\(B_3 = 0\)</span>), the effects of the two variables add up independently and the model is purely additive.</p>
+</section>
+</section>
+<section id="the-data" class="level2" data-number="17.5">
+<h2 data-number="17.5" class="anchored" data-anchor-id="the-data"><span class="header-section-number">17.5</span> The Data</h2>
+<p>We return to our 200 first-semester students. Recall that we measured friendship closeness (0–100 feelings thermometer), agreeableness (0–10), and whether they went out regularly.</p>
+<p>For this analysis, we focus on the <strong>extremes of the niceness distribution</strong>: students who scored below 2 on the agreeableness scale (near 0 = <strong>Low Nice</strong>) and students who scored above 8 (<strong>High Nice</strong>). Everyone in the middle of the scale is dropped, which is most of the sample, and we keep only the contrast between the most and least agreeable people in it.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Why We Are Allowed to Do This, and You Are Not">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Why We Are Allowed to Do This, and You Are Not
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I am about to butcher a perfectly good continuous variable, on purpose, in front of you. I am doing it because the 2 × 2 is how a large share of psychology structures its experiments, and you need to be able to read, run, and interpret one.</p>
+<p>Doing this to <em>real</em> continuous data is a different matter. Median splits and extreme-groups designs throw away information you paid to collect, shrink your statistical power, and can manufacture effects that are not there <span class="citation" data-cites="maccallum2002">(<a href="#ref-maccallum2002" role="doc-biblioref">MacCallum et al. 2002</a>)</span>. Never do this or I will chase you with my Nerf bat. Notice what happens below: 200 participants become 81. We are discarding well over half the study to make a picture that is easier to draw.</p>
+<p>The rule is simple. <strong>If your variable is continuous, use the previous chapter’s model.</strong> Categorize when the variable is genuinely categorical, or when someone else already categorized it before you arrived, not because a 2 × 2 is easier to explain in a talk.</p>
+</div>
+</div>
+<p>Here is the simulation, including the filter that does the damage. This is the same 200 students and the same seed as the prior chapter, so <code>Friend.Data.Full</code> below is identical to the dataset we used there:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fl">0.05</span> <span class="sc">*</span> X <span class="sc">+</span> <span class="dv">0</span> <span class="sc">*</span> Z <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> X <span class="sc">*</span> Z <span class="sc">+</span> <span class="dv">15</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="at">sd =</span> <span class="dv">7</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>Friend.Data.Full <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">BeingNice =</span> X, <span class="at">GoingOut =</span> Z, <span class="at">Closeness =</span> Y)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>Friend.Data.Full<span class="sc">$</span>GoingOut_ <span class="ot">&lt;-</span> <span class="fu">factor</span>(Friend.Data.Full<span class="sc">$</span>GoingOut,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Stay in"</span>, <span class="st">"Go out"</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Create niceness group for extremes</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>Friend.Data.Full<span class="sc">$</span>NiceGroup_ <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Friend.Data.Full<span class="sc">$</span>BeingNice <span class="sc">&lt;</span> <span class="dv">2</span>,  <span class="st">"Low Nice"</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                               <span class="fu">ifelse</span>(Friend.Data.Full<span class="sc">$</span>BeingNice <span class="sc">&gt;</span> <span class="dv">8</span>, <span class="st">"High Nice"</span>, <span class="cn">NA</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only extreme groups</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>Friend.Data <span class="ot">&lt;-</span> Friend.Data.Full <span class="sc">|&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(NiceGroup_)) <span class="sc">|&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">NiceGroup_ =</span> <span class="fu">factor</span>(NiceGroup_, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Low Nice"</span>, <span class="st">"High Nice"</span>)))</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>n_low_stayin  <span class="ot">&lt;-</span> <span class="fu">sum</span>(Friend.Data<span class="sc">$</span>NiceGroup_ <span class="sc">==</span> <span class="st">"Low Nice"</span>  <span class="sc">&amp;</span> Friend.Data<span class="sc">$</span>GoingOut_ <span class="sc">==</span> <span class="st">"Stay in"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>n_low_goout   <span class="ot">&lt;-</span> <span class="fu">sum</span>(Friend.Data<span class="sc">$</span>NiceGroup_ <span class="sc">==</span> <span class="st">"Low Nice"</span>  <span class="sc">&amp;</span> Friend.Data<span class="sc">$</span>GoingOut_ <span class="sc">==</span> <span class="st">"Go out"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>n_high_stayin <span class="ot">&lt;-</span> <span class="fu">sum</span>(Friend.Data<span class="sc">$</span>NiceGroup_ <span class="sc">==</span> <span class="st">"High Nice"</span> <span class="sc">&amp;</span> Friend.Data<span class="sc">$</span>GoingOut_ <span class="sc">==</span> <span class="st">"Stay in"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>n_high_goout  <span class="ot">&lt;-</span> <span class="fu">sum</span>(Friend.Data<span class="sc">$</span>NiceGroup_ <span class="sc">==</span> <span class="st">"High Nice"</span> <span class="sc">&amp;</span> Friend.Data<span class="sc">$</span>GoingOut_ <span class="sc">==</span> <span class="st">"Go out"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The resulting dataset has 81 participants spread across four cells:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Friend.Data <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(NiceGroup_, GoingOut_) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">M_Close  =</span> <span class="fu">round</span>(<span class="fu">mean</span>(Closeness), <span class="dv">2</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">SD_Close =</span> <span class="fu">round</span>(<span class="fu">sd</span>(Closeness), <span class="dv">2</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 x 5
+  NiceGroup_ GoingOut_     n M_Close SD_Close
+  &lt;fct&gt;      &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+1 Low Nice   Stay in      25    16.0     7.27
+2 Low Nice   Go out       16    22.6     4.97
+3 High Nice  Stay in      21    19       7.05
+4 High Nice  Go out       19    60.3     7.32</code></pre>
+</div>
+</div>
+<p>The cell counts are not equal, which is typical when you extract extremes from a continuous distribution rather than randomly assigning participants to conditions. Unequal cells are no problem for the regression estimates. (Classic ANOVA arithmetic assumes balanced cells; with unequal n the ANOVA world descends into a fight about “Types of sums of squares” that regression coefficients let you skip. If you ever meet Type III SS in the wild, that is what the fight was about, and we will see it happen later in this chapter.)</p>
+<p>The cell means already tell an interesting story. Among Low Nice students, going out is worth something but not much: about 16 on the thermometer if they stay in, about 23 if they go out. Among High Nice students the same comparison is enormous, roughly 19 against 60. That is the difference of differences we just defined, sitting in the raw means before we have fit anything, and it matches Hypothesis B.</p>
+</section>
+<section id="a-first-look-at-the-data" class="level2" data-number="17.6">
+<h2 data-number="17.6" class="anchored" data-anchor-id="a-first-look-at-the-data"><span class="header-section-number">17.6</span> A First Look at the Data</h2>
+<p>Before running any models, let’s visualize the four cells directly.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_17_Categorical_Interaction_files/figure-html/first-look-1.png" class="img-fluid figure-img" alt="A plot with Low Nice and High Nice on the x axis and Friendship Closeness 0 to 100 on the y axis, showing jittered raw data points and two connected cell-mean lines. The blue Stay in line is nearly flat, from about 16 to 19. The orange Go out line rises steeply from about 23 to about 60. The Go out High Nice cluster of points sits well above every other cell." width="480"></p>
+<figcaption>The four cells before any model is fit. Jittered raw scores with the observed cell means connected by group.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The pattern is striking. The “Stay in” line (blue) is almost flat: Low Nice and High Nice students who stay in have close to the same closeness scores. The “Go out” line (orange) rises sharply: High Nice students who go out form far closer friendships than Low Nice students who go out. The two lines are clearly <strong>non-parallel</strong>, which is the visual signature of an interaction. This picture already suggests Hypothesis B.</p>
+</section>
+<section id="building-the-models" class="level2" data-number="17.7">
+<h2 data-number="17.7" class="anchored" data-anchor-id="building-the-models"><span class="header-section-number">17.7</span> Building the Models</h2>
+<section id="model-1-the-additive-model" class="level3" data-number="17.7.1">
+<h3 data-number="17.7.1" class="anchored" data-anchor-id="model-1-the-additive-model"><span class="header-section-number">17.7.1</span> Model 1: The Additive Model</h3>
+<p>We begin with the main effects (additive) model. This model says the two variables each have an independent effect on friendship closeness, and those effects add up without interacting.</p>
+<p><span class="math display">\[\widehat{Closeness} = B_0 + B_1 \cdot NiceGroup + B_2 \cdot GoingOut + \varepsilon\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Model<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(Closeness <span class="sc">~</span> NiceGroup_ <span class="sc">+</span> GoingOut_, <span class="at">data =</span> Friend.Data)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Model<span class="fl">.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Closeness ~ NiceGroup_ + GoingOut_, data = Friend.Data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-23.4417  -9.7999   0.2044   9.9769  27.0074 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            9.112      1.980   4.602 1.59e-05 ***
+NiceGroup_High Nice   18.025      2.465   7.314 1.98e-10 ***
+GoingOut_Go out       24.173      2.487   9.718 4.40e-15 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 11.05 on 78 degrees of freedom
+Multiple R-squared:  0.674, Adjusted R-squared:  0.6657 
+F-statistic: 80.64 on 2 and 78 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The additive model estimates a single effect of NiceGroup (averaged across both Going Out groups) and a single effect of GoingOut (averaged across both Niceness groups). These are conventional main effects.</p>
+<p>Notice that the R² here (0.674) is already reasonably high, driven primarily by the Going Out main effect. But as we will see, forcing the effects to be additive is a poor fit for the actual pattern in the data.</p>
+</section>
+<section id="visualizing-the-additive-model" class="level3" data-number="17.7.2">
+<h3 data-number="17.7.2" class="anchored" data-anchor-id="visualizing-the-additive-model"><span class="header-section-number">17.7.2</span> Visualizing the Additive Model</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_17_Categorical_Interaction_files/figure-html/additive-plot-1.png" class="img-fluid figure-img" alt="A plot with Low Nice and High Nice on the x axis and predicted closeness 0 to 100 on the y axis, showing two parallel rising lines with error bars over faint raw data. The blue Stay in line runs from about 9 to 27 and the orange Go out line from about 33 to 51, both at the same angle. The raw points do not match: the actual Go out High Nice points cluster near 60, well above the line drawn for them, and the Stay in points sit near 16 to 19 rather than on their line." width="432"></p>
+<figcaption>The additive model’s estimated cell means, with error bars and the raw data behind them. The lines are parallel because the model is not permitted to draw anything else.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The additive model forces the two lines to be parallel. The gap between “Go out” and “Stay in” is identical for Low Nice and High Nice students. But look at the raw data: the “Go out” students in the High Nice group (orange, right side) are far higher than what the parallel-line model predicts for them, and the “Stay in” students in the same group are not as high as the model suggests. The parallel assumption is clearly wrong.</p>
+</section>
+<section id="model-2-the-interaction-model" class="level3" data-number="17.7.3">
+<h3 data-number="17.7.3" class="anchored" data-anchor-id="model-2-the-interaction-model"><span class="header-section-number">17.7.3</span> Model 2: The Interaction Model</h3>
+<p>Now we add the interaction term:</p>
+<p><span class="math display">\[\widehat{Closeness} = B_0 + B_1 \cdot NiceGroup + B_2 \cdot GoingOut + B_3 \cdot NiceGroup \times GoingOut + \varepsilon\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Model<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(Closeness <span class="sc">~</span> NiceGroup_ <span class="sc">*</span> GoingOut_, <span class="at">data =</span> Friend.Data)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Model<span class="fl">.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Closeness ~ NiceGroup_ * GoingOut_, data = Friend.Data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.7001  -4.7327  -0.0055   4.3511  18.0093 
+
+Coefficients:
+                                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                           15.950      1.367  11.670  &lt; 2e-16 ***
+NiceGroup_High Nice                    3.045      2.023   1.505  0.13632    
+GoingOut_Go out                        6.649      2.188   3.039  0.00324 ** 
+NiceGroup_High Nice:GoingOut_Go out   34.663      3.077  11.265  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 6.834 on 77 degrees of freedom
+Multiple R-squared:  0.8769,    Adjusted R-squared:  0.8721 
+F-statistic: 182.8 on 3 and 77 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="does-the-interaction-model-explain-more-variance" class="level3" data-number="17.7.4">
+<h3 data-number="17.7.4" class="anchored" data-anchor-id="does-the-interaction-model-explain-more-variance"><span class="header-section-number">17.7.4</span> Does the Interaction Model Explain More Variance?</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">anova</span>(Model<span class="fl">.1</span>, Model<span class="fl">.2</span>), <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">"Model Comparison: Additive vs. Interaction"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Model Comparison: Additive vs.&nbsp;Interaction</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Res.Df</th>
+<th style="text-align: right;">RSS</th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">Sum of Sq</th>
+<th style="text-align: right;">F</th>
+<th style="text-align: right;">Pr(&gt;F)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">9522.081</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">3595.951</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5926.13</td>
+<td style="text-align: right;">126.896</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>Additive model R-squared:     0.674 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Interaction model R-squared:  0.877 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Change in R-squared:          0.203 </code></pre>
+</div>
+</div>
+<p>The interaction model explains substantially more variance. The <em>F</em>-test (<span class="math inline">\(\Delta R^2 =\)</span> 0.203, <span class="math inline">\(F(1, 77) =\)</span> 126.9, <span class="math inline">\(p &lt; .001\)</span>) confirms that this improvement is far larger than would be expected by chance. Adding the interaction term was worth it.</p>
+</section>
+</section>
+<section id="interpreting-the-interaction-model" class="level2" data-number="17.8">
+<h2 data-number="17.8" class="anchored" data-anchor-id="interpreting-the-interaction-model"><span class="header-section-number">17.8</span> Interpreting the Interaction Model</h2>
+<section id="the-plot-first" class="level3" data-number="17.8.1">
+<h3 data-number="17.8.1" class="anchored" data-anchor-id="the-plot-first"><span class="header-section-number">17.8.1</span> The Plot First</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_17_Categorical_Interaction_files/figure-html/interaction-plot-1.png" class="img-fluid figure-img" alt="A plot with Low Nice and High Nice on the x axis and predicted closeness 0 to 100 on the y axis, showing two clearly non-parallel lines with error bars over faint raw data. The blue Stay in line is nearly flat, from about 16 to 19. The orange Go out line climbs steeply from about 23 to about 60. The raw points now sit tightly around their own cell means." width="432"></p>
+<figcaption>The interaction model’s estimated cell means. Freed to give each row its own gap, the model reproduces the four observed cell means exactly.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This is the interaction model’s predicted means for each cell. Notice the non-parallel lines: the “Stay in” line is nearly flat (very small gap between Low Nice and High Nice), while the “Go out” line rises steeply (a large gap between Low Nice and High Nice). Compare this to the additive model’s forced parallel lines. The story told by these two models is completely different.</p>
+</section>
+<section id="walking-through-each-coefficient" class="level3" data-number="17.8.2">
+<h3 data-number="17.8.2" class="anchored" data-anchor-id="walking-through-each-coefficient"><span class="header-section-number">17.8.2</span> Walking Through Each Coefficient</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Closeness ~ NiceGroup_ * GoingOut_, data = Friend.Data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.7001  -4.7327  -0.0055   4.3511  18.0093 
+
+Coefficients:
+                                    Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                           15.950      1.367  11.670  &lt; 2e-16 ***
+NiceGroup_High Nice                    3.045      2.023   1.505  0.13632    
+GoingOut_Go out                        6.649      2.188   3.039  0.00324 ** 
+NiceGroup_High Nice:GoingOut_Go out   34.663      3.077  11.265  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 6.834 on 77 degrees of freedom
+Multiple R-squared:  0.8769,    Adjusted R-squared:  0.8721 
+F-statistic: 182.8 on 3 and 77 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="the-intercept-b_0-15.95" class="level3" data-number="17.8.3">
+<h3 data-number="17.8.3" class="anchored" data-anchor-id="the-intercept-b_0-15.95"><span class="header-section-number">17.8.3</span> The Intercept (<span class="math inline">\(B_0 =\)</span> 15.95)</h3>
+<p>The intercept is the predicted closeness score for the <strong>baseline cell</strong>: Low Nice students who Stay in (both predictors at 0). This is a real, specific group of people in the dataset. A thoroughly disagreeable person who never leaves home still lands at about 15.95 points on the friendship thermometer, presumably because they live near someone and physical proximity does the work even for the unsociable.</p>
+</section>
+<section id="b_1-effect-of-high-niceness-among-stay-in-students-b_1-3.05" class="level3" data-number="17.8.4">
+<h3 data-number="17.8.4" class="anchored" data-anchor-id="b_1-effect-of-high-niceness-among-stay-in-students-b_1-3.05"><span class="header-section-number">17.8.4</span> <span class="math inline">\(B_1\)</span>: Effect of High Niceness <strong>Among Stay-in Students</strong> (<span class="math inline">\(B_1 =\)</span> 3.05)</h3>
+<p><span class="math inline">\(B_1\)</span> is the difference in predicted closeness between High Nice and Low Nice students <strong>within the Stay-in group</strong>. Looking at the “Stay in” line in the plot, this gap is small: <span class="math inline">\(B_1 =\)</span> 3.05 points on a 100-point scale, and non-significant.</p>
+<p>For students who stay home, being highly agreeable provides virtually no additional benefit for friendship formation compared to being low in agreeableness. Without social exposure, personality differences do not matter much.</p>
+<p>This is a <strong>simple effect</strong>: it is the effect of NiceGroup <em>within one specific level</em> of GoingOut (the reference level, Stay in). It is not a main effect.</p>
+</section>
+<section id="b_2-effect-of-going-out-among-low-nice-students-b_2-6.65" class="level3" data-number="17.8.5">
+<h3 data-number="17.8.5" class="anchored" data-anchor-id="b_2-effect-of-going-out-among-low-nice-students-b_2-6.65"><span class="header-section-number">17.8.5</span> <span class="math inline">\(B_2\)</span>: Effect of Going Out <strong>Among Low Nice Students</strong> (<span class="math inline">\(B_2 =\)</span> 6.65)</h3>
+<p><span class="math inline">\(B_2\)</span> is the difference in predicted closeness between Go-out and Stay-in students <strong>within the Low Nice group</strong>. Students low in agreeableness who go out score about 6.65 points higher on the thermometer than their equally disagreeable counterparts who stay in. Small, but real: this one is significant.</p>
+<p>This is also a <strong>simple effect</strong>: the effect of GoingOut <em>within one specific level</em> of NiceGroup (the reference level, Low Nice).</p>
+</section>
+<section id="b_3-the-interaction-term-b_3-34.66" class="level3" data-number="17.8.6">
+<h3 data-number="17.8.6" class="anchored" data-anchor-id="b_3-the-interaction-term-b_3-34.66"><span class="header-section-number">17.8.6</span> <span class="math inline">\(B_3\)</span>: The Interaction Term (<span class="math inline">\(B_3 =\)</span> 34.66)</h3>
+<p>This is the heart of the analysis. <span class="math inline">\(B_3\)</span> tells you how much <strong>larger</strong> the effect of niceness is for the Go-out group compared to the Stay-in group.</p>
+<p>We can reconstruct the simple effect of Niceness for each Going Out group:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>Simple effect of Niceness</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stay in</td>
+<td>3.05</td>
+<td><span class="math inline">\(B_1\)</span></td>
+</tr>
+<tr class="even">
+<td>Go out</td>
+<td>37.71</td>
+<td><span class="math inline">\(B_1 + B_3 =\)</span> 3.05 <span class="math inline">\(+\)</span> 34.66</td>
+</tr>
+</tbody>
+</table>
+<p>The difference between these two simple effects is <span class="math inline">\(B_3 =\)</span> 34.66. For Go-out students, being highly agreeable is worth about 37.71 more points of closeness than being low in agreeableness. For Stay-in students, the same comparison yields only 3.05 points. The interaction coefficient captures this dramatic difference.</p>
+<p>Here is the full cell mean summary:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Cell</th>
+<th>Predicted mean</th>
+<th>Derivation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Low Nice × Stay in</td>
+<td>15.95</td>
+<td><span class="math inline">\(B_0\)</span></td>
+</tr>
+<tr class="even">
+<td>High Nice × Stay in</td>
+<td>19</td>
+<td><span class="math inline">\(B_0 + B_1\)</span></td>
+</tr>
+<tr class="odd">
+<td>Low Nice × Go out</td>
+<td>22.6</td>
+<td><span class="math inline">\(B_0 + B_2\)</span></td>
+</tr>
+<tr class="even">
+<td>High Nice × Go out</td>
+<td>60.31</td>
+<td><span class="math inline">\(B_0 + B_1 + B_2 + B_3\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="following-up-the-interaction-simple-effects" class="level2" data-number="17.9">
+<h2 data-number="17.9" class="anchored" data-anchor-id="following-up-the-interaction-simple-effects"><span class="header-section-number">17.9</span> Following Up the Interaction: Simple Effects</h2>
+<p>The interaction term tells us the two niceness gaps are significantly different between Going Out groups. But we also want to know: <strong>within each Going Out group, is the difference between High Nice and Low Nice statistically significant?</strong></p>
+<p>We use <code>pairs()</code> from the <code>emmeans</code> package to test each pairwise comparison within each level of the other variable.</p>
+<section id="simple-effects-of-niceness-within-each-going-out-group" class="level3" data-number="17.9.1">
+<h3 data-number="17.9.1" class="anchored" data-anchor-id="simple-effects-of-niceness-within-each-going-out-group"><span class="header-section-number">17.9.1</span> Simple Effects of Niceness within Each Going-Out Group</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>Fit<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(Model<span class="fl">.2</span>, <span class="sc">~</span> NiceGroup_ <span class="sc">|</span> GoingOut_)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(Fit<span class="fl">.2</span>, <span class="at">adjust =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">summary</span>(<span class="at">infer =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>GoingOut_ = Stay in:
+ contrast             estimate   SE df lower.CL upper.CL t.ratio p.value
+ Low Nice - High Nice    -3.05 2.02 77    -7.07    0.983  -1.505  0.1363
+
+GoingOut_ = Go out:
+ contrast             estimate   SE df lower.CL upper.CL t.ratio p.value
+ Low Nice - High Nice   -37.71 2.32 77   -42.33  -33.091 -16.262 &lt;0.0001
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong>Stay-in group:</strong> The difference between High Nice and Low Nice students is -3.05 points, which is <strong>not</strong> statistically significant (<span class="math inline">\(p =\)</span> 0.136). For students who stay in, agreeableness does not significantly predict friendship closeness.</p></li>
+<li><p><strong>Go-out group:</strong> The difference between High Nice and Low Nice students is -37.71 points, which is <strong>highly</strong> significant (<span class="math inline">\(p &lt; .001\)</span>). Among students who go out, being highly agreeable is associated with substantially closer friendships than being low in agreeableness.</p></li>
+</ul>
+</section>
+<section id="effect-sizes-cohens-d" class="level3" data-number="17.9.2">
+<h3 data-number="17.9.2" class="anchored" data-anchor-id="effect-sizes-cohens-d"><span class="header-section-number">17.9.2</span> Effect Sizes: Cohen’s <em>d</em></h3>
+<p>Pairwise comparisons in this framework can be accompanied by Cohen’s <em>d</em> as an effect size measure. We use the model’s residual standard deviation as the pooled standard deviation:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">eff_size</span>(Fit<span class="fl">.2</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">sigma =</span> <span class="fu">sigma</span>(Model<span class="fl">.2</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">edf   =</span> <span class="fu">df.residual</span>(Model<span class="fl">.2</span>),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">method =</span> <span class="st">"pairwise"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>GoingOut_ = Stay in:
+ contrast             effect.size    SE df lower.CL upper.CL
+ Low Nice - High Nice      -0.446 0.298 77    -1.04    0.148
+
+GoingOut_ = Go out:
+ contrast             effect.size    SE df lower.CL upper.CL
+ Low Nice - High Nice      -5.518 0.559 77    -6.63   -4.404
+
+sigma used for effect sizes: 6.834 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>The Cohen’s <em>d</em> values confirm the pattern:</p>
+<ul>
+<li><strong>Stay in:</strong> <span class="math inline">\(d =\)</span> 0.45, which by Cohen’s rough conventions is a small-to-medium effect, and which our test could not distinguish from zero at this sample size. Note that these two statements are not the same statement, and the gap between them is the whole reason we threw away 119 people. With 46 stay-in students, an effect this size is exactly the kind that goes undetected.</li>
+<li><strong>Go out:</strong> <span class="math inline">\(d =\)</span> 5.52. That is not a typo, and “large” does not really cover it. Cohen’s benchmark for large is 0.8; this is over five standard deviations. Effects like this do not happen in real personality research, they happen in simulated data where the author picked the parameters, and you should be suspicious of any real paper reporting one.</li>
+</ul>
+</section>
+</section>
+<section id="apa-write-up" class="level2" data-number="17.10">
+<h2 data-number="17.10" class="anchored" data-anchor-id="apa-write-up"><span class="header-section-number">17.10</span> APA Write-Up</h2>
+<p>Here is how you would report these results following APA style. The structure parallels the prior chapter: model comparison, interaction coefficient, then simple effects.</p>
+<p>Cell means and standard deviations are presented in Table 1. Among students who stayed in, friendship closeness was similar regardless of agreeableness group (Low Nice: <em>M</em> = 16, <em>SD</em> = 7.3; High Nice: <em>M</em> = 19, <em>SD</em> = 7.1). Among students who went out, High Nice students formed substantially closer friendships than Low Nice students (Low Nice: <em>M</em> = 22.6, <em>SD</em> = 5; High Nice: <em>M</em> = 60.3, <em>SD</em> = 7.3).</p>
+<p>A hierarchical multiple regression was conducted to examine whether social engagement (Going Out) moderated the relationship between agreeableness group (Low vs.&nbsp;High Nice) and friendship closeness. Niceness group and Going Out (both dummy coded with Low Nice and Stay in as reference groups) were entered in Step 1 as main effects; their product was entered in Step 2. The additive model (Step 1) was statistically significant, <span class="math inline">\(F(2, 78) =\)</span> 80.64, <span class="math inline">\(p &lt; .001\)</span>, <span class="math inline">\(R^2 =\)</span> 0.674. Adding the interaction term (Step 2) produced a statistically significant improvement in model fit, <span class="math inline">\(\Delta R^2 =\)</span> 0.203, <span class="math inline">\(F(1, 77) =\)</span> 126.9, <span class="math inline">\(p &lt; .001\)</span>, indicating that the effect of agreeableness on friendship closeness differed significantly depending on whether students went out.</p>
+<p>In the full interaction model (<span class="math inline">\(R^2 =\)</span> 0.877, adjusted <span class="math inline">\(R^2 =\)</span> 0.872), the interaction between Niceness Group and Going Out was statistically significant, <span class="math inline">\(b =\)</span> 34.66, <span class="math inline">\(SE =\)</span> 3.08, <span class="math inline">\(t(77) =\)</span> 11.26, <span class="math inline">\(p &lt; .001\)</span>. To interpret the interaction, simple effects of Niceness Group were examined separately within each level of Going Out. Among students who stayed in, agreeableness group did not significantly predict friendship closeness, <span class="math inline">\(b =\)</span> -3.05, <span class="math inline">\(SE =\)</span> 2.02, <span class="math inline">\(t(77) =\)</span> -1.51, <span class="math inline">\(p =\)</span> 0.136, <span class="math inline">\(d =\)</span> 0.45. Among students who went out, High Nice students formed significantly closer friendships than Low Nice students, <span class="math inline">\(b =\)</span> -37.71, <span class="math inline">\(SE =\)</span> 2.32, <span class="math inline">\(t(77) =\)</span> -16.26, <span class="math inline">\(p &lt; .001\)</span>, <span class="math inline">\(d =\)</span> 5.52. These results indicate that the benefit of high agreeableness for friendship formation is conditional on social engagement: being a warm and agreeable person leads to substantially closer friendships only among students who are regularly out meeting others.</p>
+<p><strong>Things to notice about this write-up:</strong></p>
+<ul>
+<li>We report <strong>Cohen’s <em>d</em></strong> alongside the simple effects, since the comparisons are between two categorical groups. This is the appropriate effect size for a two-group mean difference.</li>
+<li>The <strong>model comparison</strong> (<span class="math inline">\(\Delta R^2\)</span>, <em>F</em>-test) is still the primary test of the interaction, exactly as in the prior chapter.</li>
+<li>We describe the interaction in plain language: <em>“the benefit of high agreeableness … is conditional on social engagement.”</em></li>
+<li>The <strong>main effects</strong> from the interaction model are not heavily emphasized. In the presence of a significant interaction, they represent effects at the reference level of the other variable (simple effects), not population-level averages.</li>
+</ul>
+</section>
+<section id="apa-style-figure" class="level2" data-number="17.11">
+<h2 data-number="17.11" class="anchored" data-anchor-id="apa-style-figure"><span class="header-section-number">17.11</span> APA-Style Figure</h2>
+<p><em>Figure 1.</em> Predicted friendship closeness as a function of agreeableness group and social engagement. Points represent model-estimated cell means; error bars represent 95% confidence intervals. Among students who went out (<em>Go out</em>; orange), highly agreeable students formed substantially closer friendships than less agreeable students (<em>d</em> = 5.52). Among students who stayed in (<em>Stay in</em>; blue), agreeableness group was not significantly associated with friendship closeness (<em>d</em> = 0.45).</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># APA interaction plot: categorical × categorical</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Fig.Data <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">emmeans</span>(Model<span class="fl">.2</span>, <span class="sc">~</span> NiceGroup_ <span class="sc">|</span> GoingOut_))</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(Fig.Data, <span class="fu">aes</span>(<span class="at">x =</span> NiceGroup_, <span class="at">y =</span> emmean,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> GoingOut_, <span class="at">group =</span> GoingOut_)) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Confidence intervals</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower.CL, <span class="at">ymax =</span> upper.CL),</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>                <span class="at">width =</span> <span class="fl">0.08</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Connecting lines</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Cell mean points</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Stay in"</span> <span class="ot">=</span> <span class="st">"#5b8db8"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Go out"</span>  <span class="ot">=</span> <span class="st">"#e07b54"</span>),</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Stay in"</span>, <span class="st">"Go out"</span>)) <span class="sc">+</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>),</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">20</span>)) <span class="sc">+</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x     =</span> <span class="st">"Agreeableness Group"</span>,</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">y     =</span> <span class="st">"Predicted Friendship Closeness (0-100)"</span>,</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Social Engagement"</span>) <span class="sc">+</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position   =</span> <span class="st">"top"</span>,</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.title      =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>),</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text       =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>),</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title        =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid.minor  =</span> <span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_17_Categorical_Interaction_files/figure-html/apa-figure-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="A publication-style figure with Agreeableness Group, Low Nice and High Nice, on the x axis and Predicted Friendship Closeness 0 to 100 on the y axis. Two non-parallel lines connect model-estimated cell means with 95 percent confidence error bars. The blue Stay in line is nearly flat from about 16 to 19; the orange Go out line rises steeply from about 23 to about 60. The legend, titled Social Engagement, sits above the plot." width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="the-anova-costume-a-sheep-in-wolfs-clothing" class="level2" data-number="17.12">
+<h2 data-number="17.12" class="anchored" data-anchor-id="the-anova-costume-a-sheep-in-wolfs-clothing"><span class="header-section-number">17.12</span> The ANOVA Costume: A Sheep in Wolf’s Clothing</h2>
+<p>I have been rude about ANOVA (Analysis of Variance) since the preface, so it is only fair to introduce you properly, once, so you know what it is when someone inflicts it on you.</p>
+<p>Everything we just did has a second name. Run the exact same model through <code>anova()</code> and it comes back dressed as a two-way factorial ANOVA:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(Model<span class="fl">.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: Closeness
+                     Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+NiceGroup_            1  8158.5  8158.5  174.70 &lt; 2.2e-16 ***
+GoingOut_             1 11529.4 11529.4  246.88 &lt; 2.2e-16 ***
+NiceGroup_:GoingOut_  1  5926.1  5926.1  126.90 &lt; 2.2e-16 ***
+Residuals            77  3596.0    46.7                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>That is the table a paper means when it says “a 2 × 2 ANOVA revealed a significant interaction.” Same data, same model, same <code>Model.2</code> object we have had this whole time. Nothing was refit.</p>
+<p>Look at the interaction row. <span class="math inline">\(F =\)</span> 126.9. Now square the <em>t</em> for <span class="math inline">\(B_3\)</span> from the regression output: <span class="math inline">\(t =\)</span> 11.265, and <span class="math inline">\(t^2 =\)</span> 126.9. These are the same number, because they are the same test. The ANOVA table is not giving you a second opinion. It is giving you the first opinion in a different font.</p>
+<section id="the-sums-of-squares-fight-and-why-everyone-says-type-iii" class="level3" data-number="17.12.1">
+<h3 data-number="17.12.1" class="anchored" data-anchor-id="the-sums-of-squares-fight-and-why-everyone-says-type-iii"><span class="header-section-number">17.12.1</span> The Sums of Squares Fight, and Why Everyone Says “Type III”</h3>
+<p>Earlier I promised you would meet Type III sums of squares. Here it is, and our unequal cells are what make it visible.</p>
+<p>When cells are unbalanced, the predictors share variance, and “how much variance does Niceness Group explain?” stops having one answer. It has three, depending on what you insist the other terms get credit for first.</p>
+<ul>
+<li><strong>Type I</strong> (sequential) is what <code>anova()</code> gave you above. Terms are tested in the order you typed them, and each one is adjusted only for the terms above it. The first term listed gets first claim on any shared variance. Type the predictors in a different order and you get a different table, which should tell you everything you need to know about relying on it.</li>
+<li><strong>Type II</strong> adjusts each main effect for the other main effect, but ignores the interaction when testing main effects.</li>
+<li><strong>Type III</strong> adjusts every effect for <em>every</em> other effect in the model, interaction included. Each term is asked what it contributes last, after everybody else has already taken what they wanted.</li>
+</ul>
+<p><strong>Type III is the one psychology uses, and it is worth knowing why.</strong> For about thirty years the discipline ran its analyses in SPSS, whose <code>GLM</code> procedure defaults to Type III and does not make a fuss about it. Most researchers never chose Type III; SPSS chose it for them, and nobody was told there had been a decision. That default is now baked into the literature: when you read “<em>F</em>(1, 76) = 4.31” in a psychology paper from roughly 1990 onward, it is almost certainly Type III, and the paper will almost certainly not say so. R makes you ask for it out loud, which feels like R being difficult but is really R declining to make a methodological choice on your behalf.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Type III Without Effect Coding Is Nonsense, and R Will Not Warn You">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Type III Without Effect Coding Is Nonsense, and R Will Not Warn You
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is the trap that catches nearly everyone, including me, earlier in this very chapter.</p>
+<p>Type III main-effect tests are only meaningful if your categorical predictors use <strong>effect coding</strong> (<code>contr.sum</code>), where the levels are coded <span class="math inline">\(-1\)</span> and <span class="math inline">\(+1\)</span> around a midpoint. R’s default is <strong>dummy coding</strong> (<code>contr.treatment</code>), coded 0 and 1, which is what makes <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span> interpretable as simple effects, and which is exactly what we have wanted all chapter.</p>
+<p>Run <code>Anova(model, type = 3)</code> on a dummy-coded model and R returns a table without complaint. The numbers are simply not main effects. On our data it reports Niceness Group at <span class="math inline">\(F =\)</span> 2.27 and Going Out at <span class="math inline">\(F =\)</span> 9.24, which look like a null result and a small effect. They are neither. They are the <em>simple effects</em> <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span> in disguise: square the <span class="math inline">\(t\)</span> values from the regression output and you get 2.27 and 9.24, the same two numbers. Type III asked “what does niceness do at zero on the other variable”, and with dummy coding zero means the Stay-in group, not the average.</p>
+<p>So refit with <code>contr.sum</code> before asking for Type III. The interaction row is unaffected either way, because the interaction is already the last term in and has nothing left to be adjusted for.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Type III needs effect coding (-1/+1), not R's default dummy coding (0/1)</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>Model.<span class="fl">2.</span>sum <span class="ot">&lt;-</span> <span class="fu">lm</span>(Closeness <span class="sc">~</span> NiceGroup_ <span class="sc">*</span> GoingOut_, <span class="at">data =</span> Friend.Data,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">NiceGroup_ =</span> contr.sum,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">GoingOut_  =</span> contr.sum))</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(Model.<span class="fl">2.</span>sum, <span class="at">type =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Anova Table (Type III tests)
+
+Response: Closeness
+                     Sum Sq Df F value    Pr(&gt;F)    
+(Intercept)           68505  1 1466.89 &lt; 2.2e-16 ***
+NiceGroup_             8191  1  175.40 &lt; 2.2e-16 ***
+GoingOut_             11345  1  242.94 &lt; 2.2e-16 ***
+NiceGroup_:GoingOut_   5926  1  126.90 &lt; 2.2e-16 ***
+Residuals              3596 77                      
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>All three types, side by side:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Type I (<code>anova</code>)</th>
+<th>Type II</th>
+<th>Type III (psychology’s default)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NiceGroup</td>
+<td>174.7</td>
+<td>139.83</td>
+<td>175.4</td>
+</tr>
+<tr class="even">
+<td>GoingOut</td>
+<td>246.88</td>
+<td>246.88</td>
+<td>242.94</td>
+</tr>
+<tr class="odd">
+<td>NiceGroup × GoingOut</td>
+<td>126.9</td>
+<td>126.9</td>
+<td>126.9</td>
+</tr>
+</tbody>
+</table>
+<p>Two things to take from that table.</p>
+<p><strong>The interaction never moves.</strong> 126.9 in all three columns, and it would be 126.9 under any other scheme somebody invents next year. The highest-order term is always adjusted for everything below it, so there is nothing left to argue about. The entire sums-of-squares fight is a fight about main effects, and it has never once touched the test you actually came here for.</p>
+<p><strong>The main effects move.</strong> Niceness Group is 174.7 under Type I, 139.83 under Type II, and 175.4 under Type III. Same data, same model, same software, three answers. Notice that they do not fan out neatly: Type I and Type III land close together here while Type II sits well below both, and that ordering is a fact about this particular unbalanced dataset rather than a rule you can carry to the next one. All three are arithmetically correct. They are answers to three different questions about who gets credit for shared variance, and which question you asked is invisible in a published table that says only “<em>F</em> =” and a number.</p>
+<p>The regression coefficients never had this problem. <span class="math inline">\(B_1\)</span> was always the niceness gap within the Stay-in group, unambiguously, and nobody had to pick a Roman numeral or set a contrast option to find that out.</p>
+<p><em>This is what I mean when I say regression scales and ANOVA does not. It is the same model either way; one of them just makes you argue about it.</em></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Two Doors We Are Walking Past, On Purpose">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Two Doors We Are Walking Past, On Purpose
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>That <code>contrasts = list(NiceGroup_ = contr.sum, ...)</code> argument was doing real work, and I handed it to you without explaining it. Two things sit behind it, and both are graduate material rather than 343 material.</p>
+<p><strong>Coding schemes.</strong> Dummy coding (0/1) and effect coding (<span class="math inline">\(-1\)</span>/<span class="math inline">\(+1\)</span>) are two members of a family. You can hand a regression <em>any</em> set of contrast weights, which lets you test specific theoretical comparisons directly as coefficients instead of running an omnibus test and then fishing through pairwise follow-ups. That is how ANOVA’s “planned contrasts” work, and it is all just regression with a different design matrix.</p>
+<p><strong>Anything bigger than a 2 × 2.</strong> Everything in this chapter leaned on both variables having exactly two levels, which is what let a single coefficient <span class="math inline">\(B_3\)</span> <em>be</em> the interaction. Go to a 3 × 2 and that stops being true. A three-level factor enters as two columns, not one; the interaction becomes two coefficients, not one, with <span class="math inline">\((a-1)(b-1)\)</span> degrees of freedom; there is no single “difference of differences” number to report; and your follow-up comparisons multiply fast enough that you have to start controlling for how many you ran.</p>
+<p>Both live in the advanced contrasts chapter. If you are an undergraduate, you are done here and you may leave happy.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="comparison-continuous-categorical-the-prior-chapter-vs.-categorical-categorical-this-chapter" class="level2" data-number="17.13">
+<h2 data-number="17.13" class="anchored" data-anchor-id="comparison-continuous-categorical-the-prior-chapter-vs.-categorical-categorical-this-chapter"><span class="header-section-number">17.13</span> Comparison: Continuous × Categorical (the prior chapter) vs.&nbsp;Categorical × Categorical (This chapter)</h2>
+<p>It is worth pausing to compare the two approaches we have now seen.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Prior chapter (Continuous × Categorical)</th>
+<th>This chapter (Categorical × Categorical)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Being Nice</td>
+<td>Continuous (0–10)</td>
+<td>Categorical (Low vs.&nbsp;High)</td>
+</tr>
+<tr class="even">
+<td>Centering</td>
+<td>Required</td>
+<td>Not needed</td>
+</tr>
+<tr class="odd">
+<td>Interaction coefficient</td>
+<td>Difference in slopes</td>
+<td>Difference of differences</td>
+</tr>
+<tr class="even">
+<td>Follow-up</td>
+<td><code>emtrends()</code>, simple slopes</td>
+<td><code>pairs()</code>, simple effects</td>
+</tr>
+<tr class="odd">
+<td>Effect size</td>
+<td>Unstandardized slope (<em>b</em>)</td>
+<td>Cohen’s <em>d</em></td>
+</tr>
+<tr class="even">
+<td>Sample used</td>
+<td>All 200 participants</td>
+<td>~80 (extremes only)</td>
+</tr>
+</tbody>
+</table>
+<p>The categorical version uses fewer participants (only the extremes of the niceness distribution), which means less statistical power. The continuous version squeezes more information out of the data because it uses every participant and models the full gradient of niceness effects.</p>
+<p>However, the categorical × categorical design is conceptually simpler and maps directly onto the two-way factorial ANOVA framework that many researchers in psychology use. Understanding both is essential.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="An Interaction Is a Difference of Differences">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>An Interaction Is a Difference of Differences
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>First compare the groups inside one condition. Then compare them inside the other condition. The interaction asks whether those two differences are different. If you skip that last comparison, you have described two results but have not tested an interaction.</p>
+</div>
+</div>
+</section>
+<section id="the-short-story" class="level2" data-number="17.14">
+<h2 data-number="17.14" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">17.14</span> The Short Story</h2>
+<ul>
+<li><strong>A 2 × 2 is four cells and four coefficients</strong>, and the four coefficients rebuild the four cell means exactly. <span class="math inline">\(B_0\)</span>, <span class="math inline">\(B_0 + B_1\)</span>, <span class="math inline">\(B_0 + B_2\)</span>, <span class="math inline">\(B_0 + B_1 + B_2 + B_3\)</span>.</li>
+<li><strong><span class="math inline">\(B_0\)</span> is the reference cell</strong>, not a grand mean. It is one specific corner of the design: both variables at their reference level.</li>
+<li><strong><span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_2\)</span> are simple effects, not main effects.</strong> Each is the effect of one variable <em>at the reference level of the other</em>. Move the reference level and these numbers change.</li>
+<li><strong><span class="math inline">\(B_3\)</span> is the difference of differences, and it is the test.</strong> How much bigger is the niceness gap for the go-out group than for the stay-in group? Nothing else in the table answers that.</li>
+<li><strong>Follow up with <code>pairs()</code> within levels, and report Cohen’s <em>d</em>.</strong> Simple effects say what the interaction looks like; they do not establish that it exists. The <span class="math inline">\(\Delta R^2\)</span> <em>F</em>-test does that, first.</li>
+<li><strong>It is all the same model.</strong> <code>anova()</code> redraws the identical fit as a factorial ANOVA, and the interaction <span class="math inline">\(F\)</span> is just the <span class="math inline">\(B_3\)</span> <span class="math inline">\(t\)</span> squared.</li>
+</ul>
+<p>And the punchline from the comparison table, because it is the thing most worth carrying out of these two chapters: <strong>the continuous version uses all of your data.</strong> We got a cleaner-looking 2 × 2 here by throwing away 119 of 200 students. If your predictor is continuous, keep it continuous and use the previous chapter’s model. The 2 × 2 is a design you should be able to read fluently, not a shape you should force your data into.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-maccallum2002" class="csl-entry" role="listitem">
+MacCallum, Robert C., Shaobo Zhang, Kristopher J. Preacher, and Derek D. Rucker. 2002. <span>“On the Practice of Dichotomization of Quantitative Variables.”</span> <em>Psychological Methods</em> 7 (1): 19–40. <a href="https://doi.org/10.1037/1082-989X.7.1.19">https://doi.org/10.1037/1082-989X.7.1.19</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="pagination-link" aria-label="Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_18_Mixed_Regression.html" class="pagination-link" aria-label="Mixed Regression: Between People and Within People">
+        <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_17_Categorical_Interaction.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

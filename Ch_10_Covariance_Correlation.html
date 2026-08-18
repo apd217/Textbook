@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>10&nbsp; Covariance and Correlation – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_11_Intro_Regression.html" rel="next">
+<link href="./Ch_09_Paired_t.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="quit-school-become-a-pirate-save-the-earth" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="quit-school-become-a-pirate-save-the-earth"><span class="header-section-number">10.1</span> Quit School, Become a Pirate, Save the Earth</h2>
+<p>Here is a graph.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/pirates-plot-1.png" class="img-fluid figure-img" alt="Scatterplot with the number of pirates at sea on the x-axis, running from near zero to about 45,000, and global average temperature on the y-axis, running from about 14 to 17 degrees Celsius. The seven points fall close to a straight downhill line: as pirate numbers collapse, temperature climbs." width="480"></p>
+<figcaption>Global temperature against the number of pirates at sea. The pirate counts are made up. The correlation is not.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The pirates went away. The planet got hotter. Those two facts move together with a correlation of -.96, which is stronger than almost anything you will ever measure in psychology.</p>
+<p>So the solution is obvious. We all quit school, buy a boat, and go be pirates until the planet cools back down.</p>
+<p>I should probably admit that the pirate counts are invented. Nobody ran a census of pirates. The temperatures are roughly real, and that is the part worth staring at: put one honest trend next to one fabricated one, and the arithmetic cannot tell them apart. It returned -.96 with a completely straight face.</p>
+<p>That number is what this chapter builds. It is the first tool in this book that looks at two variables at once, which matters because nearly every question you actually care about is a two-variable question. Does studying go with better grades? Does anxiety go with worse performance? Does the treatment go with the recovery?</p>
+<p>It is also the floor that the rest of the book stands on. Regression, which takes up the next eight chapters, is this same idea in better clothes. If this one clicks, most of Part 2 is variations on it.</p>
+<p>What it will never do is tell you <em>why</em>. It does not know what a pirate is. It has never been outside.</p>
+<p><em>Two things moving together is a fact. Why they move together is an argument, and you have to make that one yourself.</em></p>
+</section>
+<section id="a-visual-intuition-variance-covariance-and-correlation" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="a-visual-intuition-variance-covariance-and-correlation"><span class="header-section-number">10.2</span> A Visual Intuition: Variance, Covariance, and Correlation</h2>
+<p>Before we can trust that number, we should know what it is made of. It gets built in three steps, and we will look at each one with a dataset small enough to check by hand.</p>
+<p>We’ll start with a very simple dataset and visualize three situations:</p>
+<ul>
+<li>One variable by itself (variance)</li>
+<li>Two variables moving together (positive covariance)</li>
+<li>Two variables moving in opposite directions (negative covariance)</li>
+</ul>
+<section id="variance-spread-around-a-mean" class="level3" data-number="10.2.1">
+<h3 data-number="10.2.1" class="anchored" data-anchor-id="variance-spread-around-a-mean"><span class="header-section-number">10.2.1</span> Variance: Spread Around a Mean</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/variance-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of five X values against their observation number, rising steadily from 1 to 5, with a dashed horizontal line at the mean of 3 that the points sit above and below." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>Each point deviates from the mean of X</li>
+<li>Squaring those deviations and averaging them gives us variance</li>
+<li>Variance does not care about relationships with other variables</li>
+</ul>
+</section>
+<section id="do-two-variables-move-together" class="level3" data-number="10.2.2">
+<h3 data-number="10.2.2" class="anchored" data-anchor-id="do-two-variables-move-together"><span class="header-section-number">10.2.2</span> Do Two Variables Move Together?</h3>
+<p>Covariance answers a two-variable question:</p>
+<ul>
+<li>When X is above its mean, is Y also above its mean (or below)?</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/positive-cov-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of X against Y where all five points fall exactly on a straight uphill line, with the fitted regression line passing through every point." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>High X pairs with high Y</li>
+<li>Low X pairs with low Y</li>
+<li>Cross-products <span class="math inline">\((X-M_X)(Y-M_Y)\)</span> are positive</li>
+<li>“co-” variance is positive</li>
+</ul>
+</section>
+<section id="negative-covariance" class="level3" data-number="10.2.3">
+<h3 data-number="10.2.3" class="anchored" data-anchor-id="negative-covariance"><span class="header-section-number">10.2.3</span> Negative Covariance</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/negative-cov-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of X against Y where all five points fall exactly on a straight downhill line, with the fitted regression line passing through every point." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li>High X pairs with low Y</li>
+<li>Low X pairs with high Y</li>
+<li>Cross-products <span class="math inline">\((X-M_X)(Y-M_Y)\)</span> are negative</li>
+<li>“co-” variance is negative</li>
+</ul>
+</section>
+<section id="what-is-correlation" class="level3" data-number="10.2.4">
+<h3 data-number="10.2.4" class="anchored" data-anchor-id="what-is-correlation"><span class="header-section-number">10.2.4</span> What is Correlation?</h3>
+<p>Covariance has one big problem: <em>Its size depends on the units of measurement.</em></p>
+<p>Correlation fixes this by standardizing covariance:</p>
+<ul>
+<li>Variance → standardized = 1</li>
+<li>Covariance → standardized between −1 and +1</li>
+</ul>
+<p>Correlation (<span class="math inline">\(r\)</span>) tells us:</p>
+<ul>
+<li>Direction (positive vs negative)</li>
+<li>Strength (how tightly the points cluster)</li>
+<li>Scale-free comparison</li>
+</ul>
+<p>You’ll see shortly that:</p>
+<ul>
+<li>Perfect positive covariance yields <span class="math inline">\(r = +1\)</span></li>
+<li>Perfect negative covariance yields <span class="math inline">\(r = -1\)</span></li>
+<li>No systematic covariance yields <span class="math inline">\(r = 0\)</span></li>
+</ul>
+</section>
+<section id="big-picture-preview" class="level3" data-number="10.2.5">
+<h3 data-number="10.2.5" class="anchored" data-anchor-id="big-picture-preview"><span class="header-section-number">10.2.5</span> Big Picture (Preview)</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Concept</th>
+<th>What it measures</th>
+<th>How many variables</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Variance</td>
+<td>Spread around a mean</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>Covariance</td>
+<td>Shared movement</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>Correlation</td>
+<td>Scaled shared movement</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Variance tells us how much <em>one</em> variable moves.<br>
+</li>
+<li>Covariance tells us whether <em>two</em> variables move together.<br>
+</li>
+<li>Correlation rescales covariance so we can compare relationships across studies.</li>
+</ul>
+<p>Now that we have the picture, we can formalize each idea.</p>
+</section>
+</section>
+<section id="variance-the-scary-math" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="variance-the-scary-math"><span class="header-section-number">10.3</span> Variance, The Scary Math</h2>
+<p>Variance is our primary measure of spread, defined as the sum of squared variation around a mean. It is also load-bearing for most of the distributional theory in this book, which is why it keeps turning up. We’ll use <span class="math inline">\(s\)</span> for the sample standard deviation and <span class="math inline">\(s^2\)</span> for the sample variance.</p>
+<p>Here are several equivalent ways to write it:</p>
+<p><span class="math display">\[
+s^2 = Var(x) =  \frac{\sum SS_X}{n-1}  = \frac{\sum(X-M_X)^2}{n-1} = \frac{\sum(X-M_X)(X-M_X)}{n-1}
+\]</span></p>
+<p>That last version is worth staring at. Written out, variance is a variable multiplied by itself.</p>
+</section>
+<section id="variance-but-now-in-2-d-covariance" class="level2" data-number="10.4">
+<h2 data-number="10.4" class="anchored" data-anchor-id="variance-but-now-in-2-d-covariance"><span class="header-section-number">10.4</span> Variance but now in 2-D: Covariance</h2>
+<p>Variance summarizes univariate distance from a mean. Covariance summarizes bivariate distance from a <em>pair</em> of means, which is how it describes the association between two variables. What was a sum of squares becomes a sum of products:</p>
+<p><span class="math display">\[
+Cov_{xy}  = \frac{\sum(X-M_X)(Y-M_Y)}{n-1} = \frac{SP_{xy}}{n-1}
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Why You Have to Sit Through This Part">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why You Have to Sit Through This Part
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is the most formula-heavy stretch of the chapter, and it is fair to ask why you are being made to look at it.</p>
+<p>You are not here because I want you to suffer. The sum of squares, the sum of products, and the <span class="math inline">\(n-1\)</span> underneath them are the parts that nearly everything later in this book is assembled from. Regression slopes, <span class="math inline">\(R^2\)</span>, model comparison, and the mixed models at the end of Part 2 are all built out of these same few pieces, usually without anyone stopping to reintroduce them.</p>
+<p>So learn them here, on five numbers you can check by hand in about a minute. Every time they come back wearing a different name, and they will, you will already know what you are looking at.</p>
+</div>
+</div>
+<section id="perfect-positive-relationship" class="level3" data-number="10.4.1">
+<h3 data-number="10.4.1" class="anchored" data-anchor-id="perfect-positive-relationship"><span class="header-section-number">10.4.1</span> Perfect Positive Relationship</h3>
+<p>Why would we do this? Let’s start with an illustrative example, using the smallest dataset that will sit still. Take one variable, <span class="math inline">\(X = 1,2,3,4,5\)</span>, and find its variance.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>M_x<span class="ot">&lt;-</span><span class="fu">mean</span>(X)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>SS_x <span class="ot">&lt;-</span> <span class="fu">sum</span>((X<span class="sc">-</span>M_x)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Var_X<span class="ot">=</span>SS_x<span class="sc">/</span>(<span class="fu">length</span>(X)<span class="sc">-</span><span class="dv">1</span>) <span class="co">#or just do var(X)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Var_X</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+</div>
+</section>
+<section id="identical-variables" class="level3" data-number="10.4.2">
+<h3 data-number="10.4.2" class="anchored" data-anchor-id="identical-variables"><span class="header-section-number">10.4.2</span> Identical Variables</h3>
+<p>Now imagine two variables that are exact copies of one another, as though we measured something very stable twice: <span class="math inline">\(X = 1,2,3,4,5\)</span> and <span class="math inline">\(Y = 1,2,3,4,5\)</span>. Both variances should come back identical, because the two columns <em>are</em> identical.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(Y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+</div>
+<p>So what is Cov(xy)?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cov</span>(X,Y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+</div>
+<p>Why is it the same number? Look again at the last version of the variance formula. It is already written as <span class="math inline">\(\frac{\sum(X-M_X)(X-M_X)}{n-1}\)</span>, a variable multiplied by itself. Replace one of those X’s with a perfect copy called Y and not one thing about the arithmetic changes. Variance is covariance with yourself, and that is the punchline of this entire chapter.</p>
+</section>
+<section id="perfect-negative-relationship" class="level3" data-number="10.4.3">
+<h3 data-number="10.4.3" class="anchored" data-anchor-id="perfect-negative-relationship"><span class="header-section-number">10.4.3</span> Perfect Negative Relationship</h3>
+<p>Now imagine two variables that are exact opposites, like a student’s liking for stats and their hatred of the same class: <span class="math inline">\(X = 1,2,3,4,5\)</span> and <span class="math inline">\(Z = 5,4,3,2,1\)</span>. Notice the variances have not changed. Reversing the order of a set of numbers does nothing to how spread out they are.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(Z)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+</div>
+<p>What’s Cov(xz)?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cov</span>(X,Z)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -2.5</code></pre>
+</div>
+</div>
+<p>The same magnitude as the identical-variables case, with the sign flipped. The plot below shows what that sign is reporting: every step up in X is matched by a step down in Z.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X, Z)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/opposite-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Plain scatterplot of X against Z. The five points fall on a perfect downhill line running from the top left to the bottom right." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="why-the-sign-flips" class="level3" data-number="10.4.4">
+<h3 data-number="10.4.4" class="anchored" data-anchor-id="why-the-sign-flips"><span class="header-section-number">10.4.4</span> Why the Sign Flips</h3>
+<p>When the relationship was perfectly positive, every cross-product was positive. Now every one of them is negative:</p>
+<p><span class="math display">\[(-2 * 2) + (-1 * 1) + (0 * 0) + (1 * -1) + (2 * -2)\]</span></p>
+<p>Add them up and the total is negative. That negative sign is the whole signal: it says the two variables move in opposite directions.</p>
+</section>
+<section id="no-relationship" class="level3" data-number="10.4.5">
+<h3 data-number="10.4.5" class="anchored" data-anchor-id="no-relationship"><span class="header-section-number">10.4.5</span> No Relationship</h3>
+<p>Now two variables that aren’t strongly related, say liking for stats and liking for Alex: <span class="math inline">\(X = 1,2,3,4,5\)</span> and <span class="math inline">\(A = 2,5,3,1,4\)</span>. The variances still have not changed, because A is just another reshuffling of the same five numbers.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>A <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">4</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">var</span>(A)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.5</code></pre>
+</div>
+</div>
+<p>What’s Cov(XA)?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cov</span>(X,A)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<p>Zero. The plot below shows why. There is no consistent uphill or downhill pattern, so the cross-products never accumulate in either direction.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(X, A)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/unrelated-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Plain scatterplot of X against A. The five points are scattered with no uphill or downhill pattern." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="why-zero" class="level3" data-number="10.4.6">
+<h3 data-number="10.4.6" class="anchored" data-anchor-id="why-zero"><span class="header-section-number">10.4.6</span> Why Zero?</h3>
+<p>Turn both variables into deviations from their means:</p>
+<ul>
+<li>Old: <span class="math inline">\(X = 1,2,3,4,5\)</span>, <span class="math inline">\(A = 2,5,3,1,4\)</span></li>
+<li>Now: <span class="math inline">\(X = -2,-1,0,1,2\)</span>, <span class="math inline">\(A = -1,2,0,-2,1\)</span></li>
+</ul>
+<p>Then add up the cross-products:</p>
+<p><span class="math display">\[(-2 * -1) + (-1 * 2) + (0 * 0) + (1 * -2) + (2 * 1)\]</span> <span class="math display">\[2 + (-2) + 0 + (-2) + 2 = 0\]</span></p>
+<p>The positive products and the negative products cancel exactly, so the covariance is zero. There is no linear relationship between X and A.</p>
+</section>
+<section id="covariance-review" class="level3" data-number="10.4.7">
+<h3 data-number="10.4.7" class="anchored" data-anchor-id="covariance-review"><span class="header-section-number">10.4.7</span> Covariance Review</h3>
+<p>Assume for the moment that <span class="math inline">\(Var(x) = Var(y)\)</span>.</p>
+<ul>
+<li>When the relationship between x and y is perfect, <span class="math inline">\(Cov(xy) = Var(x) = Var(y)\)</span>.</li>
+<li>When the relationship is perfect but the variances differ, <span class="math inline">\(Cov(xy) = \sqrt{Var(x) * Var(y)}\)</span>. That is the biggest a covariance can ever get.</li>
+<li>When the relationship is perfectly inverse, the same bound applies with the sign flipped: <span class="math inline">\(Cov(xy) = -\sqrt{Var(x) * Var(y)}\)</span>.</li>
+<li>When there is no relationship, <span class="math inline">\(Cov(xy) = 0\)</span>, because the positive and negative products cancel.</li>
+</ul>
+<p>Covariance can never exceed <span class="math inline">\(\sqrt{Var(x) * Var(y)}\)</span> in either direction. Dividing by that maximum is exactly what a correlation does, which is why <span class="math inline">\(r\)</span> cannot escape the range <span class="math inline">\(-1\)</span> to <span class="math inline">\(+1\)</span>.</p>
+</section>
+</section>
+<section id="correlations-our-second-most-common-workhorse" class="level2" data-number="10.5">
+<h2 data-number="10.5" class="anchored" data-anchor-id="correlations-our-second-most-common-workhorse"><span class="header-section-number">10.5</span> Correlations: Our second most common workhorse</h2>
+<p>Correlation is a broad term for any scaled measure of association, which means there is no single correlation. There is a whole family of them, and different members answer different questions about different kinds of variables.</p>
+<p>Wait. There are multiple types of correlations?</p>
+<p>Yes. We take joy in finding new ways to confuse you on exams.</p>
+<p>The two you will actually use are Pearson’s <span class="math inline">\(r\)</span> and Spearman’s <span class="math inline">\(r_s\)</span>. Both are built to the same specification: they run from <span class="math inline">\(-1\)</span> to <span class="math inline">\(+1\)</span>, and zero means no relationship. What counts as “no relationship” is where they part company. For Pearson, zero means no <strong>linear</strong> association. For Spearman, zero means no <strong>monotonic</strong> association. Either way, a strong U-shaped relationship can still produce zero, because correlation is very talented at missing questions it was never asked.</p>
+<p>Cohen gave <span class="math inline">\(r\)</span> the same small, medium, and large treatment he gave <span class="math inline">\(d\)</span> <span class="citation" data-cites="cohen1988">(<a href="#ref-cohen1988" role="doc-biblioref">Cohen 1988</a>)</span>, and you will be expected to know these:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Size</th>
+<th><span class="math inline">\(r\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Small</td>
+<td>.10</td>
+</tr>
+<tr class="even">
+<td>Medium</td>
+<td>.30</td>
+</tr>
+<tr class="odd">
+<td>Large</td>
+<td>.50</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning callout-titled" title="These Adjectives Are Conventions, Not Laws">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>These Adjectives Are Conventions, Not Laws
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You met this warning in the power chapter attached to <span class="math inline">\(d\)</span>. It applies at least as hard to <span class="math inline">\(r\)</span>.</p>
+<p>An <span class="math inline">\(r\)</span> of .10 between a cheap screening question and later dropout can be worth millions of dollars and a redesigned advising program. An <span class="math inline">\(r\)</span> of .45 between two questionnaires that share half their items is worth nothing, because you have largely correlated a thing with itself. Interpret magnitude in the research context, or do not interpret it.</p>
+</div>
+</div>
+<p>One important thing to know: Everything correlates with everything, which Paul Meehl calls the “crud factor” (also called ambient correlational noise) <span class="citation" data-cites="meehl1990a meehl1990b">(<a href="#ref-meehl1990a" role="doc-biblioref">Meehl 1990a</a>, <a href="#ref-meehl1990b" role="doc-biblioref">1990b</a>)</span>. Our goal is to determine how much, and we will deal with two variables at a time before exploring the problems created by three or more variables.</p>
+<section id="correlation-types" class="level3" data-number="10.5.1">
+<h3 data-number="10.5.1" class="anchored" data-anchor-id="correlation-types"><span class="header-section-number">10.5.1</span> Correlation Types</h3>
+<p>A few popular correlations between two variables:</p>
+<ul>
+<li>Pearson’s r (interval by interval) [for population = <span class="math inline">\(\rho\)</span>, for sample = <span class="math inline">\(r\)</span>]</li>
+<li>Spearman’s rho (interval by ordinal) [for population = <span class="math inline">\(\rho_{s}\)</span>, for sample = <span class="math inline">\(r_s\)</span>]</li>
+</ul>
+<p>Other types we will not cover:</p>
+<ul>
+<li>Kendall’s tau (<span class="math inline">\(\tau\)</span>), a rank-based measure that handles pair concordance and ties differently from Spearman’s correlation</li>
+<li>Point-biserial correlation (quantitative by genuinely dichotomous)</li>
+<li>Polychoric (ordinal vs ordinal) [used more in psychometrics or factor analysis of ordinal by ordinal]</li>
+<li>Tetrachoric correlation (dichotomous vs.&nbsp;dichotomous, under a latent-continuous-variable model)</li>
+<li>Psychopathic correlation, used only when you want to cause insanity in the reader of your paper</li>
+</ul>
+<p>These measures do <strong>not</strong> all share one assumption set. Classical inference for Pearson’s correlation commonly assumes independent pairs and, for its exact small-sample test, bivariate normality. Bivariate normality describes the joint distribution of two variables; it does not mean they become normal when “added together,” and it certainly does not mean the two variables must be independent. If they were independent, their population correlation would be zero, which would make this a remarkably short chapter.</p>
+</section>
+<section id="pearsons-correlation" class="level3" data-number="10.5.2">
+<h3 data-number="10.5.2" class="anchored" data-anchor-id="pearsons-correlation"><span class="header-section-number">10.5.2</span> Pearson’s Correlation</h3>
+<p>Most common type you will encounter and is a parametric method.</p>
+<p><span class="math display">\[r_{xy}=\frac{\sum{(X-M_X)(Y-M_Y)}}{\sqrt{\sum(X-M_X)^2\sum(Y-M_Y)^2}}\]</span> remember <span class="math inline">\(SS = \Sigma(X-M)^2\)</span>, so thus,</p>
+<p><span class="math display">\[r_{xy}=\frac{SP}{\sqrt{SS_XSS_Y}}\]</span></p>
+<ul>
+<li>Numerator = How much they vary together (covariance)</li>
+<li>Denominator = The product of how much they vary alone (variance)</li>
+<li>Values are bounded between -1 and 1</li>
+</ul>
+<p>or more simply (see Cohen’s textbook for the derivation):</p>
+<p><span class="math display">\[r_{xy}=\frac{\sum{xy}}{\sqrt{\sum{x^2}\sum{y^2}}}\]</span></p>
+</section>
+<section id="a-study-we-will-keep-using-ice-cream-and-happiness" class="level3" data-number="10.5.3">
+<h3 data-number="10.5.3" class="anchored" data-anchor-id="a-study-we-will-keep-using-ice-cream-and-happiness"><span class="header-section-number">10.5.3</span> A Study We Will Keep Using: Ice Cream and Happiness</h3>
+<p>Time for a running example, and something less alarming than pirates.</p>
+<p>Suppose we ask 100 people two questions: how much ice cream they eat, and how happy they are. We expect the two to go together, because ice cream is delicious and happiness is what happens to people who eat delicious things. This example follows us for the rest of the chapter, so it is worth noticing now that it has the identical structure to the pirate graph. Two variables, one span of observations, no control group, and no idea which way any arrow points.</p>
+<p>Hold onto that. We will come back for it once we have a number.</p>
+</section>
+<section id="simulate-data" class="level3" data-number="10.5.4">
+<h3 data-number="10.5.4" class="anchored" data-anchor-id="simulate-data"><span class="header-section-number">10.5.4</span> Simulate Data</h3>
+<p>We will use the <code>mvrnorm</code> function (multivariate normal distribution) from the <em>MASS</em> package, but to do this we need to make a <strong>covariance</strong> matrix with a <span class="math inline">\(r = .60\)</span> and set the mean values for each variable (which I will set to 5 for each). With unit variances, this covariance matrix is also the correlation matrix, a freebie that will matter later.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Set params</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>Means.XY<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>) <span class="co">#set the means of X and Y variables</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>r<span class="ot">=</span>.<span class="dv">6</span> <span class="co">#Correlation value</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>CovMatrix.XY <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,r,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                         r,<span class="dv">1</span>),<span class="dv">2</span>,<span class="dv">2</span>) <span class="co"># creates the covariate matrix </span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Build the correlated variables using mvrnorm. </span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: empirical=TRUE means make the correlation EXACTLY r. </span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># empirical=FALSE, the correlation value would be normally distributed around r</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS) <span class="co">#create data</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>CorrData<span class="ot">&lt;-</span><span class="fu">mvrnorm</span>(<span class="at">n=</span><span class="dv">100</span>, <span class="at">mu=</span>Means.XY,<span class="at">Sigma=</span>CovMatrix.XY, <span class="at">empirical=</span><span class="cn">TRUE</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert them to a "Data.Frame", which is like SPSS data window</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>CorrData<span class="ot">&lt;-</span><span class="fu">as.data.frame</span>(CorrData)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co">#lets add our labels to the vectors we created</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(CorrData) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Happiness"</span>,<span class="st">"IceCream"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="plot-the-data" class="level3" data-number="10.5.5">
+<h3 data-number="10.5.5" class="anchored" data-anchor-id="plot-the-data"><span class="header-section-number">10.5.5</span> Plot the data</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/plot-corrdata-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of happiness against ice cream consumption for 100 simulated people, showing a moderate uphill cloud with a blue fitted line and a shaded confidence band." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="run-pearsons-r" class="level3" data-number="10.5.6">
+<h3 data-number="10.5.6" class="anchored" data-anchor-id="run-pearsons-r"><span class="header-section-number">10.5.6</span> Run Pearson’s r</h3>
+<p>The <code>cor.test</code> function runs Pearson’s correlation. <strong>Note:</strong> You will notice that I have attached the data frame to each variable.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Corr.Result<span class="fl">.1</span><span class="ot">&lt;-</span><span class="fu">cor.test</span>(CorrData<span class="sc">$</span>Happiness, CorrData<span class="sc">$</span>IceCream,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"pearson"</span>))</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>Corr.Result<span class="fl">.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  CorrData$Happiness and CorrData$IceCream
+t = 7.4246, df = 98, p-value = 4.193e-11
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.4574985 0.7124547
+sample estimates:
+cor 
+0.6 </code></pre>
+</div>
+</div>
+<p>You can also call the function via a formula command.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>Corr.Result<span class="fl">.1</span><span class="ot">&lt;-</span><span class="fu">cor.test</span>(<span class="sc">~</span>Happiness <span class="sc">+</span> IceCream, <span class="at">data=</span> CorrData,</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"pearson"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="p-value-for-pearsons-correlation" class="level3" data-number="10.5.7">
+<h3 data-number="10.5.7" class="anchored" data-anchor-id="p-value-for-pearsons-correlation"><span class="header-section-number">10.5.7</span> P-value for Pearson’s Correlation</h3>
+<p>The classical <em>p</em>-value for Pearson’s correlation is adapted from the <em>t</em>-distribution which we covered in chapter on one-sample <em>t</em>-test.</p>
+<p>The statistic is built from <span class="math inline">\(r\)</span> and the sample size, and nothing else:</p>
+<p><span class="math display">\[t = \frac{r\sqrt{N-2}}{\sqrt{1-r^2}}\]</span></p>
+<p>That <span class="math inline">\(N-2\)</span> is the degrees of freedom, and it is worth knowing where the 2 went.</p>
+<p>Before you can compute a single deviation score, you have to know where the middle is. So you estimate <span class="math inline">\(M_X\)</span> from your own data, and that costs one degree of freedom. Then you estimate <span class="math inline">\(M_Y\)</span>, and that costs another. One mean per variable, two variables, so <span class="math inline">\(N-2\)</span> are left. This is the same tax that makes each variance divide by <span class="math inline">\(n-1\)</span> rather than <span class="math inline">\(n\)</span>: you pay once, per variable, for having to find its center first.</p>
+<p>With our 100 people, that leaves 98 degrees of freedom.</p>
+<p>You will meet this exact number again from the other direction. In regression, a straight line has two parameters, an intercept and a slope, and fitting each one costs a degree of freedom. Two parameters, <span class="math inline">\(N-2\)</span> left over. Same number, same reason, different story about it.</p>
+</section>
+<section id="report-them-in-apa-format" class="level3" data-number="10.5.8">
+<h3 data-number="10.5.8" class="anchored" data-anchor-id="report-them-in-apa-format"><span class="header-section-number">10.5.8</span> Report them in APA format</h3>
+<p>The <code>cor_apa</code> function in the APA package will report it in APA format for you. Here, <span class="math inline">\(r(df)\)</span> gives Pearson’s <span class="math inline">\(r\)</span> and its degrees of freedom, which is the <span class="math inline">\(N-2\)</span> we just paid for. The function has several output-format options.</p>
+<div class="cell" data-layout-align="center">
+<p><em>r</em>(98) = .60, <em>p</em> &lt; .001</p>
+</div>
+</section>
+<section id="pearsons-correlation-is-scale-independent" class="level3" data-number="10.5.9">
+<h3 data-number="10.5.9" class="anchored" data-anchor-id="pearsons-correlation-is-scale-independent"><span class="header-section-number">10.5.9</span> Pearson’s correlation is scale-independent!</h3>
+<p>No matter the mean differences or range of scores, the Pearson’s r will give the same results. We can also z-score the data and get the same result. However, if they are scaled non-linearly (sqrt, ^2, log,…) the correlation will change.</p>
+<p>This is worth proving rather than saying with fancy words, so the next four sections do the same analysis four times while abusing the measurement scale in a different way each time. Watch the reported <span class="math inline">\(r\)</span> in the corner of each plot. Three of the four will not move.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="That Corner Label Is Not APA, and That Is Fine Here">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>That Corner Label Is Not APA, and That Is Fine Here
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The correlation printed on these plots comes from <code>ggpubr</code>, and it takes liberties. It writes a capital <span class="math inline">\(R\)</span> where APA wants a lowercase italic <span class="math inline">\(r\)</span>. It reports no degrees of freedom at all. It prints the <em>p</em>-value in scientific notation instead of as <span class="math inline">\(p &lt; .001\)</span>.</p>
+<p>None of that belongs in a manuscript. All of it is fine right now, because these four plots exist so we can glance at a graph and see whether the number moved. Writing mountains of code to produce a journal-ready figure, just to check something with our own eyes, is a waste of an afternoon.</p>
+<p>Keep that distinction for the rest of the book. Some code is for us: fast, slightly ugly, written to figure out what the data are doing. Other code is for the journal: slow and fussy, written so the output looks the way reviewers expect it to look. The <code>cor_apa</code> call above is the second kind. This corner label is the first kind. Use each where it belongs, and never paste the first kind into a paper.</p>
+</div>
+</div>
+</section>
+<section id="scale-change-add-a-constant-shift-the-mean" class="level3" data-number="10.5.10">
+<h3 data-number="10.5.10" class="anchored" data-anchor-id="scale-change-add-a-constant-shift-the-mean"><span class="header-section-number">10.5.10</span> Scale change: Add a constant (shift the mean)</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/scale-shift-1.png" class="img-fluid figure-img" alt="Scatterplot of happiness plus 1000 against ice cream. The cloud of points has an identical shape to the earlier plot, but the y-axis now runs near 1000, and the reported correlation is unchanged." width="360"></p>
+<figcaption>X axis: ice cream, untouched. Y axis: happiness, plus 1000. We moved the mean and nothing else.</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>r(98) = .60, p &lt; .001</code></pre>
+</div>
+</div>
+</section>
+<section id="scale-change-z-scored" class="level3" data-number="10.5.11">
+<h3 data-number="10.5.11" class="anchored" data-anchor-id="scale-change-z-scored"><span class="header-section-number">10.5.11</span> Scale change: Z-scored</h3>
+<p>Remember that, <span class="math inline">\(Z = \frac{X-M}{S}\)</span></p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/scale-zscore-1.png" class="img-fluid figure-img" alt="Scatterplot of z-scored happiness against z-scored ice cream. Both axes are now centered on zero and run from about minus 3 to 3, but the shape of the cloud and the reported correlation are unchanged." width="360"></p>
+<figcaption>X axis: ice cream, z-scored. Y axis: happiness, z-scored. Both variables now have a mean of 0 and an SD of 1.</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>r(98) = .60, p &lt; .001</code></pre>
+</div>
+</div>
+</section>
+<section id="scale-change-linear-mixed-scales" class="level3" data-number="10.5.12">
+<h3 data-number="10.5.12" class="anchored" data-anchor-id="scale-change-linear-mixed-scales"><span class="header-section-number">10.5.12</span> Scale change: Linear (mixed scales)</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/scale-mixed-1.png" class="img-fluid figure-img" alt="Scatterplot with z-scored ice cream on the x-axis and happiness plus 1000 on the y-axis. The two variables are now on wildly different scales, and the reported correlation is still unchanged." width="360"></p>
+<figcaption>X axis: ice cream, z-scored. Y axis: happiness, plus 1000. Two different transformations at once, on two wildly different scales.</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>r(98) = .60, p &lt; .001</code></pre>
+</div>
+</div>
+</section>
+<section id="scale-change-non-linear-breaks-it" class="level3" data-number="10.5.13">
+<h3 data-number="10.5.13" class="anchored" data-anchor-id="scale-change-non-linear-breaks-it"><span class="header-section-number">10.5.13</span> Scale change: Non-linear (breaks it)</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/scale-nonlinear-1.png" class="img-fluid figure-img" alt="Scatterplot of happiness against ice cream raised to the fourth power. The points are now bunched hard against the left edge with a long tail to the right, the straight fitted line no longer follows them, and the reported correlation has dropped." width="360"></p>
+<figcaption>X axis: ice cream, raised to the fourth power. Y axis: happiness, untouched. This is the one that breaks, because the fourth power is not a straight line.</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>r(98) = .57, p &lt; .001</code></pre>
+</div>
+</div>
+</section>
+<section id="when-you-only-see-part-of-the-picture-restriction-of-range" class="level3" data-number="10.5.14">
+<h3 data-number="10.5.14" class="anchored" data-anchor-id="when-you-only-see-part-of-the-picture-restriction-of-range"><span class="header-section-number">10.5.14</span> When You Only See Part of the Picture: Restriction of Range</h3>
+<p>Rescaling a variable leaves <span class="math inline">\(r\)</span> alone. Throwing away part of the sample does not.</p>
+<p>Imagine we ran this study badly. Instead of surveying everyone, we set up a folding table outside the ice cream shop and surveyed only the people already standing in it. Everyone in the sample now eats a fair amount of ice cream, and the range of that variable has quietly collapsed.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the top third of ice cream eaters, and throw the rest away</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>Cutoff   <span class="ot">&lt;-</span> <span class="fu">quantile</span>(CorrData<span class="sc">$</span>IceCream, .<span class="dv">66</span>)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>ShopOnly <span class="ot">&lt;-</span> <span class="fu">subset</span>(CorrData, IceCream <span class="sc">&gt;</span> Cutoff)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(CorrData<span class="sc">$</span>IceCream)  <span class="co"># spread across everyone</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(ShopOnly<span class="sc">$</span>IceCream)  <span class="co"># spread among shop customers only</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.7187161</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/restriction-plots-1.png" class="img-fluid figure-img" alt="Two scatterplots side by side on identical axes. The left panel shows all 100 people with a clear uphill trend spanning the full width of the plot. The right panel shows only the 34 heaviest ice cream eaters, crowded into the right third of the same axes, with a flatter and noisier uphill trend." width="672"></p>
+<figcaption>The same relationship, before and after we kept only the heaviest ice cream eaters. Both panels are drawn on the same axes.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Across everyone, <span class="math inline">\(r =\)</span> .60. Among shop customers only, with 34 people left, <span class="math inline">\(r =\)</span> .45. Not one thing about the underlying relationship changed. We changed who we were willing to look at.</p>
+<p>Selective samples flatten correlations, because a correlation needs variability to detect and we just deleted most of it. This is why correlations among admitted students, hired employees, and participants who survived to the end of a study so often underwhelm: somebody already removed the range you needed before you got the data.</p>
+<p>Groups that do something stranger than flatten, and reverse a trend outright, are Simpson’s paradox. That one waits for you in the mixed regression chapters.</p>
+</section>
+<section id="pearsons-lets-visualize-our-result" class="level3" data-number="10.5.15">
+<h3 data-number="10.5.15" class="anchored" data-anchor-id="pearsons-lets-visualize-our-result"><span class="header-section-number">10.5.15</span> Pearson’s: Let’s visualize our result</h3>
+<p>The overlap between the two variables is defined by <span class="math inline">\(r^2\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/ballantine-r2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Two overlapping circles of equal size, one labelled Happiness and one labelled Ice cream. The overlapping region in the middle is labelled 36% shared." width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The picture is conceptual rather than drawn to exact area scale. Its job is to keep the shared piece visible, not to audition for an engineering degree.</p>
+<p>This means that 36% of the variance of happiness overlaps with ice cream consumption. Can we conclude ice cream causes happiness? No, because we did not design a study with a control group. We can not infer causation. It seems to make sense to say “eating ice cream causes me to be happy”, but the opposite could be true as well “happiness causes me to eat ice cream”. How do I know which causes which? We cannot without an experiment.</p>
+<p>There is a third possibility, and it is worse than the first two, because it does not require either variable to touch the other. Hot weather sells ice cream. Hot weather also pushes people outdoors into daylight and company, which reliably lifts mood. Heat moves both variables, and heat never once appears in our data.</p>
+<p>Which is the pirate graph again, wearing a nicer outfit. The -.96 we opened with was never a claim that pirates cool the planet. It was two things drifting across the same two centuries for unrelated reasons, and the arithmetic could not tell. Your 36% is that same kind of number until a design rules the alternatives out.</p>
+</section>
+<section id="non-parametric-correlations" class="level3" data-number="10.5.16">
+<h3 data-number="10.5.16" class="anchored" data-anchor-id="non-parametric-correlations"><span class="header-section-number">10.5.16</span> Non-Parametric Correlations</h3>
+<p>Spearman and Kendall correlations are useful for ordinal data and for <strong>monotonic</strong> relationships: as one variable increases, the other generally keeps moving in one direction, even if the pattern bends. They do not rescue every nonlinear relationship. A U-shaped relationship can have a correlation near zero because the upward and downward pieces cancel each other while laughing at you.</p>
+</section>
+<section id="spearmans-correlation" class="level3" data-number="10.5.17">
+<h3 data-number="10.5.17" class="anchored" data-anchor-id="spearmans-correlation"><span class="header-section-number">10.5.17</span> Spearman’s Correlation</h3>
+<p>Spearman is a Pearson Correlation on rank-ordered data. Which raises a fair question: what is a rank?</p>
+<p><strong>Ranking</strong> replaces each score with its position in the sorted order. The smallest value becomes 1, the next becomes 2, and so on up to <span class="math inline">\(N\)</span>. The original numbers are thrown away and only their order survives.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>Scores <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">40</span>, <span class="dv">41</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rank</span>(Scores)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2 3 4 5</code></pre>
+</div>
+</div>
+<p>Look at what happened to that 40 and 41. In the raw scores they sit far away from 2, 5, and 9, and almost on top of each other. As ranks they are 4 and 5, exactly one apart, the same distance as 1 and 2. Ranking flattens every gap to the same size, which is precisely why it shrugs off outliers and bent relationships.</p>
+<p>Ties get the average of the positions they would have taken up:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>Tied <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">9</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rank</span>(Tied)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.0 2.5 2.5 4.0</code></pre>
+</div>
+</div>
+<p>The two fives would have occupied positions 2 and 3, so they each get 2.5. This is also the tie-handling that costs us an exact <em>p</em>-value later.</p>
+<p>Now let’s rank order our random correlated data. You must rank each variable independently first (where ties are averaged).</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>CorrData<span class="sc">$</span>Happiness.rank<span class="ot">&lt;-</span><span class="fu">rank</span>(CorrData<span class="sc">$</span>Happiness)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>CorrData<span class="sc">$</span>IceCream.rank<span class="ot">&lt;-</span><span class="fu">rank</span>(CorrData<span class="sc">$</span>IceCream)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggscatter</span>(CorrData, <span class="at">x =</span> <span class="st">"IceCream.rank"</span>, <span class="at">y =</span> <span class="st">"Happiness.rank"</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">add =</span> <span class="st">"reg.line"</span>,  <span class="co"># Add regression line</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">add.params =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">fill =</span> <span class="st">"lightgray"</span>), <span class="co"># Customize reg. line</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="co"># Add confidence interval</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>   )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/spearman-ranks-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of happiness ranks against ice cream ranks, from 1 to 100 on both axes, showing a moderate uphill cloud with a blue fitted line." width="360"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor_apa</span>(<span class="fu">cor.test</span>(CorrData<span class="sc">$</span>IceCream.rank, CorrData<span class="sc">$</span>Happiness.rank, <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"pearson"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>r(98) = .57, p &lt; .001</code></pre>
+</div>
+</div>
+<p>Notice that the output above labels this <span class="math inline">\(r\)</span> and not <span class="math inline">\(r_s\)</span>. The function is not confused. We literally ran a Pearson correlation, on ranks, which is what Spearman’s correlation <em>is</em>.</p>
+<p>Use the built-in Spearman correlation with <code>cor.test(..., method = "spearman")</code>. It ranks the raw data automatically and calculates the appropriate <em>p</em>-value.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>r_s = .57, p &lt; .001</code></pre>
+</div>
+</div>
+</section>
+<section id="pearson-vs-spearman-for-nonlinear-data" class="level3" data-number="10.5.18">
+<h3 data-number="10.5.18" class="anchored" data-anchor-id="pearson-vs-spearman-for-nonlinear-data"><span class="header-section-number">10.5.18</span> Pearson vs Spearman for Nonlinear Data</h3>
+<p>Let’s say you get some data and clearly there is a slight nonlinearity in the relationship between the two variables. Pearson is designed for linear relationships and we can see the problem in our fitted line below.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/nonlinear-pearson-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of nine points that rise steeply and then level off into a curve. The straight fitted line runs above the points at the left, below them in the middle, and above them again at the right." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>r(7) = .86, p = .003</code></pre>
+</div>
+</div>
+<p>If we switch to a Spearman correlation the data are converted to ranks and the “bump” is now gone and our correlation gets stronger.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/nonlinear-rank-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot of the same nine points converted to ranks 1 through 9. The curve is gone and the points now sit almost exactly on the straight fitted line." width="360"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output cell-output-stdout">
+<pre><code>r_s = 1.00, p &lt; .001</code></pre>
+</div>
+</div>
+<p>One thing to expect the first time you try this on your own data. Asking for <code>exact = TRUE</code> works here because none of these values are tied, but with tied ranks R cannot compute an exact <em>p</em>-value, so it warns you and quietly falls back on the t-approximation. That is fine, not a mistake. Likert-scale data ties constantly, so if you run a Spearman on questionnaire items you should count on seeing that warning every time.</p>
+</section>
+<section id="correlation-matrices" class="level3" data-number="10.5.19">
+<h3 data-number="10.5.19" class="anchored" data-anchor-id="correlation-matrices"><span class="header-section-number">10.5.19</span> Correlation Matrices</h3>
+<p>When we have multiple variables we can compare them all to each other at once. First we will simulate a 4 variables and all their bivariate correlations using the mvrnorm function again.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Set params</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>Means.XY<span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">5</span>) <span class="co">#set the means of X and Y variables</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>r12<span class="ot">=</span>.<span class="dv">6</span>;r13<span class="ot">=</span>.<span class="dv">1</span>;r14<span class="ot">=</span>.<span class="dv">5</span>;r23<span class="ot">=</span>.<span class="dv">1</span>;r24<span class="ot">=</span>.<span class="dv">8</span>;r34<span class="ot">=</span><span class="dv">0</span>; <span class="co">#Correlation values</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>CovMatrix.XY <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,r12,r13,r14,</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>                         r12,<span class="dv">1</span>,r23,r24,</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>                         r13,r23,<span class="dv">1</span>,r34,</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>                         r14,r24,r34,<span class="dv">1</span>),<span class="dv">4</span>,<span class="dv">4</span>) <span class="co"># creates the covariate matrix </span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Build the correlated variables using mvrnorm. </span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: empirical=TRUE means make the correlation EXACTLY r. </span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a><span class="co"># empirical=FALSE, the correlation value would be normally distributed around r</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS) <span class="co">#create data</span></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>CorrData2<span class="ot">&lt;-</span><span class="fu">mvrnorm</span>(<span class="at">n=</span><span class="dv">100</span>, <span class="at">mu=</span>Means.XY,<span class="at">Sigma=</span>CovMatrix.XY, <span class="at">empirical=</span><span class="cn">TRUE</span>)</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="co">#Convert them to a "Data.Frame", which is like SPSS data window</span></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>CorrData2<span class="ot">&lt;-</span><span class="fu">as.data.frame</span>(CorrData2)</span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a><span class="co">#lets add our labels to the vectors we created</span></span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(CorrData2) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Happiness"</span>,<span class="st">"IceCream"</span>, <span class="st">"Sprinkles"</span>,<span class="st">"Oreos"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can use the <code>GGally</code> package to plot Pearson correlations quickly in an easy to visualize format once the data are in a data frame.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_10_Covariance_Correlation_files/figure-html/corr-matrix-plot-1.png" class="img-fluid figure-img" alt="A four-by-four grid comparing happiness, ice cream, sprinkles, and Oreos. The diagonal shows each variable's density curve, the lower triangle shows scatterplots with fitted lines, and the upper triangle shows the correlation for each pair." width="360"></p>
+<figcaption>Every pair of four variables at once. Diagonal: each variable’s own distribution. Below it: the scatterplot. Above it: the same pair as a number.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>That is a lot of panels at once, so here is how to read it.</p>
+<p>Find a variable name along the diagonal. That cell is the variable by itself: a smoothed histogram of its own distribution, the one-variable picture from way back at the start of this chapter. Nothing is being compared there.</p>
+<p>Everything off the diagonal is a <strong>pair</strong>. To find a pair, pick a row and a column and see where they meet. Below the diagonal you get the scatterplot for that pair, with a fitted line through it. Above the diagonal you get the exact same pair reported as a number, the Pearson <span class="math inline">\(r\)</span>.</p>
+<p>The matrix is <strong>symmetrical</strong>. The panel for Happiness and Oreos below the diagonal and the number for Happiness and Oreos above it are the same relationship shown two ways, which is also why the diagonal is the fold: correlating a variable with itself would give 1.00 every time and tell you nothing.</p>
+<p>Those asterisks next to each correlation are the significance stars from the <a href="./Ch_06_One_Sample_t.html">one-sample <em>t</em>-test chapter</a>, doing the same job here:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Stars</th>
+<th><em>p</em>-value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>***</code></td>
+<td>less than .001</td>
+</tr>
+<tr class="even">
+<td><code>**</code></td>
+<td>less than .01</td>
+</tr>
+<tr class="odd">
+<td><code>*</code></td>
+<td>less than .05</td>
+</tr>
+<tr class="even">
+<td><code>.</code></td>
+<td>less than .10</td>
+</tr>
+<tr class="odd">
+<td>nothing</td>
+<td>above .10</td>
+</tr>
+</tbody>
+</table>
+<p>Now go back and count how few of those cells are anywhere near zero. This is where Meehl’s crud factor stops being a quotation and becomes a picture. In real data these cells are rarely empty, and a matrix like this one is where most fishing expeditions begin: run enough pairs and something will eventually look publishable.</p>
+<p>Here is what that code asks R to do:</p>
+<ul>
+<li><code>ggpairs()</code> builds a matrix containing every pair of variables.</li>
+<li><code>CorrData2</code> is the data frame whose variables enter the matrix.</li>
+<li><code>lower = list(continuous = "smooth")</code> places scatterplots and fitted smooth lines in the lower triangle.</li>
+<li><code>theme_bw()</code> removes some visual clutter so the relationships are easier to inspect.</li>
+</ul>
+</section>
+</section>
+<section id="the-short-story" class="level2" data-number="10.6">
+<h2 data-number="10.6" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">10.6</span> The Short Story</h2>
+<ul>
+<li>Covariance tells us whether two variables move together, but its size depends on their units.</li>
+<li>Correlation standardizes that shared movement.</li>
+<li>Pearson’s <span class="math inline">\(r\)</span> summarizes a linear relationship; Spearman’s <span class="math inline">\(r_s\)</span> summarizes a monotonic relationship using ranks.</li>
+<li><span class="math inline">\(r^2\)</span> is the proportion of variance shared in a simple two-variable linear setting.</li>
+<li>Correlation does not establish causation. Ice cream may produce happiness, happiness may produce ice-cream consumption, or heat may produce both while quietly stealing credit.</li>
+<li>Plot the data. A single coefficient can hide curves, outliers, separate groups, and other tiny statistical monsters.</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled" title="Correlation Is Not a Tiny Causal Arrow">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Correlation Is Not a Tiny Causal Arrow
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An <span class="math inline">\(r\)</span> describes the direction and strength of a relationship. It does not tell us whether <span class="math inline">\(X\)</span> causes <span class="math inline">\(Y\)</span>, <span class="math inline">\(Y\)</span> causes <span class="math inline">\(X\)</span>, or a third variable is backstage operating both puppets. Design and theory must do that work.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Credit, and Also Blame">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Credit, and Also Blame
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I remember Ryne Estabrook rewriting my version of this lecture, and then I rewrote his rewrites, so give me the credit for the good parts and blame him for whatever confused you.</p>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-cohen1988" class="csl-entry" role="listitem">
+Cohen, Jacob. 1988. <em>Statistical Power Analysis for the Behavioral Sciences</em>. 2nd ed. Lawrence Erlbaum Associates.
+</div>
+<div id="ref-meehl1990a" class="csl-entry" role="listitem">
+Meehl, Paul E. 1990a. <span>“Appraising and Amending Theories: The Strategy of Lakatosian Defense and Two Principles That Warrant It.”</span> <em>Psychological Inquiry</em> 1 (2): 108–41. <a href="https://doi.org/10.1207/s15327965pli0102_1">https://doi.org/10.1207/s15327965pli0102_1</a>.
+</div>
+<div id="ref-meehl1990b" class="csl-entry" role="listitem">
+Meehl, Paul E. 1990b. <span>“Why Summaries of Research on Psychological Theories Are Often Uninterpretable.”</span> <em>Psychological Reports</em> 66 (1): 195–244. <a href="https://doi.org/10.2466/pr0.1990.66.1.195">https://doi.org/10.2466/pr0.1990.66.1.195</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_09_Paired_t.html" class="pagination-link" aria-label="Paired-Samples t-Test">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_11_Intro_Regression.html" class="pagination-link" aria-label="Linear Regression">
+        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_10_Covariance_Correlation.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

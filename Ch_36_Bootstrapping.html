@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>36&nbsp; Advanced: Bootstrapping, the Jackknife, and Resampling – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_37_Reporting.html" rel="next">
+<link href="./Ch_35_Nonparametric_Tests.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_34_Chi_Square.html">Other Statistical Creatures</a></li><li class="breadcrumb-item"><a href="./Ch_36_Bootstrapping.html"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_34_Chi_Square.html">Other Statistical Creatures</a></li><li class="breadcrumb-item"><a href="./Ch_36_Bootstrapping.html"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="before-the-bootstrap-why-we-needed-resampling" class="level2" data-number="36.1">
+<h2 data-number="36.1" class="anchored" data-anchor-id="before-the-bootstrap-why-we-needed-resampling"><span class="header-section-number">36.1</span> Before the Bootstrap: Why We Needed Resampling</h2>
+<p>Many familiar statistics come with a theoretical sampling distribution. If the assumptions behave, we can use that distribution to calculate a standard error, confidence interval, or test statistic. Unfortunately, statistics such as medians, indirect effects, complicated effect sizes, and estimates from strange models may not arrive with a pleasant little formula attached.</p>
+<p>The resampling solution is wonderfully rude: make the computer imitate repeated sampling. We use the data we observed to create many slightly different samples, calculate the statistic in every sample, and watch how much it moves. The movement gives us information about uncertainty.</p>
+<p>This idea sounds obvious now because your laptop can perform thousands of resamples before you finish complaining about the assignment. It was less obvious when a computer occupied a room, demanded punch cards, and had less memory than a suspicious toaster.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Advanced Does Not Mean Assumption-Free">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Advanced Does Not Mean Assumption-Free
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Resampling replaces some mathematical work with computation. It does not remove the need to understand the design, the estimator, or the assumptions. If you resample the wrong unit 10,000 times, you obtain a very stable estimate of the wrong uncertainty.</p>
+</div>
+</div>
+</section>
+<section id="a-very-short-history-of-people-deleting-and-reusing-data" class="level2" data-number="36.2">
+<h2 data-number="36.2" class="anchored" data-anchor-id="a-very-short-history-of-people-deleting-and-reusing-data"><span class="header-section-number">36.2</span> A Very Short History of People Deleting and Reusing Data</h2>
+<p>Resampling did not appear from a statistical volcano fully formed.</p>
+<ul>
+<li><strong>The jackknife:</strong> Quenouille developed leave-one-out calculations to study bias. Tukey extended the method to variance estimation and gave it the name <em>jackknife</em>: a general-purpose statistical tool that could be carried around and used when needed.</li>
+<li><strong>The bootstrap:</strong> Efron’s 1979 paper was titled <em>Bootstrap Methods: Another Look at the Jackknife</em>. The name referred to pulling oneself up by one’s bootstraps: using the sample itself to learn about repeated samples when the population is unavailable.</li>
+<li><strong>The computer changes everything:</strong> The jackknife was designed when computation was expensive. The bootstrap became practical because computers could repeatedly resample and recalculate statistics. By 2003, Efron described the bootstrap as a method with roots in jackknife work on bias and variance, but with a much wider reach <span class="citation" data-cites="efron2003">(<a href="#ref-efron2003" role="doc-biblioref">Efron 2003</a>)</span>.</li>
+</ul>
+<p>The history matters because the jackknife and bootstrap are not two unrelated approaches. They answer the same basic question in different ways: <strong>how sensitive is our estimate to the particular observations we happened to collect?</strong></p>
+</section>
+<section id="the-jackknife-remove-one-person-at-a-time" class="level2" data-number="36.3">
+<h2 data-number="36.3" class="anchored" data-anchor-id="the-jackknife-remove-one-person-at-a-time"><span class="header-section-number">36.3</span> The Jackknife: Remove One Person at a Time</h2>
+<p>Suppose our sample has <span class="math inline">\(n\)</span> observations and the statistic from all observations is <span class="math inline">\(\widehat\theta\)</span>. The jackknife removes observation <span class="math inline">\(i\)</span>, calculates the statistic again, and calls the result <span class="math inline">\(\widehat\theta_{(i)}\)</span>. After doing this for every observation, we have <span class="math inline">\(n\)</span> leave-one-out estimates.</p>
+<p>The average leave-one-out estimate is</p>
+<p><span class="math display">\[
+\overline{\theta}_{(.)}=\frac{1}{n}\sum_{i=1}^{n}\widehat\theta_{(i)}
+\]</span></p>
+<p>The jackknife estimate of bias is</p>
+<p><span class="math display">\[
+\widehat{Bias}_{jack}=(n-1)
+\left(\overline{\theta}_{(.)}-\widehat\theta\right)
+\]</span></p>
+<p>and the jackknife standard error is</p>
+<p><span class="math display">\[
+SE_{jack}=\sqrt{
+\frac{n-1}{n}
+\sum_{i=1}^{n}
+\left(\widehat\theta_{(i)}-\overline{\theta}_{(.)}\right)^2
+}
+\]</span></p>
+<p>That standard error asks how much the estimate changes when each person temporarily vanishes. This is a statistical disappearance, not a proposal for managing annoying group members.</p>
+<section id="a-jackknife-example-by-hand" class="level3" data-number="36.3.1">
+<h3 data-number="36.3.1" class="anchored" data-anchor-id="a-jackknife-example-by-hand"><span class="header-section-number">36.3.1</span> A Jackknife Example by Hand</h3>
+<p>Suppose 12 students report how many minutes they delayed before opening an assignment. One student reports 190 minutes because procrastination became a full-time position.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Delay.Small <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">21</span>, <span class="dv">23</span>, <span class="dv">27</span>, <span class="dv">31</span>, <span class="dv">34</span>, <span class="dv">38</span>, <span class="dv">42</span>, <span class="dv">49</span>, <span class="dv">65</span>, <span class="dv">190</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>OriginalMean <span class="ot">&lt;-</span> <span class="fu">mean</span>(Delay.Small)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>JackMeans <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_along</span>(Delay.Small), <span class="cf">function</span>(i) {</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(Delay.Small[<span class="sc">-</span>i])</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>JackMean <span class="ot">&lt;-</span> <span class="fu">mean</span>(JackMeans)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>JackBias <span class="ot">&lt;-</span> (<span class="fu">length</span>(Delay.Small) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> (JackMean <span class="sc">-</span> OriginalMean)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>JackSE <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">length</span>(Delay.Small) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">length</span>(Delay.Small) <span class="sc">*</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sum</span>((JackMeans <span class="sc">-</span> JackMean)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">OriginalMean =</span> OriginalMean,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">JackknifeBias =</span> JackBias,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">JackknifeSE =</span> JackSE</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> OriginalMean JackknifeBias   JackknifeSE 
+     45.83333       0.00000      13.76471 </code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seq_along</span>(JackMeans), JackMeans,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"#0072B2"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Observation removed"</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Mean after removing that observation"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"The jackknife exposes influential observations"</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> OriginalMean, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"#D55E00"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># pos = 2 puts the label to the LEFT of the point. At pos = 3 it sat above the</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># last point, which is hard against the right edge, and got clipped.</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">12</span>, JackMeans[<span class="dv">12</span>], <span class="at">labels =</span> <span class="st">"190-minute student removed"</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> .<span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_36_Bootstrapping_files/figure-html/jackknife-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Twelve points, one for each observation dropped, against a horizontal orange line at the full-sample mean of 45.8. Eleven of them drift gently downward between 48.9 and 44.1, all hugging the line within a few points. The twelfth, labeled as the 190-minute student, sits alone at 32.7, more than ten points below the line and nowhere near the rest." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The last leave-one-out estimate moves far more than the others. The jackknife therefore does more than generate a standard error. It also shows which observations are carrying the estimate around like exhausted undergraduate research assistants.</p>
+</section>
+<section id="pseudovalues-and-bias-correction" class="level3" data-number="36.3.2">
+<h3 data-number="36.3.2" class="anchored" data-anchor-id="pseudovalues-and-bias-correction"><span class="header-section-number">36.3.2</span> Pseudovalues and Bias Correction</h3>
+<p>The jackknife pseudovalue for observation <span class="math inline">\(i\)</span> is</p>
+<p><span class="math display">\[
+PV_i=n\widehat\theta-(n-1)\widehat\theta_{(i)}
+\]</span></p>
+<p>The mean of the pseudovalues is the jackknife bias-corrected estimate:</p>
+<p><span class="math display">\[
+\widehat\theta_{jack}=n\widehat\theta-(n-1)\overline\theta_{(.)}
+\]</span></p>
+<p>Pseudovalues transform the leave-one-out results so they behave more like observation-level contributions to the estimate. You will encounter them in older methods and in some specialized modern procedures. You do not need to place them under your pillow and hope they become intuitive overnight.</p>
+</section>
+<section id="where-the-jackknife-struggles" class="level3" data-number="36.3.3">
+<h3 data-number="36.3.3" class="anchored" data-anchor-id="where-the-jackknife-struggles"><span class="header-section-number">36.3.3</span> Where the Jackknife Struggles</h3>
+<p>The jackknife works especially well for smooth statistics such as means, regression coefficients, and correlations. It can behave badly for statistics that change abruptly when a case is removed. The sample median is the famous example <span class="citation" data-cites="singhxie2008">(<a href="#ref-singhxie2008" role="doc-biblioref">Singh and Xie 2008</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>OriginalMedian <span class="ot">&lt;-</span> <span class="fu">median</span>(Delay.Small)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>JackMedians <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">seq_along</span>(Delay.Small), <span class="cf">function</span>(i) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">median</span>(Delay.Small[<span class="sc">-</span>i])</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">OriginalMedian =</span> OriginalMedian,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">UniqueJackknifeMedians =</span> <span class="fu">length</span>(<span class="fu">unique</span>(JackMedians)),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">JackknifeSE =</span> <span class="fu">sqrt</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    (<span class="fu">length</span>(Delay.Small) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="fu">length</span>(Delay.Small) <span class="sc">*</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sum</span>((JackMedians <span class="sc">-</span> <span class="fu">mean</span>(JackMedians))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        OriginalMedian UniqueJackknifeMedians            JackknifeSE 
+             32.500000               2.000000               4.974937 </code></pre>
+</div>
+</div>
+<p>Removing one observation may leave the median unchanged or make it jump between only a few values. That choppy behavior can make the leave-one-out approximation poor. The bootstrap usually gives the median more room to wander because each resample can omit several observations and repeat several others.</p>
+</section>
+</section>
+<section id="the-bootstrap-reuse-the-sample-with-replacement" class="level2" data-number="36.4">
+<h2 data-number="36.4" class="anchored" data-anchor-id="the-bootstrap-reuse-the-sample-with-replacement"><span class="header-section-number">36.4</span> The Bootstrap: Reuse the Sample with Replacement</h2>
+<p>Bootstrapping asks what would happen if we repeatedly sampled from a population resembling the one we observed. Because we do not possess the population, the <strong>empirical distribution</strong> of the sample stands in for it. Each observed case receives probability <span class="math inline">\(1/n\)</span>, and we draw a new sample of size <span class="math inline">\(n\)</span> <strong>with replacement</strong> <span class="citation" data-cites="efron1993 efron2003">(<a href="#ref-efron1993" role="doc-biblioref">Efron and Tibshirani 1993</a>; <a href="#ref-efron2003" role="doc-biblioref">Efron 2003</a>)</span>.</p>
+<p>With replacement means that after selecting a participant, we return that participant before the next draw. Some participants appear several times; others disappear entirely. This is statistically acceptable and ethically preferable to cloning the undergraduates.</p>
+<section id="the-plug-in-principle" class="level3" data-number="36.4.1">
+<h3 data-number="36.4.1" class="anchored" data-anchor-id="the-plug-in-principle"><span class="header-section-number">36.4.1</span> The Plug-In Principle</h3>
+<p>Let <span class="math inline">\(F\)</span> represent the unknown population distribution and let <span class="math inline">\(\widehat F\)</span> represent the empirical distribution created from our sample. If the population quantity is</p>
+<p><span class="math display">\[
+\theta=t(F)
+\]</span></p>
+<p>we estimate it by plugging in the empirical distribution:</p>
+<p><span class="math display">\[
+\widehat\theta=t(\widehat F)
+\]</span></p>
+<p>The bootstrap then draws <span class="math inline">\(F_1^*,F_2^*,\ldots,F_B^*\)</span> from <span class="math inline">\(\widehat F\)</span> and calculates</p>
+<p><span class="math display">\[
+\widehat\theta_b^*=t(F_b^*)
+\]</span></p>
+<p>for each bootstrap sample <span class="math inline">\(b\)</span>. This is the <strong>plug-in principle</strong>: replace the unknown population with the best estimate we have of it, then study what repeated sampling from that estimate does <span class="citation" data-cites="efron2003">(<a href="#ref-efron2003" role="doc-biblioref">Efron 2003</a>)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="What the Bootstrap Treats as the Population">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What the Bootstrap Treats as the Population
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The observed sample temporarily plays the role of the population. If the sample is biased, excludes important groups, or was collected with a design that we ignore, bootstrapping reproduces that problem thousands of times with impressive efficiency.</p>
+</div>
+</div>
+</section>
+<section id="why-about-63.2-of-cases-appear" class="level3" data-number="36.4.2">
+<h3 data-number="36.4.2" class="anchored" data-anchor-id="why-about-63.2-of-cases-appear"><span class="header-section-number">36.4.2</span> Why About 63.2% of Cases Appear</h3>
+<p>In one bootstrap sample, the probability that a particular case is never selected is</p>
+<p><span class="math display">\[
+\left(1-\frac{1}{n}\right)^n
+\]</span></p>
+<p>As <span class="math inline">\(n\)</span> grows, this approaches <span class="math inline">\(e^{-1}\approx .368\)</span>. Therefore, a typical bootstrap sample contains about <span class="math inline">\(1-.368=.632\)</span>, or 63.2%, of the original cases at least once. The remaining positions are duplicates. Nothing is missing from R; repetition is the entire point.</p>
+</section>
+</section>
+<section id="bootstrapping-a-skewed-median" class="level2" data-number="36.5">
+<h2 data-number="36.5" class="anchored" data-anchor-id="bootstrapping-a-skewed-median"><span class="header-section-number">36.5</span> Bootstrapping a Skewed Median</h2>
+<p>Suppose students report how many minutes they procrastinated before opening an assignment. The distribution is strongly right-skewed because several students began procrastinating during the previous semester.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Delay <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">rlnorm</span>(<span class="dv">55</span>, <span class="at">meanlog =</span> <span class="fu">log</span>(<span class="dv">35</span>), <span class="at">sdlog =</span> .<span class="dv">8</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(Delay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(Delay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 40.61818</code></pre>
+</div>
+</div>
+<p>We can show one bootstrap sample before asking R to perform the process thousands of times.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">344</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>OneBootstrapSample <span class="ot">&lt;-</span> <span class="fu">sample</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  Delay,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">size =</span> <span class="fu">length</span>(Delay),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">replace =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">OriginalMedian =</span> <span class="fu">median</span>(Delay),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">BootstrapMedian =</span> <span class="fu">median</span>(OneBootstrapSample),</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">UniqueCasesRepresented =</span> <span class="fu">length</span>(<span class="fu">unique</span>(OneBootstrapSample))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        OriginalMedian        BootstrapMedian UniqueCasesRepresented 
+                    30                     30                     24 </code></pre>
+</div>
+</div>
+<p>Now repeat the resampling process <span class="math inline">\(B=5{,}000\)</span> times.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">345</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">5000</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>BootMedian <span class="ot">&lt;-</span> <span class="fu">replicate</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  B,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">median</span>(<span class="fu">sample</span>(Delay, <span class="at">size =</span> <span class="fu">length</span>(Delay), <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  BootMedian, <span class="at">breaks =</span> <span class="dv">30</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">"#9ECAE1"</span>, <span class="at">border =</span> <span class="st">"white"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Bootstrapped median delay"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Five thousand alternative samples from the sample"</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">median</span>(Delay), <span class="at">col =</span> <span class="st">"#D55E00"</span>, <span class="at">lwd =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_36_Bootstrapping_files/figure-html/bootstrap-median-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Histogram of 5,000 bootstrapped medians, x axis running 20 to 50, with a vertical orange line at the observed median of 30. This is not a smooth bell. A spike of about 1,900 resamples lands exactly at 30, a bar of about 1,000 just above it, a smaller cluster around 26 to 28 below, and a separate lumpy group spread across 35 to 40 with a stray bar near 42. The gaps between the clumps are real: the median of 55 whole-number delays can only land on a limited menu of values." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The bootstrap standard error is the standard deviation of the bootstrap estimates:</p>
+<p><span class="math display">\[
+SE_{boot}=\sqrt{
+\frac{1}{B-1}
+\sum_{b=1}^{B}
+(\widehat\theta_b^*-\overline\theta^*)^2
+}
+\]</span></p>
+<p>The bootstrap estimate of bias is</p>
+<p><span class="math display">\[
+\widehat{Bias}_{boot}=\overline\theta^*-\widehat\theta
+\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>BootSE <span class="ot">&lt;-</span> <span class="fu">sd</span>(BootMedian)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>BootBias <span class="ot">&lt;-</span> <span class="fu">mean</span>(BootMedian) <span class="sc">-</span> <span class="fu">median</span>(Delay)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ObservedMedian =</span> <span class="fu">median</span>(Delay),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">BootstrapBias =</span> BootBias,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">BootstrapSE =</span> BootSE</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ObservedMedian  BootstrapBias    BootstrapSE 
+     30.000000       1.661800       3.846814 </code></pre>
+</div>
+</div>
+</section>
+<section id="bootstrap-confidence-intervals-more-than-one-flavor" class="level2" data-number="36.6">
+<h2 data-number="36.6" class="anchored" data-anchor-id="bootstrap-confidence-intervals-more-than-one-flavor"><span class="header-section-number">36.6</span> Bootstrap Confidence Intervals: More Than One Flavor</h2>
+<p>There is no single thing called <em>the bootstrap confidence interval</em>. Several methods use the bootstrap distribution differently, and they do not have identical accuracy.</p>
+<section id="normal-interval" class="level3" data-number="36.6.1">
+<h3 data-number="36.6.1" class="anchored" data-anchor-id="normal-interval"><span class="header-section-number">36.6.1</span> Normal Interval</h3>
+<p>The normal interval uses the bootstrap standard error in a familiar symmetric interval:</p>
+<p><span class="math display">\[
+\widehat\theta\pm z_{1-\alpha/2}SE_{boot}
+\]</span></p>
+<p>It is simple, but symmetry may be a bad approximation when the bootstrap distribution is skewed.</p>
+</section>
+<section id="percentile-interval" class="level3" data-number="36.6.2">
+<h3 data-number="36.6.2" class="anchored" data-anchor-id="percentile-interval"><span class="header-section-number">36.6.2</span> Percentile Interval</h3>
+<p>The percentile interval uses the bootstrap quantiles directly:</p>
+<p><span class="math display">\[
+[q^*_{\alpha/2},q^*_{1-\alpha/2}]
+\]</span></p>
+<p>For a 95% interval, take the 2.5th and 97.5th percentiles. This is intuitive, but intuition and good coverage are not always roommates.</p>
+</section>
+<section id="basic-interval" class="level3" data-number="36.6.3">
+<h3 data-number="36.6.3" class="anchored" data-anchor-id="basic-interval"><span class="header-section-number">36.6.3</span> Basic Interval</h3>
+<p>The basic interval reflects the bootstrap errors around the original estimate:</p>
+<p><span class="math display">\[
+[2\widehat\theta-q^*_{.975},
+  2\widehat\theta-q^*_{.025}]
+\]</span></p>
+<p>If the bootstrap estimates tend to fall above the observed estimate, the basic interval reflects that pattern below it.</p>
+</section>
+<section id="studentized-or-bootstrap-t-interval" class="level3" data-number="36.6.4">
+<h3 data-number="36.6.4" class="anchored" data-anchor-id="studentized-or-bootstrap-t-interval"><span class="header-section-number">36.6.4</span> Studentized or Bootstrap-<span class="math inline">\(t\)</span> Interval</h3>
+<p>The studentized method bootstraps a standardized pivot:</p>
+<p><span class="math display">\[
+t_b^*=\frac{\widehat\theta_b^*-\widehat\theta}{SE_b^*}
+\]</span></p>
+<p>It then uses quantiles of the <span class="math inline">\(t_b^*\)</span> distribution to construct the interval. This can achieve better coverage, but every bootstrap sample needs its own standard-error estimate. That may require a second bootstrap inside the first bootstrap, because apparently the Probability Gods enjoy nesting dolls.</p>
+</section>
+<section id="bca-interval" class="level3" data-number="36.6.5">
+<h3 data-number="36.6.5" class="anchored" data-anchor-id="bca-interval"><span class="header-section-number">36.6.5</span> BCa Interval</h3>
+<p>The <strong>bias-corrected and accelerated</strong> interval adjusts the percentile cutoffs using two quantities:</p>
+<ul>
+<li><span class="math inline">\(z_0\)</span>, which describes median bias in the bootstrap distribution.</li>
+<li><span class="math inline">\(a\)</span>, the acceleration constant, which describes how rapidly the standard error changes with the true parameter.</li>
+</ul>
+<p>The acceleration term is commonly estimated from jackknife values. The jackknife therefore returns inside the bootstrap, wearing a fake mustache and pretending it never left. BCa intervals are second-order accurate under suitable conditions and often useful for skewed statistics, but they can be unstable when the sample is tiny or the statistic is poorly behaved <span class="citation" data-cites="efron2003">(<a href="#ref-efron2003" role="doc-biblioref">Efron 2003</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>median_statistic <span class="ot">&lt;-</span> <span class="cf">function</span>(data, indices) {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">median</span>(data[indices])</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">346</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>BootObject <span class="ot">&lt;-</span> boot<span class="sc">::</span><span class="fu">boot</span>(</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> Delay,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">statistic =</span> median_statistic,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">R =</span> <span class="dv">5000</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>boot<span class="sc">::</span><span class="fu">boot.ci</span>(</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  BootObject,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"norm"</span>, <span class="st">"basic"</span>, <span class="st">"perc"</span>, <span class="st">"bca"</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+Based on 5000 bootstrap replicates
+
+CALL : 
+boot::boot.ci(boot.out = BootObject, type = c("norm", "basic", 
+    "perc", "bca"))
+
+Intervals : 
+Level      Normal              Basic         
+95%   (20.73, 35.81 )   (20.00, 33.00 )  
+
+Level     Percentile            BCa          
+95%   (27, 40 )   (21, 30 )  
+Calculations and Intervals on Original Scale
+Warning : BCa Intervals used Extreme Quantiles
+Some BCa intervals may be unstable</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled" title="Coverage Has Two Tails">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Coverage Has Two Tails
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A nominal 95% interval should miss the true value about 2.5% of the time below and 2.5% above across repeated samples. An interval that misses 5% entirely on one side still has 95% total coverage, but it is systematically off-center. Better bootstrap intervals try to improve both overall coverage and tail balance <span class="citation" data-cites="efron2003">(<a href="#ref-efron2003" role="doc-biblioref">Efron 2003</a>)</span>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="A 95% Confidence Interval Is Not a 95% Probability Statement About This Finished Interval">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A 95% Confidence Interval Is Not a 95% Probability Statement About This Finished Interval
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The long-run-procedure interpretation applies to bootstrap intervals too, and the evidence says almost nobody holds onto it: see the Standard Error chapter for the depressing Hoekstra et al.&nbsp;numbers <span class="citation" data-cites="hoekstra2014">(<a href="#ref-hoekstra2014" role="doc-biblioref">Hoekstra et al. 2014</a>)</span>. Reread that callout if the word <em>confidence</em> has started whispering probability statements to you.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="bootstrapping-a-regression-slope" class="level2" data-number="36.7">
+<h2 data-number="36.7" class="anchored" data-anchor-id="bootstrapping-a-regression-slope"><span class="header-section-number">36.7</span> Bootstrapping a Regression Slope</h2>
+<p>For independent observations, a <strong>case bootstrap</strong> or <strong>pairs bootstrap</strong> resamples rows. Each resampled participant keeps their outcome and all predictors attached.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">347</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>RegressionData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sleep =</span> <span class="fu">runif</span>(<span class="dv">90</span>, <span class="dv">3</span>, <span class="dv">9</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>RegressionData<span class="sc">$</span>Memory <span class="ot">&lt;-</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">42</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> RegressionData<span class="sc">$</span>Sleep <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(<span class="dv">90</span>, <span class="dv">0</span>, RegressionData<span class="sc">$</span>Sleep<span class="sc">^</span><span class="dv">3</span> <span class="sc">/</span> <span class="dv">30</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>OriginalModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Memory <span class="sc">~</span> Sleep, <span class="at">data =</span> RegressionData)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>OriginalSlope <span class="ot">&lt;-</span> <span class="fu">coef</span>(OriginalModel)[<span class="st">"Sleep"</span>]</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>BootSlopes <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">5000</span>, {</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  rows <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(RegressionData)), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(Memory <span class="sc">~</span> Sleep, <span class="at">data =</span> RegressionData[rows, ]))[<span class="st">"Sleep"</span>]</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">OriginalSlope =</span> OriginalSlope,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">BootstrapSE =</span> <span class="fu">sd</span>(BootSlopes),</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quantile</span>(BootSlopes, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>OriginalSlope.Sleep         BootstrapSE                2.5%               97.5% 
+          3.9546071           0.8179124           2.2972744           5.5003347 </code></pre>
+</div>
+</div>
+<p>Look closely at that <code>rnorm()</code> call before we go on. The standard deviation of the noise is <code>Sleep^3 / 30</code>, which is about 1 point for a student who slept three hours and about 24 points for one who slept nine. <strong>I built the heteroscedasticity in on purpose</strong>, and it is aggressive on purpose too. Everything that follows is a demonstration rather than a catalog: watch what that one design choice does to each flavor of bootstrap.</p>
+<p>The row bootstrap is not the only regression bootstrap.</p>
+<section id="case-or-pairs-bootstrap" class="level3" data-number="36.7.1">
+<h3 data-number="36.7.1" class="anchored" data-anchor-id="case-or-pairs-bootstrap"><span class="header-section-number">36.7.1</span> Case or Pairs Bootstrap</h3>
+<p>Resample complete rows <span class="math inline">\((Y_i,X_i)\)</span>. This preserves the relationship among all variables within each case and allows the observed predictor values to vary across bootstrap samples. It is a defensible default when cases were independently sampled from a population.</p>
+</section>
+<section id="residual-bootstrap" class="level3" data-number="36.7.2">
+<h3 data-number="36.7.2" class="anchored" data-anchor-id="residual-bootstrap"><span class="header-section-number">36.7.2</span> Residual Bootstrap</h3>
+<p>Fit the model, hold <span class="math inline">\(X\)</span> fixed, resample centered residuals, and create</p>
+<p><span class="math display">\[
+Y_i^*=\widehat Y_i+e_i^*
+\]</span></p>
+<p>This treats the design matrix as fixed and assumes the residuals are exchangeable. Ordinary residual resampling is therefore questionable under heteroscedasticity because small-variance and large-variance residuals are thrown into one communal bucket.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">348</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>FittedValues <span class="ot">&lt;-</span> <span class="fu">fitted</span>(OriginalModel)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>CenteredResiduals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(OriginalModel) <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">residuals</span>(OriginalModel))</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>ResidualSlopes <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">3000</span>, {</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  YStar <span class="ot">&lt;-</span> FittedValues <span class="sc">+</span> <span class="fu">sample</span>(CenteredResiduals, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(YStar <span class="sc">~</span> RegressionData<span class="sc">$</span>Sleep))[<span class="dv">2</span>]</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(ResidualSlopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6773271</code></pre>
+</div>
+</div>
+</section>
+<section id="wild-bootstrap" class="level3" data-number="36.7.3">
+<h3 data-number="36.7.3" class="anchored" data-anchor-id="wild-bootstrap"><span class="header-section-number">36.7.3</span> Wild Bootstrap</h3>
+<p>A wild bootstrap keeps each residual attached to its predictor location but multiplies it by a random weight with mean zero and variance one:</p>
+<p><span class="math display">\[
+Y_i^*=\widehat Y_i+e_iw_i
+\]</span></p>
+<p>This preserves the way residual size changes across <span class="math inline">\(X\)</span> better than shuffling residuals. Wild-bootstrap ideas grew from work on resampling regression under heteroscedasticity <span class="citation" data-cites="wu1986">(<a href="#ref-wu1986" role="doc-biblioref">Wu 1986</a>)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">349</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>WildSlopes <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">3000</span>, {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  Weights <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="fu">nrow</span>(RegressionData), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  YStar <span class="ot">&lt;-</span> FittedValues <span class="sc">+</span> <span class="fu">residuals</span>(OriginalModel) <span class="sc">*</span> Weights</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coef</span>(<span class="fu">lm</span>(YStar <span class="sc">~</span> RegressionData<span class="sc">$</span>Sleep))[<span class="dv">2</span>]</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(WildSlopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8277079</code></pre>
+</div>
+</div>
+</section>
+<section id="the-three-flavors-side-by-side" class="level3" data-number="36.7.4">
+<h3 data-number="36.7.4" class="anchored" data-anchor-id="the-three-flavors-side-by-side"><span class="header-section-number">36.7.4</span> The Three Flavors, Side by Side</h3>
+<p>Three standard errors for the same slope in the same data. Put them next to the ordinary <code>lm()</code> standard error, and next to the HC3 sandwich estimator from the diagnostics chapter, which is designed for exactly this disease:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sandwich: heteroscedasticity-robust covariance. See the Advanced Regression</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnostics chapter, where HC3 is derived.</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Ordinary lm() SE</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">summary</span>(OriginalModel)<span class="sc">$</span>coefficients[<span class="st">"Sleep"</span>, <span class="st">"Std. Error"</span>],</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">HC3 sandwich SE</span><span class="st">`</span>    <span class="ot">=</span> <span class="fu">sqrt</span>(<span class="fu">vcovHC</span>(OriginalModel, <span class="at">type =</span> <span class="st">"HC3"</span>)[<span class="st">"Sleep"</span>, <span class="st">"Sleep"</span>]),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Case bootstrap</span><span class="st">`</span>     <span class="ot">=</span> <span class="fu">sd</span>(BootSlopes),</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Residual bootstrap</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">sd</span>(ResidualSlopes),</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Wild bootstrap</span><span class="st">`</span>     <span class="ot">=</span> <span class="fu">sd</span>(WildSlopes)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Ordinary lm() SE    HC3 sandwich SE     Case bootstrap Residual bootstrap 
+             0.678              0.851              0.818              0.677 
+    Wild bootstrap 
+             0.828 </code></pre>
+</div>
+</div>
+<p>The three bootstraps do not disagree by accident, and they do not disagree at random. <strong>The case and wild bootstraps land next to HC3. The residual bootstrap lands on the ordinary <code>lm()</code> standard error</strong>: 0.677 against 0.678. Three thousand resamples bought a number we already had, which is a slightly humiliating result for a method whose whole job was to improve on it.</p>
+<p>That is the communal bucket doing exactly what we said it would do. Resampling centered residuals and reattaching them to arbitrary rows destroys the link between where a case sits on <span class="math inline">\(X\)</span> and how noisy it is; every case ends up with the same average noise, which is the homoscedasticity assumption sneaking back in through a side door. The case bootstrap keeps each residual welded to its own row because it resamples whole rows. The wild bootstrap keeps it welded by flipping the residual’s sign in place instead of moving it.</p>
+<p>So the flavor is not a stylistic preference. Under heteroscedasticity, one of these three will quietly report the wrong uncertainty, and it will do it with exactly the same calm confidence as the other two.</p>
+</section>
+<section id="parametric-bootstrap" class="level3" data-number="36.7.5">
+<h3 data-number="36.7.5" class="anchored" data-anchor-id="parametric-bootstrap"><span class="header-section-number">36.7.5</span> Parametric Bootstrap</h3>
+<p>A parametric bootstrap simulates new outcomes from the fitted probability model. For a Gaussian regression, we might simulate</p>
+<p><span class="math display">\[
+Y_i^*\sim N(\widehat Y_i,\widehat\sigma^2)
+\]</span></p>
+<p>For logistic regression, we might simulate binary outcomes using each fitted probability. This method can be efficient when the model is correct. If the model is wrong, the simulation faithfully reenacts the wrong model thousands of times.</p>
+</section>
+</section>
+<section id="preserve-the-dependence-structure" class="level2" data-number="36.8">
+<h2 data-number="36.8" class="anchored" data-anchor-id="preserve-the-dependence-structure"><span class="header-section-number">36.8</span> Preserve the Dependence Structure</h2>
+<p>If observations are repeated, nested, clustered, or ordered in time, resampling individual rows usually destroys the design.</p>
+<ul>
+<li><strong>Cluster bootstrap:</strong> Resample whole participants, classrooms, families, clinics, or other independently sampled clusters.</li>
+<li><strong>Multilevel bootstrap:</strong> Resample at more than one level when the sampling process justifies it.</li>
+<li><strong>Block bootstrap:</strong> Resample adjacent blocks of a time series so short-range dependence remains intact <span class="citation" data-cites="singhxie2008">(<a href="#ref-singhxie2008" role="doc-biblioref">Singh and Xie 2008</a>)</span>.</li>
+<li><strong>Model-based bootstrap:</strong> Simulate from a fitted mixed model or time-series model while preserving its assumed structure.</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled" title="Resample the Unit That Was Sampled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Resample the Unit That Was Sampled
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If trials are nested within people, treating trials as independent resampling units manufactures a fictional sample size. If entire classrooms were sampled, resampling individual students pretends the classroom did not exist. Preserve the design. The bootstrap is flexible, not psychic.</p>
+</div>
+</div>
+</section>
+<section id="bootstrap-estimation-is-not-automatically-a-hypothesis-test" class="level2" data-number="36.9">
+<h2 data-number="36.9" class="anchored" data-anchor-id="bootstrap-estimation-is-not-automatically-a-hypothesis-test"><span class="header-section-number">36.9</span> Bootstrap Estimation Is Not Automatically a Hypothesis Test</h2>
+<p>Resampling the observed data estimates uncertainty around the observed statistic. A hypothesis test asks what results would occur under a null model. Those are different jobs.</p>
+<p>To test a null hypothesis, we may need to:</p>
+<ul>
+<li>Center outcomes so the null value is true.</li>
+<li>Permute group labels under exchangeability.</li>
+<li>Simulate from a restricted model that imposes the null.</li>
+<li>Compare full and reduced models using a parametric bootstrap.</li>
+</ul>
+<div class="callout callout-style-default callout-warning callout-titled" title="A Bootstrap Distribution Is Not Automatically a Null Distribution">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A Bootstrap Distribution Is Not Automatically a Null Distribution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dividing a bootstrap estimate by its bootstrap standard error and feeding the result to an ordinary <span class="math inline">\(t\)</span> table is not a universal bootstrap test. First decide what must be true under the null, then create resamples in which that null is actually true.</p>
+</div>
+</div>
+</section>
+<section id="how-many-replications" class="level2" data-number="36.10">
+<h2 data-number="36.10" class="anchored" data-anchor-id="how-many-replications"><span class="header-section-number">36.10</span> How Many Replications?</h2>
+<p>A few hundred replications may be enough to teach the idea or debug code. Standard errors commonly need at least a few thousand. Confidence-interval endpoints depend on tail quantiles and often need more. Run enough replications that repeating the analysis with a different seed does not change the reported conclusion or the meaningful digits.</p>
+<p>The number of bootstrap replications <span class="math inline">\(B\)</span> controls <strong>Monte Carlo error</strong> in the calculation. It does not increase the original sample size. More replications do not repair a biased sample, weak measurement, or a resampling scheme that ignores the design. Ten thousand wrong resamples are wrong with excellent numerical stability.</p>
+</section>
+<section id="what-the-bootstrap-can-and-cannot-do" class="level2" data-number="36.11">
+<h2 data-number="36.11" class="anchored" data-anchor-id="what-the-bootstrap-can-and-cannot-do"><span class="header-section-number">36.11</span> What the Bootstrap Can and Cannot Do</h2>
+<p>The bootstrap is useful when:</p>
+<ul>
+<li>A theoretical sampling distribution is hard to derive.</li>
+<li>A statistic has a skewed or otherwise awkward sampling distribution.</li>
+<li>We need standard errors or intervals for medians, indirect effects, complex effect sizes, or model predictions.</li>
+<li>We want to see how sensitive an estimate is to sampling variation.</li>
+</ul>
+<p>The bootstrap cannot manufacture information that was not in the original data. It struggles when:</p>
+<ul>
+<li>The sample is extremely small.</li>
+<li>Rare but important parts of the population are absent.</li>
+<li>The estimator sits on a boundary or behaves discontinuously.</li>
+<li>The resampling plan does not preserve clustering or time dependence.</li>
+<li>The model is badly misspecified.</li>
+</ul>
+<p>Efron called attention to both the power and the limits of the plug-in principle: the empirical distribution is a powerful stand-in for the population, but it can inherit and sometimes amplify the sample’s pathologies <span class="citation" data-cites="efron2003">(<a href="#ref-efron2003" role="doc-biblioref">Efron 2003</a>)</span>. In technical language, garbage in, garbage out. In Alex language, the computer cannot rescue a study that was thrown into the volcano before the analysis began.</p>
+</section>
+<section id="the-short-story" class="level2" data-number="36.12">
+<h2 data-number="36.12" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">36.12</span> The Short Story</h2>
+<ul>
+<li><strong>The jackknife is leave-one-out.</strong> Remove observation <span class="math inline">\(i\)</span>, recompute, repeat. It gives you bias, a standard error, and a picture of which cases are carrying the estimate. It fails on statistics that jump when a case is removed, and the median is the standing example.</li>
+<li><strong>The bootstrap is resample-with-replacement</strong>, treating the sample as a stand-in for the population. That buys you a sampling distribution for statistics that never came with a formula.</li>
+<li><strong>Resample the unit that was sampled.</strong> Rows if rows were sampled, clusters if clusters were sampled, blocks if the data are a time series. Getting this wrong manufactures a fictional sample size.</li>
+<li><strong>Pick the interval flavor to fit the estimator.</strong> Percentile is intuitive, BCa is usually better, normal assumes a symmetry you may not have.</li>
+<li><strong>Pick the regression flavor to fit the errors.</strong> Under heteroscedasticity the residual bootstrap will hand you back the ordinary standard error you were trying to escape. Case and wild will not.</li>
+<li><strong><span class="math inline">\(B\)</span> controls Monte Carlo error, not information.</strong> More replications stabilize the calculation. They do not add participants, fix a biased sample, or repair a resampling plan that ignores the design.</li>
+<li><strong>Estimation is not null-hypothesis testing.</strong> A bootstrap distribution is centered on your estimate, not on the null. To test, first make the null true, then resample.</li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-efron2003" class="csl-entry" role="listitem">
+Efron, Bradley. 2003. <span>“Second Thoughts on the Bootstrap.”</span> <em>Statistical Science</em> 18 (2): 135–40. <a href="https://doi.org/10.1214/ss/1063994968">https://doi.org/10.1214/ss/1063994968</a>.
+</div>
+<div id="ref-efron1993" class="csl-entry" role="listitem">
+Efron, Bradley, and Robert J. Tibshirani. 1993. <em>An Introduction to the Bootstrap</em>. Chapman; Hall/CRC.
+</div>
+<div id="ref-hoekstra2014" class="csl-entry" role="listitem">
+Hoekstra, Rink, Richard D. Morey, Jeffrey N. Rouder, and Eric-Jan Wagenmakers. 2014. <span>“Robust Misinterpretation of Confidence Intervals.”</span> <em>Psychonomic Bulletin &amp; Review</em> 21 (5): 1157–64. <a href="https://doi.org/10.3758/s13423-013-0572-3">https://doi.org/10.3758/s13423-013-0572-3</a>.
+</div>
+<div id="ref-singhxie2008" class="csl-entry" role="listitem">
+Singh, Kesar, and Minge Xie. 2008. <span>“Bootstrap: A Statistical Method.”</span> Unpublished manuscript.
+</div>
+<div id="ref-wu1986" class="csl-entry" role="listitem">
+Wu, Chien-Fu Jeff. 1986. <span>“Jackknife, Bootstrap and Other Resampling Methods in Regression Analysis.”</span> <em>The Annals of Statistics</em> 14 (4): 1261–95. <a href="https://doi.org/10.1214/aos/1176350142">https://doi.org/10.1214/aos/1176350142</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_35_Nonparametric_Tests.html" class="pagination-link" aria-label="Nonparametric Tests: When the Data Refuse to Behave">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_37_Reporting.html" class="pagination-link" aria-label="Reporting Models Without Making the Reader Solve a Puzzle">
+        <span class="nav-page-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_36_Bootstrapping.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

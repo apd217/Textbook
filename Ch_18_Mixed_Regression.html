@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>18&nbsp; Mixed Regression: Between People and Within People – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_19_Regression_Diagnostics.html" rel="next">
+<link href="./Ch_17_Categorical_Interaction.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_18_Mixed_Regression.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_18_Mixed_Regression.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="your-paired-t-test-was-a-mixed-model-all-along" class="level2" data-number="18.1">
+<h2 data-number="18.1" class="anchored" data-anchor-id="your-paired-t-test-was-a-mixed-model-all-along"><span class="header-section-number">18.1</span> Your Paired <em>t</em>-Test Was a Mixed Model All Along</h2>
+<p>The <a href="./Ch_09_Paired_t.html">paired-samples <em>t</em>-test chapter</a> gave 48 students one lecture with chocolate and one without, then measured how long their eyes stayed on the screen. Here is that study again, same seed and same 48 students, so this chapter runs from the top without sending you back a chapter to fetch the data.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">48</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Each student has a personal tendency to stare that follows them into BOTH</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># conditions. That shared tendency is the entire reason pairing works.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>participant_effect <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">1.20</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>paired_wide <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant  =</span> <span class="fu">factor</span>(<span class="fu">seq_len</span>(n)),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">no_chocolate =</span> <span class="fl">5.00</span> <span class="sc">+</span> participant_effect <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="fl">0.80</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">chocolate    =</span> <span class="fl">5.75</span> <span class="sc">+</span> participant_effect <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="fl">0.80</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>paired_wide<span class="sc">$</span>difference <span class="ot">&lt;-</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  paired_wide<span class="sc">$</span>chocolate <span class="sc">-</span> paired_wide<span class="sc">$</span>no_chocolate</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 48 rows become 96: one row per measurement instead of one row per person.</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>paired_long <span class="ot">&lt;-</span> tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  paired_wide,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">cols      =</span> <span class="fu">c</span>(no_chocolate, chocolate),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_to  =</span> <span class="st">"condition"</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">values_to =</span> <span class="st">"fixation"</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>paired_long<span class="sc">$</span>condition <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  paired_long<span class="sc">$</span>condition,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"no_chocolate"</span>, <span class="st">"chocolate"</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No chocolate"</span>, <span class="st">"Chocolate"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>There are two ways to analyze this. The first is the one you already know. Collapse each student down to a single difference score and ask whether those differences average to zero:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>paired_result <span class="ot">&lt;-</span> <span class="fu">t.test</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  paired_wide<span class="sc">$</span>chocolate,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  paired_wide<span class="sc">$</span>no_chocolate,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">paired =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>paired_result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Paired t-test
+
+data:  paired_wide$chocolate and paired_wide$no_chocolate
+t = 4.3366, df = 47, p-value = 7.597e-05
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+ 0.4209697 1.1495099
+sample estimates:
+mean difference 
+      0.7852398 </code></pre>
+</div>
+</div>
+<p>The second way never computes a difference at all. It hands R all 96 measurements in long format, plus one piece of information the <em>t</em>-test was only ever told indirectly, through the row order: which measurements came from the same human.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)      <span class="co"># fits the mixed model</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)  <span class="co"># adds degrees of freedom and p-values to the fixed effects</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>chocolate_model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  fixation <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> paired_long</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(chocolate_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: fixation ~ condition + (1 | participant)
+   Data: paired_long
+
+REML criterion at convergence: 297.6
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.87123 -0.50482 -0.02554  0.43379  2.44023 
+
+Random effects:
+ Groups      Name        Variance Std.Dev.
+ participant (Intercept) 0.6453   0.8033  
+ Residual                0.7869   0.8871  
+Number of obs: 96, groups:  participant, 48
+
+Fixed effects:
+                   Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)          4.7660     0.1727 78.1367  27.591  &lt; 2e-16 ***
+conditionChocolate   0.7852     0.1811 47.0000   4.337  7.6e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+condtnChclt -0.524</code></pre>
+</div>
+</div>
+<p>Find the <code>conditionChocolate</code> row in that output. Then look back at the <em>t</em>-test.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>choc_fixed <span class="ot">&lt;-</span> <span class="fu">summary</span>(chocolate_model)<span class="sc">$</span>coefficients</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">method   =</span> <span class="fu">c</span>(<span class="st">"paired t-test"</span>, <span class="st">"lmer"</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">t        =</span> <span class="fu">c</span>(<span class="fu">unname</span>(paired_result<span class="sc">$</span>statistic),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>               choc_fixed[<span class="st">"conditionChocolate"</span>, <span class="st">"t value"</span>]),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">df       =</span> <span class="fu">c</span>(<span class="fu">unname</span>(paired_result<span class="sc">$</span>parameter),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>               choc_fixed[<span class="st">"conditionChocolate"</span>, <span class="st">"df"</span>]),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">p        =</span> <span class="fu">c</span>(paired_result<span class="sc">$</span>p.value,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               choc_fixed[<span class="st">"conditionChocolate"</span>, <span class="st">"Pr(&gt;|t|)"</span>]),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fu">unname</span>(paired_result<span class="sc">$</span>estimate),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>               choc_fixed[<span class="st">"conditionChocolate"</span>, <span class="st">"Estimate"</span>])</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(comparison, <span class="at">digits =</span> <span class="dv">6</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        method       t df           p estimate
+ paired t-test 4.33661 47 7.59724e-05  0.78524
+          lmer 4.33661 47 7.59724e-05  0.78524</code></pre>
+</div>
+</div>
+<p>Those are not two answers that happen to agree. They are one answer, printed twice.</p>
+<p>The degrees of freedom are worth a second look, because the two rows got to 47 by completely different routes. The <em>t</em>-test knows it has 48 differences and subtracts one. <code>lmer</code> has no idea what a difference score is; <code>lmerTest</code> works out how much independent information the 96 rows actually contain, using an approximation called <strong>Satterthwaite’s method</strong>, and arrives at 47 anyway.</p>
+<section id="what-1-participant-actually-did" class="level3" data-number="18.1.1">
+<h3 data-number="18.1.1" class="anchored" data-anchor-id="what-1-participant-actually-did"><span class="header-section-number">18.1.1</span> What <code>(1 | participant)</code> Actually Did</h3>
+<p>That term is the whole difference between the two calls. It tells R that rows sharing a participant number came from the same person, and that people arrive at a study with their own resting level of staring. Some students watch the screen. Some students watch the door.</p>
+<p>It handles this without estimating 48 separate student coefficients. It estimates the <em>spread</em> of the students, a single number, and treats each person’s own level as a draw from it:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">VarCorr</span>(chocolate_model), <span class="at">comp =</span> <span class="fu">c</span>(<span class="st">"Variance"</span>, <span class="st">"Std.Dev."</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Groups      Name        Variance Std.Dev.
+ participant (Intercept) 0.64532  0.80332 
+ Residual                0.78689  0.88707 </code></pre>
+</div>
+</div>
+<p>The <code>participant</code> line is how much students differ from each other. The <code>Residual</code> line is how much one student bounces around their own level from one measurement to the next. Those are the two piles the 96 numbers get sorted into, and we can ask what fraction of the variance sits in the first pile:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>choc_var <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(chocolate_model))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>icc <span class="ot">&lt;-</span> choc_var<span class="sc">$</span>vcov[<span class="dv">1</span>] <span class="sc">/</span> <span class="fu">sum</span>(choc_var<span class="sc">$</span>vcov)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>icc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4505776</code></pre>
+</div>
+</div>
+<p>So roughly 45 percent of the variation in fixation time is students being different students, before chocolate enters the discussion. The paired <em>t</em>-test dealt with that variation by subtracting it away and never mentioning it again. The mixed model estimates it and prints it.</p>
+<p>That proportion is also the model’s answer to a question the paired <em>t</em>-test chapter asked directly: how much do a person’s two measurements agree? That chapter measured the agreement head-on, as a plain correlation of 0.46, and called it the <span class="math inline">\(r\)</span> in the <span class="math inline">\(-2rS_1S_2\)</span> term that everything depended on. The two numbers are close without being identical, because they are two different estimates of the same thing: one computed directly from the pairs, one implied by the variances the model fit. The point is that the quantity has stopped being a term in a formula and become a parameter with a variance attached.</p>
+<p>“Each person is their own control” is a sentence from a methods lecture. <code>(1 | participant)</code> is that sentence written as an equation.</p>
+</section>
+<section id="the-fixed-effect-is-the-chocolate-effect" class="level3" data-number="18.1.2">
+<h3 data-number="18.1.2" class="anchored" data-anchor-id="the-fixed-effect-is-the-chocolate-effect"><span class="header-section-number">18.1.2</span> The Fixed Effect Is the Chocolate Effect</h3>
+<p>The <strong>fixed effects</strong> are the part of the model that answers the research question, and there are only two:</p>
+<ul>
+<li><code>(Intercept)</code>, 4.77 seconds, is average fixation time with no chocolate.</li>
+<li><code>conditionChocolate</code>, 0.79 seconds, is what chocolate adds on top of that.</li>
+</ul>
+<p>The second one is not merely close to the <em>t</em>-test’s mean difference. It is the mean difference, 0.79 seconds, reached from the opposite direction: the <em>t</em>-test computed 48 differences and averaged them, while the model never computed a single difference and got there anyway.</p>
+<p>Fixed effects answer the research question. Random effects are how the model earns the right to answer it using 96 rows that came from 48 people.</p>
+</section>
+<section id="so-what-was-the-point-of-all-that" class="level3" data-number="18.1.3">
+<h3 data-number="18.1.3" class="anchored" data-anchor-id="so-what-was-the-point-of-all-that"><span class="header-section-number">18.1.3</span> So What Was the Point of All That?</h3>
+<p>Nothing yet, honestly. With two measurements and no other predictors, the paired <em>t</em>-test is shorter to type and gives the same answer, so keep using it. The mixed model has not earned anything.</p>
+<p>It earns its keep the moment the design acquires something a difference score cannot hold:</p>
+<ul>
+<li><strong>A between-person predictor.</strong> Treatment group, age, baseline severity. Subtracting within a person throws the person away, and group is a property of the person.</li>
+<li><strong>A missing row.</strong> A student who skipped a session has no difference score at all, so the <em>t</em>-test deletes the entire student.</li>
+<li><strong>Three or more occasions.</strong> There stops being such a thing as <em>the</em> difference.</li>
+<li><strong>People who change at different <em>rates</em>,</strong> not merely by different amounts. A difference score has nowhere to put a slope.</li>
+</ul>
+<p>The rest of this chapter does the first two. The last two need a bigger model than this chapter builds, and they get their own chapter later in the book.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Where This Chapter Goes, and Where It Stops">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Where This Chapter Goes, and Where It Stops
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Two stops, and you just finished the first. Next is the <strong>mixed 2-by-2</strong>: one within-subjects factor, one between-subjects factor, four cells, one interaction. That is the design most repeated-measures studies in psychology actually run, and it is where this chapter stops.</p>
+<p>A mixed design combines a <strong>between-subjects</strong> variable with a <strong>within-subjects</strong> variable, which summons fixed effects, an interaction, repeated observations, and random effects all at once. It is not impossible. It is merely statistics arriving with all its relatives and expecting you to provide chairs.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-mixed-2-by-2-baseline-versus-week-6-by-group" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="the-mixed-2-by-2-baseline-versus-week-6-by-group"><span class="header-section-number">18.2</span> The Mixed 2-by-2: Baseline versus Week 6, by Group</h2>
+<p>Suppose researchers compare cognitive behavioral therapy (<strong>CBT</strong>) with a control condition for reducing depression symptoms. Participants are randomly assigned to CBT or control and complete a depression inventory twice: at baseline and again after six weeks.</p>
+<ul>
+<li><strong>Occasion</strong> is within subjects: every person appears at baseline and at Week 6.</li>
+<li><strong>Group</strong> is between subjects: each person is in CBT <em>or</em> control, never both.</li>
+<li><strong>Depression score</strong> is the quantitative outcome.</li>
+</ul>
+<p>You have seen this shape before. The <a href="./Ch_17_Categorical_Interaction.html">categorical-by-categorical interaction chapter</a> had two categorical predictors and four cells. So does this:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Control</strong></th>
+<th><strong>CBT</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Baseline</strong></td>
+<td><span class="math inline">\(\mu_{11}\)</span>: Control at baseline</td>
+<td><span class="math inline">\(\mu_{12}\)</span>: CBT at baseline</td>
+</tr>
+<tr class="even">
+<td><strong>Week 6</strong></td>
+<td><span class="math inline">\(\mu_{21}\)</span>: Control at Week 6</td>
+<td><span class="math inline">\(\mu_{22}\)</span>: CBT at Week 6</td>
+</tr>
+</tbody>
+</table>
+<p>The research question is not whether the groups differ, and not whether scores change. It is whether they change <strong>differently</strong>:</p>
+<p><span class="math display">\[B_3 = (\mu_{22}-\mu_{12})-(\mu_{21}-\mu_{11})\]</span></p>
+<p>Find the change in CBT. Find the change in Control. Compare the two changes. That is the same <strong>difference of differences</strong> the earlier chapter spent itself on, and it has not changed jobs here.</p>
+<section id="what-stays-the-same-and-the-one-thing-that-changes" class="level3" data-number="18.2.1">
+<h3 data-number="18.2.1" class="anchored" data-anchor-id="what-stays-the-same-and-the-one-thing-that-changes"><span class="header-section-number">18.2.1</span> What Stays the Same, and the One Thing That Changes</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>The earlier categorical 2-by-2</th>
+<th>This mixed 2-by-2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Categorical predictors</td>
+<td>Two</td>
+<td>Two</td>
+</tr>
+<tr class="even">
+<td>Cells</td>
+<td>Four</td>
+<td>Four</td>
+</tr>
+<tr class="odd">
+<td>The interaction</td>
+<td>Difference of differences</td>
+<td>Difference of differences</td>
+</tr>
+<tr class="even">
+<td>Who fills the cells</td>
+<td>Different people in every cell</td>
+<td>The same person fills two of them</td>
+</tr>
+<tr class="odd">
+<td>The model</td>
+<td><code>lm(Y ~ A * B)</code></td>
+<td>the same, plus a participant random intercept</td>
+</tr>
+</tbody>
+</table>
+<p>The fixed part of the formula does not change at all. We add the random intercept because the two rows from one person are related, and pretending they came from strangers would count one human twice and let the model become confident in ways it has not earned.</p>
+</section>
+<section id="the-data" class="level3" data-number="18.2.2">
+<h3 data-number="18.2.2" class="anchored" data-anchor-id="the-data"><span class="header-section-number">18.2.2</span> The Data</h3>
+<p>This is simulated data. Real treatment studies require clinical expertise, ethical oversight, careful monitoring, informed consent, and substantially more planning than “Alex found <code>rnorm()</code>.”</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3436</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>n_per_group <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>people <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="fu">factor</span>(<span class="fu">seq_len</span>(<span class="dv">2</span> <span class="sc">*</span> n_per_group)),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">factor</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"CBT"</span>), <span class="at">each =</span> n_per_group),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"CBT"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># each person's own baseline level, and their own rate of change</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">person_intercept =</span> <span class="fu">rnorm</span>(<span class="dv">2</span> <span class="sc">*</span> n_per_group, <span class="dv">0</span>, <span class="fl">5.0</span>),</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">person_slope     =</span> <span class="fu">rnorm</span>(<span class="dv">2</span> <span class="sc">*</span> n_per_group, <span class="dv">0</span>, <span class="fl">0.45</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># every person gets a baseline row and a Week 6 row</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>mixed_data <span class="ot">&lt;-</span> <span class="fu">merge</span>(people, <span class="fu">data.frame</span>(<span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>)), <span class="at">by =</span> <span class="cn">NULL</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>mixed_data <span class="ot">&lt;-</span> mixed_data[<span class="fu">order</span>(mixed_data<span class="sc">$</span>participant,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>                               mixed_data<span class="sc">$</span>week), ]</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>mixed_data<span class="sc">$</span>depression <span class="ot">&lt;-</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="dv">35</span> <span class="sc">+</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  mixed_data<span class="sc">$</span>person_intercept <span class="sc">+</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  (<span class="sc">-</span><span class="fl">0.20</span> <span class="sc">*</span> mixed_data<span class="sc">$</span>week) <span class="sc">+</span>                     <span class="co"># control drifts down slowly</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ifelse</span>(mixed_data<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"CBT"</span>,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>         <span class="sc">-</span><span class="fl">1.20</span> <span class="sc">*</span> mixed_data<span class="sc">$</span>week, <span class="dv">0</span>) <span class="sc">+</span>            <span class="co"># CBT drops faster: the effect</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  mixed_data<span class="sc">$</span>person_slope <span class="sc">*</span> mixed_data<span class="sc">$</span>week <span class="sc">+</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(<span class="fu">nrow</span>(mixed_data), <span class="dv">0</span>, <span class="fl">2.0</span>)</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co"># the same variable twice: week as a number, occasion as a readable label</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>mixed_data<span class="sc">$</span>occasion <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  mixed_data<span class="sc">$</span>week,</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>),</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Baseline"</span>, <span class="st">"Week 6"</span>)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The data are <strong>long</strong>: one row per person per occasion, 200 rows from 100 people. The participant identifier repeats because the person repeats. If your participant column disappears, stop. Do not proceed directly to the ritual sacrifice.</p>
+<p>Notice that the simulation gave every person their own <code>person_slope</code>, so the invented humans genuinely do improve at different rates, not merely by different amounts. Measured twice, nobody can tell the difference. The last section of this chapter is about designs where you would want to.</p>
+</section>
+<section id="look-at-the-four-cells-first" class="level3" data-number="18.2.3">
+<h3 data-number="18.2.3" class="anchored" data-anchor-id="look-at-the-four-cells-first"><span class="header-section-number">18.2.3</span> Look at the Four Cells First</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  depression <span class="sc">~</span> occasion <span class="sc">+</span> group,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mixed_data,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">FUN =</span> <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="at">M =</span> <span class="fu">mean</span>(x), <span class="at">SD =</span> <span class="fu">sd</span>(x))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  occasion   group depression.M depression.SD
+1 Baseline Control    35.793859      5.832925
+2   Week 6 Control    33.862191      6.672687
+3 Baseline     CBT    34.224262      5.804333
+4   Week 6     CBT    26.540161      6.450846</code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>group_means <span class="ot">&lt;-</span> <span class="fu">aggregate</span>(</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  depression <span class="sc">~</span> occasion <span class="sc">+</span> group,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mixed_data,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">FUN =</span> mean</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  mixed_data,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> occasion, <span class="at">y =</span> depression, <span class="at">group =</span> participant, <span class="at">color =</span> group)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> group_means,</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">group =</span> group), <span class="at">linewidth =</span> <span class="fl">1.4</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> group_means,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">group =</span> group), <span class="at">size =</span> <span class="fl">2.8</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Depression score"</span>,</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Group"</span>,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Group averages sitting on top of actual humans"</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_18_Mixed_Regression_files/figure-html/mixed-design-plot-1.png" class="img-fluid figure-img" alt="A line plot with Occasion on the x axis, Baseline and Week 6, and depression score on the y axis running from about 10 to about 53. One hundred faint lines each connect one participant's two scores, colored salmon for Control and teal for CBT, and they slope in both directions. Two heavy lines with round markers connect the group means. Both groups start near 35. The Control mean falls slightly to about 34, while the CBT mean falls steeply to about 27, so the two heavy lines are clearly not parallel." width="528"></p>
+<figcaption>The four cells before any model. Each faint line is one participant’s baseline and Week 6 score. The heavy lines connect the group means. Non-parallel lines are the visual signature of an interaction, and here that means unequal change.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The two groups start at nearly the same place, which is what randomization is supposed to buy. By Week 6 the CBT mean has dropped much further. But people do not all begin at the same score or change by the same amount. Some improve a lot, some barely, and some appear to have received therapy from a motivational poster in a dentist’s office.</p>
+<p>Never decide whether an effect is statistically significant by staring at whether confidence intervals overlap. CI overlap is not the direct test of a difference, and interaction tests are about <strong>differences between differences</strong>. Fit the model that asks the question.</p>
+</section>
+</section>
+<section id="why-ordinary-regression-is-not-enough" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="why-ordinary-regression-is-not-enough"><span class="header-section-number">18.3</span> Why Ordinary Regression Is Not Enough</h2>
+<p>We could hand those four cells to <code>lm()</code> and it would answer without complaint:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>ordinary_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> occasion <span class="sc">*</span> group, <span class="at">data =</span> mixed_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>That model treats all 200 rows as independent. They are not. Two rows belong to each participant, and two scores from the same person know each other, which is the identity theft the paired <em>t</em>-test chapter warned about.</p>
+<p>This structure is called <strong>nesting</strong>:</p>
+<p><span class="math display">\[
+\text{occasions nested within participants}
+\]</span></p>
+<p>The levels are:</p>
+<ul>
+<li>Level 1: repeated occasions (<span class="math inline">\(j\)</span>);</li>
+<li>Level 2: participants (<span class="math inline">\(i\)</span>).</li>
+</ul>
+<p>Group belongs to Level 2 because it does not change within a person. Occasion belongs to Level 1 because it does.</p>
+<p>We will come back to <code>ordinary_model</code> once the mixed model is fit, because the comparison is more interesting than the warning.</p>
+</section>
+<section id="the-fixed-effects" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="the-fixed-effects"><span class="header-section-number">18.4</span> The Fixed Effects</h2>
+<p>The fixed part is ordinary regression on the four cells:</p>
+<p><span class="math display">\[
+Y_{ij}=b_0+b_1(\text{Week 6}_{ij})+b_2(\text{CBT}_i)
++b_3(\text{Week 6}_{ij}\times\text{CBT}_i)+\text{random part}+e_{ij}
+\]</span></p>
+<p>Because Baseline and Control are the reference levels, each coefficient is one step around the 2-by-2:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>What it estimates</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(b_0\)</span></td>
+<td>Mean depression for Control at baseline</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b_1\)</span></td>
+<td>Week 6 minus baseline, within Control</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(b_2\)</span></td>
+<td>CBT minus Control, at baseline</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b_3\)</span></td>
+<td>How much <em>more</em> CBT changed than Control</td>
+</tr>
+</tbody>
+</table>
+<p>The CBT change is <span class="math inline">\(b_1+b_3\)</span>. The interaction <span class="math inline">\(b_3\)</span> is the treatment question, and if it is negative then CBT scores fell further than Control scores.</p>
+<p>Notice why coding matters. A “main effect of Group” is not a universal average group difference here. It is the group difference <em>at baseline</em>, before anybody has been treated, which in a randomized trial we hope is nothing at all. Choosing baseline as the reference is what makes that coefficient answer a question worth asking instead of describing the difference during Week Zero Hundred and Twelve, a period known only to the Probability Gods.</p>
+</section>
+<section id="the-random-intercept" class="level2" data-number="18.5">
+<h2 data-number="18.5" class="anchored" data-anchor-id="the-random-intercept"><span class="header-section-number">18.5</span> The Random Intercept</h2>
+<p>The repeated observations require us to say how people differ. Each participant gets their own starting level:</p>
+<p><span class="math display">\[
+Y_{ij}=b_0+b_1\text{Week 6}_{ij}+b_2\text{CBT}_i
++b_3(\text{Week 6}_{ij}\times\text{CBT}_i)+u_{0i}+e_{ij}
+\]</span></p>
+<p>That <span class="math inline">\(u_{0i}\)</span> is the same <code>(1 | participant)</code> that reproduced the paired <em>t</em>-test at the top of the chapter, doing the same job on a larger design: give participants different intercepts, by estimating the variance of those intercepts rather than 100 unrelated participant coefficients.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mixed_model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  depression <span class="sc">~</span> occasion <span class="sc">*</span> group <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mixed_data,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">REML=</span><span class="cn">TRUE</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mixed_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: depression ~ occasion * group + (1 | participant)
+   Data: mixed_data
+
+REML criterion at convergence: 1164
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.74720 -0.54546 -0.03384  0.48026  1.76200 
+
+Random effects:
+ Groups      Name        Variance Std.Dev.
+ participant (Intercept) 32.536   5.704   
+ Residual                 5.927   2.434   
+Number of obs: 200, groups:  participant, 100
+
+Fixed effects:
+                        Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)              35.7939     0.8771 114.2475  40.811  &lt; 2e-16 ***
+occasionWeek 6           -1.9317     0.4869  98.0000  -3.967 0.000138 ***
+groupCBT                 -1.5696     1.2404 114.2475  -1.265 0.208293    
+occasionWeek 6:groupCBT  -5.7524     0.6886  98.0000  -8.354 4.43e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) occsW6 grpCBT
+occasionWk6 -0.278              
+groupCBT    -0.707  0.196       
+occsnW6:CBT  0.196 -0.707 -0.278</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="REML: The Deliberately Oversimplified Version">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>REML: The Deliberately Oversimplified Version
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>By default, <code>lmer()</code> uses <strong>REML</strong> (<em>restricted maximum likelihood</em>) to estimate the model. I am going to hand-wave aggressively here because understanding exactly how REML works requires considerably more statistical machinery than we need.</p>
+<p>You already know <strong>OLS</strong>, which chooses regression coefficients to make the residual errors as small as possible. Mixed-effects models have an additional problem: they also have to estimate <strong>variances</strong>, such as how much participant intercepts vary from person to person.</p>
+<p>REML is a method designed to get better estimates of those variance components. Very loosely, it tries to estimate the variance <strong>after accounting for the fact that we already used the data to estimate the fixed effects</strong>. That correction matters especially when samples are not enormous.</p>
+<p>For now, the practical rule is simple:</p>
+<p><strong>When we care about estimating the random-effects structure, we generally use REML. When we later compare models that differ in their fixed effects, we will switch REML off.</strong></p>
+<p>That is intentionally an oversimplification. Future Us will deal with the details when Future Us actually needs them.</p>
+</div>
+</div>
+</section>
+<section id="read-the-model-without-panic" class="level2" data-number="18.6">
+<h2 data-number="18.6" class="anchored" data-anchor-id="read-the-model-without-panic"><span class="header-section-number">18.6</span> Read the Model Without Panic</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fixed_effects <span class="ot">&lt;-</span> <span class="fu">summary</span>(mixed_model)<span class="sc">$</span>coefficients</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(fixed_effects, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                        Estimate Std. Error      df t value Pr(&gt;|t|)
+(Intercept)               35.794      0.877 114.248  40.811    0.000
+occasionWeek 6            -1.932      0.487  98.000  -3.967    0.000
+groupCBT                  -1.570      1.240 114.248  -1.265    0.208
+occasionWeek 6:groupCBT   -5.752      0.689  98.000  -8.354    0.000</code></pre>
+</div>
+</div>
+<p>Read the rows in order, and check each one against the table of four coefficients above:</p>
+<ol type="1">
+<li><code>(Intercept)</code>, 35.79, is the Control group’s baseline mean.</li>
+<li><code>occasionWeek 6</code>, -1.93, is how much Control changed over six weeks.</li>
+<li><code>groupCBT</code>, -1.57, is the baseline difference between groups, and it is not significant, <span class="math inline">\(p =\)</span> 0.208. Randomization did its job.</li>
+<li><code>occasionWeek 6:groupCBT</code>, -5.75, is the interaction.</li>
+</ol>
+<p>So CBT scores fell about 5.75 points further than Control scores over the same six weeks. That is the treatment effect. It does not mean CBT lowered every participant’s score by that amount. Fixed effects describe an average pattern while the random effects document the inconvenient existence of individuals.</p>
+<p>Notice that Control changed too, and significantly, <span class="math inline">\(p\)</span> &lt; .001. People in the control condition got better over six weeks. If we had run a one-group study, measured twice, and found that, we would have congratulated ourselves and possibly written a press release. This is the entire reason the control group exists, and the reason the interaction, not the change, is the research question.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="The p-Values Are Approximations, and This Is Not Your Engine's Fault">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The p-Values Are Approximations, and This Is Not Your Engine’s Fault
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every column in that table except the estimate itself rests on an approximation. There is no exact sampling distribution waiting for a model like this one, so the numbers in the <code>df</code> column were not counted, they were <strong>estimated</strong>, using Satterthwaite’s method, like you saw with Welch’s <em>t</em>-test. They often come out fractional.</p>
+<p>This is a property of mixed models, not of <code>lmer</code>. Change engines and the approximation changes costume rather than disappearing: <code>glmmTMB</code>, which you will meet in graduate school, fits the same model and reports Wald <em>z</em> statistics with no degrees of freedom at all. Same model, different plumbing, and the same honest uncertainty underneath.</p>
+</div>
+</div>
+</section>
+<section id="how-much-did-the-random-intercept-actually-buy-you" class="level2" data-number="18.7">
+<h2 data-number="18.7" class="anchored" data-anchor-id="how-much-did-the-random-intercept-actually-buy-you"><span class="header-section-number">18.7</span> How Much Did the Random Intercept Actually Buy You?</h2>
+<p>The paired <em>t</em>-test chapter ran its analysis wrong on purpose to show what pairing was worth. Do the same thing here. <code>ordinary_model</code> is still sitting there, fit by <code>lm()</code>, believing it met 200 unrelated people.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lm_fixed <span class="ot">&lt;-</span> <span class="fu">summary</span>(ordinary_model)<span class="sc">$</span>coefficients</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">term        =</span> <span class="fu">rownames</span>(fixed_effects),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate_lm =</span> <span class="fu">round</span>(lm_fixed[, <span class="st">"Estimate"</span>], <span class="dv">3</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate_mixed =</span> <span class="fu">round</span>(fixed_effects[, <span class="st">"Estimate"</span>], <span class="dv">3</span>),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_lm       =</span> <span class="fu">round</span>(lm_fixed[, <span class="st">"Std. Error"</span>], <span class="dv">3</span>),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE_mixed    =</span> <span class="fu">round</span>(fixed_effects[, <span class="st">"Std. Error"</span>], <span class="dv">3</span>),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names   =</span> <span class="cn">NULL</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     term estimate_lm estimate_mixed SE_lm SE_mixed
+1             (Intercept)      35.794         35.794 0.877    0.877
+2          occasionWeek 6      -1.932         -1.932 1.240    0.487
+3                groupCBT      -1.570         -1.570 1.240    1.240
+4 occasionWeek 6:groupCBT      -5.752         -5.752 1.754    0.689</code></pre>
+</div>
+</div>
+<p>The estimates are <strong>identical</strong>, to every decimal place shown. Ignoring the pairing did not bias a single coefficient. That is worth saying plainly, because it is the part people get wrong: this is not a story about wrong answers.</p>
+<p>The standard errors are a different matter. The interaction’s standard error is 1.75 when we pretend the rows are strangers and 0.69 when we admit they are not, roughly 2.5 times larger. And look at what that does to the Control change, <code>occasionWeek 6</code>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_lm    =</span> <span class="fu">round</span>(lm_fixed[<span class="st">"occasionWeek 6"</span>, <span class="st">"Pr(&gt;|t|)"</span>], <span class="dv">3</span>),</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_mixed =</span> <span class="fu">round</span>(fixed_effects[<span class="st">"occasionWeek 6"</span>, <span class="st">"Pr(&gt;|t|)"</span>], <span class="dv">5</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   p_lm p_mixed 
+0.12100 0.00014 </code></pre>
+</div>
+</div>
+<p>Same estimate. One analysis finds nothing, the other finds a clear effect. The difference is entirely whether the model was told that the two rows belong to one human.</p>
+<p>Now look at the row the random intercept did <em>not</em> help: <code>groupCBT</code>, where the standard error is the same in both models, out to nine decimal places. That is not a coincidence and it is worth understanding, because it tells you what the random intercept is actually for. <code>groupCBT</code> compares two different sets of people at one occasion. There is no repeated measurement inside that comparison, so there is nothing to subtract out, and it has to pay full price for person-to-person variation either way. The random intercept helps <em>within</em>-person comparisons. It has nothing to offer a between-person one.</p>
+<p>Where did the extra error come from, then? From the people. 85 percent of the variance here is participants differing from one another, and <code>lm()</code> has no mechanism for setting that aside, so it lands in the error term and makes every within-person comparison look less trustworthy than it is. The random intercept is how you get it back.</p>
+</section>
+<section id="the-interaction-is-also-a-t-test-on-change-scores" class="level2" data-number="18.8">
+<h2 data-number="18.8" class="anchored" data-anchor-id="the-interaction-is-also-a-t-test-on-change-scores"><span class="header-section-number">18.8</span> The Interaction Is Also a <em>t</em>-Test on Change Scores</h2>
+<p>With exactly two occasions we can go back to difference scores after all. Subtract baseline from Week 6 for every person, then compare those change scores between the two groups with an ordinary independent-samples <em>t</em>-test, which is a test from Part 1 of this book.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>change_data <span class="ot">&lt;-</span> tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  mixed_data[, <span class="fu">c</span>(<span class="st">"participant"</span>, <span class="st">"group"</span>, <span class="st">"week"</span>, <span class="st">"depression"</span>)],</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_from   =</span> week,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">values_from  =</span> depression,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_prefix =</span> <span class="st">"week"</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>change_data<span class="sc">$</span>change <span class="ot">&lt;-</span> change_data<span class="sc">$</span>week6 <span class="sc">-</span> change_data<span class="sc">$</span>week0</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ref = "CBT" so the contrast runs CBT minus Control, matching the model</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>change_result <span class="ot">&lt;-</span> <span class="fu">t.test</span>(</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  change <span class="sc">~</span> <span class="fu">relevel</span>(group, <span class="at">ref =</span> <span class="st">"CBT"</span>),</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> change_data,</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">var.equal =</span> <span class="cn">TRUE</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>change_result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Two Sample t-test
+
+data:  change by relevel(group, ref = "CBT")
+t = -8.3542, df = 98, p-value = 4.425e-13
+alternative hypothesis: true difference in means between group CBT and group Control is not equal to 0
+95 percent confidence interval:
+ -7.118870 -4.385998
+sample estimates:
+    mean in group CBT mean in group Control 
+            -7.684102             -1.931668 </code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>b3 <span class="ot">&lt;-</span> fixed_effects[<span class="st">"occasionWeek 6:groupCBT"</span>, ]</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>change_comparison <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"t-test on change scores"</span>, <span class="st">"mixed-model interaction"</span>),</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">t      =</span> <span class="fu">c</span>(<span class="fu">unname</span>(change_result<span class="sc">$</span>statistic), b3[<span class="st">"t value"</span>]),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">df     =</span> <span class="fu">c</span>(<span class="fu">unname</span>(change_result<span class="sc">$</span>parameter), b3[<span class="st">"df"</span>]),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">p      =</span> <span class="fu">c</span>(change_result<span class="sc">$</span>p.value,           b3[<span class="st">"Pr(&gt;|t|)"</span>]),</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(change_data<span class="sc">$</span>change[change_data<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"CBT"</span>]) <span class="sc">-</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mean</span>(change_data<span class="sc">$</span>change[change_data<span class="sc">$</span>group <span class="sc">==</span> <span class="st">"Control"</span>]),</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    b3[<span class="st">"Estimate"</span>]</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(change_comparison, <span class="at">digits =</span> <span class="dv">6</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  method        t df           p estimate
+ t-test on change scores -8.35423 98 4.42529e-13 -5.75243
+ mixed-model interaction -8.35423 98 4.42529e-13 -5.75243</code></pre>
+</div>
+</div>
+<p>One answer, printed twice, for the second time in this chapter.</p>
+<p>So this chapter has now caught the mixed model impersonating two different <em>t</em>-tests. A paired <em>t</em>-test is a mixed model with a random intercept. A mixed 2-by-2 interaction is an independent-samples <em>t</em>-test on change scores. Neither is a coincidence, and neither is a reason to abandon the <em>t</em>-tests: in a complete, balanced 2-by-2 like this one they are easier to run and they are right.</p>
+<p>The mixed model is what keeps working when the design stops being complete and balanced, which is the next thing that happens to it.</p>
+</section>
+<section id="test-the-interaction-directly" class="level2" data-number="18.9">
+<h2 data-number="18.9" class="anchored" data-anchor-id="test-the-interaction-directly"><span class="header-section-number">18.9</span> Test the Interaction Directly</h2>
+<p>Coefficient tests are not the only way to ask about the interaction. We can also compare two models: one that lets the groups change differently, and one that does not.</p>
+<p>When comparing <strong>fixed effects</strong>, refit both with maximum likelihood. This is the switch the REML callout promised, and this is where we throw it, in both models.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>reduced_ml <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  depression <span class="sc">~</span> occasion <span class="sc">+</span> group <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mixed_data,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">REML =</span> <span class="cn">FALSE</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>full_ml <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  depression <span class="sc">~</span> occasion <span class="sc">*</span> group <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mixed_data,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">REML =</span> <span class="cn">FALSE</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(reduced_ml, full_ml)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: mixed_data
+Models:
+reduced_ml: depression ~ occasion + group + (1 | participant)
+full_ml: depression ~ occasion * group + (1 | participant)
+           npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(&gt;Chisq)    
+reduced_ml    5 1231.5 1248.0 -610.76    1221.5                         
+full_ml       6 1179.8 1199.5 -583.87    1167.8 53.776  1  2.247e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>This likelihood-ratio test asks whether allowing the groups to change by different amounts improves model fit. It is not the only defensible test; coefficient tests and other approximations are also used. The important point is to match the test to the question and identify the method, not to collect <em>p</em>-values like cursed trading cards.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="`anova()` Would Have Caught Us, but Only `anova()`">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><code>anova()</code> Would Have Caught Us, but Only <code>anova()</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Hand two REML fits to <code>anova()</code> and it refits them with maximum likelihood itself, printing <code>refitting model(s) with ML (instead of REML)</code> on its way past. It makes the decision visible in your code instead of leaving it to a message you might scroll past. <code>anova()</code> is being the adult in the room.</p>
+</div>
+</div>
+<p>After model comparison, report estimates from the final model fit with REML when appropriate.</p>
+</section>
+<section id="follow-up-the-interaction" class="level2" data-number="18.10">
+<h2 data-number="18.10" class="anchored" data-anchor-id="follow-up-the-interaction"><span class="header-section-number">18.10</span> Follow Up the Interaction</h2>
+<p>The interaction says the two changes differ. It does not say what either change was. For that, estimate Week 6 minus baseline separately within each group:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>cell_means <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(mixed_model, <span class="sc">~</span> occasion <span class="sc">|</span> group,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">lmer.df =</span> <span class="st">"satterthwaite"</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">contrast</span>(</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  cell_means,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">list</span>(<span class="st">"Week 6 - Baseline"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)),</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">adjust =</span> <span class="st">"none"</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>group = Control:
+ contrast          estimate    SE df t.ratio p.value
+ Week 6 - Baseline    -1.93 0.487 98  -3.967  0.0001
+
+group = CBT:
+ contrast          estimate    SE df t.ratio p.value
+ Week 6 - Baseline    -7.68 0.487 98 -15.782 &lt;0.0001
+
+Degrees-of-freedom method: satterthwaite </code></pre>
+</div>
+</div>
+<p>These are <strong>simple effects</strong>: how each group changed on its own. Control improved a little, CBT improved a lot, and the interaction is the statement that those two amounts are not the same. Simple effects describe the pattern. They do not replace the interaction test, and reporting only the simple effects is how people accidentally claim an interaction they never tested.</p>
+<p>We can also ask for the four cell means the model implies:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>cell_means</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>group = Control:
+ occasion emmean    SE  df lower.CL upper.CL
+ Baseline   35.8 0.877 114     34.1     37.5
+ Week 6     33.9 0.877 114     32.1     35.6
+
+group = CBT:
+ occasion emmean    SE  df lower.CL upper.CL
+ Baseline   34.2 0.877 114     32.5     36.0
+ Week 6     26.5 0.877 114     24.8     28.3
+
+Degrees-of-freedom method: satterthwaite 
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>Do not automatically test every possible pair because the software makes it easy. That is how a sensible research question becomes 28 tests and a dead <a href="./Ch_20_Multiple_Comparisons.html">salmon</a> <span class="citation" data-cites="bennett2010">(<a href="#ref-bennett2010" role="doc-biblioref">Bennett et al. 2010</a>)</span>. Choose comparisons that answer the theory, and adjust for multiplicity when you conduct a family of tests.</p>
+</section>
+<section id="reporting-the-result" class="level2" data-number="18.11">
+<h2 data-number="18.11" class="anchored" data-anchor-id="reporting-the-result"><span class="header-section-number">18.11</span> Reporting the Result</h2>
+<p>A compact results paragraph could read:</p>
+<blockquote class="blockquote">
+<p>Depression scores were analyzed with a linear mixed-effects model containing fixed effects of Occasion, Group, and their interaction, plus a participant random intercept. The model was fit by restricted maximum likelihood using <code>lmer()</code> from the lme4 package, and <em>p</em>-values were obtained from lmerTest using Satterthwaite’s approximation to the denominator degrees of freedom. The groups did not differ at baseline, <span class="math inline">\(b =\)</span> -1.57, <span class="math inline">\(p =\)</span> 0.208. The Occasion by Group interaction was negative, <span class="math inline">\(b =\)</span> -5.75, <span class="math inline">\(SE =\)</span> 0.69, <span class="math inline">\(t(98) =\)</span> -8.35, <span class="math inline">\(p\)</span> &lt; .001, indicating that depression declined more from baseline to Week 6 in the CBT condition than in the control condition.</p>
+</blockquote>
+<p>A real report should also provide confidence intervals, the cell means, the exact random-effects structure, software, missing-data handling, and theoretically planned follow-ups. The paragraph above is the skeleton. Please give it organs before submitting it to Reviewer 2.</p>
+</section>
+<section id="advanced-topics" class="level2" data-number="18.12">
+<h2 data-number="18.12" class="anchored" data-anchor-id="advanced-topics"><span class="header-section-number">18.12</span> Advanced Topics</h2>
+<p>What follows is the part that matters once the data are real rather than simulated: people miss appointments, models need checking, and designs eventually outgrow the one this chapter can handle. The Short Story at the end covers the whole chapter, both halves.</p>
+</section>
+<section id="missing-repeated-observations" class="level2" data-number="18.13">
+<h2 data-number="18.13" class="anchored" data-anchor-id="missing-repeated-observations"><span class="header-section-number">18.13</span> Missing Repeated Observations</h2>
+<p>Mixed models can use participants who are missing some occasions; they do not require deleting every person with one missing row. This is a major advantage over older complete-case repeated-measures procedures, and with two occasions it is the difference between losing a person and losing half of one.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">347</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>mixed_missing <span class="ot">&lt;-</span> mixed_data</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 10% of the Week 6 visits simply do not happen</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>gone <span class="ot">&lt;-</span> mixed_missing<span class="sc">$</span>week <span class="sc">==</span> <span class="dv">6</span> <span class="sc">&amp;</span> <span class="fu">runif</span>(<span class="fu">nrow</span>(mixed_missing)) <span class="sc">&lt;</span> <span class="fl">0.10</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>mixed_missing<span class="sc">$</span>depression[gone] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>missing_model <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  depression <span class="sc">~</span> occasion <span class="sc">*</span> group <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> mixed_missing</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">rows_used =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(mixed_missing<span class="sc">$</span>depression)),</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">people_used =</span> <span class="fu">length</span>(<span class="fu">unique</span>(</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    mixed_missing<span class="sc">$</span>participant[<span class="sc">!</span><span class="fu">is.na</span>(mixed_missing<span class="sc">$</span>depression)]</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  rows_used people_used 
+        189         100 </code></pre>
+</div>
+</div>
+<p>Every one of the 100 people is still in the model, contributing whatever they turned up for. A change-score analysis would have deleted all 11 of the people who missed the second visit, because a difference needs both halves, and with it the perfectly good baseline score each of them did provide.</p>
+<p>However, “the model ran” does not mean missing data ceased to matter. Standard likelihood-based mixed-model inference commonly relies on a <strong>missing at random</strong> assumption conditional on variables in the model. If people with worsening symptoms leave the study for reasons the model does not capture, the missingness can bias results. Investigate dropout, include relevant predictors when justified, and conduct sensitivity analyses in serious work.</p>
+</section>
+<section id="check-the-model" class="level2" data-number="18.14">
+<h2 data-number="18.14" class="anchored" data-anchor-id="check-the-model"><span class="header-section-number">18.14</span> Check the Model</h2>
+<p>Every model in this book has arrived with a diagnostic ritual attached. This one does too, except the ritual is harder, and I am going to be honest with you about how much of it we are skipping.</p>
+<p>Here is the problem. A mixed model has more places for an assumption to hide than a regression does: the residuals, the random effects, and the relationship between them. Worse, the ordinary residuals a mixed model hands you are not the clean, independent, interchangeable things <code>lm()</code> produces, so the plots you learned to read in the diagnostics chapter do not mean quite the same thing here. The assumptions <strong>rhyme</strong> with the ones you already know. Checking them does not.</p>
+<p>So we use a package that does the hard part for us. <strong>DHARMa</strong> takes your fitted model, simulates a few hundred fresh datasets from it, and then asks, for each of your real observations, where it falls inside its own simulated crowd. If the model is telling the truth, those positions should be spread evenly between 0 and 1. That is the trick: no matter how strange the raw residuals look, the <em>simulated</em> residuals should always be uniform when the model is right, so there is one picture to learn instead of one per situation.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>sim_res <span class="ot">&lt;-</span> <span class="fu">simulateResiduals</span>(mixed_model)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plotQQunif</span>(sim_res)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_18_Mixed_Regression_files/figure-html/dharma-qq-1.png" class="img-fluid figure-img" alt="A QQ plot with Expected on the x axis and Observed on the y axis, both from 0 to 1. About two hundred small triangles form a line that follows a red diagonal reference line closely, bowing slightly above it in the lower half and slightly below it in the upper half. Three test results are printed on the plot: KS test p = 0.0541, Dispersion test p = 0.216, Outlier test p = 0.41647, each labeled Deviation n.s." width="528"></p>
+<figcaption>DHARMa’s QQ plot. If the model is right, the points sit on the red diagonal. The three tests printed on the plot check the overall shape, the spread, and whether there are more extreme points than the model expects.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The points follow the diagonal with a gentle bow, and the three tests printed on the plot are ones you can ignore for now.</p>
+<p>The second plot asks a different question: are the residuals equally well behaved everywhere, or does the model fit one part of the design better than another?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotResiduals</span>(sim_res, <span class="at">form =</span> mixed_data<span class="sc">$</span>occasion)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_18_Mixed_Regression_files/figure-html/dharma-occasion-1.png" class="img-fluid figure-img" alt="Two boxplots of DHARMa scaled residuals, one for Baseline and one for Week 6, on a y axis from 0 to 1. Both boxes are centered close to 0.5 and have very similar heights, with whiskers reaching nearly 0 and 1 in both. Dashed horizontal reference lines mark 0.25, 0.5 and 0.75. Printed above: Levene Test for homogeneity of variance n.s., Within-group deviation from uniformity n.s." width="528"></p>
+<figcaption>DHARMa residuals split by occasion. Both boxes should straddle 0.5 with similar spread, which they do. This is where unequal variance across conditions would show up.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Two boxes, both centered near 0.5, both about the same height, and both tests <code>n.s.</code> The model is not doing noticeably worse at Week 6 than at baseline. Swap <code>occasion</code> for <code>group</code> and you can ask the same question about CBT versus Control.</p>
+<p>That is where we stop, and stopping here is a real choice rather than a complete answer.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="This Is the Shallow End, and It Is a Very Deep Pool">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>This Is the Shallow End, and It Is a Very Deep Pool
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Mixed models are an enormous area of statistics, and their diagnostics are an active research area rather than a settled checklist. Two DHARMa plots are the minimum, not the standard.</p>
+<p>If your design is bigger than the one in this chapter, you need more than this chapter. The honest advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.</p>
+<p>This is also, genuinely, hard material. First-time graduate students meet it and struggle. If it feels like a lot, that is the material, not you.</p>
+</div>
+</div>
+</section>
+<section id="when-your-design-outgrows-this-chapter" class="level2" data-number="18.15">
+<h2 data-number="18.15" class="anchored" data-anchor-id="when-your-design-outgrows-this-chapter"><span class="header-section-number">18.15</span> When Your Design Outgrows This Chapter</h2>
+<p>Everything here rested on the simplest possible repeated-measures design: each person measured twice, on one within-subjects factor, crossed with one between-subjects factor. For that design, what this chapter showed you works, and it works well.</p>
+<p>Push past it and the difficulty does not increase gently. Two within-subjects factors, or measurements at four or six occasions over time, and you are immediately making decisions this chapter never had to make. Which random effects should the model include? What happens when the maximal model refuses to converge, or converges to a variance of exactly zero? Should occasions close together be allowed to resemble each other more than occasions far apart? Those are real questions with contested answers, and getting them wrong changes your results rather than merely annoying you.</p>
+<p>Here is the part I am obliged to admit. For a <strong>balanced, complete</strong> repeated-measures design with several within-subjects factors, old-school repeated-measures ANOVA is often <em>easier</em> than the mixed model. It was built for exactly that shape of data, it will fit without an argument, and it will not ask you to choose a random-effects structure. You know how I feel about ANOVA. It is still true.</p>
+<p>The catch is what it demands in return. Repeated-measures ANOVA wants every person to have every observation, so one missed session deletes the whole participant, and it leans on <strong>sphericity</strong>: the assumption that the variances of all the pairwise differences between occasions are equal. With exactly two occasions, as in this chapter, sphericity is not merely satisfied, it is vacuous, because there is only one difference and nothing for it to disagree with. From three occasions up it becomes a real constraint, and a violated one costs you.</p>
+<p>So neither tool is the grown-up choice in all situations. The mixed model handles missing rows and unbalanced designs that ANOVA cannot touch. ANOVA handles complicated balanced within-subjects designs without the fight. We did not escape assumptions by learning mixed models. We traded a rigid set for a flexible set that has to be chosen thoughtfully.</p>
+<p>If a repeated-measures ANOVA is the right tool for your design, there is a review of it in the advanced sections of this book. Use whichever tool the design actually calls for, and say in your write-up which one you used and why.</p>
+</section>
+<section id="the-short-story" class="level2" data-number="18.16">
+<h2 data-number="18.16" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">18.16</span> The Short Story</h2>
+<ul>
+<li>A paired <em>t</em>-test is a mixed model with one two-level within-subjects predictor and a random intercept. Same estimate, same <em>t</em>, same df, same <em>p</em>.</li>
+<li>A mixed design contains at least one between-subjects predictor and one within-subjects predictor.</li>
+<li>Repeated occasions are nested within people, so ordinary independent-error regression is incomplete.</li>
+<li>Ignoring that nesting does not bias the coefficients. It ruins the standard errors, which is enough to change the answer.</li>
+<li>A mixed 2-by-2 has four cells and a difference-of-differences interaction, exactly like the all-between 2-by-2. The one new thing is the participant random intercept.</li>
+<li>With Baseline as the reference, the Group coefficient is the baseline group difference, which randomization should have made boring.</li>
+<li>The Occasion by Group coefficient is the difference between the two groups’ changes.</li>
+<li>With exactly two occasions, that interaction is also an independent-samples <em>t</em>-test on change scores.</li>
+<li>Random intercepts let people start at different levels, which is all a two-occasion design can support.</li>
+<li>Compare fixed-effects structures using models fit with maximum likelihood, not REML.</li>
+<li>Check a mixed model with <strong>simulated</strong> residuals, from DHARMa, rather than by reading raw residual plots the way you would for an ordinary regression. Two plots is the minimum, not the standard.</li>
+<li>This chapter covers the simplest repeated-measures design there is. More within-subjects factors, or more occasions, gets hard quickly, and for balanced complete designs old-school repeated-measures ANOVA is often the easier tool.</li>
+<li>Mixed models can retain partially observed participants, but missingness can still bias the answer.</li>
+<li>Never count rows and forget to count people. Two hundred observations from 100 people are not 200 independent humans, no matter how urgently the grant deadline approaches.</li>
+</ul>
+<p>The model is “mixed” because it combines <strong>fixed</strong> and <strong>random</strong> effects, not because we placed several statistical procedures into a blender and hoped the lid stayed on.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-bennett2010" class="csl-entry" role="listitem">
+Bennett, Craig M., Abigail A. Baird, Michael B. Miller, and George L. Wolford. 2010. <span>“Neural Correlates of Interspecies Perspective Taking in the Post-Mortem Atlantic Salmon: An Argument for Proper Multiple Comparisons Correction.”</span> <em>Journal of Serendipitous and Unexpected Results</em> 1 (1): 1–5.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_17_Categorical_Interaction.html" class="pagination-link" aria-label="Categorical-by-Categorical Interactions: The 2-by-2 Design">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_19_Regression_Diagnostics.html" class="pagination-link" aria-label="Advanced: Regression Diagnostics and Influential Weirdos">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_18_Mixed_Regression.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

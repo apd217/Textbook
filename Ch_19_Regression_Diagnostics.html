@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>19&nbsp; Advanced: Regression Diagnostics and Influential Weirdos – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_20_Multiple_Comparisons.html" rel="next">
+<link href="./Ch_18_Mixed_Regression.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html">Okay, But What If It’s Complicated?</a></li><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html">Okay, But What If It’s Complicated?</a></li><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- ---Alex--- Cold open (CH19-P01 + VOICE_GUIDE 15/17), which you approved on
+2026-08-17. Two judgment calls inside it. First, the simulation is echoed with the
+participant-60 lines visible, so the reader knows the outlier is planted before the
+reveal. That follows 14b rule 1 and the Ch16 precedent (showing 5*X*Z in the
+generating model); the alternative was hiding it for surprise, which the book's
+honesty rule outranks. The drama survives because the shock is the SIZE of the
+damage, not the existence of an outlier. Second, the refit now happens twice on
+purpose: here as the hook, and again under Cook's distance as the disciplined
+version with SEs and p-values. Delete either half if that reads as repetitive. -->
+<section id="an-unusually-responsible-therapy-study" class="level2" data-number="19.1">
+<h2 data-number="19.1" class="anchored" data-anchor-id="an-unusually-responsible-therapy-study"><span class="header-section-number">19.1</span> An Unusually Responsible Therapy Study</h2>
+<p>We predict symptom improvement from therapy attendance and baseline symptom severity. Sixty people, two predictors, nothing exotic.</p>
+<p>One of those sixty is a problem, and we are going to build the problem on purpose so you can watch what it does. Participant 60 attends nearly every session and reports a suspiciously enormous improvement, possibly because they misunderstood the scale or wanted the research assistant to stop calling. Here is the whole simulation, including the three lines at the bottom that do the damage.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>TherapyData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sessions =</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">12</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Baseline =</span> <span class="fu">rnorm</span>(n, <span class="dv">60</span>, <span class="dv">10</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>TherapyData<span class="sc">$</span>Improvement <span class="ot">&lt;-</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1.8</span> <span class="sc">*</span> TherapyData<span class="sc">$</span>Sessions <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.18</span> <span class="sc">*</span> TherapyData<span class="sc">$</span>Baseline <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>TherapyData<span class="sc">$</span>Sessions[<span class="dv">60</span>] <span class="ot">&lt;-</span> <span class="dv">12</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>TherapyData<span class="sc">$</span>Baseline[<span class="dv">60</span>] <span class="ot">&lt;-</span> <span class="dv">45</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>TherapyData<span class="sc">$</span>Improvement[<span class="dv">60</span>] <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>TherapyModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Improvement <span class="sc">~</span> Sessions <span class="sc">+</span> Baseline, <span class="at">data =</span> TherapyData)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(TherapyModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Improvement ~ Sessions + Baseline, data = TherapyData)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-12.4882  -2.9666  -0.4928   2.5910  26.0396 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 11.77323    5.68723   2.070    0.043 *  
+Sessions     1.93638    0.21937   8.827 2.96e-12 ***
+Baseline    -0.02332    0.09016  -0.259    0.797    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.865 on 57 degrees of freedom
+Multiple R-squared:  0.5827,    Adjusted R-squared:  0.568 
+F-statistic: 39.79 on 2 and 57 DF,  p-value: 1.525e-11</code></pre>
+</div>
+</div>
+<p>That is a good-looking model. Attendance predicts improvement, the coefficient is nowhere near zero, the <em>p</em>-value turned up in scientific notation, and the model accounts for 58% of the variance in improvement. Write it up, thank the undergraduates, go home.</p>
+<p>Now fit the same model to the same study with participant 60 removed. Not a suspicious subgroup, not a condition, not a wave of attrition. One row out of sixty.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TherapyModel<span class="fl">.60</span> <span class="ot">&lt;-</span> <span class="fu">update</span>(TherapyModel, <span class="at">data =</span> TherapyData[<span class="sc">-</span><span class="dv">60</span>, ])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rbind</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Everyone  =</span> <span class="fu">c</span>(<span class="fu">coef</span>(TherapyModel),    <span class="at">R2 =</span> <span class="fu">summary</span>(TherapyModel)<span class="sc">$</span>r.squared),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Without60 =</span> <span class="fu">c</span>(<span class="fu">coef</span>(TherapyModel<span class="fl">.60</span>), <span class="at">R2 =</span> <span class="fu">summary</span>(TherapyModel<span class="fl">.60</span>)<span class="sc">$</span>r.squared)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          (Intercept) Sessions Baseline     R2
+Everyone      11.7732   1.9364  -0.0233 0.5827
+Without60      7.4684   1.7110   0.0631 0.6245</code></pre>
+</div>
+</div>
+<p>Three things moved, and none of them is the thing you were watching.</p>
+<p>The baseline coefficient <strong>changed sign</strong>. With everyone in, higher baseline severity predicts slightly less improvement. With one person out, it predicts slightly more. Neither version is significant, which is its own kind of embarrassing: the direction of that effect was never being decided by the other fifty-nine people.</p>
+<p>The intercept stopped being significant, going from <span class="math inline">\(p =\)</span> 0.043 to <span class="math inline">\(p =\)</span> 0.106. If you had a hypothesis about the intercept, you no longer have a result.</p>
+<p>And <span class="math inline">\(R^2\)</span> went <strong>up</strong>, from 0.583 to 0.625. This surprises people, so it is worth saying plainly: deleting participant 60 took proportionally more out of the unexplained pile than out of the total. The residual standard error fell from 5.86 to 4.63. The model did not get better. It got easier.</p>
+<p>Notice what did <em>not</em> warn you. Nothing errored. Nothing printed a message. The first model is not missing a step, and no amount of rereading its output would have told you that one row was steering it. R fit exactly what you asked for, with the serene indifference of a vending machine.</p>
+<p><em>A model cannot tell you that one person wrote its conclusion. That is the job you are about to learn.</em></p>
+</section>
+<section id="advanced-topic-who-is-this-for" class="level2" data-number="19.2">
+<h2 data-number="19.2" class="anchored" data-anchor-id="advanced-topic-who-is-this-for"><span class="header-section-number">19.2</span> Advanced Topic: Who Is This For?</h2>
+<p>In the <a href="./Ch_11_Intro_Regression.html">Intro to Regression chapter</a> we asked five questions about the line: linearity, independence, constant variance, approximately normal residuals, and whether one strange person is steering everything while the others watch. This chapter is those five questions with a magnifying glass. You have just seen question five win.</p>
+<p>This chapter is for graduate students and advanced undergraduates who already know how to fit and interpret a regression model. We now ask a more alarming question: <strong>Should we trust the model we just fit?</strong></p>
+<p>Regression will always give you coefficients if the mathematics permits it. It does not pause to ask whether one participant entered a reaction time of 94 years or whether the residuals resemble a startled squid.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="A Significant Model Can Still Be a Bad Model">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A Significant Model Can Still Be a Bad Model
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A small <em>p</em>-value does not certify linearity, equal residual variance, independence, honest measurement, or sensible causal reasoning. It only answers a narrower question under the model’s assumptions.</p>
+</div>
+</div>
+</section>
+<section id="residuals-what-the-model-failed-to-explain" class="level2" data-number="19.3">
+<h2 data-number="19.3" class="anchored" data-anchor-id="residuals-what-the-model-failed-to-explain"><span class="header-section-number">19.3</span> Residuals: What the Model Failed to Explain</h2>
+<p>For person <span class="math inline">\(i\)</span>,</p>
+<p><span class="math display">\[
+e_i = Y_i-\widehat{Y}_i.
+\]</span></p>
+<p>A residual is the observed outcome minus the model’s prediction. Positive residuals mean the person scored above the prediction; negative residuals mean they scored below it.</p>
+<p>The ordinary linear model assumes:</p>
+<p><span class="math display">\[
+Y_i=\beta_0+\beta_1X_{1i}+\cdots+\beta_kX_{ki}+\epsilon_i,
+\]</span> where the errors have an expected value of zero, are independent, and have approximately constant variance. Normality matters primarily for conventional small-sample inference, not because every raw variable must form a perfect bell.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitted</span>(TherapyModel), <span class="fu">rstandard</span>(TherapyModel),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"#0072B2"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Fitted improvement"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Standardized residual"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Residuals should not organize a protest"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>), <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#D55E00"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># pos = 2 puts the label to the LEFT: participant 60 sits against the right</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co"># edge, so labelling to the right runs the text off the plot.</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fu">fitted</span>(TherapyModel)[<span class="dv">60</span>], <span class="fu">rstandard</span>(TherapyModel)[<span class="dv">60</span>], <span class="st">"60"</span>, <span class="at">pos =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_19_Regression_Diagnostics_files/figure-html/residual-fitted-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Scatterplot with fitted improvement from about 10 to 34 on the x axis and standardized residual from about minus 2.3 to 4.7 on the y axis. A solid horizontal line marks zero and dashed orange lines mark plus and minus 2. Most of the sixty blue points form a shapeless cloud between minus 1.5 and 1.5 with no funnel or curve. One point sits alone in the far upper right, labelled 60, at a standardized residual of about 4.7, more than twice as far from zero as anything else in the plot." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Look for curves, funnels, clusters, and isolated points. A random cloud around zero is comforting. A visible pattern means the model has left information lying on the floor.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Raw Residuals Versus Standardized Residuals">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Raw Residuals Versus Standardized Residuals
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Raw residuals remain in the outcome’s units. Standardized or studentized residuals divide by an estimated residual standard deviation, making unusually large residuals easier to identify. Values beyond roughly <span class="math inline">\(\pm2\)</span> deserve inspection. That is an investigation threshold, not an automatic deletion command.</p>
+</div>
+</div>
+</section>
+<section id="linearity" class="level2" data-number="19.4">
+<h2 data-number="19.4" class="anchored" data-anchor-id="linearity"><span class="header-section-number">19.4</span> Linearity</h2>
+<p>Linear regression assumes the mean outcome is a linear combination of the predictors. If the true relationship bends, a straight line may average over the bend and lie everywhere with great consistency.</p>
+<p>Possible responses include transformations, polynomial terms, splines, or a model with a more appropriate link function. The graph should guide the question; repeatedly adding powers until an asterisk appears is polynomial fishing.</p>
+</section>
+<section id="homoscedasticity" class="level2" data-number="19.5">
+<h2 data-number="19.5" class="anchored" data-anchor-id="homoscedasticity"><span class="header-section-number">19.5</span> Homoscedasticity</h2>
+<p><strong>Homoscedasticity</strong> means that residual spread is roughly constant across fitted values. A funnel shape indicates <strong>heteroscedasticity</strong>: the model predicts some portions of the outcome more precisely than others.</p>
+<p>Heteroscedasticity does not automatically bias ordinary least-squares slopes, but it can make conventional standard errors and confidence intervals inaccurate. We can reconsider the outcome scale, use heteroscedasticity-consistent standard errors, or fit a model that explicitly represents changing variance.</p>
+</section>
+<section id="normality-of-the-errors" class="level2" data-number="19.6">
+<h2 data-number="19.6" class="anchored" data-anchor-id="normality-of-the-errors"><span class="header-section-number">19.6</span> Normality of the Errors</h2>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">rstandard</span>(TherapyModel), <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"#0072B2"</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">main =</span> <span class="st">"Q-Q plot of standardized residuals"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(<span class="fu">rstandard</span>(TherapyModel), <span class="at">col =</span> <span class="st">"#D55E00"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_19_Regression_Diagnostics_files/figure-html/residual-qq-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Normal Q-Q plot with theoretical quantiles from about minus 2.4 to 2.4 on the x axis and sample quantiles from about minus 2.3 to 4.7 on the y axis, with a straight orange reference line. The middle two thirds of the points sit tightly on the line. Above about the 80th percentile the points drift steadily above it, and one point at the far top right sits at about 4.7 where the line is near 1.9, far away from every other point. The lowest point also falls slightly below the line." width="624"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A Q–Q plot compares residual quantiles with those expected under a normal distribution. Mild deviations are ordinary. Severe tail departures may signal outliers, a wrong outcome distribution, or a model that has ignored important structure.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Do Not Test Normality and Surrender">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Do Not Test Normality and Surrender
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>With a large sample, a formal normality test can reject harmless deviations. With a small sample, it may miss serious ones. Inspect the residuals, consider the design, and ask whether the inferential procedure is robust enough for the observed problem.</p>
+</div>
+</div>
+</section>
+<section id="leverage-influence-and-cooks-distance" class="level2" data-number="19.7">
+<h2 data-number="19.7" class="anchored" data-anchor-id="leverage-influence-and-cooks-distance"><span class="header-section-number">19.7</span> Leverage, Influence, and Cook’s Distance</h2>
+<p>An observation has high <strong>leverage</strong> when its predictor values are unusual. It is <strong>influential</strong> when removing it meaningfully changes the fitted model. A person can have a large residual without much leverage, or high leverage while sitting obediently on the fitted line.</p>
+<p>Cook’s distance combines residual size and leverage. One common expression is:</p>
+<p><span class="math display">\[
+D_i=
+\frac{e_i^2}{p\widehat{\sigma}^2}
+\frac{h_{ii}}{(1-h_{ii})^2},
+\]</span></p>
+<p>where <span class="math inline">\(p\)</span> is the number of fitted coefficients and <span class="math inline">\(h_{ii}\)</span> is leverage.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>CookD <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(TherapyModel)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  CookD, <span class="at">type =</span> <span class="st">"h"</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#0072B2"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Participant"</span>, <span class="at">ylab =</span> <span class="st">"Cook's distance"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># headroom so the "60" label above the tallest spike is not clipped</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">max</span>(CookD) <span class="sc">*</span> <span class="fl">1.15</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Which participant is driving the statistical bus?"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">4</span> <span class="sc">/</span> n, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#D55E00"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">60</span>, CookD[<span class="dv">60</span>], <span class="st">"60"</span>, <span class="at">pos =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_19_Regression_Diagnostics_files/figure-html/influence-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Spike plot with participant number 1 to 60 on the x axis and Cook's distance from 0 to about 1 on the y axis, with a dashed orange reference line at 4 divided by 60, roughly 0.067. Almost every spike is a stub near zero. One spike at participant 60 towers over the plot at about 0.88, labelled 60. A second spike at participant 26 reaches about 0.20, and a third at participant 40 just clears the dashed line. Everyone else falls below it." width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Rules such as <span class="math inline">\(D_i&gt;4/N\)</span> are screening devices. They tell us where to look, not whom to throw into the volcano.</p>
+<p>Notice that the <span class="math inline">\(4/N\)</span> line flags 3 people here, not one. Participants 26 and 40 are over the line too, and they are fine. Participant 60’s Cook’s distance is 0.88, which is roughly 4 times the next largest. A screening rule hands you a short list of people to think about. It does not rank them, and it does not tell you which ones changed anything.</p>
+<section id="the-sensitivity-refit-done-properly" class="level3" data-number="19.7.1">
+<h3 data-number="19.7.1" class="anchored" data-anchor-id="the-sensitivity-refit-done-properly"><span class="header-section-number">19.7.1</span> The Sensitivity Refit, Done Properly</h3>
+<p>The opening of this chapter refit the model without participant 60 as a stunt, to show you that it mattered. This is the same comparison written the way you would actually report it, with the standard errors and <em>p</em>-values attached, because “the coefficient moved” is not a finding until the reader can see how much of that movement is noise.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>SideBySide <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">b.all    =</span> <span class="fu">coef</span>(TherapyModel),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE.all   =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(TherapyModel))[, <span class="st">"Std. Error"</span>],</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.all    =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(TherapyModel))[, <span class="st">"Pr(&gt;|t|)"</span>],</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">b.drop   =</span> <span class="fu">coef</span>(TherapyModel<span class="fl">.60</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE.drop  =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(TherapyModel<span class="fl">.60</span>))[, <span class="st">"Std. Error"</span>],</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.drop   =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(TherapyModel<span class="fl">.60</span>))[, <span class="st">"Pr(&gt;|t|)"</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(SideBySide, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              b.all SE.all  p.all b.drop SE.drop p.drop
+(Intercept) 11.7732 5.6872 0.0430 7.4684  4.5491 0.1062
+Sessions     1.9364 0.2194 0.0000 1.7110  0.1773 0.0000
+Baseline    -0.0233 0.0902 0.7968 0.0631  0.0727 0.3888</code></pre>
+</div>
+</div>
+<p>Read it one row at a time.</p>
+<p><strong>Sessions</strong> is the conclusion of the study, and it survives. The slope drops from 1.94 to 1.71, about a 12% reduction, and stays overwhelmingly significant either way. That is what a robust result looks like: the number moves, because every number moves, and the claim does not.</p>
+<p><strong>Baseline</strong> does not survive, and it never had anything to survive with. Its sign depends entirely on participant 60, and it is nowhere near significant in either model. This is the honest version of a null result: not “baseline severity does not predict improvement,” but “this study could not tell you, and one person was setting the direction.”</p>
+<p>The rule that follows is short, and it is the whole reason the comparison exists. <strong>Report both.</strong> Put the sensitivity refit in the paper, or in the supplement, and say what changed. Do not run this comparison, notice that one version is friendlier to your hypothesis, and report only that one. That is not a sensitivity analysis. That is shopping with extra steps.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="What to Say When the Refit Disagrees With You">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What to Say When the Refit Disagrees With You
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>“Excluding one influential case (Cook’s <span class="math inline">\(D =\)</span> 0.88), the attendance slope fell from 1.94 to 1.71 and remained significant, while the baseline coefficient reversed sign and was nonsignificant in both models.”</p>
+<p>One sentence. It costs you nothing, it is more informative than the result it qualifies, and it is much cheaper than having a reader discover it for you.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="multicollinearity" class="level2" data-number="19.8">
+<h2 data-number="19.8" class="anchored" data-anchor-id="multicollinearity"><span class="header-section-number">19.8</span> Multicollinearity</h2>
+<p>When predictors are strongly related, the model struggles to separate their unique slopes. Coefficients may become unstable, standard errors inflate, and signs may change when another predictor enters.</p>
+<p>For predictor <span class="math inline">\(j\)</span>, the variance inflation factor is:</p>
+<p><span class="math display">\[
+VIF_j=\frac{1}{1-R_j^2},
+\]</span></p>
+<p>where <span class="math inline">\(R_j^2\)</span> comes from predicting <span class="math inline">\(X_j\)</span> with the other predictors. A large VIF means the other predictors nearly reconstruct that predictor.</p>
+<p>That definition tells you how VIF is computed but not why anyone cares. For that, look at where it actually lives, which is inside the standard error of the coefficient:</p>
+<p><span class="math display">\[
+SE(b_j)=
+\underbrace{\frac{\widehat\sigma}{\sqrt{\sum_i\left(X_{ij}-\overline X_j\right)^2}}}_{\text{what you would get if } X_j \text{ stood alone}}
+\times
+\underbrace{\sqrt{\frac{1}{1-R_j^2}}}_{\sqrt{VIF_j}}
+\]</span></p>
+<p>Read the two halves separately, because they answer different questions.</p>
+<p>The <strong>left factor</strong> is the standard error you would earn in a world where <span class="math inline">\(X_j\)</span> were unrelated to every other predictor. It improves in the three ways you would expect: a smaller <span class="math inline">\(\widehat\sigma\)</span> (less unexplained noise), a larger sample, or more spread in <span class="math inline">\(X_j\)</span> itself. That last one is worth pausing on, since it is the algebraic reason a restricted range hurts you. If everyone in your study scored between 4 and 6 on the predictor, the sum in that denominator is small and nothing can rescue the standard error.</p>
+<p>The <strong>right factor</strong> is the tax. It is exactly <span class="math inline">\(\sqrt{VIF_j}\)</span>, it is never less than 1, and it is the entire contribution of multicollinearity to your uncertainty. When <span class="math inline">\(R_j^2=0\)</span> the tax is <span class="math inline">\(\sqrt{1}=1\)</span> and you pay nothing. When <span class="math inline">\(R_j^2=.75\)</span> the tax is <span class="math inline">\(\sqrt{4}=2\)</span> and your standard error doubles.</p>
+<p>So VIF is not a diagnostic that sits beside the model commenting on it. It is a multiplier already inside every standard error the model printed.</p>
+<p>In R the whole thing is one line, and it is the line you will actually use:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># car (Companion to Applied Regression) supplies vif(), plus most of the</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># regression diagnostics psychologists reach for.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(TherapyModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sessions Baseline 
+1.013679 1.013679 </code></pre>
+</div>
+</div>
+<p>Both come back at 1.01, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at <span class="math inline">\(r =\)</span> -0.12. This is what fine looks like, and it is worth seeing once so that trouble is recognizable by contrast.</p>
+<section id="doing-it-by-hand-because-it-is-two-regressions" class="level3" data-number="19.8.1">
+<h3 data-number="19.8.1" class="anchored" data-anchor-id="doing-it-by-hand-because-it-is-two-regressions"><span class="header-section-number">19.8.1</span> Doing It By Hand, Because It Is Two Regressions</h3>
+<p><code>vif()</code> is not consulting an oracle. It is running the auxiliary regression named in the definition, taking the <span class="math inline">\(R^2\)</span>, and dividing. Here is the whole thing, plus a check that the standard-error formula above is not decoration.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: predict the predictor from the other predictors.</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>AuxModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Sessions <span class="sc">~</span> Baseline, <span class="at">data =</span> TherapyData)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>R2j <span class="ot">&lt;-</span> <span class="fu">summary</span>(AuxModel)<span class="sc">$</span>r.squared</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: that is it. That is the whole formula.</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">R2j =</span> R2j, <span class="at">VIF.by.hand =</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> R2j), <span class="at">VIF.from.car =</span> <span class="fu">unname</span>(<span class="fu">vif</span>(TherapyModel)[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         R2j  VIF.by.hand VIF.from.car 
+  0.01349464   1.01367923   1.01367923 </code></pre>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>SigmaHat <span class="ot">&lt;-</span> <span class="fu">summary</span>(TherapyModel)<span class="sc">$</span>sigma</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>SSj <span class="ot">&lt;-</span> <span class="fu">sum</span>((TherapyData<span class="sc">$</span>Sessions <span class="sc">-</span> <span class="fu">mean</span>(TherapyData<span class="sc">$</span>Sessions))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>StandingAlone <span class="ot">&lt;-</span> SigmaHat <span class="sc">/</span> <span class="fu">sqrt</span>(SSj)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">if.Sessions.stood.alone =</span> StandingAlone,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">times.sqrt.VIF          =</span> StandingAlone <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> R2j)),</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">actual.SE.from.lm       =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(<span class="fu">summary</span>(TherapyModel))[<span class="st">"Sessions"</span>, <span class="st">"Std. Error"</span>])</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>if.Sessions.stood.alone          times.sqrt.VIF       actual.SE.from.lm 
+              0.2178867               0.2193719               0.2193719 </code></pre>
+</div>
+</div>
+<p>The second and third numbers agree to every digit R will print, because they are the same quantity computed two ways. The standard error <code>lm()</code> reported is the standing-alone standard error multiplied by <span class="math inline">\(\sqrt{VIF}\)</span>, and here that multiplier is 1.007, which rounds to nothing at all.</p>
+</section>
+<section id="the-extreme-case-two-predictors-that-are-secretly-one" class="level3" data-number="19.8.2">
+<h3 data-number="19.8.2" class="anchored" data-anchor-id="the-extreme-case-two-predictors-that-are-secretly-one"><span class="header-section-number">19.8.2</span> The Extreme Case: Two Predictors That Are Secretly One</h3>
+<p>Before the interesting failures, look at the failure that cannot hide. Suppose we predict school achievement from the proportion of students on free lunch, and, because a paper told us they are distinct indicators of school poverty, we also enter the proportion on paid lunch.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>n_schools <span class="ot">&lt;-</span> <span class="dv">120</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>SchoolData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">FreeLunch =</span> <span class="fu">runif</span>(n_schools, .<span class="dv">05</span>, .<span class="dv">95</span>))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>SchoolData<span class="sc">$</span>PaidLunch <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> SchoolData<span class="sc">$</span>FreeLunch          <span class="co"># the whole problem</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>SchoolData<span class="sc">$</span>Achievement <span class="ot">&lt;-</span> <span class="dv">70</span> <span class="sc">-</span> <span class="dv">25</span> <span class="sc">*</span> SchoolData<span class="sc">$</span>FreeLunch <span class="sc">+</span> <span class="fu">rnorm</span>(n_schools, <span class="dv">0</span>, <span class="dv">6</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(SchoolData<span class="sc">$</span>FreeLunch, SchoolData<span class="sc">$</span>PaidLunch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -1</code></pre>
+</div>
+</div>
+<p>A correlation of exactly <span class="math inline">\(-1\)</span>. Every school that is 30% free lunch is 70% paid lunch, necessarily, because the two proportions are the same fact written twice. Now put both in the model.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>BothModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Achievement <span class="sc">~</span> FreeLunch <span class="sc">+</span> PaidLunch, <span class="at">data =</span> SchoolData)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(BothModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Achievement ~ FreeLunch + PaidLunch, data = SchoolData)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-18.8069  -3.3393   0.3135   3.4791  14.1907 
+
+Coefficients: (1 not defined because of singularities)
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   69.976      1.134   61.69   &lt;2e-16 ***
+FreeLunch    -24.385      2.008  -12.14   &lt;2e-16 ***
+PaidLunch         NA         NA      NA       NA    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.526 on 118 degrees of freedom
+Multiple R-squared:  0.5556,    Adjusted R-squared:  0.5518 
+F-statistic: 147.5 on 1 and 118 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Read the line above the coefficient table: <strong><code>Coefficients: (1 not defined because of singularities)</code></strong>. <code>PaidLunch</code> came back <code>NA</code>. R did not average the two predictors, or split the credit, or pick the better one. It silently deleted a predictor from your model and carried on.</p>
+<p>That is the correct behavior, and the reason is worth stating precisely. The regression is asked to estimate the effect of raising free lunch <em>while holding paid lunch constant</em>, and there is no such thing. There is not one school in the data where free lunch moved and paid lunch did not, so the question has no answer, and no amount of sample size will produce one.</p>
+<p>R will even tell you the exact dependency it found:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">alias</span>(BothModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model :
+Achievement ~ FreeLunch + PaidLunch
+
+Complete :
+          (Intercept) FreeLunch
+PaidLunch  1          -1       </code></pre>
+</div>
+</div>
+<p>Read that as an equation: <code>PaidLunch</code> equals 1 minus <code>FreeLunch</code>. It has reconstructed the definition we used to build the variable.</p>
+<p>VIF cannot help here either, and it is honest about why:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(BothModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in `vif.default()`:
+! there are aliased coefficients in the model</code></pre>
+</div>
+</div>
+<p><span class="math inline">\(VIF_j = 1/(1-R_j^2)\)</span> and <span class="math inline">\(R_j^2\)</span> is exactly 1, so the formula is dividing by zero. There is nothing to inflate; the predictor has no unique variance at all.</p>
+</section>
+<section id="now-enter-them-one-at-a-time" class="level3" data-number="19.8.3">
+<h3 data-number="19.8.3" class="anchored" data-anchor-id="now-enter-them-one-at-a-time"><span class="header-section-number">19.8.3</span> Now Enter Them One at a Time</h3>
+<p>Here is the part that makes this worth showing rather than just warning about. Fit each predictor on its own and put the three models side by side.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>FreeOnly <span class="ot">&lt;-</span> <span class="fu">lm</span>(Achievement <span class="sc">~</span> FreeLunch, <span class="at">data =</span> SchoolData)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>PaidOnly <span class="ot">&lt;-</span> <span class="fu">lm</span>(Achievement <span class="sc">~</span> PaidLunch, <span class="at">data =</span> SchoolData)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>Summarize <span class="ot">&lt;-</span> <span class="cf">function</span>(Model, term) {</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">b  =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(Model)[term]),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(Model))[term, <span class="st">"Std. Error"</span>],</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">t  =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(Model))[term, <span class="st">"t value"</span>],</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">R2 =</span> <span class="fu">summary</span>(Model)<span class="sc">$</span>r.squared)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rbind</span>(</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Both.in.FreeLunch =</span> <span class="fu">Summarize</span>(BothModel, <span class="st">"FreeLunch"</span>),</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">FreeLunch.alone   =</span> <span class="fu">Summarize</span>(FreeOnly,  <span class="st">"FreeLunch"</span>),</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">PaidLunch.alone   =</span> <span class="fu">Summarize</span>(PaidOnly,  <span class="st">"PaidLunch"</span>)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                         b     SE        t     R2
+Both.in.FreeLunch -24.3847 2.0078 -12.1449 0.5556
+FreeLunch.alone   -24.3847 2.0078 -12.1449 0.5556
+PaidLunch.alone    24.3847 2.0078  12.1449 0.5556</code></pre>
+</div>
+</div>
+<p>Separately, each one is a perfectly respectable predictor. Free lunch predicts achievement going down; paid lunch predicts it going up. Either would sail through review on its own.</p>
+<p>But look at what the three rows share. The standard errors are <strong>identical</strong>. The <em>t</em> values are identical in size and differ only in sign. <span class="math inline">\(R^2\)</span> is 0.5556 in all three models, including the one where R threw a predictor away. And the two slopes are the same number with the sign flipped, -24.38 against 24.38.</p>
+<p>They are not two findings. They are one finding, and the direction is a decision you made when you chose which proportion to name.</p>
+</section>
+<section id="the-version-that-does-not-warn-you" class="level3" data-number="19.8.4">
+<h3 data-number="19.8.4" class="anchored" data-anchor-id="the-version-that-does-not-warn-you"><span class="header-section-number">19.8.4</span> The Version That Does Not Warn You</h3>
+<p>Perfect collinearity is the harmless case, because R stops. Now add a rounding error’s worth of noise, so the two variables are merely <em>almost</em> the same fact.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Same variable, plus measurement error with a standard deviation of 0.01.</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>SchoolData<span class="sc">$</span>PaidLunch.Measured <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> SchoolData<span class="sc">$</span>FreeLunch <span class="sc">+</span> <span class="fu">rnorm</span>(n_schools, <span class="dv">0</span>, .<span class="dv">01</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>NearlyBoth <span class="ot">&lt;-</span> <span class="fu">lm</span>(Achievement <span class="sc">~</span> FreeLunch <span class="sc">+</span> PaidLunch.Measured, <span class="at">data =</span> SchoolData)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">coef</span>(<span class="fu">summary</span>(NearlyBoth)), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)        140.8473    55.2712  2.5483   0.0121
+FreeLunch          -95.2407    55.2836 -1.7228   0.0876
+PaidLunch.Measured -71.0554    55.4028 -1.2825   0.2022</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(NearlyBoth)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         FreeLunch PaidLunch.Measured 
+           762.284            762.284 </code></pre>
+</div>
+</div>
+<p>Nothing errored. Nothing was set to <code>NA</code>. No message appeared above the table. And the model is now a disaster:</p>
+<ul>
+<li>The free-lunch slope was -24.4 on its own. It is now -95.2.</li>
+<li><strong>Neither predictor is significant.</strong> Free lunch sits at <span class="math inline">\(p =\)</span> 0.088 and paid lunch at <span class="math inline">\(p =\)</span> 0.202, in data where the effect is real, enormous, and was significant a moment ago.</li>
+<li>The VIFs are about 762, so the standard errors are inflated by a factor of roughly 28.</li>
+<li><span class="math inline">\(R^2\)</span> went from 0.5556 to 0.5617. The second predictor bought essentially nothing and cost you the first one.</li>
+</ul>
+<p><strong>This is what “they will eat each other” looks like in a coefficient table.</strong> Two predictors carrying the same information cannot both be credited for it, so each is left holding whatever the other did not explain, which is nearly nothing. The variance is still there. The model simply cannot say whose it is.</p>
+<p>A student who ran only this model would conclude that school poverty does not predict achievement. The real effect they missed is about 24 achievement points between a school where nobody qualifies for free lunch and one where everybody does.</p>
+</section>
+<section id="what-trouble-actually-looks-like-across-the-range" class="level3" data-number="19.8.5">
+<h3 data-number="19.8.5" class="anchored" data-anchor-id="what-trouble-actually-looks-like-across-the-range"><span class="header-section-number">19.8.5</span> What Trouble Actually Looks Like Across the Range</h3>
+<p>The two cases above are the ends of a continuum. Here is the middle, using the same true effect measured four times. <code>X1</code> and <code>Y</code> are identical in every row; the only thing that changes is how strongly the <em>other</em> predictor correlates with <code>X1</code>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>CollinearDemo <span class="ot">&lt;-</span> <span class="cf">function</span>(r) {</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  X1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">200</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  X2 <span class="ot">&lt;-</span> r <span class="sc">*</span> X1 <span class="sc">+</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">-</span> r<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">rnorm</span>(<span class="dv">200</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  Y  <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> X1 <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">200</span>, <span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  Model <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y <span class="sc">~</span> X1 <span class="sc">+</span> X2)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">r     =</span> r,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">VIF   =</span> <span class="fu">unname</span>(<span class="fu">vif</span>(Model)[<span class="dv">1</span>]),</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SE.X1 =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(Model))[<span class="st">"X1"</span>, <span class="st">"Std. Error"</span>],</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">p.X1  =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(Model))[<span class="st">"X1"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>CollinearTable <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">sapply</span>(<span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>), CollinearDemo))</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(CollinearTable, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        r     VIF  SE.X1   p.X1
+[1,] 0.00  1.0021 0.3344 0.0000
+[2,] 0.50  1.2863 0.3788 0.0001
+[3,] 0.90  5.1322 0.7567 0.0391
+[4,] 0.99 50.2847 2.3684 0.4255</code></pre>
+</div>
+</div>
+<p>Nothing about the relationship between <code>X1</code> and <code>Y</code> changed down that table. The effect is genuinely there in all four rows, built by the same line of code from the same numbers. What changed is our ability to see it: at <span class="math inline">\(r = .9\)</span> the effect scrapes past significance at <span class="math inline">\(p =\)</span> 0.039, and at <span class="math inline">\(r = .99\)</span> it is gone entirely, at <span class="math inline">\(p =\)</span> 0.43.</p>
+<p>Nothing mysterious is happening, and you already have the formula that predicts it. The <span class="math inline">\(\sqrt{VIF_j}\)</span> tax is doing all of the work, and the table lets you check it.</p>
+<p>At <span class="math inline">\(r = .9\)</span> the VIF is 5.13, so the formula says the standard error should be <span class="math inline">\(\sqrt{5.13} =\)</span> 2.27 times the standing-alone version. The table says <code>SE.X1</code> climbed from 0.334 to 0.757, a ratio of 2.26. Prediction and observation, agreeing to two decimals, on a table generated before anyone mentioned the formula.</p>
+<p>The last row is the useful warning. A VIF of 50 is a <span class="math inline">\(\sqrt{}\)</span> tax of about 7.1, which means that predictor is being measured with roughly 7.1 times less precision than the design nominally bought. The effect is still exactly 2. You just paid your entire sample size to the other predictor.</p>
+<p>This is also the cost that the <a href="./Ch_13_Multiple_Regression.html">Multiple Regression: Statistical Control chapter</a> promised you would meet later, where the controlled slope came with a slightly larger standard error than the uncontrolled one. This is later, and this is the meter.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="The 5-and-10 Rule Is Folklore, Not Divine Law">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The 5-and-10 Rule Is Folklore, Not Divine Law
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You will read that VIF above 5 is concerning and above 10 is serious. Nobody derived those numbers. They are round, they are memorable, and they have no distributional justification.</p>
+<p>The question that has an answer is narrower: <strong>is the standard error on the coefficient I care about small enough to answer my question?</strong> A VIF of 12 on a nuisance covariate you will never interpret is not a problem. A VIF of 3 on your primary predictor, in a study that was already underpowered, might be fatal. Look at the interval, not the threshold.</p>
+</div>
+</div>
+<p>Multicollinearity is also not a data-cleaning problem, but it can be a theory problem.</p>
+<p>First, dropping one of two correlated predictors does make the VIF fall, but it changes the model into a different model that answers a different question, and the slope you are left with is no longer controlled for the thing you dropped. You have not fixed the collinearity. You have stopped asking the question that produced it.</p>
+<p>Second, and this is the one that actually happens: suppose you have two predictors, one is “free student lunch” and the second is whether the student is part of a school voucher program. You might enter both into the model cause some paper you read said they are independent and different predictors of SES. Well, the data say otherwise, cause of who the sample you collected happens to be. The theory may say X, but the data say Y. You cannot keep them both if they are the focal predictors, since they will eat each other, exactly as free lunch and paid lunch did above. If they were just covariates you needed to control for, that is okay.</p>
+<p>Multicollinearity is not repaired by staring harder at the output. Possible solutions include improving the design, collecting more informative cases, combining redundant measures when theory supports it, or narrowing the question.</p>
+</section>
+</section>
+<section id="independence-and-clustering" class="level2" data-number="19.9">
+<h2 data-number="19.9" class="anchored" data-anchor-id="independence-and-clustering"><span class="header-section-number">19.9</span> Independence and Clustering</h2>
+<p>Ordinary regression assumes residuals are independent. Repeated observations from one person, students within classrooms, siblings within families, and responses to the same stimulus are not independent simply because the spreadsheet gave them separate rows.</p>
+<p>If residuals share a source, use a design-aware method such as a mixed-effects model. The <a href="./Ch_18_Mixed_Regression.html">mixed regression chapter</a> does exactly that: it tells the model which rows belong to the same person, instead of letting it believe it met a room full of strangers.</p>
+<p>This is the one assumption on the list that a diagnostic plot will not rescue you from. Non-independence is a fact about how the data were collected, and you know it before you fit anything. No residual plot reliably reveals clustering you have not told the model about, and no robust standard error repairs it.</p>
+</section>
+<section id="a-diagnostic-workflow" class="level2" data-number="19.10">
+<h2 data-number="19.10" class="anchored" data-anchor-id="a-diagnostic-workflow"><span class="header-section-number">19.10</span> A Diagnostic Workflow</h2>
+<ol type="1">
+<li>Plot the raw data.</li>
+<li>Fit the theoretically justified model.</li>
+<li>Plot residuals against fitted values.</li>
+<li>Inspect Q–Q behavior and residual tails.</li>
+<li>Examine leverage and influence.</li>
+<li>Check predictor redundancy.</li>
+<li>Ask whether observations are independent.</li>
+<li>Investigate suspicious cases against the original records.</li>
+<li>Report consequential problems and sensitivity analyses.</li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled" title="Deleting the Problem Is Not Diagnosing the Problem">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Deleting the Problem Is Not Diagnosing the Problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Never remove an observation merely because it weakens the hypothesis. Correct impossible values, explain defensible exclusions, and compare conclusions with and without influential cases. If one person reverses the entire result, that instability is part of the result.</p>
+</div>
+</div>
+</section>
+<section id="the-mathematics-under-the-diagnostic-pictures" class="level2" data-number="19.11">
+<h2 data-number="19.11" class="anchored" data-anchor-id="the-mathematics-under-the-diagnostic-pictures"><span class="header-section-number">19.11</span> The Mathematics Under the Diagnostic Pictures</h2>
+<p>Ordinary least squares produces fitted values through the <strong>hat matrix</strong>:</p>
+<p><span class="math display">\[
+\widehat{\mathbf y}=\mathbf H\mathbf y,
+\qquad
+\mathbf H=\mathbf X(\mathbf X'\mathbf X)^{-1}\mathbf X'.
+\]</span></p>
+<p>The diagonal value <span class="math inline">\(h_{ii}\)</span> is observation <span class="math inline">\(i\)</span>’s leverage. Leverage comes from an unusual predictor pattern, not an unusual outcome by itself. A point can have high leverage and still sit obediently on the regression line. It becomes influential when its leverage combines with a meaningful residual.</p>
+<p>Studentized residuals scale each residual by an estimate of its own uncertainty. Cook’s distance then asks how much the fitted model would change if observation <span class="math inline">\(i\)</span> vanished:</p>
+<p><span class="math display">\[
+D_i \propto
+\frac{r_i^2}{p}
+\frac{h_{ii}}{1-h_{ii}}.
+\]</span></p>
+<p>The exact cutoffs are screening rules, not automatic deletion warrants. Inspect the case, verify the data, refit with and without it, and explain what changed.</p>
+</section>
+<section id="when-the-variance-changes" class="level2" data-number="19.12">
+<h2 data-number="19.12" class="anchored" data-anchor-id="when-the-variance-changes"><span class="header-section-number">19.12</span> When the Variance Changes</h2>
+<p>Heteroscedasticity does not usually bias the OLS slope when the mean model is correct, but it can damage the ordinary standard errors. Possible responses include modeling the variance, transforming the outcome when scientifically sensible, using a model family that matches the outcome, or reporting heteroscedasticity-consistent standard errors. The picture tells you a problem exists; theory tells you which response makes sense.</p>
+<p>That last option you will see some papers use has multiple names: “robust standard errors” and “the sandwich estimator”. However, most people using them could not say what is being made robust to what, so here is the machinery.</p>
+<section id="where-the-ordinary-standard-errors-come-from" class="level3" data-number="19.12.1">
+<h3 data-number="19.12.1" class="anchored" data-anchor-id="where-the-ordinary-standard-errors-come-from"><span class="header-section-number">19.12.1</span> Where the Ordinary Standard Errors Come From</h3>
+<p>Every standard error <code>lm()</code> printed came out of one matrix:</p>
+<p><span class="math display">\[
+\widehat{Var}(\mathbf b)=\widehat\sigma^{2}\left(\mathbf X'\mathbf X\right)^{-1}.
+\]</span></p>
+<p>Take the square roots of its diagonal and you have the <code>Std. Error</code> column. Notice the single <span class="math inline">\(\widehat\sigma^{2}\)</span> standing outside the matrix. That is the whole homoscedasticity assumption, written down: <strong>one</strong> error variance, the same for every observation, so it factors out and one number can be estimated by pooling all the residuals.</p>
+<p>The general expression, which does not assume that, is:</p>
+<p><span class="math display">\[
+Var(\mathbf b)=
+\underbrace{\left(\mathbf X'\mathbf X\right)^{-1}}_{\text{bread}}
+\underbrace{\left(\mathbf X'\boldsymbol\Omega\mathbf X\right)}_{\text{filling}}
+\underbrace{\left(\mathbf X'\mathbf X\right)^{-1}}_{\text{bread}}
+\]</span></p>
+<p>where <span class="math inline">\(\boldsymbol\Omega\)</span> is the diagonal matrix of individual error variances <span class="math inline">\(\sigma_i^2\)</span>. <strong>That is the sandwich, and the name is descriptive rather than whimsical:</strong> the same bread on both sides, something else in the middle.</p>
+<p>The two formulas are not rivals. Set every <span class="math inline">\(\sigma_i^2\)</span> equal to a common <span class="math inline">\(\sigma^2\)</span>, so <span class="math inline">\(\boldsymbol\Omega=\sigma^2\mathbf I\)</span>, and the filling collapses to <span class="math inline">\(\sigma^2\mathbf X'\mathbf X\)</span>, which cancels one of the breads and leaves <span class="math inline">\(\sigma^2(\mathbf X'\mathbf X)^{-1}\)</span> exactly. <strong>The ordinary standard errors are the sandwich, under the assumption that every observation is equally noisy.</strong> Robust standard errors are not a different theory. They are the same expression with the assumption removed.</p>
+</section>
+<section id="estimating-the-filling" class="level3" data-number="19.12.2">
+<h3 data-number="19.12.2" class="anchored" data-anchor-id="estimating-the-filling"><span class="header-section-number">19.12.2</span> Estimating the Filling</h3>
+<p>The problem is that <span class="math inline">\(\boldsymbol\Omega\)</span> contains one variance per person and we have one observation per person, so it cannot be estimated the usual way. White’s insight was that we never need <span class="math inline">\(\boldsymbol\Omega\)</span> itself, only the sandwiched product <span class="math inline">\(\mathbf X'\boldsymbol\Omega\mathbf X\)</span>, and that squared residuals are good enough for that job even though <span class="math inline">\(e_i^2\)</span> is a hopeless estimate of any individual <span class="math inline">\(\sigma_i^2\)</span> <span class="citation" data-cites="white1980">(<a href="#ref-white1980" role="doc-biblioref">White 1980</a>)</span>. The errors average out inside the product.</p>
+<p>The <code>HC</code> family is a set of choices about what exactly to put on that diagonal:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Diagonal entry</th>
+<th>What it is doing</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>HC0</code></td>
+<td><span class="math inline">\(e_i^2\)</span></td>
+<td>White’s original. Biased low in small samples.</td>
+</tr>
+<tr class="even">
+<td><code>HC1</code></td>
+<td><span class="math inline">\(\frac{n}{n-p}\,e_i^2\)</span></td>
+<td>HC0 with the degrees-of-freedom correction <code>lm()</code> already applies.</td>
+</tr>
+<tr class="odd">
+<td><code>HC2</code></td>
+<td><span class="math inline">\(\dfrac{e_i^2}{1-h_{ii}}\)</span></td>
+<td>Corrects for the fact that high-leverage points have artificially small residuals.</td>
+</tr>
+<tr class="even">
+<td><code>HC3</code></td>
+<td><span class="math inline">\(\dfrac{e_i^2}{(1-h_{ii})^2}\)</span></td>
+<td>Approximates leaving each case out and refitting. The conservative default.</td>
+</tr>
+</tbody>
+</table>
+<p>Long and Ervin tested these on thousands of simulated small samples and recommend <strong>HC3 as the default whenever <span class="math inline">\(n\)</span> is below about 250</strong>, which is most of psychology <span class="citation" data-cites="longervin2000">(<a href="#ref-longervin2000" role="doc-biblioref">Long and Ervin 2000</a>)</span>. Use HC3 unless you have a specific reason not to.</p>
+</section>
+<section id="building-it-yourself" class="level3" data-number="19.12.3">
+<h3 data-number="19.12.3" class="anchored" data-anchor-id="building-it-yourself"><span class="header-section-number">19.12.3</span> Building It Yourself</h3>
+<p>Three lines of matrix algebra, and no package:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(TherapyModel)   <span class="co"># the design matrix, intercept column included</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">residuals</span>(TherapyModel)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="fu">hatvalues</span>(TherapyModel)      <span class="co"># the same leverages as before</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>Bread <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>Filling <span class="ot">&lt;-</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> <span class="fu">diag</span>(e<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> h)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">%*%</span> X   <span class="co"># HC3</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>HC3.by.hand <span class="ot">&lt;-</span> Bread <span class="sc">%*%</span> Filling <span class="sc">%*%</span> Bread</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(<span class="fu">diag</span>(HC3.by.hand))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)    Sessions    Baseline 
+  7.5973832   0.2895539   0.1306439 </code></pre>
+</div>
+</div>
+<p>Now the package version:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sandwich: robust and clustered covariance matrices.</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># lmtest: re-tests a fitted model against any covariance matrix you hand it.</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(TherapyModel, <span class="at">vcov =</span> <span class="fu">vcovHC</span>(TherapyModel, <span class="at">type =</span> <span class="st">"HC3"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+t test of coefficients:
+
+            Estimate Std. Error t value  Pr(&gt;|t|)    
+(Intercept) 11.77323    7.59738  1.5496    0.1268    
+Sessions     1.93638    0.28955  6.6875 1.054e-08 ***
+Baseline    -0.02332    0.13064 -0.1785    0.8590    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Identical, which is the point of showing both. <code>vcovHC()</code> returns the covariance matrix, and <code>coeftest()</code> takes your model plus that matrix and re-runs the <em>t</em>-tests with it. They are two separate jobs from two separate packages, which is why the call looks the way it does.</p>
+<p><strong>The estimates are untouched, to the last decimal.</strong> Nothing was refit. The slope of <code>Sessions</code> is the same number it always was, because the sandwich changes only the second formula, the one about uncertainty. The standard error rises from 0.22 to 0.29, so <em>t</em> falls from 8.83 to about 6.69. The conclusion does not change, which is the usual outcome and is not a reason to skip it.</p>
+<p>You can watch the ladder climb, too:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(<span class="fu">c</span>(<span class="st">"const"</span>, <span class="st">"HC0"</span>, <span class="st">"HC1"</span>, <span class="st">"HC2"</span>, <span class="st">"HC3"</span>), <span class="cf">function</span>(type) {</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>(<span class="fu">diag</span>(<span class="fu">vcovHC</span>(TherapyModel, <span class="at">type =</span> type)))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             const    HC0    HC1    HC2    HC3
+(Intercept) 5.6872 6.8635 7.0418 7.2201 7.5974
+Sessions    0.2194 0.2627 0.2695 0.2757 0.2896
+Baseline    0.0902 0.1177 0.1207 0.1240 0.1306</code></pre>
+</div>
+</div>
+<p><code>const</code> is the classical assumption, and it is the smallest in every row. The four HC variants increase in the order the table above predicts, because each one leans a little harder on the leverage correction.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Be Honest About What the Sandwich Is Reacting To">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Be Honest About What the Sandwich Is Reacting To
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This dataset is not actually heteroscedastic. So why did the standard errors grow? Participant 60, and now you have the formula to see exactly how.</p>
+<p>The HC3 filling weights each observation by <span class="math inline">\(e_i^2/(1-h_{ii})^2\)</span>. Participant 60 has a residual of about 26 and a leverage of 0.107, against an average leverage of 0.05. Squaring a residual that large is most of it; the leverage correction then multiplies that by a further 1.25.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>HC3weights <span class="ot">&lt;-</span> <span class="fu">residuals</span>(TherapyModel)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">hatvalues</span>(TherapyModel))<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">share.participant.60 =</span> <span class="fu">unname</span>(HC3weights[<span class="dv">60</span>] <span class="sc">/</span> <span class="fu">sum</span>(HC3weights)),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">share.next.largest   =</span> <span class="fu">unname</span>(<span class="fu">sort</span>(HC3weights, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">2</span>] <span class="sc">/</span> <span class="fu">sum</span>(HC3weights)),</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">share.if.all.equal   =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="fu">length</span>(HC3weights)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>share.participant.60   share.next.largest   share.if.all.equal 
+               0.370                0.085                0.017 </code></pre>
+</div>
+</div>
+<p><strong>One row out of sixty supplies 37% of the filling.</strong> If everyone contributed equally each would supply about 1.7%. Refit without participant 60 and the effect vanishes: the HC3 and ordinary attendance standard errors then land within 1% of each other.</p>
+<p>The lesson is not that the sandwich lied. It is that “my robust standard errors are much larger than my ordinary ones” is itself a diagnostic finding, and the thing it most often points at is influence rather than spread. Go look at the case before you congratulate yourself for being rigorous.</p>
+</div>
+</div>
+<p>Finally, a shortcut worth knowing about now that you have built these plots by hand. <code>performance::check_model(TherapyModel)</code> produces most of this chapter’s diagnostics as one annotated panel, with reference bands showing what the plots should look like when nothing is wrong. Use it. It is genuinely good, and it is much faster than what we just did.</p>
+<p>The hand-built versions still teach better, for the reason this whole chapter exists: a bundled panel tells you which plot looks unusual, and you still have to be the person who decides whether that matters, checks the case against the original records, and reports what changed. The software is obedient. You still have to be the adult in the room.</p>
+</section>
+</section>
+<section id="the-four-packages-and-where-the-real-derivations-live" class="level2" data-number="19.13">
+<h2 data-number="19.13" class="anchored" data-anchor-id="the-four-packages-and-where-the-real-derivations-live"><span class="header-section-number">19.13</span> The Four Packages, and Where the Real Derivations Live</h2>
+<p>This chapter used four packages, and it is worth knowing what each is for, because they are not interchangeable and their names do not tell you much.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>What it does here</th>
+<th>Where it came from</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><code>car</code></strong></td>
+<td><code>vif()</code>, and most of the regression diagnostics psychologists use</td>
+<td>Companion to Fox and Weisberg’s regression textbook <span class="citation" data-cites="fox2019">(<a href="#ref-fox2019" role="doc-biblioref">Fox and Weisberg 2019</a>)</span></td>
+</tr>
+<tr class="even">
+<td><strong><code>sandwich</code></strong></td>
+<td><code>vcovHC()</code>, the robust covariance matrix itself</td>
+<td>Zeileis’s HC and HAC implementation <span class="citation" data-cites="zeileis2004">(<a href="#ref-zeileis2004" role="doc-biblioref">Zeileis 2004</a>)</span></td>
+</tr>
+<tr class="odd">
+<td><strong><code>lmtest</code></strong></td>
+<td><code>coeftest()</code>, which re-tests a fitted model against any covariance matrix you hand it</td>
+<td>Zeileis and Hothorn’s diagnostic-checking toolkit <span class="citation" data-cites="zeileis2002">(<a href="#ref-zeileis2002" role="doc-biblioref">Zeileis and Hothorn 2002</a>)</span></td>
+</tr>
+<tr class="even">
+<td><strong><code>performance</code></strong></td>
+<td><code>check_model()</code>, the all-in-one diagnostic panel</td>
+<td>Part of the easystats project <span class="citation" data-cites="ludecke2021">(<a href="#ref-ludecke2021" role="doc-biblioref">Lüdecke et al. 2021</a>)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Note the division of labor between <code>sandwich</code> and <code>lmtest</code>, since it explains a call that otherwise looks fussy. <code>sandwich</code> <em>computes covariance matrices</em> and knows nothing about hypothesis tests. <code>lmtest</code> <em>runs tests</em> and does not care where the covariance matrix came from. That is why the robust <em>t</em>-test needs one function from each, and it is also why the same <code>vcovHC()</code> result can be handed to <code>confint()</code>, to <code>car::linearHypothesis()</code>, and to most other things that accept a <code>vcov</code> argument.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Every Package Is Carrying Its Own Bibliography">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Every Package Is Carrying Its Own Bibliography
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Everything in this chapter has a proper derivation somewhere, and R will tell you where. Run <code>citation("sandwich")</code> and you get the three papers the package implements, formatted and ready to paste. This works for <strong>any</strong> installed package.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">citation</span>(<span class="st">"sandwich"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="at">package =</span> <span class="st">"sandwich"</span>)          <span class="co"># list what is bundled</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">"sandwich"</span>)                    <span class="co"># open the HC and HAC paper</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>sandwich</code> package ships the full Zeileis (2004) paper as a vignette, so the actual derivation of every <code>HC</code> type in that table is sitting on your hard drive right now. <code>lmtest</code> ships its own. This is not documentation in the “list of arguments” sense; these are peer-reviewed journal articles that happen to be installed alongside the code.</p>
+<p>Two habits follow. <strong>Cite the packages you analyze with</strong>, since somebody wrote and maintains them for free and citation is the only currency involved. And when you want the argument behind a method rather than the syntax, look in the package before you look on the internet. The derivation for this chapter’s robust standard errors is <code>vignette("sandwich")</code>, and it is better than anything a search will hand you.</p>
+</div>
+</div>
+</section>
+<section id="the-short-story" class="level2" data-number="19.14">
+<h2 data-number="19.14" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">19.14</span> The Short Story</h2>
+<ul>
+<li>Diagnostics ask two questions: do the model’s leftovers behave as assumed, and is a small number of observations writing the conclusion?</li>
+<li><strong>Leverage is not influence.</strong> Leverage is an unusual predictor pattern; influence is when removing the case moves the fit. A point needs both to matter.</li>
+<li><strong>Screening thresholds are for finding cases, not deleting them.</strong> <span class="math inline">\(D_i &gt; 4/N\)</span> flagged three people here and only one of them changed anything.</li>
+<li><strong>Refit without the influential case and report both models.</strong> If one person reverses the result, that instability <em>is</em> the result. Reporting only the friendlier version is shopping with extra steps.</li>
+<li><strong>A VIF is a precision meter, not a pass/fail test.</strong> <span class="math inline">\(\sqrt{VIF}\)</span> is how much your standard error was inflated; the 5-and-10 rule is folklore.</li>
+<li><strong>Independence is a design fact, not a residual pattern you can patch.</strong> Clustered data needs a design-aware model, not a robust standard error and some optimism.</li>
+<li>A significant coefficient is not a certificate. It is one number from a model that has not yet been checked.</li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-fox2019" class="csl-entry" role="listitem">
+Fox, John, and Sanford Weisberg. 2019. <em>An r Companion to Applied Regression</em>. Third. Sage. <a href="https://www.john-fox.ca/Companion/">https://www.john-fox.ca/Companion/</a>.
+</div>
+<div id="ref-longervin2000" class="csl-entry" role="listitem">
+Long, J. Scott, and Laurie H. Ervin. 2000. <span>“Using Heteroscedasticity Consistent Standard Errors in the Linear Regression Model.”</span> <em>The American Statistician</em> 54 (3): 217–24. <a href="https://doi.org/10.1080/00031305.2000.10474549">https://doi.org/10.1080/00031305.2000.10474549</a>.
+</div>
+<div id="ref-ludecke2021" class="csl-entry" role="listitem">
+Lüdecke, Daniel, Mattan S. Ben-Shachar, Indrajeet Patil, Philip Waggoner, and Dominique Makowski. 2021. <span>“Performance: An <span>R</span> Package for Assessment, Comparison and Testing of Statistical Models.”</span> <em>Journal of Open Source Software</em> 6 (60): 3139. <a href="https://doi.org/10.21105/joss.03139">https://doi.org/10.21105/joss.03139</a>.
+</div>
+<div id="ref-white1980" class="csl-entry" role="listitem">
+White, Halbert. 1980. <span>“A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity.”</span> <em>Econometrica</em> 48 (4): 817–38. <a href="https://doi.org/10.2307/1912934">https://doi.org/10.2307/1912934</a>.
+</div>
+<div id="ref-zeileis2004" class="csl-entry" role="listitem">
+Zeileis, Achim. 2004. <span>“Econometric Computing with <span>HC</span> and <span>HAC</span> Covariance Matrix Estimators.”</span> <em>Journal of Statistical Software</em> 11 (10): 1–17. <a href="https://doi.org/10.18637/jss.v011.i10">https://doi.org/10.18637/jss.v011.i10</a>.
+</div>
+<div id="ref-zeileis2002" class="csl-entry" role="listitem">
+Zeileis, Achim, and Torsten Hothorn. 2002. <span>“Diagnostic Checking in Regression Relationships.”</span> <em>R News</em> 2 (3): 7–10. <a href="https://CRAN.R-project.org/doc/Rnews/">https://CRAN.R-project.org/doc/Rnews/</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_18_Mixed_Regression.html" class="pagination-link" aria-label="Mixed Regression: Between People and Within People">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_20_Multiple_Comparisons.html" class="pagination-link" aria-label="P-Values and Multiple Comparisons">
+        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_19_Regression_Diagnostics.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

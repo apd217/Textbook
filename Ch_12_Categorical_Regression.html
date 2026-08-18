@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>12&nbsp; Linear Regression with Categorical Variables – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_13_Multiple_Regression.html" rel="next">
+<link href="./Ch_11_Intro_Regression.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_12_Categorical_Regression.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_10_Covariance_Correlation.html">Putting Lines Through Things</a></li><li class="breadcrumb-item"><a href="./Ch_12_Categorical_Regression.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-promise-from-last-chapter" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="the-promise-from-last-chapter"><span class="header-section-number">12.1</span> The Promise From Last Chapter</h2>
+<p>The last chapter said the outcome has to be quantitative but the predictors are far less picky, and that we would start feeding regression categorical variables on purpose.</p>
+<p>This is that chapter.</p>
+<p>The question is genuinely strange the first time you meet it. Regression multiplies a predictor by a slope, and you cannot multiply “Texting” by 0.34. So how does a model built entirely out of arithmetic handle a variable whose values are words?</p>
+<p>The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something quietly excellent falls out: the <em>t</em>-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.</p>
+</section>
+<section id="distracted-driving" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="distracted-driving"><span class="header-section-number">12.2</span> Distracted Driving</h2>
+<p>Driving requires constant attention. When something unexpected happens, such as a car braking suddenly, you must react quickly. Psychologists studying attention have shown that distractions slow reaction time. One of the most dangerous distractions is texting while driving.</p>
+<p>The data in this chapter are simulated. Do not reproduce the study by handing undergraduates phones, placing them in actual traffic, and chasing the car with a bat to improve ecological validity seen in city style road rage. Use a simulator and an ethics-approved protocol. The Institutional Review Board enjoys fewer surprises than the Probability Gods.</p>
+<p>In this example we examine <strong>braking reaction time</strong> (seconds) under different driving conditions.</p>
+<p>Reaction time is measured in seconds. Larger values indicate slower reactions (which is bad).</p>
+<section id="dummy-coding" class="level3" data-number="12.2.1">
+<h3 data-number="12.2.1" class="anchored" data-anchor-id="dummy-coding"><span class="header-section-number">12.2.1</span> Dummy Coding</h3>
+<p>When a predictor is categorical, regression cannot use the labels directly.<br>
+Regression requires numbers, so the categories must be translated into numeric variables.</p>
+<p>This process is called <strong>dummy coding</strong>. <em>Who are you calling a dummy? The coding scheme not the coder.</em> It is the most common coding scheme, and the <strong>default used by R</strong> whenever it detects a factor.</p>
+</section>
+<section id="dummy-coding-details" class="level3" data-number="12.2.2">
+<h3 data-number="12.2.2" class="anchored" data-anchor-id="dummy-coding-details"><span class="header-section-number">12.2.2</span> Dummy Coding Details</h3>
+<p>Dummy coding compares each group to a <strong>reference group</strong>.</p>
+<p>The reference group serves as the <strong>baseline</strong> or <strong>zero point</strong> for the model.<br>
+All other groups are interpreted relative to that baseline.</p>
+<p>In other words, the model asks: <em>How much does each group deviate from the reference group?</em></p>
+</section>
+</section>
+<section id="two-level-example" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="two-level-example"><span class="header-section-number">12.3</span> Two-Level Example</h2>
+<p>Suppose we conduct a study comparing two driving conditions: <strong>No distraction</strong> vs <strong>Texting while driving</strong></p>
+<p>We collect data for: <span class="math inline">\(n = 30\)</span> drivers per group (<em>dataframe = dat2</em>)</p>
+<p>We have two driving conditions (and predict):</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Reaction Time Prediction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No distraction</td>
+<td>faster</td>
+</tr>
+<tr class="even">
+<td>Texting</td>
+<td>slower</td>
+</tr>
+</tbody>
+</table>
+<p>To represent this in regression, we create a dummy variable.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>C1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No Distraction</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Texting</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Here:</p>
+<ul>
+<li><strong>0 represents the reference group</strong></li>
+<li><strong>1 represents the comparison group</strong></li>
+</ul>
+<p>So the dummy variable indicates whether a driver is texting. Note: We usually put the 1 on our experimental group.</p>
+<section id="how-this-connects-to-regression" class="level3" data-number="12.3.1">
+<h3 data-number="12.3.1" class="anchored" data-anchor-id="how-this-connects-to-regression"><span class="header-section-number">12.3.1</span> How This Connects to Regression</h3>
+<p>The regression model becomes</p>
+<p><span class="math display">\[
+RT = b_0 + b_1C_1
+\]</span></p>
+<p>Interpretation:</p>
+<ul>
+<li><span class="math inline">\(b_0\)</span> = the mean reaction time for the <strong>reference group</strong></li>
+<li><span class="math inline">\(b_1\)</span> = how much the <strong>Texting</strong> group differs from that reference group</li>
+</ul>
+</section>
+<section id="predicted-values" class="level3" data-number="12.3.2">
+<h3 data-number="12.3.2" class="anchored" data-anchor-id="predicted-values"><span class="header-section-number">12.3.2</span> Predicted Values</h3>
+<p>For <strong>No Distraction</strong>:</p>
+<p><span class="math inline">\(C_1 = 0\)</span></p>
+<p><span class="math display">\[
+RT = b_0 + b_10
+\]</span></p>
+<p>Which simplifies to</p>
+<p><span class="math display">\[
+RT = b_0
+\]</span></p>
+<ul>
+<li>the <strong>intercept (b_0) equals the mean reaction time for No Distraction</strong></li>
+</ul>
+<p>For <strong>Texting</strong>:</p>
+<p><span class="math inline">\(C_1 = 1\)</span></p>
+<p><span class="math display">\[
+RT = b_0 + b_11
+\]</span></p>
+<p>Which simplifies to <span class="math display">\[
+RT = b_0 + b_1
+\]</span></p>
+<ul>
+<li>the <strong>slope (<span class="math inline">\(b_1\)</span>) coefficient represents the difference between Texting and No Distraction</strong></li>
+</ul>
+<p>So the regression coefficients directly reproduce the group means.</p>
+</section>
+<section id="important" class="level3" data-number="12.3.3">
+<h3 data-number="12.3.3" class="anchored" data-anchor-id="important"><span class="header-section-number">12.3.3</span> Important</h3>
+<p>In R, you usually <strong>do not need to create dummy variables yourself</strong>.</p>
+<p>When a predictor is stored as a <strong>factor</strong>, R automatically creates the dummy-coded variables internally when fitting the model.</p>
+<p>The <strong>first level of the factor becomes the reference group</strong>.</p>
+<p>For example:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dat2<span class="sc">$</span>Condition <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat2<span class="sc">$</span>Condition,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"No Distraction"</span>, <span class="st">"Texting"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Because <code>"No Distraction"</code> appears first, it becomes the <strong>reference group</strong>.</p>
+<p>When we get our regression output from R you see it as:</p>
+<ul>
+<li>the <strong>intercept equals the mean reaction time for No Distraction</strong></li>
+<li>the <strong>ConditionTexting coefficient represents the difference between Texting and No Distraction</strong></li>
+</ul>
+</section>
+<section id="comparing-the-groups-with-a-t-test" class="level3" data-number="12.3.4">
+<h3 data-number="12.3.4" class="anchored" data-anchor-id="comparing-the-groups-with-a-t-test"><span class="header-section-number">12.3.4</span> Comparing the Groups with a <em>t</em>-test</h3>
+<p>We first test the hypothesis that texting increases reaction time.</p>
+<p>First we load the packages needed for this example.</p>
+<ul>
+<li><strong>tidyverse</strong>: used for data manipulation and summarizing the data<br>
+</li>
+<li><strong>apa</strong>: used to produce APA-style statistical output</li>
+</ul>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(apa)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="calculate-group-means-and-standard-deviations" class="level3" data-number="12.3.5">
+<h3 data-number="12.3.5" class="anchored" data-anchor-id="calculate-group-means-and-standard-deviations"><span class="header-section-number">12.3.5</span> Calculate Group Means and Standard Deviations</h3>
+<p>Before running a statistical test, it is always good practice to examine the descriptive statistics.</p>
+<p>The code below calculates the <strong>mean (M)</strong> and <strong>standard deviation (SD)</strong> of reaction time for each condition.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dat2 <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Condition) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">M =</span> <span class="fu">mean</span>(RT),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD =</span> <span class="fu">sd</span>(RT)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 x 3
+  Condition          M    SD
+  &lt;fct&gt;          &lt;dbl&gt; &lt;dbl&gt;
+1 No Distraction 0.664 0.137
+2 Texting        1.01  0.121</code></pre>
+</div>
+</div>
+<p>This gives us a quick summary of how reaction time differs across the two driving conditions.</p>
+</section>
+<section id="run-the-independent-samples-t-test" class="level3" data-number="12.3.6">
+<h3 data-number="12.3.6" class="anchored" data-anchor-id="run-the-independent-samples-t-test"><span class="header-section-number">12.3.6</span> Run the Independent Samples <em>t</em>-test</h3>
+<p>Next we test whether the difference between groups is statistically significant.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>texting.ttest <span class="ot">&lt;-</span> <span class="fu">t.test</span>(RT <span class="sc">~</span> Condition,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> dat2,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">var.equal =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Reminder:</p>
+<ul>
+<li><code>RT ~ Condition</code> tells R we are predicting <strong>reaction time</strong> from the <strong>driving condition</strong></li>
+<li><code>data = dat2</code> specifies which dataset to use</li>
+<li><code>var.equal = TRUE</code> assumes equal variances across groups (the standard Student <em>t</em>-test)</li>
+</ul>
+</section>
+<section id="print-the-results-in-apa-format" class="level3" data-number="12.3.7">
+<h3 data-number="12.3.7" class="anchored" data-anchor-id="print-the-results-in-apa-format"><span class="header-section-number">12.3.7</span> Print the Results in APA Format</h3>
+<p>Finally, we format the results in <strong>APA style</strong> using the <code>apa</code> package.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">apa</span>(texting.ttest, <span class="at">format=</span><span class="st">"rmarkdown"</span>) </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Note: format can also be "text", "markdown", "rmarkdown", "html", "latex" or "docx"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#I have to use rmarkdown cause of how I created this chapter. You might use use "text"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "*t*(58) = -10.21, *p* &lt; .001, *d* = -2.64"</code></pre>
+</div>
+</div>
+</section>
+<section id="apa-write-up" class="level3" data-number="12.3.8">
+<h3 data-number="12.3.8" class="anchored" data-anchor-id="apa-write-up"><span class="header-section-number">12.3.8</span> APA write up</h3>
+<p>Drivers who texted while driving had significantly slower reaction times (<span class="math inline">\(M =\)</span> 1.01, <span class="math inline">\(SD =\)</span> 0.12) than drivers with no distraction (<span class="math inline">\(M =\)</span> 0.66, <span class="math inline">\(SD =\)</span> 0.14), <span class="math inline">\(t(58) =\)</span> -10.21, <span class="math inline">\(p &lt; .001\)</span>, <span class="math inline">\(d =\)</span> -2.64, indicating that texting substantially increased reaction time.</p>
+<p><strong>Small note</strong>: the negative sign on <span class="math inline">\(t\)</span> simply reflects the order of subtraction (No Distraction minus Texting).</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="A d of 2.6 Should Be Making You Suspicious">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A d of 2.6 Should Be Making You Suspicious
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>By now you have read the power chapter, so that effect size should raise an eyebrow. Real texting-while-driving effects are large, which is exactly why it is illegal, but they are not science-fiction large. Published estimates sit closer to <span class="math inline">\(d\)</span> of 0.5 to 1.</p>
+<p>I built this simulation to make the pictures come out clean. Simulated data lies politely, and it will happily calibrate your intuitions to a world that does not exist.</p>
+</div>
+</div>
+</section>
+<section id="the-same-analysis-using-regression" class="level3" data-number="12.3.9">
+<h3 data-number="12.3.9" class="anchored" data-anchor-id="the-same-analysis-using-regression"><span class="header-section-number">12.3.9</span> The Same Analysis Using Regression</h3>
+<p>Now we run the equivalent regression model.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(RT <span class="sc">~</span> Condition, <span class="at">data =</span> dat2)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = RT ~ Condition, data = dat2)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.31427 -0.09282 -0.00903  0.08735  0.34813 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)       0.66388    0.02362   28.11  &lt; 2e-16 ***
+ConditionTexting  0.34115    0.03340   10.21 1.41e-14 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1294 on 58 degrees of freedom
+Multiple R-squared:  0.6427,    Adjusted R-squared:  0.6365 
+F-statistic: 104.3 on 1 and 58 DF,  p-value: 1.412e-14</code></pre>
+</div>
+</div>
+</section>
+<section id="why-are-the-t-values-the-same" class="level3" data-number="12.3.10">
+<h3 data-number="12.3.10" class="anchored" data-anchor-id="why-are-the-t-values-the-same"><span class="header-section-number">12.3.10</span> Why Are the <em>t</em>-values the Same?</h3>
+<p>Stop and compare two numbers before going any further, because this is the whole point of the section.</p>
+<p>In the <code>ConditionTexting</code> row above: <span class="math inline">\(t =\)</span> 10.21, <span class="math inline">\(p &lt; .001\)</span>.</p>
+<p>Back in the <em>t</em>-test: <span class="math inline">\(t =\)</span> -10.21, <span class="math inline">\(p &lt; .001\)</span>.</p>
+<p>Same magnitude, opposite sign. Not similar. <em>Identical.</em></p>
+<p>The sign flip is bookkeeping: <code>t.test()</code> subtracted in the order No Distraction minus Texting, and the regression reports Texting relative to No Distraction. Everything else matches because the two procedures are doing the same arithmetic:</p>
+<ul>
+<li>The regression slope <strong>is</strong> the difference between the group means.</li>
+<li>Its standard error <strong>is</strong> the pooled standard error of that difference.</li>
+<li>Dividing one by the other is precisely what the <em>t</em>-test did.</li>
+</ul>
+<p>One condition on that equivalence, and it is worth naming. It holds because we ran the <em>t</em>-test with <code>var.equal = TRUE</code>. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student <em>t</em>-test makes. Ask for Welch’s version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.</p>
+<p>The regression equation is</p>
+<p><span class="math display">\[
+RT = b_0 + b_1X
+\]</span></p>
+<p>Interpretation:</p>
+<ul>
+<li><span class="math inline">\(b_0\)</span> = mean reaction time for <strong>No Distraction</strong></li>
+<li><span class="math inline">\(b_1\)</span> = difference between <strong>Texting</strong> and <strong>No Distraction</strong></li>
+</ul>
+<p>Because the dummy variable for No Distraction is 0:</p>
+<p>For No Distraction</p>
+<p><span class="math display">\[
+RT = b_0
+\]</span></p>
+<p>For Texting</p>
+<p><span class="math display">\[
+RT = b_0 + b_1
+\]</span></p>
+<p>So the intercept is simply the mean reaction time for the reference group.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model2)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     (Intercept) ConditionTexting 
+       0.6638792        0.3411475 </code></pre>
+</div>
+</div>
+<p>Which gives us:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Intercept</td>
+<td>0.664</td>
+</tr>
+<tr class="even">
+<td>ConditionTexting</td>
+<td>0.341</td>
+</tr>
+</tbody>
+</table>
+<p>Now we can reconstruct the means.</p>
+</section>
+<section id="no-distraction" class="level3" data-number="12.3.11">
+<h3 data-number="12.3.11" class="anchored" data-anchor-id="no-distraction"><span class="header-section-number">12.3.11</span> No Distraction</h3>
+<p><span class="math display">\[
+RT = b_0
+\]</span></p>
+<p><span class="math display">\[
+RT = 0.664
+\]</span></p>
+<p>So the predicted mean reaction time is <strong>0.664 seconds</strong>.</p>
+</section>
+<section id="texting" class="level3" data-number="12.3.12">
+<h3 data-number="12.3.12" class="anchored" data-anchor-id="texting"><span class="header-section-number">12.3.12</span> Texting</h3>
+<p><span class="math display">\[
+RT = b_0 + b_1
+\]</span></p>
+<p><span class="math display">\[
+RT = 0.664 + 0.341
+\]</span></p>
+<p><span class="math display">\[
+RT = 1.005
+\]</span></p>
+<p>So the predicted mean reaction time is <strong>1.005 seconds</strong> for texting while driving.</p>
+<p>These values match the observed group means from the data.</p>
+<p><strong>Regression coefficients are simply another way of expressing the group means and their differences.</strong></p>
+</section>
+<section id="extracting-the-means-with-emmeans" class="level3" data-number="12.3.13">
+<h3 data-number="12.3.13" class="anchored" data-anchor-id="extracting-the-means-with-emmeans"><span class="header-section-number">12.3.13</span> Extracting the Means with <code>emmeans</code></h3>
+<p>We can also extract the model-estimated means so we do not have to reconstruct them manually from the regression equation.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(model2, <span class="sc">~</span> Condition)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition      emmean     SE df lower.CL upper.CL
+ No Distraction  0.664 0.0236 58    0.617    0.711
+ Texting         1.005 0.0236 58    0.958    1.052
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+</section>
+<section id="what-the-code-does" class="level3" data-number="12.3.14">
+<h3 data-number="12.3.14" class="anchored" data-anchor-id="what-the-code-does"><span class="header-section-number">12.3.14</span> What the Code Does</h3>
+<p><code>library(emmeans)</code> loads the <strong>emmeans</strong> package. This package is designed to extract and compare means from statistical models such as regression.</p>
+<p><code>emmeans(model2, ~ Condition)</code> tells R:</p>
+<ul>
+<li>use the regression model <strong>model2</strong></li>
+<li>estimate the means for each level of <strong>Condition</strong></li>
+</ul>
+<p>The <code>~ Condition</code> part means:<br>
+<em>compute the means for the variable Condition.</em></p>
+</section>
+<section id="what-estimated-marginal-means-means" class="level3" data-number="12.3.15">
+<h3 data-number="12.3.15" class="anchored" data-anchor-id="what-estimated-marginal-means-means"><span class="header-section-number">12.3.15</span> What “Estimated Marginal Means” Means</h3>
+<p>The name <strong>emmeans</strong> stands for <strong>Estimated Marginal Means</strong>.</p>
+<p>Estimated marginal means are the <strong>means predicted by the statistical model</strong>.</p>
+<p>Why <em>marginal</em>? Before computers did all this instantly, people wrote the means in the margins of tables using actual pencils. They were Number 2 pencils, naturally—the same pencils you never remember to bring to my exams. iPads are new. Most of the old people who write R packages or statistics books were born in the 1900s and are older than the internet.</p>
+<p>In this simple example, they correspond directly to the group means:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Predicted Mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No Distraction</td>
+<td><span class="math inline">\(b_0\)</span></td>
+</tr>
+<tr class="even">
+<td>Texting</td>
+<td><span class="math inline">\(b_0 + b_1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>So <code>emmeans()</code> is simply doing the same math we just performed manually:</p>
+<ul>
+<li>extracting the intercept</li>
+<li>adding the appropriate regression coefficients</li>
+<li>reporting the predicted group means</li>
+</ul>
+</section>
+<section id="why-this-is-useful" class="level3" data-number="12.3.16">
+<h3 data-number="12.3.16" class="anchored" data-anchor-id="why-this-is-useful"><span class="header-section-number">12.3.16</span> Why This Is Useful</h3>
+<p>For simple models like this one, calculating the means by hand is straightforward.</p>
+<p>However, as models become more complex (for example, with multiple predictors or interactions), manually reconstructing the means becomes tedious.</p>
+<p><code>emmeans</code> provides a convenient way to:</p>
+<ul>
+<li>extract the model-based means</li>
+<li>compare groups</li>
+<li>obtain confidence intervals</li>
+<li>perform additional tests</li>
+</ul>
+<p>All while keeping the results tied directly to the regression model.</p>
+</section>
+<section id="testing-the-difference-with-emmeans" class="level3" data-number="12.3.17">
+<h3 data-number="12.3.17" class="anchored" data-anchor-id="testing-the-difference-with-emmeans"><span class="header-section-number">12.3.17</span> Testing the Difference with <code>emmeans</code></h3>
+<p>We can also test the difference between groups directly from the regression model using <code>emmeans</code>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="fu">emmeans</span>(model2, <span class="sc">~</span> Condition))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast                 estimate     SE df t.ratio p.value
+ No Distraction - Texting   -0.341 0.0334 58 -10.213 &lt;0.0001</code></pre>
+</div>
+</div>
+</section>
+<section id="what-the-code-does-1" class="level3" data-number="12.3.18">
+<h3 data-number="12.3.18" class="anchored" data-anchor-id="what-the-code-does-1"><span class="header-section-number">12.3.18</span> What the Code Does</h3>
+<p>The function <code>emmeans(model2, ~ Condition)</code> first computes the <strong>estimated marginal means</strong> for each level of the factor <strong>Condition</strong> based on the regression model.</p>
+<p>The function <code>pairs()</code> then compares those means to one another.</p>
+<p>In this case, there are only two conditions, so the function tests the difference between:</p>
+<ul>
+<li><strong>Texting</strong></li>
+<li><strong>No Distraction</strong></li>
+</ul>
+</section>
+<section id="how-this-connects-to-the-regression-model" class="level3" data-number="12.3.19">
+<h3 data-number="12.3.19" class="anchored" data-anchor-id="how-this-connects-to-the-regression-model"><span class="header-section-number">12.3.19</span> How This Connects to the Regression Model</h3>
+<p>Recall that the regression equation is</p>
+<p><span class="math display">\[
+RT = b_0 + b_1X
+\]</span></p>
+<p>where</p>
+<ul>
+<li><span class="math inline">\(b_0\)</span> = mean reaction time for <strong>No Distraction</strong></li>
+<li><span class="math inline">\(b_1\)</span> = difference between <strong>Texting</strong> and <strong>No Distraction</strong></li>
+</ul>
+<p>The comparison performed by <code>pairs()</code> is therefore testing whether:</p>
+<p><span class="math display">\[
+b_1 = 0
+\]</span></p>
+<p>If <span class="math inline">\(b_1\)</span> is significantly different from zero, the two groups have different mean reaction times.</p>
+</section>
+<section id="comparison-to-t-test" class="level3" data-number="12.3.20">
+<h3 data-number="12.3.20" class="anchored" data-anchor-id="comparison-to-t-test"><span class="header-section-number">12.3.20</span> Comparison to <em>t</em>-test</h3>
+<p>Even though the output may look similar to a <em>t</em>-test, the comparison is now being computed <strong>within the regression framework</strong>.</p>
+<p>The means and the group comparison are both derived directly from the fitted regression model.</p>
+</section>
+<section id="apa-regression-write-up" class="level3" data-number="12.3.21">
+<h3 data-number="12.3.21" class="anchored" data-anchor-id="apa-regression-write-up"><span class="header-section-number">12.3.21</span> APA Regression Write up</h3>
+<p>Drivers who texted while driving had significantly slower reaction times than drivers with no distraction. Relative to this reference group (no distractions), the Texting condition increased reaction time by 0.34 seconds, <span class="math inline">\(b =\)</span> 0.34, <span class="math inline">\(SE =\)</span> 0.03, <span class="math inline">\(t(58) =\)</span> 10.21, <span class="math inline">\(p &lt; .001\)</span>. The model explained a substantial proportion of variance in reaction time, <span class="math inline">\(R^2 =\)</span> .64, <span class="math inline">\(F(1, 58) =\)</span> 104.31, <span class="math inline">\(p &lt; .001\)</span>, indicating that differences in driving condition accounted for about 64% of the variability in reaction times across drivers.</p>
+</section>
+<section id="plotting-the-model-estimated-means" class="level3" data-number="12.3.22">
+<h3 data-number="12.3.22" class="anchored" data-anchor-id="plotting-the-model-estimated-means"><span class="header-section-number">12.3.22</span> Plotting the Model-Estimated Means</h3>
+<p>We can also visualize the model-estimated means returned by <code>emmeans</code>.</p>
+<p>First we store the estimated means in an object.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>means <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(model2, <span class="sc">~</span> Condition)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>means</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition      emmean     SE df lower.CL upper.CL
+ No Distraction  0.664 0.0236 58    0.617    0.711
+ Texting         1.005 0.0236 58    0.958    1.052
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>To make plotting easier, we convert the results into a data frame.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>means_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(means)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>means_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition         emmean       SE df  lower.CL  upper.CL
+ No Distraction 0.6638792 0.023619 58 0.6166006 0.7111577
+ Texting        1.0050267 0.023619 58 0.9577482 1.0523053
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>The data frame contains:</p>
+<ul>
+<li><code>emmean</code> = the estimated mean</li>
+<li><code>lower.CL</code> = lower confidence interval</li>
+<li><code>upper.CL</code> = upper confidence interval</li>
+</ul>
+<p>Now we can quickly plot these values using <strong>ggplot</strong>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(means_df, <span class="fu">aes</span>(<span class="at">x =</span> Condition, <span class="at">y =</span> emmean)) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower.CL, <span class="at">ymax =</span> upper.CL), <span class="at">width =</span> .<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Reaction Time (seconds)"</span>) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Driving Condition"</span>)<span class="sc">+</span><span class="fu">theme_bw</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_12_Categorical_Regression_files/figure-html/two-level-means-plot-1.png" class="img-fluid figure-img" alt="Bar chart with two bars, No Distraction at about 0.66 seconds and Texting at about 1.01 seconds, each with a narrow error bar. The Texting bar is clearly taller and the intervals do not overlap." width="480"></p>
+<figcaption>Model-estimated mean reaction time in each condition, with 95% confidence intervals. The bars come straight out of the regression.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This plot shows the <strong>model-estimated means and their 95% confidence intervals</strong>.</p>
+<p>Because the means come from <code>emmeans</code>, the figure directly represents the regression model we fit earlier.</p>
+</section>
+</section>
+<section id="three-level-example" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="three-level-example"><span class="header-section-number">12.4</span> Three-Level Example</h2>
+<p>Now suppose we repeat the study but add a third condition:</p>
+<p><strong>Listening to a statistics lecture while driving to class.</strong></p>
+<section id="factoring-the-three-level-predictor" class="level3" data-number="12.4.1">
+<h3 data-number="12.4.1" class="anchored" data-anchor-id="factoring-the-three-level-predictor"><span class="header-section-number">12.4.1</span> Factoring the Three-Level Predictor</h3>
+<p>Again we convert the predictor to a factor.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dat3<span class="sc">$</span>Condition <span class="ot">&lt;-</span> <span class="fu">factor</span>(dat3<span class="sc">$</span>Condition,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"No Distraction"</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"Texting"</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"Lecture"</span>))</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(dat3<span class="sc">$</span>Condition)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "No Distraction" "Texting"        "Lecture"       </code></pre>
+</div>
+</div>
+<p>The first level becomes the reference group.</p>
+<p>So again:</p>
+<pre><code>NoDistraction = reference (0)</code></pre>
+<p>R now creates <strong>two dummy variables</strong> internally.</p>
+<p>Conceptually this looks like:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Texting</th>
+<th>Lecture</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No distraction</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>Texting</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>Lecture</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="multiple-t-tests-problem" class="level3" data-number="12.4.2">
+<h3 data-number="12.4.2" class="anchored" data-anchor-id="multiple-t-tests-problem"><span class="header-section-number">12.4.2</span> Multiple <em>t</em>-tests Problem</h3>
+<p>If we used <em>t</em>-tests, we would need three comparisons:</p>
+<ol type="1">
+<li>No distraction vs texting<br>
+</li>
+<li>No distraction vs lecture<br>
+</li>
+<li>Lecture vs texting</li>
+</ol>
+<p>Running multiple tests increases the probability of a <strong>Type I error</strong>.</p>
+<p>If <span class="math inline">\(\alpha = .05\)</span>, then the probability of at least one false positive (<span class="math inline">\(1-(1-\alpha)^j\)</span>) [<span class="math inline">\(j\)</span> = # of <em>t</em>-tests]:</p>
+<p><span class="math display">\[
+1 - (1 - .05)^3
+\]</span></p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> .<span class="dv">05</span>)<span class="sc">^</span><span class="dv">3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.142625</code></pre>
+</div>
+</div>
+<p>This is about <strong>14%</strong>, much larger than the intended 5%.</p>
+<p>Regression helps here, but it is worth being precise about how, because the honest version is less magical than it sounds. Fitting one model does not delete the multiple-testing problem. What it does is organize every comparison under a single model and hand you a <strong>gatekeeper</strong>: one overall test of whether the group means differ at all, which you check <em>before</em> going looking for which pairs differ. That gate is the omnibus <span class="math inline">\(F\)</span>, and we are about to meet it.</p>
+</section>
+<section id="regression-with-three-groups" class="level3" data-number="12.4.3">
+<h3 data-number="12.4.3" class="anchored" data-anchor-id="regression-with-three-groups"><span class="header-section-number">12.4.3</span> Regression with Three Groups</h3>
+<p>Regression allows us to test all comparisons within a single model.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(RT <span class="sc">~</span> Condition, <span class="at">data =</span> dat3)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = RT ~ Condition, data = dat3)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.31427 -0.09670 -0.00662  0.07988  0.34813 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)       0.66388    0.02380  27.898  &lt; 2e-16 ***
+ConditionTexting  0.34115    0.03365  10.137  &lt; 2e-16 ***
+ConditionLecture  0.19229    0.03365   5.714 1.52e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1303 on 87 degrees of freedom
+Multiple R-squared:  0.5429,    Adjusted R-squared:  0.5323 
+F-statistic: 51.66 on 2 and 87 DF,  p-value: 1.63e-15</code></pre>
+</div>
+</div>
+</section>
+<section id="the-gate-the-omnibus-f" class="level3" data-number="12.4.4">
+<h3 data-number="12.4.4" class="anchored" data-anchor-id="the-gate-the-omnibus-f"><span class="header-section-number">12.4.4</span> The Gate: the Omnibus F</h3>
+<p>Look at the very last line of that output, the one everybody scrolls past:</p>
+<p><code>F-statistic: 51.66 on 2 and 87 DF</code></p>
+<p>That is the gatekeeper. It tests one null hypothesis: <strong>all three group means are equal</strong>. Not “texting differs from no distraction,” not any particular pair, just whether there is any difference anywhere in the set.</p>
+<p>Ours is <span class="math inline">\(F(2, 87) =\)</span> 51.66, <span class="math inline">\(p &lt; .001\)</span>, so the gate is open. Something in there differs, and we have earned the right to go find out what.</p>
+<p>Had that <span class="math inline">\(F\)</span> come back non-significant, the honest move is to stop. The means are not distinguishable, and hunting through pairs anyway is precisely the 14% problem we just calculated, now with extra steps.</p>
+<p>The model is</p>
+<p><span class="math display">\[
+RT = b_0 + b_1(\text{Texting}) + b_2(\text{Lecture})
+\]</span></p>
+<p>Interpretation:</p>
+<ul>
+<li><span class="math inline">\(b_0\)</span> = mean reaction time for <strong>No Distraction</strong></li>
+<li><span class="math inline">\(b_1\)</span> = difference between <strong>Texting</strong> and <strong>No Distraction</strong></li>
+<li><span class="math inline">\(b_2\)</span> = difference between <strong>Lecture</strong> and <strong>No Distraction</strong></li>
+</ul>
+</section>
+<section id="reconstructing-the-group-means-from-the-regression-model" class="level3" data-number="12.4.5">
+<h3 data-number="12.4.5" class="anchored" data-anchor-id="reconstructing-the-group-means-from-the-regression-model"><span class="header-section-number">12.4.5</span> Reconstructing the Group Means from the Regression Model</h3>
+<p>Recall that the regression model is</p>
+<p><span class="math display">\[
+RT = b_0 + b_1(\text{Texting}) + b_2(\text{Lecture})
+\]</span></p>
+<p>From the model output we obtained the following coefficients:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(b_0\)</span> (Intercept)</td>
+<td>0.664</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b_1\)</span> (Texting)</td>
+<td>0.341</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(b_2\)</span> (Lecture)</td>
+<td>0.192</td>
+</tr>
+</tbody>
+</table>
+<p>Again, the intercept represents the <strong>mean reaction time for the reference group</strong>, which is <strong>No Distraction</strong>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     (Intercept) ConditionTexting ConditionLecture 
+       0.6638792        0.3411475        0.1922929 </code></pre>
+</div>
+</div>
+</section>
+<section id="no-distraction-1" class="level3" data-number="12.4.6">
+<h3 data-number="12.4.6" class="anchored" data-anchor-id="no-distraction-1"><span class="header-section-number">12.4.6</span> No Distraction</h3>
+<p>For the reference group, both dummy variables equal 0.</p>
+<p><span class="math display">\[
+RT = b_0
+\]</span></p>
+<p>Substituting the coefficient:</p>
+<p><span class="math display">\[
+RT = 0.664
+\]</span></p>
+<p>So the predicted mean reaction time for <strong>No Distraction</strong> is <strong>0.664 seconds</strong>.</p>
+</section>
+<section id="texting-1" class="level3" data-number="12.4.7">
+<h3 data-number="12.4.7" class="anchored" data-anchor-id="texting-1"><span class="header-section-number">12.4.7</span> Texting</h3>
+<p>For the texting group:</p>
+<p>Texting = 1<br>
+Lecture = 0</p>
+<p><span class="math display">\[
+RT = b_0 + b_11 + b_20
+\]</span></p>
+<p>Substituting the coefficients:</p>
+<p><span class="math display">\[
+RT = 0.664 + 0.341
+\]</span></p>
+<p><span class="math display">\[
+RT = 1.005
+\]</span></p>
+<p>So the predicted mean reaction time for <strong>Texting</strong> is <strong>1.005 seconds</strong>.</p>
+</section>
+<section id="lecture" class="level3" data-number="12.4.8">
+<h3 data-number="12.4.8" class="anchored" data-anchor-id="lecture"><span class="header-section-number">12.4.8</span> Lecture</h3>
+<p>For the lecture group:</p>
+<p>Texting = 0<br>
+Lecture = 1</p>
+<p><span class="math display">\[
+RT = b_0 + b_10 + b_21
+\]</span></p>
+<p>Substituting the coefficients:</p>
+<p><span class="math display">\[
+RT = 0.664 + 0.192
+\]</span></p>
+<p><span class="math display">\[
+RT = 0.856
+\]</span></p>
+<p>So the predicted mean reaction time for <strong>Lecture</strong> is <strong>0.856 seconds</strong>.</p>
+</section>
+<section id="prediction-summarized" class="level3" data-number="12.4.9">
+<h3 data-number="12.4.9" class="anchored" data-anchor-id="prediction-summarized"><span class="header-section-number">12.4.9</span> Prediction summarized</h3>
+<p>The regression coefficients allow us to <strong>reconstruct the group means directly</strong>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Model Equation</th>
+<th>Predicted Mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No Distraction</td>
+<td><span class="math inline">\(b_0\)</span></td>
+<td>0.664</td>
+</tr>
+<tr class="even">
+<td>Texting</td>
+<td><span class="math inline">\(b_0 + b_1\)</span></td>
+<td>1.005</td>
+</tr>
+<tr class="odd">
+<td>Lecture</td>
+<td><span class="math inline">\(b_0 + b_2\)</span></td>
+<td>0.856</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regression is simply expressing the group means and their differences using an equation.</strong></p>
+</section>
+<section id="extracting-the-model-estimated-means" class="level3" data-number="12.4.10">
+<h3 data-number="12.4.10" class="anchored" data-anchor-id="extracting-the-model-estimated-means"><span class="header-section-number">12.4.10</span> Extracting the Model-Estimated Means</h3>
+<p>Just like before, <code>emmeans</code> will do all of that reconstruction for us.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>means3 <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(model3, <span class="sc">~</span> Condition)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>means3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition      emmean     SE df lower.CL upper.CL
+ No Distraction  0.664 0.0238 87    0.617    0.711
+ Texting         1.005 0.0238 87    0.958    1.052
+ Lecture         0.856 0.0238 87    0.809    0.903
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>These values represent the <strong>means predicted by the regression model</strong>, and they match the numbers we just assembled by hand.</p>
+</section>
+<section id="changing-the-reference-group" class="level3" data-number="12.4.11">
+<h3 data-number="12.4.11" class="anchored" data-anchor-id="changing-the-reference-group"><span class="header-section-number">12.4.11</span> Changing the Reference Group</h3>
+<p>The reference group is a choice, not a fact about the world. <code>factor(levels = )</code> sets it when you build the variable. To switch it afterwards, use <code>relevel()</code>:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>dat3<span class="sc">$</span>Condition2 <span class="ot">&lt;-</span> <span class="fu">relevel</span>(dat3<span class="sc">$</span>Condition, <span class="at">ref =</span> <span class="st">"Texting"</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>model3b <span class="ot">&lt;-</span> <span class="fu">lm</span>(RT <span class="sc">~</span> Condition2, <span class="at">data =</span> dat3)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(model3b)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             (Intercept) Condition2No Distraction        Condition2Lecture 
+               1.0050267               -0.3411475               -0.1488547 </code></pre>
+</div>
+</div>
+<p>Every coefficient is now expressed relative to Texting. The intercept is Texting’s mean, 1.005, and the other two rows are how much <em>slower or faster</em> the remaining conditions are compared to it. No Distraction now carries a negative coefficient, -0.341, because being undistracted is faster than texting.</p>
+<p>Here is the part worth watching, though. Nothing about the model actually moved:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Same variance explained, same omnibus test, same fitted means</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">R2.original =</span> <span class="fu">summary</span>(model3)<span class="sc">$</span>r.squared,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">R2.releveled =</span> <span class="fu">summary</span>(model3b)<span class="sc">$</span>r.squared)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">F.original =</span> <span class="fu">summary</span>(model3)<span class="sc">$</span>fstatistic[<span class="dv">1</span>],</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">F.releveled =</span> <span class="fu">summary</span>(model3b)<span class="sc">$</span>fstatistic[<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> R2.original R2.releveled 
+   0.5428557    0.5428557 
+ F.original.value F.releveled.value 
+         51.65595          51.65595 </code></pre>
+</div>
+</div>
+<p>Identical. Releveling changed which comparisons the coefficients describe. It did not change the fit, the group means, the residuals, or the drivers.</p>
+</section>
+<section id="apa-write-up-1" class="level3" data-number="12.4.12">
+<h3 data-number="12.4.12" class="anchored" data-anchor-id="apa-write-up-1"><span class="header-section-number">12.4.12</span> APA Write-Up</h3>
+<p>A regression model was used to predict reaction time from driving condition. The overall model was significant, <span class="math inline">\(R^2 =\)</span> .54, <span class="math inline">\(F(2, 87) =\)</span> 51.66, <span class="math inline">\(p &lt; .001\)</span>, indicating that driving condition accounted for about 54% of the variability in reaction times.</p>
+<p>Because <strong>No Distraction</strong> was entered as the first factor level, it served as the <strong>reference group</strong>, and the intercept represented the mean reaction time for that condition (<em>M</em> = 0.66, <em>SE</em> = 0.02, 95% CI [0.62, 0.71]).</p>
+<p>Relative to this reference group, texting significantly increased reaction time, <span class="math inline">\(b =\)</span> 0.34, <span class="math inline">\(SE =\)</span> 0.03, <span class="math inline">\(t(87) =\)</span> 10.14, <span class="math inline">\(p &lt; .001\)</span>. Listening to a statistics lecture also increased reaction time relative to the no-distraction condition, <span class="math inline">\(b =\)</span> 0.19, <span class="math inline">\(SE =\)</span> 0.03, <span class="math inline">\(t(87) =\)</span> 5.71, <span class="math inline">\(p &lt; .001\)</span>.</p>
+</section>
+<section id="testing-differences-between-groups" class="level3" data-number="12.4.13">
+<h3 data-number="12.4.13" class="anchored" data-anchor-id="testing-differences-between-groups"><span class="header-section-number">12.4.13</span> Testing Differences Between Groups</h3>
+<p>We can also test the differences between all pairs of conditions.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(means3, <span class="at">adjust=</span><span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> contrast                 estimate     SE df t.ratio p.value
+ No Distraction - Texting   -0.341 0.0337 87 -10.137 &lt;0.0001
+ No Distraction - Lecture   -0.192 0.0337 87  -5.714 &lt;0.0001
+ Texting - Lecture           0.149 0.0337 87   4.423 &lt;0.0001</code></pre>
+</div>
+</div>
+<p>This compares the estimated means for:</p>
+<ul>
+<li>No Distraction vs Texting</li>
+<li>No Distraction vs Lecture</li>
+<li>Lecture vs Texting</li>
+</ul>
+<p>All comparisons are derived directly from the regression model. This contains the comparison we did not test earlier (texting vs.&nbsp;lecture). You can add that to your APA report as well.</p>
+</section>
+<section id="about-that-adjustnone" class="level3" data-number="12.4.14">
+<h3 data-number="12.4.14" class="anchored" data-anchor-id="about-that-adjustnone"><span class="header-section-number">12.4.14</span> About That <code>adjust="none"</code></h3>
+<p>You should be suspicious of that argument, because we spent a whole section calculating that three unadjusted tests inflate the error rate to 14%. So why are we allowed to run three unadjusted tests?</p>
+<p>Because we checked the gate first. The omnibus <span class="math inline">\(F\)</span> was significant, which is what earns the right to look at individual pairs without adjusting each one. This is <strong>Fisher’s protected LSD</strong>, and the word doing the work is <em>protected</em>: the <span class="math inline">\(F\)</span> is the protection, and it was bought before any pair was examined.</p>
+<p>The protection has a hard expiry date, and it is worth memorizing, because it is a favorite exam question:</p>
+<div class="callout callout-style-default callout-important callout-titled" title="The Protection Expires at Three Groups">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Protection Expires at Three Groups
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>With exactly <strong>three</strong> groups, a significant omnibus <span class="math inline">\(F\)</span> followed by unadjusted pairwise tests keeps the familywise error rate at <span class="math inline">\(\alpha\)</span>. This is a genuine mathematical result, not a convention.</p>
+<p>With <strong>four or more</strong> groups it stops working, and the error rate creeps back up. At that point you need a real correction (Tukey, Holm, Bonferroni), which is what the <a href="./Ch_20_Multiple_Comparisons.html">Multiple Comparisons</a> chapter is for.</p>
+<p>So <code>adjust = "none"</code> here is a defensible choice with three groups and a significant <span class="math inline">\(F\)</span>. Pasted into a four-group analysis, it is just the 14% problem again.</p>
+</div>
+</div>
+</section>
+<section id="apa-for-follow-up-test" class="level3" data-number="12.4.15">
+<h3 data-number="12.4.15" class="anchored" data-anchor-id="apa-for-follow-up-test"><span class="header-section-number">12.4.15</span> APA for follow up test</h3>
+<p>In addition, pairwise comparisons of the estimated marginal means showed that texting produced significantly slower reaction times than listening to a statistics lecture, <span class="math inline">\(b =\)</span> 0.15, <span class="math inline">\(SE =\)</span> 0.03, <span class="math inline">\(t(87) =\)</span> 4.42, <span class="math inline">\(p &lt; .001\)</span>. Thus, although both distractions impaired reaction time relative to the no-distraction condition, texting was associated with the greatest slowing of reactions.</p>
+</section>
+<section id="plotting-the-model-estimated-means-1" class="level3" data-number="12.4.16">
+<h3 data-number="12.4.16" class="anchored" data-anchor-id="plotting-the-model-estimated-means-1"><span class="header-section-number">12.4.16</span> Plotting the Model-Estimated Means</h3>
+<p>We can also visualize the results using a simple plot.</p>
+<p>First we convert the estimated means to a data frame.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>means3_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(means3)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>means3_df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Condition         emmean         SE df  lower.CL  upper.CL
+ No Distraction 0.6638792 0.02379701 87 0.6165800 0.7111783
+ Texting        1.0050267 0.02379701 87 0.9577276 1.0523259
+ Lecture        0.8561720 0.02379701 87 0.8088729 0.9034712
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>Now we plot the estimated means and their 95% confidence intervals.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(means3_df, <span class="fu">aes</span>(<span class="at">x =</span> Condition, <span class="at">y =</span> emmean)) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower.CL, <span class="at">ymax =</span> upper.CL), <span class="at">width =</span> .<span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Reaction Time (seconds)"</span>) <span class="sc">+</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Driving Condition"</span>)<span class="sc">+</span><span class="fu">theme_bw</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_12_Categorical_Regression_files/figure-html/three-level-means-plot-1.png" class="img-fluid figure-img" alt="Bar chart with three bars: No Distraction at about 0.66 seconds, Texting at about 1.01, and Lecture at about 0.86, each with a narrow error bar. Texting is tallest and No Distraction shortest." width="480"></p>
+<figcaption>All three conditions, model-estimated means with 95% confidence intervals. Lecture sits between the other two.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>This figure shows the <strong>model-estimated mean reaction time for each driving condition</strong> along with the 95% confidence intervals.</p>
+</section>
+</section>
+<section id="the-short-story" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">12.5</span> The Short Story</h2>
+<ul>
+<li>R represents a categorical predictor with numeric contrast variables.</li>
+<li>Under ordinary treatment/dummy coding, the intercept is the reference-group mean.</li>
+<li>Each category coefficient is that group’s difference from the reference group.</li>
+<li>With two groups, the regression test is equivalent to an independent-samples <em>t</em>-test under the matching variance assumptions.</li>
+<li>With three or more groups, the overall model asks whether the group means are all equal; follow-ups ask which contrasts differ.</li>
+<li>Changing the reference group changes the coefficient labels, not the fitted group means or the underlying data.</li>
+<li>Set factor levels deliberately. Otherwise R may select a reference group alphabetically, because the alphabet has apparently been granted authority over your scientific question.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Coding Changes the Coefficients, Not the People">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Coding Changes the Coefficients, Not the People
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Changing the reference group changes which comparison appears in each coefficient. It does not change the fitted group means, residuals, <span class="math inline">\(R^2\)</span>, or the participants—who remain blissfully unaware that R renamed the argument.</p>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_11_Intro_Regression.html" class="pagination-link" aria-label="Linear Regression">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_13_Multiple_Regression.html" class="pagination-link" aria-label="Multiple Regression: Statistical Control">
+        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_12_Categorical_Regression.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

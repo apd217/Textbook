@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>7&nbsp; Power and Effect Size – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_08_Independent_t.html" rel="next">
+<link href="./Ch_06_One_Sample_t.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_01_Introduction.html">The Necessary Slog</a></li><li class="breadcrumb-item"><a href="./Ch_07_Power_Effect_Size.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_01_Introduction.html">The Necessary Slog</a></li><li class="breadcrumb-item"><a href="./Ch_07_Power_Effect_Size.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-note callout-titled" title="Some of Today's Code Is Not Your Problem">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Some of Today’s Code Is Not Your Problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A few figures in this chapter are generated with genuinely unpleasant code. Where you see a plot appear without the code attached, that is deliberate: I hid it because you are not expected to learn it, yet. Every function you <em>are</em> expected to learn is shown, explained, and used more than once.</p>
+<p>If you find yourself reading the hidden code anyway, good for you! Dorkaos, the Ancient Greek God of Statistics, is watching, and approves.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Where the Exam Material Lives in This Chapter">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Where the Exam Material Lives in This Chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is the longest chapter in the book, so here is the map before you start.</p>
+<ul>
+<li><strong>First section</strong>: <em>why</em> power exists, which comes down to the fact that small samples flatter you. Conceptually the hardest part.</li>
+<li><strong>The middle</strong>: the vocabulary that most people put on the exams (Type I and Type II error, <span class="math inline">\(\alpha\)</span>, <span class="math inline">\(\beta\)</span>, power) and how to compute power in R. If you are short on time, start at “Type I and Type II Error” and read forward.</li>
+<li><strong>Advanced Topics at the end</strong>: for when someone you love runs a pilot study. Not Optional for graduate students.</li>
+</ul>
+</div>
+</div>
+<section id="probability-is-fickle" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="probability-is-fickle"><span class="header-section-number">7.1</span> Probability Is Fickle</h2>
+<p>Before we can talk about power, we have to admit something uncomfortable about small samples.</p>
+<p>Recall that the standard error is the standard deviation of sample means. Let us build a population for children’s hyperactivity scores, the same population from the one-sample <em>t</em>-test chapter, with <span class="math inline">\(\mu = 50\)</span> and <span class="math inline">\(\sigma = 5\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/population-pdf-1.png" class="img-fluid figure-img" alt="A normal curve centered on 50. The region between about 40 and 60 is filled in red, and a label above reports that this shaded area holds 95% of children." width="480"></p>
+<figcaption>The population of hyperactivity scores, with the middle 95% shaded.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>About 95% of children score between 40.2 and 59.8. Fine. Now let us collect some data.</p>
+<section id="ten-small-studies" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="ten-small-studies"><span class="header-section-number">7.1.1</span> Ten Small Studies</h3>
+<p>Suppose we run ten separate studies, each with <span class="math inline">\(n = 13\)</span> children. Ten data collections, thirteen children each, one hyperactivity score per child.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/ten-samples-1.png" class="img-fluid figure-img" alt="Histogram of ten study means spread between about 48 and 51, scattered around the true population mean of 50 rather than landing on it." width="480"></p>
+<figcaption>Ten studies, ten means. None of them is 50, and that is the point.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The mean of those ten sample means was 49.721, comfortably close to <span class="math inline">\(\mu = 50\)</span>. Good.</p>
+<p>Now check the <em>spread</em>. Our formula predicts a standard error of</p>
+<p><span class="math display">\[
+\sigma_M = \frac{\sigma}{\sqrt{n}} = \frac{5}{\sqrt{13}} = 1.39.
+\]</span></p>
+<p>In reality, those ten studies produced <span class="math inline">\(SD(\text{sample means}) =\)</span> 0.73.</p>
+<p>Those are not the same number. <strong>Why?</strong></p>
+</section>
+<section id="the-answer-is-unpleasant" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="the-answer-is-unpleasant"><span class="header-section-number">7.1.2</span> The Answer Is Unpleasant</h3>
+<p>Two different things are bouncing around here, and they are worth keeping apart, because this is exactly the two-counts trap the standard error chapter warned about.</p>
+<p>The first is not very interesting. We computed a standard deviation from only <strong>ten numbers</strong>, the ten study means. A standard deviation built from ten values is itself a shaky estimate, and some of that gap is just that.</p>
+<p>The second one is the reason this chapter exists. The same disease infects the <span class="math inline">\(S\)</span> that any single study computes from its <strong>thirteen children</strong>. With only thirteen people, you are most likely to grab from the fat middle of the distribution, because that is where most people live. The extremes are rare, so small samples usually miss them. Miss the extremes, and your estimate of spread comes out too small.</p>
+<p>Let us prove that second one with brute force. We will run 5,000 separate studies of thirteen children each, and look at the standard deviation each study reports back:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">543</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Run 5,000 studies. Each one grabs 13 children from a population where we</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># KNOW the true spread is sigma = 5, and reports the SD it happened to see.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Sample.SD <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">5000</span>, <span class="fu">sd</span>(<span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">13</span>, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">5</span>)))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(Sample.SD,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Histogram"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"SD reported by each study </span><span class="sc">\n</span><span class="st">(5000 studies, n = 13 each)"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Frequency"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="dv">5</span>, <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">4</span>)   <span class="co"># the TRUE sigma</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/sem-fickle-1.png" class="img-fluid figure-img" alt="Histogram of standard deviations reported by 5,000 studies of thirteen children each. The pile is slightly right-skewed and sits noticeably to the left of a thick red vertical line marking the true sigma of 5, showing that most studies report a spread smaller than the real one." width="480"></p>
+<figcaption>What 5,000 small studies report as their SD, against the truth in red.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The red line is the truth, <span class="math inline">\(\sigma = 5\)</span>. Notice the histogram is <strong>not centered on it</strong>. In this simulation 55.6% of studies reported a standard deviation <em>below</em> the true value and only 44.4% landed above it. The average study reported 4.89 when the truth was 5.</p>
+<p>That is not a rounding artifact, it is a known bias, and the theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of <span class="math inline">\(S\)</span> works out to 4.897. Our 5,000 simulated studies averaged 4.893. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.</p>
+<p>Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known <span class="math inline">\(\sigma\)</span> and started using a sample <span class="math inline">\(S\)</span> as an approximation, and it is why we have a <em>t</em>-distribution at all.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="This Is the Whole Reason Power Exists">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>This Is the Whole Reason Power Exists
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Your sample gives you one guess about the mean and one guess about the spread. Both guesses bounce around, and the smaller the sample, the harder they bounce. Worse, the guess about the spread does not bounce evenly. It lands low more often than high, in a direction that flatters you.</p>
+<p>The solution is not to stop guessing. The solution is to work out, <strong>before you collect data</strong>, how likely you are to detect an effect given your specific sample size and how big the effect probably is.</p>
+<p>That calculation is called power. Everything else in this chapter is machinery for doing it.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="type-i-and-type-ii-error" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="type-i-and-type-ii-error"><span class="header-section-number">7.2</span> Type I and Type II Error</h2>
+<p>Every hypothesis test ends in a decision, and every decision can be wrong in exactly two ways.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 36%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Treatment works (<span class="math inline">\(H_0\)</span> FALSE)</th>
+<th>Treatment does nothing (<span class="math inline">\(H_0\)</span> TRUE)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Reject <span class="math inline">\(H_0\)</span></strong></td>
+<td>Correct decision (<strong>power</strong>)</td>
+<td><strong>Type I error</strong> (<span class="math inline">\(\alpha\)</span>)</td>
+</tr>
+<tr class="even">
+<td><strong>Fail to reject <span class="math inline">\(H_0\)</span></strong></td>
+<td><strong>Type II error</strong> (<span class="math inline">\(\beta\)</span>)</td>
+<td>Correct decision</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Type I error</strong> is a false alarm. There is no effect, and you claim there is one. Its long-run rate is <span class="math inline">\(\alpha\)</span>, and you choose <span class="math inline">\(\alpha\)</span> yourself, usually .05, by simple decree.</p>
+<p><strong>Type II error</strong> is a miss. There <em>is</em> an effect, and you fail to find it. Its rate is <span class="math inline">\(\beta\)</span>, and you do <strong>not</strong> get to choose it directly. You have to earn your way out of it.</p>
+<p><strong>Power</strong> is <span class="math inline">\(1 - \beta\)</span>: the probability of detecting an effect that is genuinely there.</p>
+<p>Notice the asymmetry. Alpha is a decision you make in about four seconds. Power is something you buy, with participants, and it is expensive.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="What Alpha Does Not Mean">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>What Alpha Does Not Mean
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Setting <span class="math inline">\(\alpha = .05\)</span> does <strong>not</strong> mean any of the following:</p>
+<ul>
+<li>there is a 5% probability that this particular rejected null is true;</li>
+<li>5% of published findings are wrong;</li>
+<li>your result has a 95% chance of replicating.</li>
+</ul>
+<p>It means that <em>if</em> the null hypothesis and its assumptions hold, this <strong>procedure</strong> falsely rejects about 5% of the time in the long run. The <em>p</em>-value is a statement about a procedure. It cannot read the hidden state of the universe, and it has never once tried.</p>
+</div>
+</div>
+<section id="the-errors-are-not-symmetric-in-cost" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="the-errors-are-not-symmetric-in-cost"><span class="header-section-number">7.2.1</span> The Errors Are Not Symmetric in Cost</h3>
+<p>A Type I error means we run around telling everyone that cookies make children hyperactive when they do not. Parents ban cookies. A generation grows up sad.</p>
+<p>A Type II error means cookies <em>do</em> make children hyperactive, we fail to notice, and we spend the next decade blaming the children.</p>
+<p>Which error is worse depends entirely on what happens next, which is a question statistics cannot answer for you. A false alarm on a cancer screening costs a biopsy. A miss costs considerably more.</p>
+<p>Psychology and neuroscience have historically obsessed over Type I error and treated Type II error as somebody else’s problem. Button and colleagues surveyed the neuroscience literature and estimated median statistical power at around 21% <span class="citation" data-cites="button2013">(<a href="#ref-button2013" role="doc-biblioref">Button et al. 2013</a>)</span>, which means the typical study had roughly a one-in-five chance of finding an effect that was genuinely there. This is one of several reasons the replication crisis arrived carrying luggage and expecting to stay a while.</p>
+</section>
+</section>
+<section id="signal-detection-theory" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="signal-detection-theory"><span class="header-section-number">7.3</span> Signal Detection Theory</h2>
+<p>Given that I must estimate my standard error from an <span class="math inline">\(S\)</span> that bounces around, I need a way to say how “big” an effect is in the first place.</p>
+<p>The one-sample <em>t</em>-test chapter ended by handing you a <span class="math inline">\(d\)</span> and refusing to explain it. Here is the explanation.</p>
+<p>Cohen borrowed the idea from signal detection theory, developed for radar operators in World War II who had to decide whether that blip was a plane or noise. The question there was: how strong must a signal be before you can detect it over the noise? For us, the noise is the control condition and the signal is the effect of the treatment.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/sdt-figure-1.png" class="img-fluid figure-img" alt="Two overlapping bell curves. The left is labelled N for noise and the right N plus S for signal plus noise. A double-headed blue arrow between the peaks is labelled d." width="600"></p>
+<figcaption>Signal detection. The gap between the two peaks, measured in standard deviations, is d.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><span class="math display">\[
+d = \frac{\mu_{(Noise+Signal)} - \mu_{(Noise)}}{\sigma_{(Noise)}}
+\]</span></p>
+<p>Signal detection theory also hands us this chapter’s 2×2 for free. Here is the hearing-test version of the table above, and it is the <em>same table</em>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>There <strong>was</strong> a beep</th>
+<th>There was <strong>no</strong> beep</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>You said <strong>YES</strong></td>
+<td>Hit</td>
+<td>False alarm</td>
+</tr>
+<tr class="even">
+<td>You said <strong>NO</strong></td>
+<td>Miss</td>
+<td>Correct rejection</td>
+</tr>
+</tbody>
+</table>
+<p>Hit, miss, false alarm, correct rejection. Power, Type II error, Type I error, correct decision. Same 2×2, different lab coat. Detecting a treatment effect and detecting a faint beep are the same problem, and the reason both fields drew the same table is that both are asking how far the signal has to sit from the noise before you can trust yourself.</p>
+<section id="cohens-d" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="cohens-d"><span class="header-section-number">7.3.1</span> Cohen’s <span class="math inline">\(d\)</span></h3>
+<p>For our purposes:</p>
+<p><span class="math display">\[
+d = \frac{M_{H1} - \mu_{H0}}{S_{H1}}
+\]</span></p>
+<p>You have seen this formula before, wearing a different hat:</p>
+<p><span class="math display">\[
+Z = \frac{M - \mu}{S}
+\]</span></p>
+<p>So Cohen’s <span class="math inline">\(d\)</span> is in standard deviation units.</p>
+<p>That denominator carries an assumption worth naming: we are treating the treatment as something that shifts the distribution without changing its spread. Sometimes that is true. Sometimes a treatment helps some people enormously and others not at all, which changes the spread, and then this formula is quietly describing a world that does not exist.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Size</th>
+<th><span class="math inline">\(d\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Small</td>
+<td>.2</td>
+</tr>
+<tr class="even">
+<td>Medium</td>
+<td>.5</td>
+</tr>
+<tr class="odd">
+<td>Large</td>
+<td>.8</td>
+</tr>
+<tr class="even">
+<td>Huge</td>
+<td>1.2</td>
+</tr>
+</tbody>
+</table>
+<p>Those adjectives are easier to trust once you see them. Each panel below shows two distributions separated by the <span class="math inline">\(d\)</span> in its title:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/effect-size-visuals-1.png" class="img-fluid figure-img" alt="Four panels of two overlapping bell curves each. At d = .2 the curves are nearly on top of each other; at .5 the peaks are clearly apart; at .8 they are well separated; and at 1.2 they are separated by more than a standard deviation, yet a substantial shared region remains in every panel." width="624"></p>
+<figcaption>Small, medium, large, and huge. Note how much overlap survives even at the bottom right.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Even a Huge Effect Overlaps">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Even a Huge Effect Overlaps
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Look at the bottom-right panel again. That is a <em>huge</em> effect, and the two distributions still share an enormous amount of ground.</p>
+<p>That overlap is the point. Two groups can differ by a “large” amount and still contain enormous numbers of people who look exactly like each other. An effect size is a statement about distributions, not about individuals, and it has never promised you a clean separation.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="These Adjectives Are Conventions, Not Laws">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>These Adjectives Are Conventions, Not Laws
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Cohen proposed small, medium, and large as rough guidance for a field that had none, and then spent years watching people treat them as physical constants.</p>
+<p>A <span class="math inline">\(d\)</span> of .2 for a cheap public health intervention delivered to forty million people may matter enormously. A <span class="math inline">\(d\)</span> of 1.1 in a study of twelve undergraduates may matter not at all. Interpret magnitude in context, or do not interpret it.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="power" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="power"><span class="header-section-number">7.4</span> Power</h2>
+<p>Power is the likelihood that a study will detect an effect when there genuinely is one. Power <span class="math inline">\(= 1 - \beta\)</span>, where <span class="math inline">\(\beta\)</span> is the Type II error rate <span class="citation" data-cites="cohen1962 cohen1988 cohen1992">(<a href="#ref-cohen1962" role="doc-biblioref">Cohen 1962</a>, <a href="#ref-cohen1988" role="doc-biblioref">1988</a>, <a href="#ref-cohen1992" role="doc-biblioref">1992</a>)</span>.</p>
+<p>Here is the whole thing in one picture.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/power-figure-1.png" class="img-fluid figure-img" alt="Two overlapping bell curves, the null on the left and the alternative on the right. A vertical line marks the critical value, and the portion of the right-hand curve beyond it is shaded to represent power." width="600"></p>
+<figcaption>Power is the slice of the alternative distribution that clears the critical value.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Read it left to right. The black curve is the world where the null is true. The red curve is the world where the effect is real. The dashed line is your critical value, the point past which you will reject the null.</p>
+<ul>
+<li>Everything to the right of the dashed line <strong>under the black curve</strong> is <span class="math inline">\(\alpha/2\)</span>: rejecting when you should not have.</li>
+<li>Everything to the left of the dashed line <strong>under the red curve</strong> is <span class="math inline">\(\beta\)</span>: the effect was real and you missed it.</li>
+<li>Everything to the right of the dashed line <strong>under the red curve</strong> is power.</li>
+</ul>
+<p>Move the dashed line left and you gain power while buying more Type I error. Move it right and the reverse. Push the red curve further right, or make both curves narrower, and power improves without that trade. Which is the entire game.</p>
+<section id="uses-of-power" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="uses-of-power"><span class="header-section-number">7.4.1</span> Uses of Power</h3>
+<p><strong>A priori power</strong> means setting a target likelihood of success (say, power = .80) at a given <span class="math inline">\(\alpha\)</span> (say, .05), assuming a <em>true</em> effect size, and solving for the sample size you need <span class="citation" data-cites="cohen1962 cohen1988 cohen1992">(<a href="#ref-cohen1962" role="doc-biblioref">Cohen 1962</a>, <a href="#ref-cohen1988" role="doc-biblioref">1988</a>, <a href="#ref-cohen1992" role="doc-biblioref">1992</a>)</span>. This is the useful one. It is also the hard one, because it requires knowing the true effect size, which is the thing you are running the study to find out.</p>
+<p>We used to tell people to go find a meta-analysis. Then it turned out meta-analytic effect sizes are inflated by publication bias <span class="citation" data-cites="kicinski2015">(<a href="#ref-kicinski2015" role="doc-biblioref">Kicinski et al. 2015</a>)</span>, because studies that found nothing were never published and therefore never averaged in. A rule of thumb: assume your effect is small-to-medium, <span class="math inline">\(d = .3\)</span> or <span class="math inline">\(.4\)</span>, and be pleasantly surprised rather than catastrophically wrong.</p>
+<p><strong>Post-hoc power</strong> means estimating the power you achieved using the effect size you <em>observed</em>, your sample size, and your <span class="math inline">\(\alpha\)</span>.</p>
+<p>Post-hoc power is meaningless. It is worse than meaningless, because it looks like information.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Post-Hoc Power Is a Ghost">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Post-Hoc Power Is a Ghost
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Observed power is a one-to-one function of your <em>p</em>-value. A significant result <em>always</em> yields high observed power; a non-significant result <em>always</em> yields low observed power. It cannot tell you anything your <em>p</em>-value did not already tell you, and it is frequently used to argue “our null result was just underpowered,” which is circular reasoning with a calculator <span class="citation" data-cites="hoenig2001">(<a href="#ref-hoenig2001" role="doc-biblioref">Hoenig and Heisey 2001</a>)</span>.</p>
+<p>Worse, the effect size feeding it is biased. As we saw at the start of this chapter, small samples underestimate <span class="math inline">\(\sigma\)</span>. A smaller denominator makes <span class="math inline">\(d\)</span> bigger. Your observed effect is flattering you, and post-hoc power then launders the flattery into a number with a decimal point.</p>
+<p>Compute power <strong>before</strong> you run the study. Afterwards, report the confidence interval and let it speak.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="power-and-significance-testing" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="power-and-significance-testing"><span class="header-section-number">7.5</span> Power and Significance Testing</h2>
+<p>There is a subtlety here that trips up nearly everyone, so we will be slow about it.</p>
+<p>Everything above drew the curves in <strong>standard deviation</strong> units. But significance testing does not happen in standard deviation units. It happens in <strong>standard error</strong> units. And the standard error shrinks as <span class="math inline">\(N\)</span> grows, because <span class="math inline">\(S_M = S/\sqrt{n}\)</span>.</p>
+<p>The distance between the peaks is the effect size, and it does <strong>not</strong> change with sample size. What changes is how <em>wide</em> the curves are.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Homer Simpson and the Statistically Significant Hair">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Homer Simpson and the Statistically Significant Hair
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In “Simpson and Delilah” (The Simpsons, S2:E2), Homer takes Dimoxinil and wakes up the next morning with a full luscious head of hair. That is an enormous effect size.</p>
+<p>In reality, Minoxidil grows back very little hair, after months of twice-daily application, in a subset of men, most of whom keep checking the mirror hopefully (<em>speaking from experience</em>). The effect is genuinely small. It is also statistically significant, because “most men experience <em>some</em> growth beyond noise,” and noise here is defined in standard error units, not standard deviation units.</p>
+<p>Statistically significant is not the same as clinically significant. It is not even the same as noticeable. Homer’s hair is a story about effect size. The clinical trial is a story about standard errors.</p>
+</div>
+</div>
+<p>Watch the curves narrow while the peaks stay exactly where they are. The effect below is a medium one, <span class="math inline">\(d = .5\)</span>, in all four pictures.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/se-narrowing-1.png" class="img-fluid figure-img" alt="A grid of panels, each showing the same pair of overlapping curves separated by half a point. Moving through the panels the curves become narrower and taller, so the same fixed difference goes from almost total overlap to clean separation." width="624"></p>
+<figcaption>The same half-point difference, seen through progressively narrower sampling distributions.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The area representing <span class="math inline">\(1 - \beta\)</span> grows as we add participants, because the curves get thinner while the distance between them stays fixed.</p>
+<p>This is why effect size is described as independent of sample size and significance is not. That statement is true if you know the population standard deviation <span class="math inline">\(\sigma\)</span>. We never do. We approximate it with <span class="math inline">\(S\)</span>, so our observed effect size is itself another guess, subject to the same fickleness we opened this chapter with. Which is why we hope meta-analysis, averaging over many studies, gives a steadier estimate, right up until publication bias mugs it in an alley.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Advanced: Effect Size and the Pilot Study Trap">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Advanced: Effect Size and the Pilot Study Trap
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A few lines ago I said sample size is independent of effect size. That is half true, and here is the other half.</p>
+<p>Look at the formula again: <span class="math inline">\(d = \frac{M - \mu}{S}\)</span>. We are estimating <strong>two</strong> things from our sample to guess at one true effect size in the population. In a small sample, both of them bounce around. But there is a hidden way they bounce, and it is not symmetric.</p>
+<p>In a small sample you are unlikely to catch the genuinely abnormal people, because there are not many of them and you did not grab many people. Miss the extremes and your <span class="math inline">\(S\)</span> comes out smaller than it should be. That is bias, not bad luck, and it happens on average.</p>
+<p>So what? Look at where <span class="math inline">\(S\)</span> sits. It is the <strong>denominator</strong>. When the denominator comes out too small, the effect size comes out too big.</p>
+<p>How bad is it? Bad. Under realistic small-sample conditions the observed effect can run <strong>roughly twice</strong> what it should be. I am not asking you to take my word for it, because there is a simulation in the Advanced Topics section at the end of this chapter that shows exactly this happening.</p>
+<p>Now think about what that means for a <strong>pilot study</strong>, where the entire point is to run a small sample to decide whether the real study is worth doing. Your pilot is systematically biased toward telling you yes. Then you power your real study on that inflated number, recruit far too few people, and find nothing.</p>
+<p>There is no consensus in the literature beyond “interpret with caution,” and I show a couple of the proposed fixes in the advanced section. My own solution is to throw lots of undergraduates into the volcano and hope it does not happen to me.</p>
+</div>
+</div>
+</section>
+<section id="estimating-a-priori-power-in-r" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="estimating-a-priori-power-in-r"><span class="header-section-number">7.6</span> Estimating A Priori Power in R</h2>
+<p>Base R ships with a power function for <em>t</em>-tests. No package required.</p>
+<p>It needs five pieces of information, and you already know all of them by other names:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>What it is in the words we have been using</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>n</code></td>
+<td>sample size</td>
+</tr>
+<tr class="even">
+<td><code>delta</code></td>
+<td>the effect size, in Cohen’s <span class="math inline">\(d\)</span> units (see the tip below)</td>
+</tr>
+<tr class="odd">
+<td><code>sd</code></td>
+<td>the standard deviation (set this to 1 and <code>delta</code> becomes <span class="math inline">\(d\)</span>)</td>
+</tr>
+<tr class="even">
+<td><code>sig.level</code></td>
+<td><span class="math inline">\(\alpha\)</span>, your Type I error rate, almost always .05</td>
+</tr>
+<tr class="odd">
+<td><code>power</code></td>
+<td><span class="math inline">\(1 - \beta\)</span>, the chance of catching the effect if it is real</td>
+</tr>
+</tbody>
+</table>
+<p>You fill in four and leave one as <code>NULL</code>. R solves for the blank.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Why Everyone Uses .80, and Why That Is Not Very Impressive">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Why Everyone Uses .80, and Why That Is Not Very Impressive
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Convention says aim for power of <strong>.80</strong>. Say that out loud in the other direction: <span class="math inline">\(\beta = 1 - .80 = .20\)</span>, so a study designed to the field’s standard <strong>misses a real effect one time in five.</strong> That is the norm, not the failure case.</p>
+<p>Plenty of people now argue for <strong>.95</strong>, which drops the miss rate to one in twenty. Excellent idea. Now buy it.</p>
+<p>Sample size does not scale linearly with power. Going from .80 to .95 does not cost you a few extra participants, it costs a great many, and we will watch exactly how badly it scales later in this chapter. Get your wallet out.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="How to Make power.t.test Speak Cohen's d">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>How to Make power.t.test Speak Cohen’s d
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>power.t.test()</code> wants a raw mean difference (<code>delta</code>) and a standard deviation (<code>sd</code>), not a <span class="math inline">\(d\)</span>.</p>
+<p>The trick: <strong>set <code>sd = 1</code> and put your <span class="math inline">\(d\)</span> in <code>delta</code>.</strong> Because <span class="math inline">\(d = \delta / \sigma\)</span>, setting <span class="math inline">\(\sigma = 1\)</span> makes the raw difference and the standardized difference the same number.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">power.t.test</span>(<span class="at">delta =</span> <span class="fl">0.4</span>, <span class="at">sd =</span> <span class="dv">1</span>, ...)   <span class="co"># this is d = .4</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Everything in this chapter uses that convention. If you ever want to work in raw units instead, supply both the real <code>delta</code> and the real <code>sd</code> and it will happily oblige.</p>
+</div>
+</div>
+<p>The <code>type</code> argument picks which <em>t</em>-test you mean:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th><code>type</code></th>
+<th>Design</th>
+<th>What <code>n</code> means</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>"one.sample"</code></td>
+<td>one group vs.&nbsp;a fixed value</td>
+<td>total participants</td>
+</tr>
+<tr class="even">
+<td><code>"two.sample"</code></td>
+<td>two independent groups</td>
+<td>participants <strong>per group</strong></td>
+</tr>
+<tr class="odd">
+<td><code>"paired"</code></td>
+<td>same people measured twice</td>
+<td>number of <strong>pairs</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Getting <code>n</code> wrong here is the single most common power mistake. A <code>two.sample</code> answer of 64 means <strong>128 people</strong>.</p>
+<section id="one-sample-the-cookies-return" class="level3" data-number="7.6.1">
+<h3 data-number="7.6.1" class="anchored" data-anchor-id="one-sample-the-cookies-return"><span class="header-section-number">7.6.1</span> One-Sample: The Cookies Return</h3>
+<p>Recall the one-sample study: we feed children cookies and compare their hyperactivity to a hypothesized population value of <span class="math inline">\(\mu = 50\)</span>. The steps were:</p>
+<ol type="1">
+<li>Assume a population value to test against, here <span class="math inline">\(\mu = 50\)</span>.</li>
+<li>Collect a sample of children and feed them cookies.</li>
+<li>Compute the sample mean <span class="math inline">\(M\)</span> and standard deviation <span class="math inline">\(S\)</span>.</li>
+<li>Ask whether <span class="math inline">\(M\)</span> sits farther from 50 than sampling error can comfortably explain.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="In a Real Study You Do Not Get to Build the Population">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>In a Real Study You Do Not Get to Build the Population
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The first two lines below manufacture a million children out of nothing, and then the next line grabs 36 of them. That is not what research looks like.</p>
+<p>In the real world there is no <code>Population</code> object. You go out and <em>find</em> your population, then kidnap, I mean politely ask their parents for permission after your IRB approves the study, and then feed actual children actual cookies and measure what happens.</p>
+<p>I simulate because it is free, instant, and nobody’s child ends up climbing a curtain. But everything after the sampling step is identical to what you would do with real data.</p>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate our population: a million children we will never meet.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Population <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample 36 kids (for real if you can, but I am lazy, so we simulate it)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># and give each one a 2-point cookie boost.</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>kids<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">sample</span>(Population, <span class="dv">36</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="dv">2</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>M_kids <span class="ot">&lt;-</span> <span class="fu">mean</span>(kids<span class="fl">.1</span>)                 <span class="co"># our sample mean</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>S_kids <span class="ot">&lt;-</span> <span class="fu">sd</span>(kids<span class="fl">.1</span>)                   <span class="co"># our sample SD</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>d_kids <span class="ot">&lt;-</span> (M_kids <span class="sc">-</span> <span class="dv">50</span>) <span class="sc">/</span> S_kids       <span class="co"># Cohen's d: how far from 50, in SD units</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">M =</span> M_kids, <span class="at">SD =</span> S_kids, <span class="at">n =</span> <span class="fu">length</span>(kids<span class="fl">.1</span>), <span class="at">d =</span> d_kids), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     M     SD      n      d 
+53.035  4.356 36.000  0.697 </code></pre>
+</div>
+</div>
+<p>Suppose we are designing this study fresh and expect a small-to-medium effect, <span class="math inline">\(d = .4\)</span>. How many children do we need for 80% power?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>At.Power<span class="fl">.80</span> <span class="ot">&lt;-</span> <span class="fu">power.t.test</span>(<span class="at">n =</span> <span class="cn">NULL</span>,              <span class="co"># &lt;- the unknown we want solved</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">delta =</span> .<span class="dv">4</span>,            <span class="co"># the effect size we expect</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sd =</span> <span class="dv">1</span>,                <span class="co"># sd = 1 makes delta mean "Cohen's d"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sig.level =</span> <span class="fl">0.05</span>,      <span class="co"># our alpha</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">power =</span> .<span class="dv">80</span>,           <span class="co"># the power we are demanding</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">"one.sample"</span>,   <span class="co"># which t-test</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">alternative =</span> <span class="st">"two.sided"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>At.Power<span class="fl">.80</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     One-sample t test power calculation 
+
+              n = 51.00957
+          delta = 0.4
+             sd = 1
+      sig.level = 0.05
+          power = 0.8
+    alternative = two.sided</code></pre>
+</div>
+</div>
+<p>That is one function with one trick, and the trick is the <code>NULL</code>. <code>power.t.test()</code> takes five quantities that constrain each other, and it solves for <strong>whichever one you leave as <code>NULL</code></strong>. Here we left <code>n = NULL</code> and asked how many people we need. Leave <code>power = NULL</code> instead and it tells you the power you have. Leave <code>delta = NULL</code> and it tells you the smallest effect you could catch. Same function, three different questions, and we will ask all three below.</p>
+<p>The <code>sd = 1</code> is worth a second look too. It is not a claim about your data. Setting it to 1 puts <code>delta</code> in standard-deviation units, which means you can hand <code>delta</code> a Cohen’s <span class="math inline">\(d\)</span> directly and R will do the right thing.</p>
+<p>We always <strong>round up</strong>: 52 children. You cannot recruit a fractional child, and rounding down leaves you below your target.</p>
+<p>Now the same question at 95% power, which some people have started demanding.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>At.Power<span class="fl">.95</span> <span class="ot">&lt;-</span> <span class="fu">power.t.test</span>(<span class="at">n =</span> <span class="cn">NULL</span>, <span class="at">delta =</span> .<span class="dv">4</span>, <span class="at">sd =</span> <span class="dv">1</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sig.level =</span> <span class="fl">0.05</span>, <span class="at">power =</span> .<span class="dv">95</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">"one.sample"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">alternative =</span> <span class="st">"two.sided"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ceiling</span>(At.Power<span class="fl">.95</span><span class="sc">$</span>n)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 84</code></pre>
+</div>
+</div>
+<p>84 children. Going from 80% to 95% power cost us 32 additional participants for the same effect. Cohen suggested 80% precisely because it is economical. 95% is called <em>high power</em>, and now you can see why it is unpopular with anyone who has to pay for it.</p>
+</section>
+<section id="solving-for-power-instead-of-n" class="level3" data-number="7.6.2">
+<h3 data-number="7.6.2" class="anchored" data-anchor-id="solving-for-power-instead-of-n"><span class="header-section-number">7.6.2</span> Solving for Power Instead of N</h3>
+<p>If the sample size is already fixed, perhaps because that is how many children were available, or how much money you had, run it the other way.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Same function. This time n is known and power is the NULL.</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>AP.Power.N36 <span class="ot">&lt;-</span> <span class="fu">power.t.test</span>(<span class="at">n =</span> <span class="dv">36</span>, <span class="at">delta =</span> .<span class="dv">4</span>, <span class="at">sd =</span> <span class="dv">1</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">sig.level =</span> <span class="fl">0.05</span>, <span class="at">power =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">type =</span> <span class="st">"one.sample"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">alternative =</span> <span class="st">"two.sided"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(AP.Power.N36<span class="sc">$</span>power, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.646</code></pre>
+</div>
+</div>
+<p>With 36 children and a true <span class="math inline">\(d\)</span> of .4, we had a 64.6% chance of detecting the effect. Which means we had a 35.4% chance of missing it entirely, publishing nothing, and concluding cookies are harmless.</p>
+</section>
+<section id="solving-for-the-effect-size-you-could-detect" class="level3" data-number="7.6.3">
+<h3 data-number="7.6.3" class="anchored" data-anchor-id="solving-for-the-effect-size-you-could-detect"><span class="header-section-number">7.6.3</span> Solving for the Effect Size You Could Detect</h3>
+<p>The third useful question: given my sample, what is the <em>smallest</em> effect I could reliably find?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Third question, same function. Now delta is the NULL.</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>Eff.Power.N36 <span class="ot">&lt;-</span> <span class="fu">power.t.test</span>(<span class="at">n =</span> <span class="dv">36</span>, <span class="at">delta =</span> <span class="cn">NULL</span>, <span class="at">sd =</span> <span class="dv">1</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">sig.level =</span> <span class="fl">0.05</span>, <span class="at">power =</span> .<span class="dv">80</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">type =</span> <span class="st">"one.sample"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                              <span class="at">alternative =</span> <span class="st">"two.sided"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(Eff.Power.N36<span class="sc">$</span>delta, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.48</code></pre>
+</div>
+</div>
+<p>With 36 children, the smallest effect we can detect 80% of the time is <span class="math inline">\(d =\)</span> 0.48. Anything smaller than that, we will usually miss.</p>
+<p>This is the calculation to run when a reviewer asks why your null result should be believed. “We had 80% power to detect effects of <span class="math inline">\(d \geq\)</span> 0.48, so we can reasonably rule out effects of that size, but not smaller ones” is a defensible sentence. “It wasn’t significant” is not.</p>
+</section>
+</section>
+<section id="sample-size-and-power-are-not-linear" class="level2" data-number="7.7">
+<h2 data-number="7.7" class="anchored" data-anchor-id="sample-size-and-power-are-not-linear"><span class="header-section-number">7.7</span> Sample Size and Power Are Not Linear</h2>
+<p>At a fixed effect size, adding participants buys you power, but not at a constant rate.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/power-curves-n-1.png" class="img-fluid figure-img" alt="Three side-by-side line plots of power against sample size, one per effect size. Every curve climbs steeply at small sample sizes and then bends over and flattens as it approaches a power of one, with the smallest effect needing by far the most participants." width="624"></p>
+<figcaption>Power against sample size at three effect sizes. Each curve rises steeply and then flattens.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The blue line is 80% power; the red line is 95%. Notice how far right the curve for <span class="math inline">\(d = .2\)</span> has to travel before it crosses either one, and how quickly <span class="math inline">\(d = .8\)</span> gets there.</p>
+<p><strong>The larger the effect, the fewer participants you need.</strong> Which is a comforting sentence until you remember that you do not control the effect size, and that most real psychological effects are small.</p>
+<section id="effect-size-and-power-are-also-not-linear" class="level3" data-number="7.7.1">
+<h3 data-number="7.7.1" class="anchored" data-anchor-id="effect-size-and-power-are-also-not-linear"><span class="header-section-number">7.7.1</span> Effect Size and Power Are Also Not Linear</h3>
+<p>Flip it around: hold the sample size fixed and vary the effect.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/power-curves-d-1.png" class="img-fluid figure-img" alt="Three side-by-side line plots of power against effect size, one per sample size. Each curve rises steeply through the small and medium effect sizes and then flattens near a power of one, and the larger the sample the further left that rise begins." width="624"></p>
+<figcaption>Power against effect size at three sample sizes. Same shape, different axis.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>With 25 people you need a whopping effect before you are likely to find anything. With 100, medium effects come into range. The curves are S-shaped, not straight, which means there is a region where adding a few participants helps enormously and a region where it barely matters at all.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Power for the Other Two t-Tests Lives With Those Tests">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Power for the Other Two t-Tests Lives With Those Tests
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Everything above used <code>type = "one.sample"</code>, because the one-sample <em>t</em>-test is the only one you have met so far.</p>
+<p>The other two work identically, with one argument changed. Rather than teach them here to a reader who has not seen the tests yet, each one waits in its own chapter:</p>
+<ul>
+<li><strong>Two separate groups</strong>: the <a href="./Ch_08_Independent_t.html">independent-samples chapter</a> closes with <code>type = "two.sample"</code>, where <code>n</code> means <em>per group</em>, plus Hedges’ correction for the bias small samples put into <span class="math inline">\(d\)</span>.</li>
+<li><strong>The same people twice</strong>: the <a href="./Ch_09_Paired_t.html">paired-samples chapter</a> closes with <code>type = "paired"</code>, and shows how much cheaper a repeated-measures design is for the same effect.</li>
+</ul>
+<p>Come back here for the concepts. Go there for the arithmetic.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-short-story" class="level2" data-number="7.8">
+<h2 data-number="7.8" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">7.8</span> The Short Story</h2>
+<ul>
+<li>Small samples underestimate variability, in a direction that flatters you.</li>
+<li>Type I error is a false alarm and its rate is <span class="math inline">\(\alpha\)</span>, which you choose. Type II error is a miss and its rate is <span class="math inline">\(\beta\)</span>, which you must earn your way out of.</li>
+<li>Power is <span class="math inline">\(1 - \beta\)</span>: the probability of finding a real effect. It depends on the effect size, the sample size, and <span class="math inline">\(\alpha\)</span>.</li>
+<li>Effect size lives in standard deviation units. Significance lives in standard error units. Adding participants narrows the curves without moving the peaks.</li>
+<li>Compute power <strong>before</strong> you run the study. Post-hoc power is a restatement of your <em>p</em>-value wearing a disguise.</li>
+<li><code>power.t.test()</code> solves for whatever you leave <code>NULL</code>. Set <code>sd = 1</code> and put <span class="math inline">\(d\)</span> in <code>delta</code>.</li>
+<li>The other two <em>t</em>-tests use the same function with <code>type</code> changed, and each is powered in its own chapter. For <code>two.sample</code>, <code>n</code> is per group, so double it. For <code>paired</code>, <code>n</code> is the number of pairs and <code>delta</code> is <span class="math inline">\(d_z\)</span>.</li>
+<li>Non-significant does not mean no effect. Very often it means no chance.</li>
+</ul>
+<hr>
+</section>
+<section id="advanced-power-section" class="level2" data-number="7.9">
+<h2 data-number="7.9" class="anchored" data-anchor-id="advanced-power-section"><span class="header-section-number">7.9</span> Advanced Power Section</h2>
+<p>Everything above is what you need to design a study and defend it. What follows is the part that explains <em>why the field got this so wrong for so long</em>. You are not required to master it.</p>
+</section>
+<section id="the-observed-effect-size-is-also-a-guess" class="level2" data-number="7.10">
+<h2 data-number="7.10" class="anchored" data-anchor-id="the-observed-effect-size-is-also-a-guess"><span class="header-section-number">7.10</span> The Observed Effect Size Is Also a Guess</h2>
+<p>Running one small pilot study to estimate an effect size used to be standard practice. It is a catastrophe, and we can show exactly how bad it is.</p>
+<p>Consider a Mozart-effect study: compare spatial reasoning right after listening to Mozart’s Sonata for Two Pianos in D Major, K. 448, against a control group who listened to Bach’s Brandenburg Concerto No.&nbsp;6, matched on modality, tempo, and duelling voices. If the effect is specific to Mozart, Bach should do nothing.</p>
+<p>Simulate <span class="math inline">\(\mu_{Mozart} = 109\)</span>, <span class="math inline">\(\mu_{Bach} = 110\)</span>, <span class="math inline">\(\sigma = 15\)</span> in both, with <span class="math inline">\(n = 30\)</span> per group. The true effect is</p>
+<p><span class="math display">\[
+d_{true} = \frac{110 - 109}{15} = 0.067,
+\]</span></p>
+<p>which is to say, nothing. There is no Mozart effect in this simulated world. Now watch what a single study reports.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">666</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>Mozart.Sample <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">109</span>, <span class="dv">15</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>Bach.Sample   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">110</span>, <span class="dv">15</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>Sp_mb <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(((n<span class="dv">-1</span>)<span class="sc">*</span><span class="fu">sd</span>(Mozart.Sample)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> (n<span class="dv">-1</span>)<span class="sc">*</span><span class="fu">sd</span>(Bach.Sample)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> (<span class="dv">2</span><span class="sc">*</span>n <span class="sc">-</span> <span class="dv">2</span>))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>Obs.d <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">mean</span>(Mozart.Sample) <span class="sc">-</span> <span class="fu">mean</span>(Bach.Sample)) <span class="sc">/</span> Sp_mb</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(Obs.d, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.428</code></pre>
+</div>
+</div>
+<p>Our one study observed <span class="math inline">\(d =\)</span> 0.428, against a truth of <span class="math inline">\(0.067\)</span>.</p>
+<p>Now re-run that same study 5,000 times and look at the distribution of observed effect sizes.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_07_Power_Effect_Size_files/figure-html/mozart-sim-1.png" class="img-fluid figure-img" alt="Histogram of observed Cohen's d values from many simulated small studies of a tiny true effect. The distribution is wide and straddles zero, so plenty of studies report a moderate positive effect and plenty report a negative one." width="480"></p>
+<figcaption>The observed effect size is a guess too, and in a small study it is a wild one.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The red line is the truth. Look at how much of the distribution sits far to the right of it.</p>
+<p>In this simulation, an observed <span class="math inline">\(d\)</span> at least as large as our one study’s 0.428 occurred 10.62% of the time. Worse, there was a 46.32% chance of observing something above the “small effect” threshold of <span class="math inline">\(d = .2\)</span>, <strong>in a world where the true effect is essentially zero</strong>.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Why Pilot Studies Cannot Estimate Effect Sizes">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Why Pilot Studies Cannot Estimate Effect Sizes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A small pilot gives you a draw from that histogram. Not the red line. A draw.</p>
+<p>If you then feed that draw into a power analysis, you will compute the sample size needed to detect an effect that does not exist, feel rigorous about it, and run a study doomed before recruitment began.</p>
+<p>Pilot studies are for testing whether your procedure works, whether participants understand the instructions, and whether the software crashes. They are not for estimating effect sizes. They are far too small to do that, which is what makes them pilots.</p>
+</div>
+</div>
+</section>
+<section id="safeguard-power" class="level2" data-number="7.11">
+<h2 data-number="7.11" class="anchored" data-anchor-id="safeguard-power"><span class="header-section-number">7.11</span> Safeguard Power</h2>
+<p>If you must use an observed effect size from a previous study, do not use the point estimate. Use the <strong>lower bound of its confidence interval</strong>. This is called <em>safeguard power</em> <span class="citation" data-cites="perugini2014">(<a href="#ref-perugini2014" role="doc-biblioref">Perugini et al. 2014</a>)</span>, and it asks the only sensible question: what if the original study was lucky?</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CI for d, using the standard large-sample approximation</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>d_ci <span class="ot">&lt;-</span> <span class="cf">function</span>(d, n1, n2) {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  se <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((n1 <span class="sc">+</span> n2)<span class="sc">/</span>(n1 <span class="sc">*</span> n2) <span class="sc">+</span> d<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> (n1 <span class="sc">+</span> n2)))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">lower =</span> d <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se, <span class="at">d =</span> d, <span class="at">upper =</span> d <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>published <span class="ot">&lt;-</span> <span class="fu">d_ci</span>(<span class="fl">0.50</span>, <span class="dv">80</span>, <span class="dv">80</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(published, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lower     d upper 
+0.185 0.500 0.815 </code></pre>
+</div>
+</div>
+<p>A published effect of <span class="math inline">\(d = .50\)</span> from a reasonably sized study, 80 per group, still has a confidence interval reaching down to 0.185. Powering for the point estimate and powering for that lower bound produce very different studies:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">powered_for_point_estimate =</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ceiling</span>(<span class="fu">power.t.test</span>(<span class="at">delta =</span> <span class="fl">0.50</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">power =</span> .<span class="dv">80</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">type =</span> <span class="st">"two.sample"</span>)<span class="sc">$</span>n),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">powered_for_lower_bound =</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ceiling</span>(<span class="fu">power.t.test</span>(<span class="at">delta =</span> published[<span class="st">"lower"</span>], <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">power =</span> .<span class="dv">80</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">type =</span> <span class="st">"two.sample"</span>)<span class="sc">$</span>n))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>powered_for_point_estimate    powered_for_lower_bound 
+                        64                        459 </code></pre>
+</div>
+</div>
+<p>If the original estimate was accurate, both studies find the effect. If the original was a lucky draw from the high end of its own sampling distribution, only the second one does. The first returns a null result, and everybody spends eighteen months arguing about whether the replication was competent.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Now Try It With a Small Original Study">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Now Try It With a Small Original Study
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run the same calculation on a <span class="math inline">\(d = .50\)</span> reported from 25 participants per group:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">d_ci</span>(<span class="fl">0.50</span>, <span class="dv">25</span>, <span class="dv">25</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> lower      d  upper 
+-0.063  0.500  1.063 </code></pre>
+</div>
+</div>
+<p>The lower bound is <strong>negative</strong>. The confidence interval includes zero, and no honest safeguard-power calculation is possible, because the original study is compatible with an effect in the opposite direction.</p>
+<p>This is not a defect in the method. It is the method working correctly and telling you something you did not want to hear: <strong>that study never established an effect size at all.</strong> It established a range so wide that it contains “helps a lot,” “does nothing,” and “actively harms.”</p>
+<p>Powering a replication off a point estimate like that is not a calculation. It is a wish with decimal places.</p>
+</div>
+</div>
+</section>
+<section id="when-the-formula-will-not-do-simulate" class="level2" data-number="7.12">
+<h2 data-number="7.12" class="anchored" data-anchor-id="when-the-formula-will-not-do-simulate"><span class="header-section-number">7.12</span> When the Formula Will Not Do: Simulate</h2>
+<p><code>power.t.test()</code> handles <em>t</em>-tests. The moment your design gets more complicated, unequal group sizes, non-normal outcomes, planned attrition, an outcome measured on a bounded scale, the closed-form solution runs out.</p>
+<p>The general-purpose answer is to simulate. Build the world you expect, run your analysis on it thousands of times, and count how often you win.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build a machine that runs a whole study over and over and reports how</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># often it found the effect. That proportion IS power.</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>simulate_power <span class="ot">&lt;-</span> <span class="cf">function</span>(n_per_group, true_d, <span class="at">n_sims =</span> <span class="dv">2000</span>, <span class="at">alpha =</span> .<span class="dv">05</span>) {</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  hits <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sims, {          <span class="co"># run one study, n_sims times over</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Build two groups from populations we KNOW differ by true_d.</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Group 2 is centered on 0, group 1 on true_d, both with sd = 1,</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># so the gap between them is exactly true_d in standard deviations.</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    g1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_per_group, <span class="at">mean =</span> true_d, <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    g2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_per_group, <span class="at">mean =</span> <span class="dv">0</span>,      <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the test. This line is TRUE if we caught the effect, FALSE if we missed.</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t.test</span>(g1, g2)<span class="sc">$</span>p.value <span class="sc">&lt;</span> alpha</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># hits is now 2,000 TRUEs and FALSEs. R treats TRUE as 1 and FALSE as 0,</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># so the mean of them is the proportion of studies that succeeded.</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(hits)</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_power</span>(<span class="at">n_per_group =</span> <span class="dv">30</span>, <span class="at">true_d =</span> <span class="fl">0.5</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="co"># compare to the closed-form answer</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="fu">power.t.test</span>(<span class="at">n =</span> <span class="dv">30</span>, <span class="at">delta =</span> <span class="fl">0.5</span>, <span class="at">sd =</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"two.sample"</span>)<span class="sc">$</span>power</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4735
+[1] 0.477841</code></pre>
+</div>
+</div>
+<p>Read what that function does one more time, because the logic is the entire idea of power. We <em>built</em> a world where the effect is real and we know its exact size. Then we ran the study 2,000 times in that world and counted how often the <em>t</em>-test noticed. If it noticed 480 times out of 2,000, our power is .48, and the other 1,040 studies were funded, staffed, and wasted.</p>
+<p>The last two lines are the important habit: the simulation and the formula agree. Always check a simulation against a known answer before you trust it on a problem where you do not have one.</p>
+<p>The simulation agrees with the formula, which is how you know the simulation is trustworthy. Now you can change the generating model to anything you like, skewed outcomes, 20% dropout, a ceiling effect, and get an answer where no formula exists.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>simulate_power_with_dropout <span class="ot">&lt;-</span> <span class="cf">function</span>(n_per_group, true_d,</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">dropout =</span> <span class="fl">0.20</span>, <span class="at">n_sims =</span> <span class="dv">2000</span>) {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  keep <span class="ot">&lt;-</span> <span class="fu">round</span>(n_per_group <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> dropout))</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replicate</span>(n_sims, {</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    g1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(keep, <span class="at">mean =</span> true_d, <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    g2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(keep, <span class="at">mean =</span> <span class="dv">0</span>,      <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t.test</span>(g1, g2)<span class="sc">$</span>p.value <span class="sc">&lt;</span> .<span class="dv">05</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">|&gt;</span> <span class="fu">mean</span>()</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_power_with_dropout</span>(<span class="at">n_per_group =</span> <span class="dv">30</span>, <span class="at">true_d =</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4115</code></pre>
+</div>
+</div>
+<p>Twenty percent attrition costs real power. Plan for it before it happens, not in the limitations section afterwards.</p>
+</section>
+<section id="other-tools" class="level2" data-number="7.13">
+<h2 data-number="7.13" class="anchored" data-anchor-id="other-tools"><span class="header-section-number">7.13</span> Other Tools</h2>
+<p><code>power.t.test()</code> is deliberately limited. For anything beyond <em>t</em>-tests:</p>
+<ul>
+<li>the <strong><code>pwr</code></strong> package covers correlations, proportions, chi-square, ANOVA, and regression with the same solve-for-<code>NULL</code> logic;</li>
+<li><strong>G*Power</strong> is free stand-alone software and remains the standard for grant applications for people who do not code;</li>
+<li><strong><code>simr</code></strong> does simulation-based power for mixed models;</li>
+<li>and for genuinely novel designs, the <code>simulate_power()</code> pattern above generalizes to anything you can write down.</li>
+</ul>
+<p>NIH and NSF require a power analysis with every grant application. In practice it is difficult, because you must estimate an effect size you do not yet know. Assume small, plan for attrition, and remember that the most expensive study is the underpowered one that answers nothing.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="Cohen's Compromise">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Cohen’s Compromise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Cohen’s recommendation was simple: do the significance test <strong>and</strong> report the effect size.</p>
+<p>Two pieces of information. First, is the result distinguishable from sampling error? Second, does the effect mean anything at all?</p>
+<p>He proposed this in 1962. APA made it standard in 2010.</p>
+<p>Forty-eight years. Please do not make it take any longer.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Figure Credit">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Figure Credit
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The power and signal-detection illustrations in this chapter are adapted from Kristoffer Magnusson’s <a href="http://rpsychologist.com/creating-a-typical-textbook-illustration-of-statistical-power-using-either-ggplot-or-base-graphics">textbook-illustration walkthrough</a>, updated for current ggplot2 syntax.</p>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-button2013" class="csl-entry" role="listitem">
+Button, Katherine S., John P. A. Ioannidis, Claire Mokrysz, et al. 2013. <span>“Power Failure: Why Small Sample Size Undermines the Reliability of Neuroscience.”</span> <em>Nature Reviews Neuroscience</em> 14 (5): 365–76. <a href="https://doi.org/10.1038/nrn3475">https://doi.org/10.1038/nrn3475</a>.
+</div>
+<div id="ref-cohen1962" class="csl-entry" role="listitem">
+Cohen, Jacob. 1962. <span>“The Statistical Power of Abnormal-Social Psychological Research: A Review.”</span> <em>The Journal of Abnormal and Social Psychology</em> 65 (3): 145–53. <a href="https://doi.org/10.1037/h0045186">https://doi.org/10.1037/h0045186</a>.
+</div>
+<div id="ref-cohen1988" class="csl-entry" role="listitem">
+Cohen, Jacob. 1988. <em>Statistical Power Analysis for the Behavioral Sciences</em>. 2nd ed. Lawrence Erlbaum Associates.
+</div>
+<div id="ref-cohen1992" class="csl-entry" role="listitem">
+Cohen, Jacob. 1992. <span>“A Power Primer.”</span> <em>Psychological Bulletin</em> 112 (1): 155–59. <a href="https://doi.org/10.1037/0033-2909.112.1.155">https://doi.org/10.1037/0033-2909.112.1.155</a>.
+</div>
+<div id="ref-hoenig2001" class="csl-entry" role="listitem">
+Hoenig, John M., and Dennis M. Heisey. 2001. <span>“The Abuse of Power: The Pervasive Fallacy of Power Calculations for Data Analysis.”</span> <em>The American Statistician</em> 55 (1): 19–24. <a href="https://doi.org/10.1198/000313001300339897">https://doi.org/10.1198/000313001300339897</a>.
+</div>
+<div id="ref-kicinski2015" class="csl-entry" role="listitem">
+Kicinski, Michal, David A. Springate, and Evangelos Kontopantelis. 2015. <span>“Publication Bias in Meta-Analyses from the <span class="nocase">Cochrane Database of Systematic Reviews</span>.”</span> <em>Statistics in Medicine</em> 34 (20): 2781–93. <a href="https://doi.org/10.1002/sim.6525">https://doi.org/10.1002/sim.6525</a>.
+</div>
+<div id="ref-perugini2014" class="csl-entry" role="listitem">
+Perugini, Marco, Marcello Gallucci, and Giulio Costantini. 2014. <span>“Safeguard Power as a Protection Against Imprecise Power Estimates.”</span> <em>Perspectives on Psychological Science</em> 9 (3): 319–32. <a href="https://doi.org/10.1177/1745691614528519">https://doi.org/10.1177/1745691614528519</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_06_One_Sample_t.html" class="pagination-link" aria-label="One Sample t-Test">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_08_Independent_t.html" class="pagination-link" aria-label="Independent Samples t-Test">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_07_Power_Effect_Size.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

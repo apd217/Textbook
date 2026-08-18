@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>21&nbsp; Advanced: Continuous and Higher-Order Interactions – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_22_GLM.html" rel="next">
+<link href="./Ch_20_Multiple_Comparisons.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html">Okay, But What If It’s Complicated?</a></li><li class="breadcrumb-item"><a href="./Ch_21_Advanced_Interactions.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_19_Regression_Diagnostics.html">Okay, But What If It’s Complicated?</a></li><li class="breadcrumb-item"><a href="./Ch_21_Advanced_Interactions.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="two-models-one-dataset-opposite-headlines" class="level2" data-number="21.1">
+<h2 data-number="21.1" class="anchored" data-anchor-id="two-models-one-dataset-opposite-headlines"><span class="header-section-number">21.1</span> Two Models, One Dataset, Opposite Headlines</h2>
+<p>We asked 240 students how much they slept, how much caffeine they drank, and how well they could concentrate. Here is the whole study, invented on the spot, with the interaction built in on purpose so you can see it sitting in the generating model.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">343</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">240</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>InterData <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sleep =</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(<span class="fu">rnorm</span>(n, <span class="fl">6.5</span>, <span class="fl">1.3</span>), <span class="fl">2.5</span>), <span class="dv">10</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Caffeine =</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(<span class="fu">rnorm</span>(n, <span class="dv">220</span>, <span class="dv">100</span>), <span class="dv">0</span>), <span class="dv">500</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Concentration <span class="ot">&lt;-</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dv">40</span> <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fl">3.5</span> <span class="sc">*</span> InterData<span class="sc">$</span>Sleep <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.055</span> <span class="sc">*</span> InterData<span class="sc">$</span>Caffeine <span class="sc">-</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fl">0.012</span> <span class="sc">*</span> InterData<span class="sc">$</span>Sleep <span class="sc">*</span> InterData<span class="sc">$</span>Caffeine <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Sleep.C <span class="ot">&lt;-</span> InterData<span class="sc">$</span>Sleep <span class="sc">-</span> <span class="fu">mean</span>(InterData<span class="sc">$</span>Sleep)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Caffeine.C <span class="ot">&lt;-</span> InterData<span class="sc">$</span>Caffeine <span class="sc">-</span> <span class="fu">mean</span>(InterData<span class="sc">$</span>Caffeine)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Now fit the obvious model. Concentration from sleep, caffeine, and their interaction, using the variables exactly as they were measured.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>RawModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Concentration <span class="sc">~</span> Sleep <span class="sc">*</span> Caffeine, <span class="at">data =</span> InterData)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">coef</span>(<span class="fu">summary</span>(RawModel)), <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate Std. Error  t value Pr(&gt;|t|)
+(Intercept)    38.02109    4.71938  8.05638  0.00000
+Sleep           3.55281    0.69413  5.11835  0.00000
+Caffeine        0.06179    0.02001  3.08855  0.00225
+Sleep:Caffeine -0.01226    0.00293 -4.19148  0.00004</code></pre>
+</div>
+</div>
+<p>Caffeine helps. The slope is 0.0618, it is significantly greater than zero at <span class="math inline">\(p =\)</span> 0.002, and you can write the sentence yourself: more caffeine, better concentration.</p>
+<p>Now subtract the mean from each predictor and fit the same three terms again.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>InteractionModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Concentration <span class="sc">~</span> Sleep.C <span class="sc">*</span> Caffeine.C, <span class="at">data =</span> InterData)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">coef</span>(<span class="fu">summary</span>(InteractionModel)), <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   Estimate Std. Error   t value Pr(&gt;|t|)
+(Intercept)        57.31365    0.33775 169.69342  0.00000
+Sleep.C             0.90777    0.28659   3.16756  0.00174
+Caffeine.C         -0.01876    0.00356  -5.27079  0.00000
+Sleep.C:Caffeine.C -0.01226    0.00293  -4.19148  0.00004</code></pre>
+</div>
+</div>
+<p>Caffeine hurts. The slope is -0.0188, and it is significantly <em>less</em> than zero at <span class="math inline">\(p &lt;\)</span> .001.</p>
+<p>Both of those sentences describe the same 240 people. Neither model is wrong, neither is a typo, and nothing was dropped or added between them. Watch what did not move.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>FittedGap <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(<span class="fu">fitted</span>(RawModel) <span class="sc">-</span> <span class="fu">fitted</span>(InteractionModel)))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Interaction.raw      =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(RawModel)[<span class="dv">4</span>]),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Interaction.centered =</span> <span class="fu">unname</span>(<span class="fu">coef</span>(InteractionModel)[<span class="dv">4</span>]),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">R2.raw               =</span> <span class="fu">summary</span>(RawModel)<span class="sc">$</span>r.squared,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">R2.centered          =</span> <span class="fu">summary</span>(InteractionModel)<span class="sc">$</span>r.squared,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Largest.fitted.diff  =</span> FittedGap</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Interaction.raw Interaction.centered               R2.raw 
+       -1.226242e-02        -1.226242e-02         2.070618e-01 
+         R2.centered  Largest.fitted.diff 
+        2.070618e-01         1.563194e-13 </code></pre>
+</div>
+</div>
+<p>The interaction coefficient is identical. <span class="math inline">\(R^2\)</span> is identical. Across all 240 predicted values, the largest disagreement between the two models shows up in the 12th decimal place, which is not a small difference but a zero that has been through floating-point arithmetic. These are not two models. This is one model, wearing two sets of labels.</p>
+<p>So what changed? Only the location of zero. In the first model, the caffeine coefficient is the effect of caffeine <strong>on a student who slept zero hours</strong>. In the second, it is the effect of caffeine <strong>on a student who slept the average amount</strong>, about 6.6 hours. Those are different students, so they get different answers, and the model was never claiming otherwise. We were.</p>
+<p><em>A coefficient in an interaction model is not an effect. It is an effect at a place.</em></p>
+<p>The rest of this chapter is about choosing that place on purpose, saying which one you chose, and noticing when software has quietly chosen for you.</p>
+</section>
+<section id="it-depends-again" class="level2" data-number="21.2">
+<h2 data-number="21.2" class="anchored" data-anchor-id="it-depends-again"><span class="header-section-number">21.2</span> It Depends, Again</h2>
+<p>The earlier interaction chapters asked whether a slope differs across categories. Here both predictors can be continuous. This produces a model that is compact to write and remarkably easy to explain badly <span class="citation" data-cites="aiken1991">(<a href="#ref-aiken1991" role="doc-biblioref">Aiken and West 1991</a>)</span>.</p>
+<p>Caffeine predicts concentration differently depending on sleep. Caffeine may help a rested student focus while merely allowing an exhausted student to hear colors at a higher frame rate.</p>
+<section id="fast-review-categorical-by-continuous-interactions" class="level3" data-number="21.2.1">
+<h3 data-number="21.2.1" class="anchored" data-anchor-id="fast-review-categorical-by-continuous-interactions"><span class="header-section-number">21.2.1</span> Fast Review: Categorical-by-Continuous Interactions</h3>
+<p>The previous interaction chapters used a categorical moderator. With a dummy variable <span class="math inline">\(G\)</span> coded 0 and 1,</p>
+<p><span class="math display">\[
+Y=\beta_0+\beta_1X+\beta_2G+\beta_3XG+\epsilon.
+\]</span></p>
+<p>For the reference group, <span class="math inline">\(G=0\)</span>, so its regression line is</p>
+<p><span class="math display">\[
+\widehat Y=\beta_0+\beta_1X.
+\]</span></p>
+<p>For the comparison group, <span class="math inline">\(G=1\)</span>, so its line is</p>
+<p><span class="math display">\[
+\widehat Y=(\beta_0+\beta_2)+(\beta_1+\beta_3)X.
+\]</span></p>
+<p>Therefore, <span class="math inline">\(\beta_2\)</span> is the group difference in intercepts when <span class="math inline">\(X=0\)</span>, and <span class="math inline">\(\beta_3\)</span> is the group difference in slopes. A continuous-by-continuous interaction uses the same logic. The only difference is that the moderator can take many values instead of two. We therefore choose meaningful values at which to examine the conditional slope.</p>
+</section>
+</section>
+<section id="the-continuous-by-continuous-model" class="level2" data-number="21.3">
+<h2 data-number="21.3" class="anchored" data-anchor-id="the-continuous-by-continuous-model"><span class="header-section-number">21.3</span> The Continuous-by-Continuous Model</h2>
+<p><span class="math display">\[
+Y=\beta_0+\beta_1X+\beta_2Z+\beta_3XZ+\epsilon.
+\]</span></p>
+<p>The slope of <span class="math inline">\(X\)</span> is:</p>
+<p><span class="math display">\[
+\frac{\partial Y}{\partial X}=\beta_1+\beta_3Z.
+\]</span></p>
+<p>That derivative is the entire interaction in one line: the slope of <span class="math inline">\(X\)</span> changes as <span class="math inline">\(Z\)</span> changes.</p>
+<div class="callout callout-style-default callout-important callout-titled" title="There Is No Single Main Effect of X">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>There Is No Single Main Effect of X
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When <span class="math inline">\(XZ\)</span> is in the model, <span class="math inline">\(\beta_1\)</span> is the slope of <span class="math inline">\(X\)</span> specifically when <span class="math inline">\(Z=0\)</span>. If zero is meaningless or outside the data, the coefficient answers a question nobody asked.</p>
+</div>
+</div>
+</section>
+<section id="does-the-interaction-earn-its-place" class="level2" data-number="21.4">
+<h2 data-number="21.4" class="anchored" data-anchor-id="does-the-interaction-earn-its-place"><span class="header-section-number">21.4</span> Does the Interaction Earn Its Place?</h2>
+<p>Before interpreting a product term, check that it bought you anything. Fit the model without it and compare.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>AdditiveModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Concentration <span class="sc">~</span> Sleep.C <span class="sc">+</span> Caffeine.C, <span class="at">data =</span> InterData)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(AdditiveModel, InteractionModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: Concentration ~ Sleep.C + Caffeine.C
+Model 2: Concentration ~ Sleep.C * Caffeine.C
+  Res.Df    RSS Df Sum of Sq      F   Pr(&gt;F)    
+1    237 6940.9                                 
+2    236 6460.0  1     480.9 17.569 3.92e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>It did. Adding the product term improves fit at <span class="math inline">\(p &lt; .001\)</span>, so the claim that caffeine’s slope depends on sleep is doing real work rather than decorating the model. Had this comparison come back nonsignificant, the honest move would be to say so and report the additive model, not to hunt for a subgroup in which the interaction reappears.</p>
+<p>Centering places zero at the sample mean. It changes the interpretation of the intercept and lower-order slopes. It does <strong>not</strong> change fitted values, residuals, <span class="math inline">\(R^2\)</span>, or the interaction coefficient.</p>
+<p>Centering is usually helpful for three reasons:</p>
+<ol type="1">
+<li><span class="math inline">\(\beta_1\)</span> becomes the slope of <span class="math inline">\(X\)</span> when the moderator is at its mean instead of at an arbitrary zero.</li>
+<li>It can reduce <strong>nonessential multicollinearity</strong> created only by multiplying variables together.</li>
+<li>It keeps products from growing into unnecessarily enormous numbers.</li>
+</ol>
+<p>Centering does not solve <strong>essential multicollinearity</strong> caused by predictors containing genuinely overlapping information. If sleep and exhaustion measure nearly the same construct, subtracting their means will not make them strangers.</p>
+<p>Whatever coding you choose, use it consistently. Do not put centered variables in the product while leaving uncentered versions as the lower-order terms. You would be fitting a mathematical casserole that no longer represents the intended model.</p>
+<section id="the-standardized-beta-trap" class="level3" data-number="21.4.1">
+<h3 data-number="21.4.1" class="anchored" data-anchor-id="the-standardized-beta-trap"><span class="header-section-number">21.4.1</span> The Standardized-Beta Trap</h3>
+<p>Sooner or later a reviewer will ask for standardized coefficients on your moderation model. This request is reasonable and the obvious way to satisfy it is wrong, so it is worth meeting the problem here rather than in a revision.</p>
+<p>The correct procedure is to z-score <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> first, and <em>then</em> multiply them. The tempting shortcut is to build the product first and z-score that. These are not the same variable, because the z-score of a product is not the product of z-scores.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Sleep.Z    <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(InterData<span class="sc">$</span>Sleep))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Caffeine.Z <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(InterData<span class="sc">$</span>Caffeine))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Concen.Z   <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(InterData<span class="sc">$</span>Concentration))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Right: standardize the components, then let R form the product.</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>ProperBetas <span class="ot">&lt;-</span> <span class="fu">lm</span>(Concen.Z <span class="sc">~</span> Sleep.Z <span class="sc">*</span> Caffeine.Z, <span class="at">data =</span> InterData)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Wrong: standardize the product term itself.</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Product.Z <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(InterData<span class="sc">$</span>Sleep <span class="sc">*</span> InterData<span class="sc">$</span>Caffeine))</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>WrongBetas <span class="ot">&lt;-</span> <span class="fu">lm</span>(Concen.Z <span class="sc">~</span> Sleep.Z <span class="sc">+</span> Caffeine.Z <span class="sc">+</span> Product.Z, <span class="at">data =</span> InterData)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>BetaCompare <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proper =</span> <span class="fu">coef</span>(ProperBetas),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Wrong  =</span> <span class="fu">coef</span>(WrongBetas)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Relabel: the last row is Sleep.Z:Caffeine.Z in one model and Product.Z in the</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co"># other. They occupy the same position, and that is exactly the point.</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(BetaCompare) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"(Intercept)"</span>, <span class="st">"Sleep"</span>, <span class="st">"Caffeine"</span>, <span class="st">"Sleep x Caffeine"</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(BetaCompare, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  Proper   Wrong
+(Intercept)       0.0032  0.0000
+Sleep             0.1836  0.7187
+Caffeine         -0.3083  1.0156
+Sleep x Caffeine -0.2380 -1.4854</code></pre>
+</div>
+</div>
+<p>The interaction “beta” is -0.24 one way and -1.49 the other. Both lower-order betas are wrong in the second column too, and one of them is 1.02, which should be your first clue: a standardized coefficient larger than 1 in a model this simple is usually a confession rather than a finding.</p>
+<p>Here is the part that makes this genuinely dangerous. The two models fit <strong>identically</strong>. <span class="math inline">\(R^2\)</span> is 0.2071 in both, and the interaction’s <em>t</em> is -4.19 in both, so the significance test is untouched. Nothing looks broken. The only thing that changed is the number you would put in the table and describe in words, and it is off by a factor of about 6.2.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Do Not Trust a Standardized Column You Did Not Build">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Do Not Trust a Standardized Column You Did Not Build
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you want standardized coefficients for an interaction model, <strong>z-score the components first and refit</strong>. Do not read them off a “standardized” or “beta” column produced by software that standardized the product term along with everything else, because several packages do exactly that and none of them will warn you.</p>
+<p>The check takes ten seconds: refit with z-scored predictors and confirm the numbers match the column you were about to report. If they do not, the column is describing a variable nobody constructed on purpose.</p>
+<p>Friedrich made this argument in 1982 and it has needed remaking roughly once per graduate cohort ever since <span class="citation" data-cites="friedrich1982">(<a href="#ref-friedrich1982" role="doc-biblioref">Friedrich 1982</a>)</span>. Cohen, Cohen, West and Aiken work through it at length in their chapter on interactions <span class="citation" data-cites="cohen2003">(<a href="#ref-cohen2003" role="doc-biblioref">Cohen et al. 2003</a>)</span>.</p>
+</div>
+</div>
+<p>Leave a predictor uncentered when zero is scientifically meaningful and you want the lower-order coefficient evaluated there. For example, zero milligrams of caffeine is understandable. Zero hours of sleep is also understandable, but anyone reporting it should probably not be completing your study.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Centering Is Translation, Not Exorcism">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Centering Is Translation, Not Exorcism
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Centering can make lower-order terms interpretable and reduce nonessential correlation between a product term and its components. It does not repair poor measurement, restricted range, or two predictors that are fundamentally redundant.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="plot-the-model" class="level2" data-number="21.5">
+<h2 data-number="21.5" class="anchored" data-anchor-id="plot-the-model"><span class="header-section-number">21.5</span> Plot the Model</h2>
+<p>We will draw the caffeine slope at low sleep, average sleep, and high sleep. The common <span class="math inline">\(\pm1SD\)</span> convention is useful because it gives three recognizable values. It is not a law delivered by the Moderation Gods.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>sleep_values <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Low =</span> <span class="sc">-</span><span class="fu">sd</span>(InterData<span class="sc">$</span>Sleep.C),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Average =</span> <span class="dv">0</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">High =</span> <span class="fu">sd</span>(InterData<span class="sc">$</span>Sleep.C)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>caffeine_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(InterData<span class="sc">$</span>Caffeine.C), <span class="fu">max</span>(InterData<span class="sc">$</span>Caffeine.C), <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  InterData<span class="sc">$</span>Caffeine, InterData<span class="sc">$</span>Concentration,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="fu">rgb</span>(<span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.22</span>),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># y label is "Concentration", not "Predicted concentration": the dots are raw</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># observed scores. Only the three overlaid lines are predictions.</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Caffeine (mg)"</span>, <span class="at">ylab =</span> <span class="st">"Concentration"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Caffeine does not have one universal slope"</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>line_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#D55E00"</span>, <span class="st">"#0072B2"</span>, <span class="st">"#009E73"</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(sleep_values)) {</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sleep.C =</span> sleep_values[i],</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Caffeine.C =</span> caffeine_grid</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lines</span>(</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    caffeine_grid <span class="sc">+</span> <span class="fu">mean</span>(InterData<span class="sc">$</span>Caffeine),</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(InteractionModel, <span class="at">newdata =</span> newdata),</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> line_colors[i], <span class="at">lwd =</span> <span class="dv">3</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="at">legend =</span> <span class="fu">paste</span>(<span class="fu">names</span>(sleep_values), <span class="st">"sleep"</span>),</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> line_colors, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_21_Advanced_Interactions_files/figure-html/interaction-plot-1.png" class="img-fluid figure-img" alt="Scatterplot with caffeine in milligrams from 0 to about 470 on the x axis and concentration from about 42 to 75 on the y axis. A wide grey cloud of 240 faint points fills the panel with no obvious tilt of its own. Three straight prediction lines are drawn over it and fan out rather than running parallel. The orange Low sleep line is almost flat, falling only from about 57 to 55. The blue Average sleep line falls from about 61 to 53. The green High sleep line falls most steeply, from about 65 to 50. All three lines converge and cross near 290 milligrams of caffeine." width="672"></p>
+<figcaption>Points are observed concentration scores. The three lines are model predictions at low, average, and high sleep, defined as one standard deviation below the mean, the mean, and one standard deviation above it.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="simple-slopes" class="level2" data-number="21.6">
+<h2 data-number="21.6" class="anchored" data-anchor-id="simple-slopes"><span class="header-section-number">21.6</span> Simple Slopes</h2>
+<p>For a chosen value <span class="math inline">\(z^*\)</span> of the moderator, the simple slope of caffeine is:</p>
+<p><span class="math display">\[
+b_{Caffeine\mid z^*}=b_1+b_3z^*.
+\]</span></p>
+<p>Its standard error also depends on the covariance between <span class="math inline">\(b_1\)</span> and <span class="math inline">\(b_3\)</span>:</p>
+<p><span class="math display">\[
+SE(b_1+b_3z^*)=
+\sqrt{
+Var(b_1)+z^{*2}Var(b_3)+2z^*Cov(b_1,b_3)
+}.
+\]</span></p>
+<p>This is why we let software test simple slopes. Doing it by hand is possible, but so is churning butter.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>emmeans<span class="sc">::</span><span class="fu">emtrends</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  InteractionModel,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">specs =</span> <span class="st">"Sleep.C"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="st">"Caffeine.C"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">at =</span> <span class="fu">list</span>(<span class="at">Sleep.C =</span> <span class="fu">unname</span>(sleep_values))</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Sleep.C Caffeine.C.trend      SE  df lower.CL upper.CL
+   -1.18         -0.00428 0.00528 236  -0.0147  0.00613
+    0.00         -0.01876 0.00356 236  -0.0258 -0.01175
+    1.18         -0.03324 0.00462 236  -0.0423 -0.02415
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>Use theoretically meaningful moderator values when possible. Quantiles may be better than <span class="math inline">\(\pm1SD\)</span> for a skewed moderator. Never probe values outside the observed range merely because the resulting line looks exciting.</p>
+<section id="what-software-is-doing-when-it-tests-a-simple-slope" class="level3" data-number="21.6.1">
+<h3 data-number="21.6.1" class="anchored" data-anchor-id="what-software-is-doing-when-it-tests-a-simple-slope"><span class="header-section-number">21.6.1</span> What Software Is Doing When It Tests a Simple Slope</h3>
+<p><code>emtrends()</code> is not creating a new kind of regression. It is combining coefficients from the fitted model. We can prove this by changing the value represented by zero.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>SleepSD <span class="ot">&lt;-</span> <span class="fu">sd</span>(InterData<span class="sc">$</span>Sleep.C)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Sleep.AtLow <span class="ot">&lt;-</span> InterData<span class="sc">$</span>Sleep.C <span class="sc">-</span> (<span class="sc">-</span>SleepSD)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Sleep.AtMean <span class="ot">&lt;-</span> InterData<span class="sc">$</span>Sleep.C</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Sleep.AtHigh <span class="ot">&lt;-</span> InterData<span class="sc">$</span>Sleep.C <span class="sc">-</span> SleepSD</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>SlopeAtLow <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  Concentration <span class="sc">~</span> Caffeine.C <span class="sc">*</span> Sleep.AtLow,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> InterData</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>SlopeAtMean <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  Concentration <span class="sc">~</span> Caffeine.C <span class="sc">*</span> Sleep.AtMean,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> InterData</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>SlopeAtHigh <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  Concentration <span class="sc">~</span> Caffeine.C <span class="sc">*</span> Sleep.AtHigh,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> InterData</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">LowSleep =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(SlopeAtLow))[<span class="st">"Caffeine.C"</span>, ],</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">MeanSleep =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(SlopeAtMean))[<span class="st">"Caffeine.C"</span>, ],</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">HighSleep =</span> <span class="fu">coef</span>(<span class="fu">summary</span>(SlopeAtHigh))[<span class="st">"Caffeine.C"</span>, ]</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              Estimate  Std. Error    t value     Pr(&gt;|t|)
+LowSleep  -0.004277577 0.005281348 -0.8099405 4.187903e-01
+MeanSleep -0.018759542 0.003559155 -5.2707860 3.064031e-07
+HighSleep -0.033241507 0.004617131 -7.1996017 8.019402e-12</code></pre>
+</div>
+</div>
+<p>In each model, the coefficient for caffeine is evaluated where the newly coded sleep variable equals zero. The fitted values and interaction remain the same. We only rotated the coefficient labels until the question we wanted was sitting in the convenient chair.</p>
+<p>You do not need to test slopes at every possible moderator value. That converts one interaction into a large family of tests and invites the multiple-comparisons demons. Test values required by theory. Plot enough of the observed range to show the shape.</p>
+</section>
+</section>
+<section id="moderation-is-a-theoretical-label" class="level2" data-number="21.7">
+<h2 data-number="21.7" class="anchored" data-anchor-id="moderation-is-a-theoretical-label"><span class="header-section-number">21.7</span> Moderation Is a Theoretical Label</h2>
+<p>When we say that <span class="math inline">\(Z\)</span> <strong>moderates</strong> the effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>, we mean that the relationship between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> changes across values of <span class="math inline">\(Z\)</span>. Statistically, this is an interaction. Calling one variable the moderator does not change the equation.</p>
+<p>Which predictor is the moderator depends on the theory. In the caffeine-and-sleep example, we can say sleep moderates the caffeine slope or caffeine moderates the sleep slope. The fitted surface is identical. The story determines which conditional relationship we emphasize.</p>
+<p>Moderation and mediation both involve three-variable systems, but they are not the same procedure. Moderation asks <strong>when or for whom</strong> a relationship changes. Mediation asks whether a relationship may operate <strong>through</strong> another variable. Sharing the letter <em>M</em> does not make them statistical cousins.</p>
+</section>
+<section id="common-theoretical-patterns" class="level2" data-number="21.8">
+<h2 data-number="21.8" class="anchored" data-anchor-id="common-theoretical-patterns"><span class="header-section-number">21.8</span> Common Theoretical Patterns</h2>
+<p>Words such as <em>synergistic</em>, <em>antagonistic</em>, and <em>buffering</em> describe patterns in predicted values. They do not create different estimators. We still fit a product term, inspect the coding, calculate conditional slopes, and plot the model.</p>
+<section id="synergistic-interaction" class="level3" data-number="21.8.1">
+<h3 data-number="21.8.1" class="anchored" data-anchor-id="synergistic-interaction"><span class="header-section-number">21.8.1</span> Synergistic Interaction</h3>
+<p>A synergistic interaction occurs when the combined effect of two predictors is larger than their additive effects would suggest. Imagine that better sleep improves concentration, moderate caffeine improves concentration, and caffeine is especially helpful when a student is rested enough to remember where their mouth is.</p>
+<p>When both predictors have positive lower-order slopes, a positive product term often creates this pattern. However, the sign depends on coding. Inspect predictions before naming it.</p>
+</section>
+<section id="antagonistic-or-interference-interaction" class="level3" data-number="21.8.2">
+<h3 data-number="21.8.2" class="anchored" data-anchor-id="antagonistic-or-interference-interaction"><span class="header-section-number">21.8.2</span> Antagonistic or Interference Interaction</h3>
+<p>An antagonistic interaction occurs when the combined effect is smaller than simple addition predicts. Perhaps using one study app improves performance and using a second app also improves performance, but using both produces 47 notifications and an emergency need to redesign the color theme. The second tool has diminishing returns as use of the first increases.</p>
+<p>When both lower-order slopes are positive, a negative product term often produces antagonism.</p>
+</section>
+<section id="buffering-interaction" class="level3" data-number="21.8.3">
+<h3 data-number="21.8.3" class="anchored" data-anchor-id="buffering-interaction"><span class="header-section-number">21.8.3</span> Buffering Interaction</h3>
+<p>A buffering interaction usually combines a risk factor with a protective factor. Suppose academic stress predicts worse sleep, but social support weakens that relationship. As support rises, the negative stress slope approaches zero.</p>
+<p>The term <em>buffering</em> depends strongly on which variable is defined as the risk and which outcome direction is good. Reverse-score stress into serenity and several coefficient signs reverse even though every fitted value remains unchanged.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>PatternX <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">80</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>ModeratorValues <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">Low =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">High =</span> <span class="dv">1</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>PatternColors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#D55E00"</span>, <span class="st">"#0072B2"</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (PatternName <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"Synergistic"</span>, <span class="st">"Antagonistic"</span>, <span class="st">"Buffering"</span>)) {</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA</span>, <span class="at">xlim =</span> <span class="fu">range</span>(PatternX), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">"Predictor X"</span>, <span class="at">ylab =</span> <span class="st">"Predicted Y"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> PatternName</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq_along</span>(ModeratorValues)) {</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> ModeratorValues[j]</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (PatternName <span class="sc">==</span> <span class="st">"Synergistic"</span>) {</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>      Y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> PatternX <span class="sc">+</span> Z <span class="sc">+</span> .<span class="dv">8</span> <span class="sc">*</span> PatternX <span class="sc">*</span> Z</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (PatternName <span class="sc">==</span> <span class="st">"Antagonistic"</span>) {</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>      Y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> PatternX <span class="sc">+</span> Z <span class="sc">-</span> .<span class="dv">8</span> <span class="sc">*</span> PatternX <span class="sc">*</span> Z</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>      Y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fl">1.2</span> <span class="sc">*</span> PatternX <span class="sc">+</span> <span class="fl">1.0</span> <span class="sc">*</span> Z <span class="sc">+</span> .<span class="dv">7</span> <span class="sc">*</span> PatternX <span class="sc">*</span> Z</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lines</span>(PatternX, Y, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">col =</span> PatternColors[j])</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="fu">names</span>(ModeratorValues), <span class="at">col =</span> PatternColors, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">bty =</span> <span class="st">"n"</span>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.new</span>()</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(.<span class="dv">5</span>, .<span class="dv">62</span>, <span class="st">"Same product-term machinery"</span>, <span class="at">cex =</span> <span class="fl">1.15</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(.<span class="dv">5</span>, .<span class="dv">48</span>, <span class="st">"Different theoretical stories"</span>, <span class="at">cex =</span> <span class="fl">1.15</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(.<span class="dv">5</span>, .<span class="dv">32</span>, <span class="st">"Check the coding before naming anything"</span>, <span class="at">cex =</span> .<span class="dv">95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_21_Advanced_Interactions_files/figure-html/interaction-patterns-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Four panels in a two-by-two grid. Three of them plot predicted Y against predictor X from minus 2 to 2, each showing an orange Low moderator line and a blue High moderator line. In Synergistic, both lines rise and the blue one rises much more steeply, so they cross near X of minus 1.3 and the gap widens to the right. In Antagonistic, the orange line rises steeply and the blue one is nearly flat, so they cross near X of 1.3 and the gap is widest on the left. In Buffering, both lines fall, the orange steeply and the blue gently, so the orange drops far below the blue on the right. The fourth panel has no plot in it, only three lines of text reading Same product-term machinery, Different theoretical stories, and Check the coding before naming anything." width="768"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="reverse-scoring-changes-the-signs-not-the-story" class="level2" data-number="21.9">
+<h2 data-number="21.9" class="anchored" data-anchor-id="reverse-scoring-changes-the-signs-not-the-story"><span class="header-section-number">21.9</span> Reverse-Scoring Changes the Signs, Not the Story</h2>
+<p>If <span class="math inline">\(Z^*=-Z\)</span>, the signs of its main effect and interactions reverse. Predictions remain identical after the coding is translated correctly. A negative interaction does not inherently mean antagonism, harm, or Reviewer 2. Its meaning depends on variable coding.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Interaction Labels Are Stories, Not New Statistics">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Interaction Labels Are Stories, Not New Statistics
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Terms such as <em>synergistic</em>, <em>antagonistic</em>, and <em>buffering</em> describe theoretical patterns. The model still estimates slopes and products. Decide which story applies only after inspecting coding, predictions, and the scientific context.</p>
+</div>
+</div>
+</section>
+<section id="three-way-interactions" class="level2" data-number="21.10">
+<h2 data-number="21.10" class="anchored" data-anchor-id="three-way-interactions"><span class="header-section-number">21.10</span> Three-Way Interactions</h2>
+<p>A three-way interaction asks whether a two-way interaction changes across a third variable:</p>
+<p><span class="math display">\[
+Y=\beta_0+\beta_1X+\beta_2Z+\beta_3W+
+\beta_4XZ+\beta_5XW+\beta_6ZW+\beta_7XZW+\epsilon.
+\]</span></p>
+<p>If <span class="math inline">\(\beta_7\neq0\)</span>, the <span class="math inline">\(X\)</span>-by-<span class="math inline">\(Z\)</span> interaction depends on <span class="math inline">\(W\)</span>.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">345</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>ThreeData <span class="ot">&lt;-</span> InterData</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ThreeData<span class="sc">$</span>Deadline <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"Tomorrow"</span>, <span class="st">"Next week"</span>), <span class="fu">nrow</span>(ThreeData), <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Next week"</span>, <span class="st">"Tomorrow"</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>Deadline01 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(ThreeData<span class="sc">$</span>Deadline <span class="sc">==</span> <span class="st">"Tomorrow"</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>ThreeData<span class="sc">$</span>Concentration3 <span class="ot">&lt;-</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="dv">60</span> <span class="sc">+</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fl">2.0</span> <span class="sc">*</span> ThreeData<span class="sc">$</span>Sleep.C <span class="sc">+</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  .<span class="dv">035</span> <span class="sc">*</span> ThreeData<span class="sc">$</span>Caffeine.C <span class="sc">-</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fl">3.0</span> <span class="sc">*</span> Deadline01 <span class="sc">-</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  .<span class="dv">008</span> <span class="sc">*</span> ThreeData<span class="sc">$</span>Sleep.C <span class="sc">*</span> ThreeData<span class="sc">$</span>Caffeine.C <span class="sc">+</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  .<span class="dv">010</span> <span class="sc">*</span> ThreeData<span class="sc">$</span>Sleep.C <span class="sc">*</span> ThreeData<span class="sc">$</span>Caffeine.C <span class="sc">*</span> Deadline01 <span class="sc">+</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(<span class="fu">nrow</span>(ThreeData), <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>ThreeWayModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  Concentration3 <span class="sc">~</span> Sleep.C <span class="sc">*</span> Caffeine.C <span class="sc">*</span> Deadline,</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> ThreeData</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ThreeWayModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Concentration3 ~ Sleep.C * Caffeine.C * Deadline, 
+    data = ThreeData)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-10.7898  -3.2580  -0.3208   3.2044  14.2709 
+
+Coefficients:
+                                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                         59.798560   0.465421 128.483  &lt; 2e-16 ***
+Sleep.C                              2.653541   0.383840   6.913 4.55e-11 ***
+Caffeine.C                           0.035025   0.004856   7.212 7.72e-12 ***
+DeadlineTomorrow                    -3.066370   0.652950  -4.696 4.54e-06 ***
+Sleep.C:Caffeine.C                  -0.009451   0.003852  -2.454   0.0149 *  
+Sleep.C:DeadlineTomorrow            -0.336507   0.555119  -0.606   0.5450    
+Caffeine.C:DeadlineTomorrow         -0.004959   0.006891  -0.720   0.4725    
+Sleep.C:Caffeine.C:DeadlineTomorrow  0.008943   0.005685   1.573   0.1171    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.054 on 232 degrees of freedom
+Multiple R-squared:  0.4607,    Adjusted R-squared:  0.4444 
+F-statistic: 28.31 on 7 and 232 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The <code>*</code> operator includes all main effects, all two-way interactions, and the three-way interaction. Keep those lower-order terms. Removing them because they are nonsignificant changes the model’s meaning and usually creates interpretive debris.</p>
+<p>To interpret a three-way interaction:</p>
+<ol type="1">
+<li>Plot the predicted two-way relationship at meaningful values of the third variable.</li>
+<li>Test the two-way interaction within those values or groups.</li>
+<li>Probe simple slopes only where theory requires them.</li>
+<li>Report enough numbers that the reader does not have to reconstruct the model with candles and a Ouija board.</li>
+</ol>
+<section id="unpack-the-three-way-interaction" class="level3" data-number="21.10.1">
+<h3 data-number="21.10.1" class="anchored" data-anchor-id="unpack-the-three-way-interaction"><span class="header-section-number">21.10.1</span> Unpack the Three-Way Interaction</h3>
+<p>First test the sleep-by-caffeine interaction separately within each deadline condition. Then examine caffeine slopes at meaningful sleep values within each condition.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>emmeans<span class="sc">::</span><span class="fu">joint_tests</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  ThreeWayModel,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"Deadline"</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Deadline = Next week:
+ model term         df1 df2 F.ratio p.value
+ Sleep.C              1 232  47.792 &lt;0.0001
+ Caffeine.C           1 232  52.020 &lt;0.0001
+ Sleep.C:Caffeine.C   1 232   6.020  0.0149
+
+Deadline = Tomorrow:
+ model term         df1 df2 F.ratio p.value
+ Sleep.C              1 232  33.382 &lt;0.0001
+ Caffeine.C           1 232  37.822 &lt;0.0001
+ Sleep.C:Caffeine.C   1 232   0.015  0.9034</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ThreeWaySlopes <span class="ot">&lt;-</span> emmeans<span class="sc">::</span><span class="fu">emtrends</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  ThreeWayModel,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">specs =</span> <span class="fu">c</span>(<span class="st">"Sleep.C"</span>, <span class="st">"Deadline"</span>),</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">var =</span> <span class="st">"Caffeine.C"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">at =</span> <span class="fu">list</span>(<span class="at">Sleep.C =</span> <span class="fu">unname</span>(sleep_values))</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>ThreeWaySlopes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Sleep.C Deadline  Caffeine.C.trend      SE  df lower.CL upper.CL
+   -1.18 Next week           0.0462 0.00694 232   0.0325   0.0599
+    0.00 Next week           0.0350 0.00486 232   0.0255   0.0446
+    1.18 Next week           0.0239 0.00636 232   0.0113   0.0364
+   -1.18 Tomorrow            0.0307 0.00757 232   0.0158   0.0456
+    0.00 Tomorrow            0.0301 0.00489 232   0.0204   0.0397
+    1.18 Tomorrow            0.0295 0.00627 232   0.0171   0.0418
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<p>The three-way coefficient tells us whether the two-way interaction differs between deadline conditions. It does not tell us which simple slope is important, whether the pattern matches the theory, or whether the predicted values are remotely plausible. That requires unpacking.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="A Three-Way Interaction Is Not a Personality Trait">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A Three-Way Interaction Is Not a Personality Trait
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Do not predict one merely because you are an ambitious graduate student and your committee has not yet confiscated your keyboard. Three-way interactions demand more power, more careful measurement, and a theory precise enough to explain a changing two-way interaction.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="the-johnson-neyman-question" class="level2" data-number="21.11">
+<h2 data-number="21.11" class="anchored" data-anchor-id="the-johnson-neyman-question"><span class="header-section-number">21.11</span> The Johnson-Neyman Question</h2>
+<p>Simple slopes at the mean and one standard deviation above and below the mean are convenient. They are not sacred locations handed down by Dorkaos. The <strong>Johnson-Neyman</strong> approach solves for the values of moderator <span class="math inline">\(Z\)</span> where the conditional slope of <span class="math inline">\(X\)</span> changes from statistically distinguishable from zero to not distinguishable from zero.</p>
+<p>The conditional slope is</p>
+<p><span class="math display">\[
+b_{X\mid Z}=b_1+b_3Z.
+\]</span></p>
+<p>Its standard error depends on the variances and covariance of <span class="math inline">\(b_1\)</span> and <span class="math inline">\(b_3\)</span>:</p>
+<p><span class="math display">\[
+SE(b_{X\mid Z})=
+\sqrt{Var(b_1)+Z^2Var(b_3)+2ZCov(b_1,b_3)}.
+\]</span></p>
+<section id="solving-it-which-is-just-a-quadratic" class="level3" data-number="21.11.1">
+<h3 data-number="21.11.1" class="anchored" data-anchor-id="solving-it-which-is-just-a-quadratic"><span class="header-section-number">21.11.1</span> Solving It, Which Is Just a Quadratic</h3>
+<p>The boundary we want is where the conditional slope is exactly <span class="math inline">\(t_{crit}\)</span> standard errors from zero:</p>
+<p><span class="math display">\[
+\frac{b_1+b_3Z}{SE(b_{X\mid Z})}=\pm t_{crit}.
+\]</span></p>
+<p>Square both sides, substitute the standard error, and move everything to one side. The <span class="math inline">\(Z\)</span> terms collect into an ordinary quadratic <span class="math inline">\(AZ^2+BZ+C=0\)</span> with</p>
+<p><span class="math display">\[
+A=t_{crit}^2Var(b_3)-b_3^2,\quad
+B=2\left(t_{crit}^2Cov(b_1,b_3)-b_1b_3\right),\quad
+C=t_{crit}^2Var(b_1)-b_1^2.
+\]</span></p>
+<p>That is the entire Johnson-Neyman method. There is no new estimator here, no new distribution, and nothing that could not be done with the coefficients and covariance matrix you already have. Packages exist that will do this for you, but the machinery is small enough to look at once.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>CoefVar <span class="ot">&lt;-</span> <span class="fu">vcov</span>(InteractionModel)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Pull these out BY NAME. The rows of vcov() are in model order, so Caffeine.C</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># is the third row here, not the second, and positional indexing silently</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># hands you the variance of the wrong coefficient. Nothing errors. The roots</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co"># just come out wrong.</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>b1  <span class="ot">&lt;-</span> <span class="fu">coef</span>(InteractionModel)[<span class="st">"Caffeine.C"</span>]</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>b3  <span class="ot">&lt;-</span> <span class="fu">coef</span>(InteractionModel)[<span class="st">"Sleep.C:Caffeine.C"</span>]</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>v11 <span class="ot">&lt;-</span> CoefVar[<span class="st">"Caffeine.C"</span>, <span class="st">"Caffeine.C"</span>]</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>v33 <span class="ot">&lt;-</span> CoefVar[<span class="st">"Sleep.C:Caffeine.C"</span>, <span class="st">"Sleep.C:Caffeine.C"</span>]</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>v13 <span class="ot">&lt;-</span> CoefVar[<span class="st">"Caffeine.C"</span>, <span class="st">"Sleep.C:Caffeine.C"</span>]</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>TCrit <span class="ot">&lt;-</span> <span class="fu">qt</span>(.<span class="dv">975</span>, <span class="fu">df.residual</span>(InteractionModel))</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> TCrit<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> v33 <span class="sc">-</span> b3<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (TCrit<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> v13 <span class="sc">-</span> b1 <span class="sc">*</span> b3)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>C <span class="ot">&lt;-</span> TCrit<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> v11 <span class="sc">-</span> b1<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>JNRoots <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">c</span>(</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>  (<span class="sc">-</span>B <span class="sc">-</span> <span class="fu">sqrt</span>(B<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">4</span> <span class="sc">*</span> A <span class="sc">*</span> C)) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> A),</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  (<span class="sc">-</span>B <span class="sc">+</span> <span class="fu">sqrt</span>(B<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span> <span class="dv">4</span> <span class="sc">*</span> A <span class="sc">*</span> C)) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> A)</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Roots are on the centered scale; add the mean back to read them as hours.</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>JNHours <span class="ot">&lt;-</span> JNRoots <span class="sc">+</span> <span class="fu">mean</span>(InterData<span class="sc">$</span>Sleep)</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">Centered =</span> JNRoots, <span class="at">Hours =</span> JNHours)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         Caffeine.C Caffeine.C
+Centered  -3.215866 -0.8036323
+Hours      3.353304  5.7655371</code></pre>
+</div>
+</div>
+<p>The two boundaries land at 3.35 and 5.77 hours of sleep, and they split the sleep axis into three regions:</p>
+<ul>
+<li>Below about 3.4 hours, caffeine’s slope is significantly <strong>positive</strong>.</li>
+<li>Between 3.4 and 5.8 hours, the slope is not distinguishable from zero.</li>
+<li>Above about 5.8 hours, the slope is significantly <strong>negative</strong>. For rested students, more caffeine predicts worse concentration.</li>
+</ul>
+<p>Before repeating any of that in a paper, count how many people are actually in each region. This is the step everyone skips.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">cut</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  InterData<span class="sc">$</span>Sleep,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, JNHours, <span class="cn">Inf</span>),</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Slope positive"</span>, <span class="st">"Not distinguishable"</span>, <span class="st">"Slope negative"</span>)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Slope positive Not distinguishable      Slope negative 
+                  1                  53                 186 </code></pre>
+</div>
+</div>
+<p>That changes the write-up considerably. Both boundaries are technically inside the observed range of 2.54 to 9.64 hours, so nothing here is extrapolation in the strict sense. But the significantly-positive region contains 1 participant out of 240. The model is confident about a region where the study essentially has no data, because a confidence band is narrow near the middle of the moderator and the boundary happens to fall where the band is still narrow enough to exclude zero.</p>
+<p>So the honest report is: the upper boundary at 5.77 hours is well supported, with 186 participants above it, and it is the finding. The lower boundary is where the data ran out, not a discovery about sleep-deprived students. <strong>“Inside the observed range” is a weaker guarantee than it sounds, and the fix is to report the counts alongside the region.</strong></p>
+<p>The <span class="math inline">\(\pm1SD\)</span> convention would have found none of this, and its problem here is more specific than being arbitrary. One standard deviation below the mean is 5.39 hours, which the convention would label “low sleep” in a table and which sits <em>inside</em> the not-distinguishable region. So the conventional probe reports a nonsignificant slope at “low sleep” and significant ones at average and high, in a sample whose sleep actually runs down to 2.5 hours. The label is doing work the number cannot support.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>SleepGrid   <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(InterData<span class="sc">$</span>Sleep.C), <span class="fu">max</span>(InterData<span class="sc">$</span>Sleep.C), <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>SlopeGrid   <span class="ot">&lt;-</span> b1 <span class="sc">+</span> b3 <span class="sc">*</span> SleepGrid</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>SlopeSE     <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(v11 <span class="sc">+</span> SleepGrid<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> v33 <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> SleepGrid <span class="sc">*</span> v13)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>HoursGrid   <span class="ot">&lt;-</span> SleepGrid <span class="sc">+</span> <span class="fu">mean</span>(InterData<span class="sc">$</span>Sleep)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  HoursGrid, SlopeGrid, <span class="at">type =</span> <span class="st">"n"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim =</span> <span class="fu">range</span>(SlopeGrid <span class="sc">-</span> TCrit <span class="sc">*</span> SlopeSE, SlopeGrid <span class="sc">+</span> TCrit <span class="sc">*</span> SlopeSE),</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Sleep (hours)"</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Conditional slope of caffeine"</span>,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">main =</span> <span class="st">"Where does caffeine actually do something?"</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co"># The region between the two roots is where zero stays inside the interval.</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="fu">rect</span>(JNHours[<span class="dv">1</span>], <span class="fu">par</span>(<span class="st">"usr"</span>)[<span class="dv">3</span>], JNHours[<span class="dv">2</span>], <span class="fu">par</span>(<span class="st">"usr"</span>)[<span class="dv">4</span>],</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> <span class="st">"#EFEFEF"</span>, <span class="at">border =</span> <span class="cn">NA</span>)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="fu">polygon</span>(</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(HoursGrid, <span class="fu">rev</span>(HoursGrid)),</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(SlopeGrid <span class="sc">-</span> TCrit <span class="sc">*</span> SlopeSE, <span class="fu">rev</span>(SlopeGrid <span class="sc">+</span> TCrit <span class="sc">*</span> SlopeSE)),</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">rgb</span>(<span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.3</span>, <span class="fl">0.20</span>), <span class="at">border =</span> <span class="cn">NA</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(HoursGrid, SlopeGrid, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"#0072B2"</span>)</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> JNHours, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"#D55E00"</span>)</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(<span class="fu">mean</span>(JNHours), <span class="fu">max</span>(SlopeGrid <span class="sc">+</span> TCrit <span class="sc">*</span> SlopeSE) <span class="sc">*</span> .<span class="dv">92</span>,</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>     <span class="st">"not distinguishable</span><span class="sc">\n</span><span class="st">from zero"</span>, <span class="at">cex =</span> .<span class="dv">85</span>, <span class="at">col =</span> <span class="st">"gray25"</span>)</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="fu">box</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_21_Advanced_Interactions_files/figure-html/johnson-neyman-plot-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Line plot with hours of sleep from about 2.5 to 9.6 on the x axis and the conditional slope of caffeine on the y axis, labelled from 0.06 down to minus 0.06. A straight blue line falls steadily from about 0.03 at the left edge to about minus 0.06 at the right, surrounded by a grey 95 percent confidence band that is narrowest around 5 hours and flares at both ends. A horizontal dashed line marks a slope of zero. Two vertical dashed orange lines at about 3.35 and 5.77 hours mark exactly where the edges of the confidence band touch zero, and the strip between them is shaded and labelled not distinguishable from zero. Left of the shaded strip the whole band sits above zero; right of it the whole band sits below zero. The blue line itself crosses zero near 5 hours, in the middle of the shaded strip rather than at either boundary." width="720"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Notice that the confidence band is narrowest near the middle of the sleep distribution and flares at both ends. That is not a quirk of this dataset. A conditional slope is estimated most precisely where you have the most data, and the <span class="math inline">\(\pm1SD\)</span> points are convenient partly because they are still in the crowded part of the moderator.</p>
+<p>Johnson-Neyman regions can be useful when the moderator is truly continuous. Do not report a region far outside the observed values of <span class="math inline">\(Z\)</span>. The equation is willing to extrapolate into space; your data did not go there. A boundary at 5.8 hours of sleep, with 186 people beyond it, is a finding. A boundary at 22 hours of sleep is a rounding error with ambitions.</p>
+</section>
+<section id="the-package-that-does-all-of-that-in-one-call" class="level3" data-number="21.11.2">
+<h3 data-number="21.11.2" class="anchored" data-anchor-id="the-package-that-does-all-of-that-in-one-call"><span class="header-section-number">21.11.2</span> The Package That Does All of That in One Call</h3>
+<p>Here is an R package that will also do this with less code.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(interactions)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the J-N intervals and generate the plot</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>jn_result <span class="ot">&lt;-</span> <span class="fu">johnson_neyman</span>(</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> InteractionModel,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred =</span> Caffeine.C,</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">modx =</span> Sleep.C,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="fl">0.05</span>,          <span class="co"># Significance threshold (default is 0.05)</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">control.fdr =</span> <span class="cn">FALSE</span>    <span class="co"># Set to TRUE to control False Discovery Rate if desired</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the text output containing the precise cut-off points</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(jn_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>JOHNSON-NEYMAN INTERVAL
+
+When Sleep.C is OUTSIDE the interval [-3.22, -0.80], the slope of
+Caffeine.C is p &lt; .05.
+
+Note: The range of observed values of Sleep.C is [-4.03, 3.07]</code></pre>
+</div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_21_Advanced_Interactions_files/figure-html/johnson-neyman-package-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="Johnson-Neyman plot with centered sleep on the x axis from about minus 5.5 to 4.5 and the slope of centered caffeine on the y axis from about minus 0.10 to 0.075. A straight line falls from about 0.045 at the left to about minus 0.07 at the right, inside a confidence band that is narrowest in the middle. Two vertical dashed lines at about minus 3.2 and minus 0.8 cut the plot into three parts. Between them the line and band are shaded pink and labelled n.s.; outside them they are shaded blue-green and labelled p less than .05. A horizontal line marks a slope of zero, and a thick black bar along it spans roughly minus 4 to 3, marking the range of sleep values actually observed." width="720"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Check its boundaries against the ones we solved for by hand.</strong> The package reports the interval on the centered scale, because <code>Sleep.C</code> is what is actually in the model, so it prints -3.22 and -0.80 where we reported 3.35 and 5.77 hours. Add the mean of 6.57 back and they are the same two numbers. Not close. The same:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">manual.lower  =</span> <span class="fu">unname</span>(JNRoots[<span class="dv">1</span>]),</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">package.lower =</span> <span class="fu">unname</span>(jn_result<span class="sc">$</span>bounds[<span class="dv">1</span>]),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">manual.upper  =</span> <span class="fu">unname</span>(JNRoots[<span class="dv">2</span>]),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">package.upper =</span> <span class="fu">unname</span>(jn_result<span class="sc">$</span>bounds[<span class="dv">2</span>])</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> manual.lower package.lower  manual.upper package.upper 
+   -3.2158656    -3.2158656    -0.8036323    -0.8036323 </code></pre>
+</div>
+</div>
+<p>That agreement is the reason for doing it by hand first. The package is not performing a technique you have not already performed with <code>vcov()</code> and the quadratic formula. It is doing the same arithmetic faster and drawing a better plot. Use it, now that you could check it.</p>
+<p>The plot is worth reading closely, because it makes the shading do the work our hand-built version did with a grey rectangle: pink where the caffeine slope is not distinguishable from zero, blue-green where it is. Note also the thick black bar lying along zero. That marks the range of sleep values <strong>actually observed</strong>, and the plot deliberately draws the line and band past both ends of it. The package is showing you exactly the extrapolation this section just warned about, and trusting you to notice the bar.</p>
+<p>Two of its arguments are worth knowing about. <code>alpha</code> moves the significance threshold that defines the boundaries, so a stricter alpha widens the middle region where the slope cannot be distinguished from zero. And <code>control.fdr</code> switches to an interval that accounts for the fact that a Johnson-Neyman region is quietly an enormous family of simple-slope tests, one at every value of the moderator. Turning it on here pushes the boundaries outward, which is the multiple-comparisons problem from the <a href="./Ch_20_Multiple_Comparisons.html">multiple comparisons chapter</a> turning up somewhere almost nobody looks for it.</p>
+</section>
+</section>
+<section id="centering-cannot-remove-the-interaction" class="level2" data-number="21.12">
+<h2 data-number="21.12" class="anchored" data-anchor-id="centering-cannot-remove-the-interaction"><span class="header-section-number">21.12</span> Centering Cannot Remove the Interaction</h2>
+<p>Mean-centering changes the value represented by zero and therefore changes the lower-order coefficient labels. It does not change fitted values, residuals, <span class="math inline">\(R^2\)</span>, or the interaction coefficient in an ordinary two-way product model. If an interaction disappears merely because you centered correctly, something else in the analysis changed too.</p>
+</section>
+<section id="the-short-story" class="level2" data-number="21.13">
+<h2 data-number="21.13" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">21.13</span> The Short Story</h2>
+<ul>
+<li>The slope of <span class="math inline">\(X\)</span> is <span class="math inline">\(b_1+b_3Z\)</span>. That derivative <strong>is</strong> the interaction; everything else in this chapter is bookkeeping around it.</li>
+<li><span class="math inline">\(b_1\)</span> is the slope of <span class="math inline">\(X\)</span> where <span class="math inline">\(Z = 0\)</span>, so make zero mean something. A coefficient in an interaction model is not an effect, it is an effect at a place.</li>
+<li><strong>Center for interpretation, not for exorcism.</strong> Centering moves the labels. It does not change fitted values, <span class="math inline">\(R^2\)</span>, or the interaction coefficient, and it cannot make a real interaction go away.</li>
+<li>Probe at values theory chose, or use Johnson-Neyman, and stay inside the observed data. <span class="math inline">\(\pm1SD\)</span> is a convention, not a law, and it can miss where the sign actually changes.</li>
+<li><strong>Standardize the components before forming the product</strong>, never the product itself. The fit is identical and the reported beta is not.</li>
+<li>Words like <em>synergistic</em>, <em>antagonistic</em>, and <em>buffering</em> are stories about coding. Reverse-score a variable and the label flips while every prediction stays put, so inspect predictions before naming anything.</li>
+<li>A three-way interaction is a two-way interaction that changes. It is not a coefficient with extra punctuation, and it costs power, measurement, and a theory precise enough to justify it.</li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-aiken1991" class="csl-entry" role="listitem">
+Aiken, Leona S., and Stephen G. West. 1991. <em>Multiple Regression: Testing and Interpreting Interactions</em>. Sage.
+</div>
+<div id="ref-cohen2003" class="csl-entry" role="listitem">
+Cohen, Jacob, Patricia Cohen, Stephen G. West, and Leona S. Aiken. 2003. <em>Applied Multiple Regression/Correlation Analysis for the Behavioral Sciences</em>. 3rd ed. Lawrence Erlbaum Associates.
+</div>
+<div id="ref-friedrich1982" class="csl-entry" role="listitem">
+Friedrich, Robert J. 1982. <span>“In Defense of Multiplicative Terms in Multiple Regression Equations.”</span> <em>American Journal of Political Science</em> 26 (4): 797–833. <a href="https://doi.org/10.2307/2110973">https://doi.org/10.2307/2110973</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_20_Multiple_Comparisons.html" class="pagination-link" aria-label="P-Values and Multiple Comparisons">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_22_GLM.html" class="pagination-link" aria-label="Generalized Linear Models">
+        <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_21_Advanced_Interactions.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

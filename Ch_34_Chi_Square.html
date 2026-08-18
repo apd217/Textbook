@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="An accessible, example-driven introduction to psychological statistics and R.">
+
+<title>34&nbsp; Pearson’s Chi-Square – Psychological Statistics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./Ch_35_Nonparametric_Tests.html" rel="next">
+<link href="./Ch_33_Mixed_ANOVA.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6aaad9ee1f70880fa5715553a7f5f012.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_34_Chi_Square.html">Other Statistical Creatures</a></li><li class="breadcrumb-item"><a href="./Ch_34_Chi_Square.html"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Psychological Statistics</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/apd217/Textbook" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <a href="./Psychological_Statistics_with_R.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">The Necessary Slog</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_01_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Why You Have to Learn Statistics (Sorry not sorry)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_02_R_Basics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">R: The Extremely Short Survival Guide</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_03_Probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Probability: The Gods Are Fickle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_04_Distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Distributions and their Moments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_05_Standard_Error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Standard Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_06_One_Sample_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">One Sample t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_07_Power_Effect_Size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power and Effect Size</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_08_Independent_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Independent Samples t-Test</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_09_Paired_t.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Paired-Samples t-Test</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text">Putting Lines Through Things</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_10_Covariance_Correlation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Covariance and Correlation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_11_Intro_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_12_Categorical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Linear Regression with Categorical Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_13_Multiple_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Multiple Regression: Statistical Control</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_14_Hierarchical_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Hierarchical Regression: Testing Whether Your Model Improves</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_16_Continuous_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Continuous-by-Categorical Interactions: When the Effect of One Variable Depends on Another</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_17_Categorical_Interaction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Categorical-by-Categorical Interactions: The 2-by-2 Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_18_Mixed_Regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Mixed Regression: Between People and Within People</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text">Okay, But What If It’s Complicated?</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_19_Regression_Diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Advanced: Regression Diagnostics and Influential Weirdos</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_20_Multiple_Comparisons.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">P-Values and Multiple Comparisons</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_21_Advanced_Interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Advanced: Continuous and Higher-Order Interactions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_22_GLM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Generalized Linear Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_23_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Mediation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_24_Moderated_Mediation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Moderated Mediation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text">ANOVA is dead, Long Live ANOVA</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_25_ANOVA_Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Historical ANOVA Lectures</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_26_One_Way_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Introduction to Analysis of Variance (ANOVA)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_27_One_Way_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Follow-Ups to One-Way ANOVAs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_28_Two_Way_Between_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Calculating the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_29_Two_Way_Between_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Following Up the Two-Way Between-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_30_One_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">From the Paired <em>t</em>-Test to the One-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_31_Two_Way_Within_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Two-Way Within-Subjects ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_32_Two_Way_Within_Follow_Ups.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Follow-Ups to the Two-Way Within-Subjects ANOVA</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_33_Mixed_ANOVA.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Other Statistical Creatures</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_34_Chi_Square.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_35_Nonparametric_Tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_36_Bootstrapping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Advanced: Bootstrapping, the Jackknife, and Resampling</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text">When R Inevitably Betrays You</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_37_Reporting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Reporting Models Without Making the Reader Solve a Puzzle</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Ch_38_Tidyverse_Review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">R Help and Review: Tidyverse Without Tears</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Ch_34_Chi_Square.html">Other Statistical Creatures</a></li><li class="breadcrumb-item"><a href="./Ch_34_Chi_Square.html"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Pearson’s Chi-Square</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="here-is-a-real-result-and-it-is-two-numbers." class="level2" data-number="34.1">
+<h2 data-number="34.1" class="anchored" data-anchor-id="here-is-a-real-result-and-it-is-two-numbers."><span class="header-section-number">34.1</span> Here is a real result, and it is two numbers.</h2>
+<p><span class="citation" data-cites="best1979">Best (<a href="#ref-best1979" role="doc-biblioref">1979</a>)</span> watched 261 introductory psychology students take a multiple-choice exam and counted what happened every time somebody changed an answer. 27 changes went from right to wrong. 195 went from wrong to right.</p>
+<blockquote class="blockquote">
+<p>Do the observed counts differ from the counts we would expect by chance?</p>
+</blockquote>
+<p>Categorical outcomes are everywhere in psychology. Did the participant comply or not, did the patient relapse or not, which of four options did they choose, did the answer change help or hurt. Whenever your outcome is a category instead of a quantity, this is the chapter you need. It is also the chapter where you get to watch a chance distribution get built from scratch, ten thousand fake students at a time, instead of being handed one and told to trust it.</p>
+</section>
+<section id="parametric-vs.-non-parametric" class="level2" data-number="34.2">
+<h2 data-number="34.2" class="anchored" data-anchor-id="parametric-vs.-non-parametric"><span class="header-section-number">34.2</span> Parametric vs.&nbsp;Non-Parametric</h2>
+<p>Statistical tests are often divided into parametric and nonparametric families. The difference concerns what the model assumes and what part of the data it compares.</p>
+<section id="parametric-tests-everything-up-to-this-point" class="level3" data-number="34.2.1">
+<h3 data-number="34.2.1" class="anchored" data-anchor-id="parametric-tests-everything-up-to-this-point"><span class="header-section-number">34.2.1</span> Parametric Tests (everything up to this point)</h3>
+<p>Parametric tests describe populations with parameters such as means and variances. Particular tests make particular distributional and error assumptions; they do not all demand that the raw scores themselves be perfectly normal. They are powerful when their assumptions are reasonable.</p>
+<p>You already know the ingredients, and by now you know the tests: the mean and SD from Part 1 are what every <em>t</em>-test, <em>F</em>-test, and regression you have run since then is built out of. That is the family we just watched fail on two counts.</p>
+</section>
+<section id="nonparametric-tests-this-chapter-and-the-next" class="level3" data-number="34.2.2">
+<h3 data-number="34.2.2" class="anchored" data-anchor-id="nonparametric-tests-this-chapter-and-the-next"><span class="header-section-number">34.2.2</span> Nonparametric Tests (this chapter and the next)</h3>
+<p>Nonparametric tests make fewer or different distributional assumptions and often ask questions about counts, signs, or ranks:</p>
+<ul>
+<li>They usually do not require normally distributed raw scores</li>
+<li>Work with ordinal or nominal data</li>
+<li>Also useful when parametric assumptions are violated</li>
+<li>Instead of means, they compare counts/frequencies or rank observations</li>
+</ul>
+<p>They are not assumption-free. Independence, sampling, measurement, and the design still matter. The next chapter examines that entire nonparametric family in more detail.</p>
+</section>
+<section id="chi-square" class="level3" data-number="34.2.3">
+<h3 data-number="34.2.3" class="anchored" data-anchor-id="chi-square"><span class="header-section-number">34.2.3</span> Chi-Square</h3>
+<p>Pearson’s chi-square is often placed under the “nonparametric” umbrella because it does not model means with a normal error distribution. More precisely, it is a test for <strong>categorical counts</strong>. It is not the emergency version of a <em>t</em>-test to use whenever normality looks annoyed.</p>
+<p>Rather than asking: “How far is this group mean from another group mean?”</p>
+<p>Chi-square asks: “Do the observed counts differ from what we would expect by chance?”</p>
+<p>In technical terms, chi-square hypothesis testing asks whether an observed pattern is consistent with a chance-based null hypothesis.</p>
+<ul>
+<li>We compare observed data to expected values under null hypothesis (<span class="math inline">\(H_0\)</span>), which means we expect no difference from chance.</li>
+<li>Large discrepancies lead us to reject <span class="math inline">\(H_0\)</span> and provide support for the alternative hypothesis (<span class="math inline">\(H_1\)</span>).</li>
+</ul>
+<p><em>Note:</em> You already know this logic from the <em>t</em>-test chapters. Chi-square runs the same play with counts instead of means.</p>
+<p>Chi-square is especially useful when:</p>
+<ul>
+<li>Outcomes are categories (yes/no, group A/B/C, correct/incorrect)</li>
+<li>Means and standard deviations either don’t exist or don’t make sense</li>
+</ul>
+<p>There are two types of chi-square:</p>
+<ul>
+<li>One-Way Pearson’s Chi-Square [Goodness of Fit]</li>
+<li>Two-Way Pearson’s Chi-Square [Test of Independence]</li>
+</ul>
+</section>
+</section>
+<section id="one-way-pearsons-chi-square-goodness-of-fit" class="level2" data-number="34.3">
+<h2 data-number="34.3" class="anchored" data-anchor-id="one-way-pearsons-chi-square-goodness-of-fit"><span class="header-section-number">34.3</span> One-Way Pearson’s Chi-Square [Goodness of Fit]</h2>
+<p>Back to the two numbers from the start of the chapter, this time with the right tool. You have been told: “Stay with your first answer on a multiple-choice test.” <em>So is changing answers more likely to be harmful?</em></p>
+<blockquote class="blockquote">
+<p>Best studied the responses of 261 students in an introductory psychology course <span class="citation" data-cites="best1979">(<a href="#ref-best1979" role="doc-biblioref">Best 1979</a>)</span>. He recorded the number of right-to-wrong (27), wrong-to-right (195), and wrong-to-wrong (39) answer changes for each student. Note: We will ignore wrong-to-wrong as he did in his first analysis.</p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Frequency</th>
+<th style="text-align: center;">Right-to-Wrong</th>
+<th style="text-align: center;">Wrong-to-Right</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Observed</td>
+<td style="text-align: center;">27</td>
+<td style="text-align: center;">195</td>
+</tr>
+</tbody>
+</table>
+<p>Total of 222 observations</p>
+<p>We will use the <strong>One-Way Chi-Squared</strong> [Goodness of fit]. It asks whether the relative frequencies observed in the categories of a sample frequency distribution are in agreement with the relative frequencies hypothesized to be true in the population.</p>
+<section id="hypothesis-for-goodness-of-fit" class="level3" data-number="34.3.1">
+<h3 data-number="34.3.1" class="anchored" data-anchor-id="hypothesis-for-goodness-of-fit"><span class="header-section-number">34.3.1</span> Hypothesis for Goodness of fit</h3>
+<p>There are two versions (but it does not change the math, just how you talk about it):</p>
+<ul>
+<li>No preference: there will be no preference between different categories (e.g., do people prefer Coke or Pepsi)</li>
+<li>No difference from a known population: This type hypothesis compares two populations (or representative samples)</li>
+</ul>
+<p>If people were making chance guesses from a population of people who don’t have any knowledge about material on the test (version 2 of the hypothesis):</p>
+<ul>
+<li><span class="math inline">\(H_0: P_{right-to-wrong} = .5, P_{wrong-to-right} = .5\)</span></li>
+<li><span class="math inline">\(H_1: H_0\)</span> is False</li>
+</ul>
+<p><em>Note:</em> The probability you set can be whatever you want, but across all cells, they must add to 1. When you do not know what probability should be from a theoretical standpoint, you can simply do 1/Number of cells.</p>
+</section>
+<section id="find-expected-frequencies" class="level3" data-number="34.3.2">
+<h3 data-number="34.3.2" class="anchored" data-anchor-id="find-expected-frequencies"><span class="header-section-number">34.3.2</span> Find Expected Frequencies</h3>
+<p>If we expect by chance people would have gotten <em>p</em> = .50 on wrong-to-right and right to wrong, <span class="math inline">\(f_e = pn\)</span></p>
+<p><span class="math inline">\(F_{e_{right-to-wrong}}= .5*222=111\)</span> <span class="math inline">\(F_{e_{wrong-to-right}}= .5*222=111\)</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Frequency</th>
+<th style="text-align: center;">Right-to-Wrong</th>
+<th style="text-align: center;">Wrong-to-Right</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Observed</td>
+<td style="text-align: center;">27</td>
+<td style="text-align: center;">195</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Expected</td>
+<td style="text-align: center;">111</td>
+<td style="text-align: center;">111</td>
+</tr>
+</tbody>
+</table>
+<p><em>Note:</em> These tables are often shown in papers (sometimes as proportions).</p>
+</section>
+<section id="goodness-of-fit-calculation-by-hand" class="level3" data-number="34.3.3">
+<h3 data-number="34.3.3" class="anchored" data-anchor-id="goodness-of-fit-calculation-by-hand"><span class="header-section-number">34.3.3</span> Goodness of Fit Calculation by Hand</h3>
+<p><span class="math display">\[\chi^2 = \sum \frac{(f_o-f_e)^2}{f_e}\]</span></p>
+<p><span class="math inline">\(\chi^2 = \frac{(27-111)^2}{111}+\frac{(195-111)^2}{111}\)</span> = 127.14</p>
+<p><em>Note:</em> Never enter proportions into the chi-square. You must work with frequencies.</p>
+<p>One thing to notice before we go on. The expected frequency here is 111, which is exactly the mean the <em>t</em>-test printed at the top of the chapter. The <em>t</em>-test found the right number. It just had no idea what the number was for: it treated 111 as the center of the data, when 111 is the thing the data are supposed to be compared <em>against</em>.</p>
+</section>
+<section id="test-against-chance-distribution" class="level3" data-number="34.3.4">
+<h3 data-number="34.3.4" class="anchored" data-anchor-id="test-against-chance-distribution"><span class="header-section-number">34.3.4</span> Test Against Chance Distribution</h3>
+<p><span class="math inline">\(\chi^2\)</span> values close to zero are probably “chance,” and values that are larger are farther from chance. Wait. How do I know that?</p>
+<p>Look at our <span class="math inline">\(f_o\)</span> values. If the <span class="math inline">\(f_o\)</span> values were close to the <span class="math inline">\(f_e\)</span> values, then the total value we calculate would be very close to zero.</p>
+<p>For example, if we actually found this pattern instead:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Frequency</th>
+<th style="text-align: center;">Right-to-Wrong</th>
+<th style="text-align: center;">Wrong-to-Right</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Observed</td>
+<td style="text-align: center;">111</td>
+<td style="text-align: center;">111</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Expected</td>
+<td style="text-align: center;">111</td>
+<td style="text-align: center;">111</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">\(\chi^2 = \frac{(111-111)^2}{111}+\frac{(111-111)^2}{111} = 0\)</span></p>
+<p>While it’s very rare for the observed frequencies to be exactly what we expect by chance, it’s often really close to zero.</p>
+<p>To get a sense of how often it would be close to zero, imagine we created a new test and the multiple-choice question said:</p>
+<blockquote class="blockquote">
+<p>“Please select an answer, then erase it and select something else. There is one right answer.”</p>
+</blockquote>
+<p>That’s all you get. No actual knowledge is being tested. It’s a pure game of chance! In other words, people are totally guessing and are forced to change their answer.</p>
+<p>Sometimes, purely by chance, they will go from Right-to-Wrong or Wrong-to-Right (and we will ignore all the Wrong-to-Wrong cases). What would that look like?</p>
+<p>I can run 10,000 subjects to get a sense of what that might look like.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_34_Chi_Square_files/figure-html/chance-hist-full-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Histogram of 10,000 chi-square values simulated under pure chance with one degree of freedom. The x axis runs from 0 to 20, the y axis counts how many of the 10,000 landed in each narrow bin. Almost the entire distribution is packed into a spike against the left edge at zero, and the bars shrink to a thin trickle that is barely visible past about 5. A few stray values reach as far as 17." width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It looks like we get zero and values close to zero a lot, but also, purely by chance, we can get values all the way out to about 17.25. So even by chance, we can get a value that’s “far” from zero.</p>
+<p>But does that happen often?</p>
+<p>Before we answer that question, let’s zoom in closer to zero so we can see what’s going on more clearly.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_34_Chi_Square_files/figure-html/chance-hist-zoom-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The same 10,000 simulated chi-square values, now with the x axis zoomed to run only from 0 to 0.25. What looked like a single spike is a smooth downhill slide: the tallest bar sits against zero at roughly 570 values, drops to about 250 by 0.01, and keeps easing down to roughly 30 per bin by 0.25." width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>So how far from zero is still “chance”?</p>
+<p>To answer that question, we would need more than 10,000 people. In fact, we would need the entire population. That would be impossible, but luckily, someone has done the math-magic to figure out what that would look like:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_34_Chi_Square_files/figure-html/chisq-density-df1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The theoretical chi-square density curve with one degree of freedom, x axis 0 to 20 and y axis 0 to about 0.8. The curve starts high against the left edge, falls very steeply through the first two units, and has flattened onto the horizontal axis by about 8, where it stays for the rest of the plot." width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Earlier, we looked at frequencies: how often different chi-square values occurred in a simulation.</p>
+<p>Here, we switch to a probability density, which describes how likely different chi-square values are under the null hypothesis.</p>
+<ul>
+<li>The x-axis shows possible chi-square values.</li>
+<li>The y-axis shows relative likelihood (how often it will occur), not counts.</li>
+</ul>
+<p>The important idea is that:</p>
+<ul>
+<li>Values near zero are very likely under chance</li>
+<li>Larger values are increasingly unlikely under chance</li>
+</ul>
+<p>The total area under the curve equals 1, representing all possible outcomes under the null hypothesis.</p>
+</section>
+<section id="how-do-we-set-chance" class="level3" data-number="34.3.5">
+<h3 data-number="34.3.5" class="anchored" data-anchor-id="how-do-we-set-chance"><span class="header-section-number">34.3.5</span> How do we set chance?</h3>
+<p>How extreme does a chi-square value need to be before we stop believing it’s just chance?</p>
+<p>One very common rule is the 95% / 5% rule.</p>
+<blockquote class="blockquote">
+<p>We say: “If the null hypothesis is true, then 95% of the time our chi-square values should fall below some cutoff.”</p>
+</blockquote>
+<p>That cutoff defines the critical value. Any value beyond that point is rare enough that we start to doubt the chance explanation.</p>
+<p>This does not mean:</p>
+<ul>
+<li>That chance is impossible past that value</li>
+<li>Or that we are 100% certain the result is “real”</li>
+</ul>
+<p>It means:</p>
+<ul>
+<li>About 5% of the time, even when the null hypothesis is true, we will still see values this extreme by chance alone</li>
+<li>We accept that risk in exchange for having a decision rule</li>
+</ul>
+<p>So when we say a result is “unlikely due to chance,” what we really mean is:</p>
+<blockquote class="blockquote">
+<p>“If this were just chance, we would expect to see something this extreme only about 5% of the time.”</p>
+</blockquote>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_34_Chi_Square_files/figure-html/crit-region-df1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The chi-square density curve for one degree of freedom again, now with a dashed vertical line at 3.84 and the sliver of area to its right shaded red. The shaded region is a thin wedge hugging the axis, which is the visual point: 5 percent of the total area is squeezed into that long flat tail. An arrow labeled '5 percent of chance values, critical region' points down to it." width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The distribution changes as a function of the degrees of freedom [<span class="math inline">\(df\)</span> is the number of cells - 1]. Degrees of freedom tell us how much independent information is available to estimate variability in the data. If we have a different number of conditions, we have a different distribution to compare it to.</p>
+<p>We get the crit = 3.84. Any <span class="math inline">\(\chi^2\)</span> we calculate above that value means it has only a 5% probability of being a chance result.</p>
+</section>
+<section id="our-results" class="level3" data-number="34.3.6">
+<h3 data-number="34.3.6" class="anchored" data-anchor-id="our-results"><span class="header-section-number">34.3.6</span> Our results?</h3>
+<p>We ask where is our chi-square value relative to this chance distribution given our <span class="math inline">\(df = 1\)</span>. We calculated 127.14, and that is in the tail (the small part, well above chance value). We can use R or a table from a book to get the critical values for alpha (p) =.05. We don’t need to make the graph every time as someone did this already using calculus and has given us all the values with a simple function in R called <code>qchisq</code>.</p>
+<p>This function answers the question:</p>
+<ul>
+<li><p>“What chi-square value cuts off a certain percentage of chance outcomes?”</p>
+<ul>
+<li><code>p = .05</code></li>
+</ul></li>
+<li><p>We are defining the 5% region, the part of the distribution that happens only about 5% of the time under chance.</p></li>
+<li><p><code>df = 1</code></p>
+<ul>
+<li>This tells R which chi-square distribution to use.
+<ul>
+<li>With two categories, the degrees of freedom is 1.</li>
+</ul></li>
+</ul></li>
+<li><p>lower.tail = FALSE</p>
+<ul>
+<li>This is important:
+<ul>
+<li>FALSE means we want the upper tail of the distribution</li>
+</ul></li>
+</ul></li>
+</ul>
+<p>We get the crit = 3.84 &lt; 127.14 (experimental value we got), so we reject the null hypothesis (<span class="math inline">\(H_0\)</span>) and provide evidence for the alternative (<span class="math inline">\(H_1\)</span>).</p>
+</section>
+<section id="report-in-apa" class="level3" data-number="34.3.7">
+<h3 data-number="34.3.7" class="anchored" data-anchor-id="report-in-apa"><span class="header-section-number">34.3.7</span> Report in APA</h3>
+<p><span class="math inline">\(\chi^2(df, N) = X.XX\)</span>, <span class="math inline">\(p = .XXX\)</span></p>
+<p>Since our <em>p</em>-value was below .05, we rejected the null. Report the exact <em>p</em>-value to two or three decimals, and only fall back on <span class="math inline">\(p &lt; .001\)</span> when it is smaller than that. Ours is far smaller than that.</p>
+<p>Students were significantly more likely to change an answer from wrong to right (87.84%) than from right to wrong (12.16%), <span class="math inline">\(\chi^2(1, N = 222) =\)</span> 127.14, <span class="math inline">\(p &lt; .001\)</span>.</p>
+</section>
+<section id="impact-of-higher-df" class="level3" data-number="34.3.8">
+<h3 data-number="34.3.8" class="anchored" data-anchor-id="impact-of-higher-df"><span class="header-section-number">34.3.8</span> Impact of higher DF</h3>
+<p>Note: shape of chance distribution changes as we have more df (say 6 cells to compare)</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_34_Chi_Square_files/figure-html/crit-region-df5-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="The chi-square density curve for five degrees of freedom, which is now a humped, right-skewed shape peaking near 3 rather than a slide off the left edge. A dashed vertical line marks the critical value at 11.07, much farther right than the 3.84 of the previous plot, and the tail area beyond it is shaded red. An arrow labeled '5 percent of chance values, critical region' points down at the shaded tail." width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As you can see the distribution gets more spread out. So with larger DF our critical value increases</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChiCrit<span class="ot">&lt;-</span><span class="fu">qchisq</span>(.<span class="dv">05</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ChiCrit, <span class="at">main=</span><span class="st">"Chi-Square Critical Values: alpha = .05"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"df"</span>, <span class="at">ylab=</span><span class="st">"Critical Value"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Ch_34_Chi_Square_files/figure-html/crit-by-df-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" data-fig-pos="H" alt="Scatterplot of the .05 critical chi-square value against degrees of freedom from 1 to 8. The eight points climb steadily from about 3.8 at one degree of freedom to about 15.5 at eight, in a gentle curve that bends slightly downward as it rises." width="408"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="goodness-of-fit-calculation-by-code" class="level3" data-number="34.3.9">
+<h3 data-number="34.3.9" class="anchored" data-anchor-id="goodness-of-fit-calculation-by-code"><span class="header-section-number">34.3.9</span> Goodness of Fit Calculation by Code</h3>
+<p>The way above is the hard way, and it shows you understand what the computer is doing. Doing one-way chi-squares in R is really easy!</p>
+</section>
+<section id="step-1-build-your-table" class="level3" data-number="34.3.10">
+<h3 data-number="34.3.10" class="anchored" data-anchor-id="step-1-build-your-table"><span class="header-section-number">34.3.10</span> Step 1: Build your Table</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>MCQ.Study <span class="ot">&lt;-</span> <span class="fu">as.table</span>(<span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">27</span>, <span class="dv">195</span>)))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dimnames</span>(MCQ.Study) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">Freq =</span> <span class="fu">c</span>(<span class="st">"Observed"</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">Action =</span> <span class="fu">c</span>(<span class="st">"RtoW"</span>, <span class="st">"WtoR"</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>MCQ.Study</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Action
+Freq       RtoW WtoR
+  Observed   27  195</code></pre>
+</div>
+</div>
+</section>
+<section id="step-2-calculate-chi-square" class="level3" data-number="34.3.11">
+<h3 data-number="34.3.11" class="anchored" data-anchor-id="step-2-calculate-chi-square"><span class="header-section-number">34.3.11</span> Step 2: Calculate Chi-Square</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>MCQ.chi <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(MCQ.Study, <span class="at">p=</span><span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">5</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>MCQ.chi</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Chi-squared test for given probabilities
+
+data:  MCQ.Study
+X-squared = 127.14, df = 1, p-value &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>R prints the same 127.14 we ground out by hand, which is the point of doing it by hand once.</p>
+<p>Again, in APA format, we would say,</p>
+<p>Students were significantly more likely to change an answer from wrong to right (87.84%) than from right to wrong (12.16%), <span class="math inline">\(\chi^2(1, N = 222) =\)</span> 127.14, <span class="math inline">\(p &lt; .001\)</span>.</p>
+</section>
+</section>
+<section id="two-way-pearsons-chi-square-test-of-independence" class="level2" data-number="34.4">
+<h2 data-number="34.4" class="anchored" data-anchor-id="two-way-pearsons-chi-square-test-of-independence"><span class="header-section-number">34.4</span> Two-Way Pearson’s Chi-Square [Test of Independence]</h2>
+<p>“Maybe we should only change our answers on easy items, but on hard items, we should trust ourselves.”</p>
+<blockquote class="blockquote">
+<p>Best (1979) also examined the 1670 total number of responses across the 261 students and divided the items into easy/difficult in an introductory psychology course. He recorded the number of right-to-wrong, wrong-to-right, and wrong-to-wrong (39) answer changes for each student. Again we will ignore wrong-to-wrong (17% of the responses) for simplicity.</p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Frequency</th>
+<th>Right to Wrong</th>
+<th>Wrong to Right</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Easy</td>
+<td>97</td>
+<td>411</td>
+</tr>
+<tr class="even">
+<td>Difficult</td>
+<td>251</td>
+<td>620</td>
+</tr>
+</tbody>
+</table>
+<p>We need to do a Two-Way Chi-Square [Test of Independence]. It asks whether observed frequencies reflect the independence of two qualitative variables. Compares the actual observed frequencies of some phenomenon (in our sample) with the frequencies we would expect if there were no relationship at all between the two variables in the larger (sampled) population. We ask if the two variables are independent: knowledge of the value of one variable provides no information about the value of another variable.</p>
+<section id="hypothesis-for-test-of-independence" class="level3" data-number="34.4.1">
+<h3 data-number="34.4.1" class="anchored" data-anchor-id="hypothesis-for-test-of-independence"><span class="header-section-number">34.4.1</span> Hypothesis for Test of Independence</h3>
+<p>The null hypothesis is that for each, the value obtained for one variable is not related to or influenced by the second variable. This idea can be expressed in two versions:</p>
+<ul>
+<li><strong>Version 1:</strong> A single sample is measured on two separate variables. For example, knowing your personality will help predict your color preference (alternative). Knowing your personality will NOT help you predict your color preference (null) [Personality and color preference are measured per person]
+<ul>
+<li>Null: The variables are not related.</li>
+<li>Alternative: The variables are related.</li>
+</ul></li>
+<li><strong>Version 2:</strong> Two (or more) samples are measured and compared to see if there are differences. For example, the same proportions of extroverts (group 1) and introverts (group 2) prefer the same color (null). If the proportions are different for the two groups, then you have the alternative hypothesis
+<ul>
+<li>Null: The samples are independent</li>
+<li>Alternative: The samples are not independent</li>
+</ul></li>
+</ul>
+<p>Here we are working with Version 1 (one group taking two types of items)</p>
+</section>
+<section id="null-hypothesis-h_0" class="level3" data-number="34.4.2">
+<h3 data-number="34.4.2" class="anchored" data-anchor-id="null-hypothesis-h_0"><span class="header-section-number">34.4.2</span> Null Hypothesis (<span class="math inline">\(H_0\)</span>)</h3>
+<ul>
+<li>Answer-changing behavior is independent of item difficulty.</li>
+<li>The proportion of right-to-wrong and wrong-to-right changes is the same for easy and difficult items</li>
+</ul>
+<p>Knowing whether an item is easy or difficult provides no information about how answers are changed</p>
+</section>
+<section id="alternative-hypothesis-h_1" class="level3" data-number="34.4.3">
+<h3 data-number="34.4.3" class="anchored" data-anchor-id="alternative-hypothesis-h_1"><span class="header-section-number">34.4.3</span> Alternative Hypothesis (<span class="math inline">\(H_1\)</span>)</h3>
+<p>Answer-changing behavior depends on item difficulty.</p>
+<ul>
+<li><p>Students are more likely to benefit from changing answers on easy items</p></li>
+<li><p>On difficult items, answer changes are less likely to improve performance</p></li>
+</ul>
+<p>Knowing whether an item is easy or difficult does provide information about how answers are changed</p>
+<p>Simply put:</p>
+<ul>
+<li><span class="math inline">\(H_0:\)</span> The item difficulty is not related to how a person changes their answer</li>
+<li><span class="math inline">\(H_1:\)</span> The item difficulty is related to how a person changes their answer</li>
+</ul>
+</section>
+<section id="find-expected-frequencies-1" class="level3" data-number="34.4.4">
+<h3 data-number="34.4.4" class="anchored" data-anchor-id="find-expected-frequencies-1"><span class="header-section-number">34.4.4</span> Find Expected Frequencies</h3>
+<p>This is a little more complex than the goodness of fit test</p>
+</section>
+<section id="find-rowcol-sums" class="level3" data-number="34.4.5">
+<h3 data-number="34.4.5" class="anchored" data-anchor-id="find-rowcol-sums"><span class="header-section-number">34.4.5</span> Find row/col sums</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Frequency</th>
+<th>Right to Wrong</th>
+<th>Wrong to Right</th>
+<th>Sum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Easy</td>
+<td>97</td>
+<td>411</td>
+<td><strong>508</strong></td>
+</tr>
+<tr class="even">
+<td>Difficult</td>
+<td>251</td>
+<td>620</td>
+<td><strong>871</strong></td>
+</tr>
+<tr class="odd">
+<td>Sum</td>
+<td><strong>348</strong></td>
+<td><strong>1031</strong></td>
+<td><strong>1379</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step-2-expected-frequencies-per-cell" class="level3" data-number="34.4.6">
+<h3 data-number="34.4.6" class="anchored" data-anchor-id="step-2-expected-frequencies-per-cell"><span class="header-section-number">34.4.6</span> Step 2: Expected frequencies per cell</h3>
+<p><span class="math display">\[f_e = \frac{col\,total*row\,total}{overall\,total}\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Frequency</th>
+<th>Right to Wrong</th>
+<th>Wrong to Right</th>
+<th>Sum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Easy</td>
+<td>97 (128.1972)</td>
+<td>411 (379.8028)</td>
+<td><strong>508</strong></td>
+</tr>
+<tr class="even">
+<td>Difficult</td>
+<td>251 (219.8028)</td>
+<td>620 (651.1972)</td>
+<td><strong>871</strong></td>
+</tr>
+<tr class="odd">
+<td>Sum</td>
+<td><strong>348</strong></td>
+<td><strong>1031</strong></td>
+<td><strong>1379</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-of-independence-calculation-by-hand" class="level3" data-number="34.4.7">
+<h3 data-number="34.4.7" class="anchored" data-anchor-id="test-of-independence-calculation-by-hand"><span class="header-section-number">34.4.7</span> Test of Independence Calculation by Hand</h3>
+<p><span class="math display">\[\chi^2 = \sum \frac{(f_o-f_e)^2}{f_e}\]</span></p>
+<p><span class="math inline">\(\chi^2 = \frac{(97-128.1972)^2}{128.1972} + \frac{(411-379.8028)^2}{379.8028} +\frac{(251-219.8028)^2}{219.8028}+\frac{(620-651.1972)^2}{651.1972}\)</span></p>
+<p><span class="math inline">\(\chi^2 =\)</span> 16.08</p>
+</section>
+<section id="test-against-distribution" class="level3" data-number="34.4.8">
+<h3 data-number="34.4.8" class="anchored" data-anchor-id="test-against-distribution"><span class="header-section-number">34.4.8</span> Test Against Distribution</h3>
+<p><span class="math inline">\(df = (Row-1)(Col-1)\)</span> <span class="math inline">\(df = (2-1)(2-1) = 1\)</span></p>
+<p>Given our <span class="math inline">\(df = 1\)</span>. We calculated 16.08 we can use R or a table to get the critical values for alpha = .05</p>
+<p>We get the crit = 3.84 &lt; 16.08, so we reject the null.</p>
+</section>
+<section id="report-in-apa-1" class="level3" data-number="34.4.9">
+<h3 data-number="34.4.9" class="anchored" data-anchor-id="report-in-apa-1"><span class="header-section-number">34.4.9</span> Report in APA</h3>
+<p><span class="math inline">\(\chi^2(df, N) = X.XX\)</span>, <span class="math inline">\(p = .XXX\)</span>, <span class="math inline">\(V = .XX\)</span></p>
+<p>In APA format:</p>
+<p>Item difficulty was related to how students changed their answers, <span class="math inline">\(\chi^2(1, N = 1379) =\)</span> 16.08, <span class="math inline">\(p &lt; .001\)</span>.</p>
+<p>One flag before you meet the code. That hand calculation used no continuity correction, and R’s default for a <span class="math inline">\(2 \times 2\)</span> table does. So the output a few sections down will print a slightly smaller number than this one. Nothing is broken; we sort it out when it happens.</p>
+<p>[That is all we can say statistically. Normally people present a table in percentages to unpack this result, <strong>but</strong> You have to decide if you want to do row or column percentages. People do not present both]. I think the row percent make more sense in this case we want to compare across item difficulty.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>% Row</th>
+<th>Right to Wrong</th>
+<th>Wrong to Right</th>
+<th>%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Easy</td>
+<td>19.1%</td>
+<td>80.9%</td>
+<td>100%</td>
+</tr>
+<tr class="even">
+<td>Difficult</td>
+<td>28.8%</td>
+<td>71.2%</td>
+<td>100%</td>
+</tr>
+<tr class="odd">
+<td>Col Total</td>
+<td>25.2%</td>
+<td>74.8%</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-of-independence-calculation-by-code" class="level3" data-number="34.4.10">
+<h3 data-number="34.4.10" class="anchored" data-anchor-id="test-of-independence-calculation-by-code"><span class="header-section-number">34.4.10</span> Test of Independence Calculation by Code</h3>
+<p>Again the code for R is very easy, so I will show you how it works:</p>
+</section>
+<section id="step-1-build-your-table-1" class="level3" data-number="34.4.11">
+<h3 data-number="34.4.11" class="anchored" data-anchor-id="step-1-build-your-table-1"><span class="header-section-number">34.4.11</span> Step 1: Build Your table</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>MCQ.Study<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">as.table</span>(<span class="fu">rbind</span>(<span class="fu">c</span>(<span class="dv">97</span>, <span class="dv">411</span>), <span class="fu">c</span>(<span class="dv">251</span>, <span class="dv">620</span>)))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dimnames</span>(MCQ.Study<span class="fl">.2</span>) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">Difficulty =</span> <span class="fu">c</span>(<span class="st">"Easy"</span>,<span class="st">"Diff"</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">Change =</span> <span class="fu">c</span>(<span class="st">"RtoW"</span>, <span class="st">"WtoR"</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>MCQ.Study<span class="fl">.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Change
+Difficulty RtoW WtoR
+      Easy   97  411
+      Diff  251  620</code></pre>
+</div>
+</div>
+</section>
+<section id="step-2-calculate-chi-square-1" class="level3" data-number="34.4.12">
+<h3 data-number="34.4.12" class="anchored" data-anchor-id="step-2-calculate-chi-square-1"><span class="header-section-number">34.4.12</span> Step 2: Calculate Chi-Square</h3>
+<p>In tests of independence, R calculates the expected frequencies for you. For a <span class="math inline">\(2 \times 2\)</span> table, <code>chisq.test()</code> applies <strong>Yates’s continuity correction</strong> by default when <code>correct = TRUE</code>. The correction tries to improve a continuous chi-square approximation to discrete counts, but it can be overly conservative. It is not a ritual that must always be performed. Use it deliberately, report whether you used it, and consider Fisher’s exact test when expected counts are sparse.</p>
+<p><span class="math display">\[\chi^2_{Yates} = \sum \frac{(|f_o-f_e| - .5)^2}{f_e}\]</span></p>
+<p><em>Note</em>: You can view the observed and expected frequencies. For larger sparse tables, <code>chisq.test(..., simulate.p.value = TRUE)</code> can estimate a <em>p</em>-value by simulation.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>MCQ.chi<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(MCQ.Study<span class="fl">.2</span>,<span class="at">correct =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>MCQ.chi<span class="fl">.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test with Yates' continuity correction
+
+data:  MCQ.Study.2
+X-squared = 15.566, df = 1, p-value = 7.968e-05</code></pre>
+</div>
+</div>
+<p>There is the mismatch we promised. R printed 15.57; we calculated 16.08 by hand. That gap is Yates, and it is the entire gap. Turn the correction off and R lands right back on the hand calculation:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(MCQ.Study<span class="fl">.2</span>, <span class="at">correct =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  MCQ.Study.2
+X-squared = 16.077, df = 1, p-value = 6.082e-05</code></pre>
+</div>
+</div>
+<p>Neither number is the wrong one. They answer the same question with slightly different arithmetic, and both reject the null here. What matters is that you say which one you ran, because a reader cannot tell 15.57 from 16.08 by staring at it.</p>
+</section>
+<section id="row-proportion-code" class="level3" data-number="34.4.13">
+<h3 data-number="34.4.13" class="anchored" data-anchor-id="row-proportion-code"><span class="header-section-number">34.4.13</span> Row Proportion Code</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(MCQ.Study<span class="fl">.2</span>,<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Change
+Difficulty      RtoW      WtoR
+      Easy 0.1909449 0.8090551
+      Diff 0.2881745 0.7118255</code></pre>
+</div>
+</div>
+</section>
+<section id="col-proportion-code" class="level3" data-number="34.4.14">
+<h3 data-number="34.4.14" class="anchored" data-anchor-id="col-proportion-code"><span class="header-section-number">34.4.14</span> Col Proportion Code</h3>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(MCQ.Study<span class="fl">.2</span>,<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Change
+Difficulty      RtoW      WtoR
+      Easy 0.2787356 0.3986421
+      Diff 0.7212644 0.6013579</code></pre>
+</div>
+</div>
+</section>
+<section id="effect-size-because-an-asterisk-is-not-a-personality" class="level3" data-number="34.4.15">
+<h3 data-number="34.4.15" class="anchored" data-anchor-id="effect-size-because-an-asterisk-is-not-a-personality"><span class="header-section-number">34.4.15</span> Effect Size: Because an Asterisk Is Not a Personality</h3>
+<p>The chi-square test tells us whether the observed table is difficult to explain under the null hypothesis. It does <strong>not</strong> tell us whether the association is large enough to matter. With enough observations, a microscopic association can earn an asterisk and begin acting important at faculty meetings.</p>
+<p>For a <span class="math inline">\(2 \times 2\)</span> table, <strong>phi</strong> (<span class="math inline">\(\phi\)</span>) is:</p>
+<p><span class="math display">\[
+\phi = \sqrt{\frac{\chi^2}{N}}
+\]</span></p>
+<p>For a table of any size, use <strong>Cramer’s V</strong>:</p>
+<p><span class="math display">\[
+V = \sqrt{\frac{\chi^2}{N\min(r-1,c-1)}}
+\]</span></p>
+<p>Here, <span class="math inline">\(r\)</span> and <span class="math inline">\(c\)</span> are the numbers of rows and columns. Cramer’s V ranges from 0, meaning no association, to 1, meaning perfect association. Do not automatically translate <code>.10</code>, <code>.30</code>, and <code>.50</code> into small, medium, and large without thinking about the design and research area. Those labels are rough landmarks, not sacred commandments delivered on stone tablets by Cohen.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>chi_uncorrected <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(MCQ.Study<span class="fl">.2</span>, <span class="at">correct =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>n_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(MCQ.Study<span class="fl">.2</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>phi <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">as.numeric</span>(chi_uncorrected<span class="sc">$</span>statistic) <span class="sc">/</span> n_total)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>cramers_v <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>(chi_uncorrected<span class="sc">$</span>statistic) <span class="sc">/</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    (n_total <span class="sc">*</span> <span class="fu">min</span>(<span class="fu">dim</span>(MCQ.Study<span class="fl">.2</span>) <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">phi =</span> phi, <span class="at">cramers_v =</span> cramers_v)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      phi cramers_v 
+0.1079744 0.1079744 </code></pre>
+</div>
+</div>
+<p>For these data, <span class="math inline">\(V = .11\)</span>: there is an association, but it is not a gigantic one. The asterisk has not transformed into a flaming sword.</p>
+</section>
+<section id="odds-ratios-for-a-2-by-2-table" class="level3" data-number="34.4.16">
+<h3 data-number="34.4.16" class="anchored" data-anchor-id="odds-ratios-for-a-2-by-2-table"><span class="header-section-number">34.4.16</span> Odds Ratios for a 2-by-2 Table</h3>
+<p>An <strong>odds ratio</strong> compares the odds of an outcome between two groups. In our table, the odds of changing an easy item from right to wrong rather than wrong to right are <span class="math inline">\(97/411\)</span>. For difficult items, those odds are <span class="math inline">\(251/620\)</span>.</p>
+<p><span class="math display">\[
+OR = \frac{97/411}{251/620} = 0.58
+\]</span></p>
+<p>An odds ratio of 1 would mean equal odds. Here, the odds of a right-to-wrong rather than wrong-to-right change were about 42% lower for easy items than for difficult items. If you reverse the comparison, the odds for difficult items are about <span class="math inline">\(1/0.58 = 1.71\)</span> times those for easy items. Odds ratios are direction-sensitive little creatures, so always say which group and outcome are in the numerator.</p>
+<p>Base R gives us the odds ratio and its confidence interval with Fisher’s exact test:</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fisher_result <span class="ot">&lt;-</span> <span class="fu">fisher.test</span>(MCQ.Study<span class="fl">.2</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fisher_result<span class="sc">$</span>estimate</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>fisher_result<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>odds ratio 
+ 0.5831962 
+[1] 0.4421001 0.7654197
+attr(,"conf.level")
+[1] 0.95</code></pre>
+</div>
+</div>
+<p>The estimated odds ratio is 0.58, 95% CI [0.44, 0.77].</p>
+</section>
+<section id="power-for-chi-square" class="level3" data-number="34.4.17">
+<h3 data-number="34.4.17" class="anchored" data-anchor-id="power-for-chi-square"><span class="header-section-number">34.4.17</span> Power for Chi-Square</h3>
+<p>Power asks how often a study would detect an association of a specified size if that association really exists. Small samples give fickle chance more room to cause trouble. A weak association plus twelve people and one undergraduate who clicked every response while watching TikTok is not a sturdy research program.</p>
+<p>For chi-square tests, Cohen’s <span class="math inline">\(w\)</span> is commonly used in power calculations. In a <span class="math inline">\(2 \times 2\)</span> table it is equivalent to phi and Cramer’s V. The function below uses only base R. It finds the total sample size needed for 80% power when <span class="math inline">\(w = .1062\)</span>, approximately the association observed here.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>chisq_power <span class="ot">&lt;-</span> <span class="cf">function</span>(n, w, df, <span class="at">alpha =</span> .<span class="dv">05</span>) {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  critical_value <span class="ot">&lt;-</span> <span class="fu">qchisq</span>(<span class="dv">1</span> <span class="sc">-</span> alpha, <span class="at">df =</span> df)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(critical_value, <span class="at">df =</span> df, <span class="at">ncp =</span> n <span class="sc">*</span> w<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>required_n <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">function</span>(n) <span class="fu">chisq_power</span>(n, <span class="at">w =</span> .<span class="dv">1062</span>, <span class="at">df =</span> <span class="dv">1</span>) <span class="sc">-</span> .<span class="dv">80</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">10000</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>)<span class="sc">$</span>root</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ceiling</span>(required_n)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 696</code></pre>
+</div>
+</div>
+<p>The answer is about 696 total observations. That number is not permission to choose an effect size after seeing the results. Plan power using the smallest effect worth detecting, prior evidence, or a defensible range of possible effects.</p>
+</section>
+<section id="reporting-the-result" class="level3" data-number="34.4.18">
+<h3 data-number="34.4.18" class="anchored" data-anchor-id="reporting-the-result"><span class="header-section-number">34.4.18</span> Reporting the Result</h3>
+<p>A compact report can include the test, effect size, and a table of interpretable percentages:</p>
+<blockquote class="blockquote">
+<p>Item difficulty was associated with answer-change direction, <span class="math inline">\(\chi^2(1, N = 1379) =\)</span> 15.57, <span class="math inline">\(p &lt; .001\)</span>, <span class="math inline">\(V = .11\)</span>. Compared with difficult items, easy items had lower odds of being changed from right to wrong rather than wrong to right, <span class="math inline">\(OR = 0.58\)</span>, 95% CI [0.44, 0.77].</p>
+</blockquote>
+<p>The chi-square value above uses Yates’s correction, matching the test already run in this chapter. The effect-size calculation uses the ordinary Pearson chi-square. State your choices so readers do not have to conduct forensic accounting on your results section.</p>
+</section>
+<section id="which-cells-are-doing-the-work" class="level3" data-number="34.4.19">
+<h3 data-number="34.4.19" class="anchored" data-anchor-id="which-cells-are-doing-the-work"><span class="header-section-number">34.4.19</span> Which Cells Are Doing the Work?</h3>
+<p>A significant chi-square says the table as a whole is hard to explain under the null. It does not say which part of the table caused the trouble. The fitted object already knows, and you do not have to compute anything: <code>chisq.test()</code> stores the standardized residuals.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>MCQ.chi<span class="fl">.2</span><span class="sc">$</span>stdres</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Change
+Difficulty      RtoW      WtoR
+      Easy -4.009616  4.009616
+      Diff  4.009616 -4.009616</code></pre>
+</div>
+</div>
+<p>Read those like z-scores, one per cell. Each is the gap between observed and expected divided by its own standard error, so anything past about <span class="math inline">\(\pm 2\)</span> is a cell pulling real weight. The sign tells you the direction: positive means more cases landed there than chance predicted, negative means fewer. Easy items came up short on right-to-wrong changes and long on wrong-to-right ones, which is the association the omnibus test detected, now with an address.</p>
+<p>All four values here are the same size because a <span class="math inline">\(2 \times 2\)</span> table has one degree of freedom: the four cells are one fact told four times. Residuals earn their keep on bigger tables, where a significant omnibus test can be hiding behind one rogue cell out of twenty. That is also where you should start counting, because twenty cells inspected is twenty comparisons, and twenty comparisons is a family. See <a href="./Ch_20_Multiple_Comparisons.html">Multiple Comparisons</a>.</p>
+</section>
+<section id="chi-square-issues" class="level3" data-number="34.4.20">
+<h3 data-number="34.4.20" class="anchored" data-anchor-id="chi-square-issues"><span class="header-section-number">34.4.20</span> Chi-Square Issues</h3>
+<ul>
+<li>Chi-square works with <strong>counts</strong>, not percentages, means, or the emotional intensity with which you typed the numbers.</li>
+<li>The observations must be independent. One person should not quietly appear in several cells unless the design and model explicitly handle repeated observations.</li>
+<li>The approximation becomes unreliable when expected counts are very small. A common guideline is that no expected count should be below 1 and no more than 20% should be below 5, but this is a guideline rather than a commandment. For a small <span class="math inline">\(2 \times 2\)</span> table, use Fisher’s exact test. For larger sparse tables, a simulated <em>p</em>-value may be useful.</li>
+<li>Chi-square cannot be negative because every discrepancy is squared. It can equal zero when every observed count equals its expected count, an event normally witnessed immediately before the Probability Gods demand another sacrifice.</li>
+<li>A cell contributes more when its observed and expected counts differ by a large amount <strong>relative to the expected count</strong>.</li>
+<li>A significant omnibus test says that some association exists. It does not identify every cell responsible for it. Standardized residuals are the first place to look, and follow-up comparisons then create a multiple-testing problem, which is what <a href="./Ch_20_Multiple_Comparisons.html">Multiple Comparisons</a> was for, before the asterisks multiply and form a union.</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled" title="Counts First; Interpretation Second">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Counts First; Interpretation Second
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A chi-square test asks whether the observed <strong>counts</strong> differ from the counts expected under the null model. After that test, inspect the percentages, residuals, and effect size to learn where the association lives and whether anybody should care.</p>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-best1979" class="csl-entry" role="listitem">
+Best, John B. 1979. <span>“Item Difficulty and Answer Changing.”</span> <em>Teaching of Psychology</em> 6 (4): 228–30. <a href="https://doi.org/10.1207/s15328023top0604_13">https://doi.org/10.1207/s15328023top0604_13</a>.
+</div>
+</div>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/apd217\.github\.io\/Textbook\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./Ch_33_Mixed_ANOVA.html" class="pagination-link" aria-label="Two-Way Mixed-Design ANOVA: Analysis and Graphing">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Two-Way Mixed-Design ANOVA: Analysis and Graphing</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./Ch_35_Nonparametric_Tests.html" class="pagination-link" aria-label="Nonparametric Tests: When the Data Refuse to Behave">
+        <span class="nav-page-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Nonparametric Tests: When the Data Refuse to Behave</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Alexander P. Demos. Licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC BY-NC 4.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions"><ul><li><a href="https://github.com/apd217/Textbook/blob/main/Ch_34_Chi_Square.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/apd217/Textbook/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
