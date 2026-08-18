@@ -409,14 +409,4 @@ print(paste('Area under the Curve = ',round(auc,3)))
 ```
 
 
-### Some New Things to Keep in Mind
-
-- Should I use a logistic model? Is a sigmoid the right shape for the relationship?
-- The Hosmer-Lemeshow test compares observed event proportions with predicted probabilities across subgroups using a chi-square statistic.
-- Historically, a nonsignificant result was treated as evidence of adequate fit. Do not rely on this test alone; also inspect calibration, discrimination, and model specification.
-
-```{r, echo=TRUE, warning=FALSE,message=FALSE}
-library(MKmisc)
-HLgof.test(fit = fitted(LR.Model.2), obs = LogisticStudy1$Gender)
-```
 
