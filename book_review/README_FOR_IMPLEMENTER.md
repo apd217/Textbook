@@ -21,19 +21,117 @@ on `main`, run `git checkout review-implementation` (or `git switch review-imple
 before touching any file. When a batch of chapters is done and rendering clean, Alex reviews
 the diff and merges into `main` themselves — do not merge or push to `main`.
 
-## START HERE: your job is chapters 22 through 26. Opened 2026-08-17.
+## START HERE. Updated 2026-08-17, end of the 22-26 session.
 
-### Correction first, because the previous version of this file was wrong
+### Every per-chapter item in the book is now implemented.
 
-**Earlier versions of this file claimed "Nothing in `10`–`25` is outstanding."** That is false and
-it was repeated for several sessions. **Chapters 22, 23, 24, 25 and 26 have never been
-implemented.** Verified 2026-08-17 by `git log` per file: apart from the book-wide italic *t*/*F*
-sweep touching `Chapter_ChiSquare.qmd`, none of those five files has been modified since the
-initial import. All **17 items are outstanding**, and G01 is still undone on three of them.
+**Chapters 22, 23, 24, 25 and 26 are DONE**, one commit each, not merged to `main`. All 17
+items are implemented and marked in their review files. **Alex has not read them yet.**
 
-Alex's response on being shown this: *"I forgot about those. We need to do all of them."* So all
-five are the job. **Do not trust a status claim in this file that you have not checked against
-`git log`.**
+| # | Chapter | Items | Em-dash before → after |
+|---|---|---|---|
+| 22 | `Chapter_ChiSquare.qmd` | P01, P02, B01, B02, U01 + G01, G02 | 2.00 → 0.23 |
+| 23 | `Chapter_Nonparametric_Tests.qmd` | P01, U01, U02 + G01 | 2.81 → 0.49 |
+| 24 | `Chapter_Bootstrapping.qmd` | P01, U01, B01 + G02 | 0.41 → 0.35 |
+| 25 | `Chapter_Reporting.qmd` | U01, U02, U03, B01 + G02 | 1.68 → 0.72 (both the floor) |
+| 26 | `Chapter_Tidyverse_Review.qmd` | U01, B01 + G01, G02, G05b | 0.82 → 0.76 |
+
+**Four decisions were put to Alex at the start and he answered all four.** Do not re-open them:
+
+1. **Ch22 cold open: yes.** Built.
+2. **CH22-B01: fix the references in place.** Moving the chapter earlier is *declined*.
+3. **CH25-B01: rename the part.** `_quarto.yml` now says `"The Paperwork"`.
+4. **CH26-B01 / G06: full `%>%` → `|>` sweep.** Done, 32 occurrences, 4 chapters.
+
+A fifth, asked later: **CH25-U02's italics question is answered. Sweep it.** Done, 63 symbols,
+19 files, new tool `book_review/tools/italicize_stats.R`.
+
+**Two openings were checked against §15 and Alex said leave them alone** (Ch23 and Ch24).
+That ends a run of six consecutive yeses. Both are recorded in their review files with the
+device that was offered, so nobody re-proposes them.
+
+### Cross-cutting items closed this session
+
+- **G06 (the pipe): CLOSED.** The book is `|>` throughout. The only two `%>%` left are in
+  prose that exists to teach what the old symbol means (`R_Basics`, `Tidyverse_Review`).
+  `R_Basics` gained a `## The Pipe: |>` section so readers meet it in chapter 2.
+- **The italics question: CLOSED.** `p`, `r`, `M`, `SD`, `N`, `n`, `df` are swept. Bare `p`
+  and bare `r` in running prose are still deliberately unswept.
+- **G05b: one more chapter done** (`Tidyverse_Review`). The other 7 are still outstanding.
+- **G01/G02** applied to all five chapters.
+
+### What is actually left in the book
+
+1. **Alex's reading pass on 22 through 26.** Nothing else is blocked on anything.
+2. **G05b, 7 chapters, ~26 invisible `library()` calls.** Worst: `Multiple_Regression_Control`
+   (5), `Hierarchical_Regression` (5). Alex's answer is on file: delete the hidden block after
+   moving calls to first *visible* use. **The Ch26 trap is worth knowing before you start:**
+   its visible `library()` chunk was `eval: false`, so deleting the hidden block alone would
+   have broken every chunk in the file. Check whether the visible call actually runs.
+3. **CH18-DUP01: still not executed.** Retire `Chapter_Mixed_Designs.qmd`, salvaging anything
+   worth keeping into `Chapter_Mixed_Change_Over_Time.qmd` first. Decided 2026-08-17, and
+   three sessions have now recorded the decision without acting on it.
+4. **`Chapter_Mixed_Change_Over_Time.qmd`** needs a real name and a `_quarto.yml` entry.
+5. **The commented-out drafts.** `Chapter_Advanced_Contrasts_ANOVA.qmd` is the ripest. Note
+   Alex added a commented-out `"ANOVA is dead, Long Live ANOVA"` part stub to `_quarto.yml`
+   on 2026-08-17, so he is thinking about this.
+6. **G03, G04, G07, G09**, never per-chapter work.
+7. **Part 1 chapters above the em-dash target, which nobody is authorized to touch:**
+   `Distro_Moments` 6.45, `Standard_Error` 3.23, `Introduction` 2.99, `R_Basics` 2.03,
+   `Probability` 1.96. **That list is longer than this file previously claimed**, which named
+   only two. `R_Basics` moved up slightly this session because the new pipe section added
+   words; it contains no new em-dashes.
+8. **`R^2` outside math renders as a literal caret** in three headings of
+   `Chapter_Multiple_Regression_Control.qmd` (lines 329, 389, 395). Still needs Alex's say-so.
+
+### Things this session learned that will apply to the next one
+
+1. **Running the numbers caught something for the seventh session running, and this time it
+   caught a review item's own premise.** CH24-P01 asserted the three bootstrap SEs would
+   differ visibly on the existing data. They differed by 4%, which reads as noise. The cause
+   was diagnosable: $\sigma$ grew linearly while the high-leverage cases sat at *both* ends of
+   a uniform $X$, so the quiet end cancelled the loud end. Fixed by changing the design
+   (`Sleep^3 / 30`), never the seed, after comparing five candidate designs against HC3 as
+   ground truth. **An item can be wrong about what its own demonstration will show.**
+2. **It also caught a false claim in Alex's own template.** `Chapter_Reporting`'s example
+   write-up ended "diagnostic plots did not reveal a consequential violation of constant
+   residual variance." The errors are simulated homoscedastic and `bptest()` still returns
+   $p = .003$ on that draw. The clause was cut rather than filled in, with an `---Alex---`
+   note. **A template sentence becomes a factual claim the moment you fill the template.**
+3. **Clipped figure labels are now five sightings across three sessions.** Ch19 had two, Ch22
+   had two ("(critical region)" off the bottom, "5% of chance va" off the right), Ch24 had one
+   ("190-minute studer"). All were `text()` calls positioned near a plot boundary, all
+   invisible in the code. **Treat `text()` near a boundary as a defect on sight and look at
+   the PNG.**
+4. **A protection regex that works for one sweep can be unsafe for the next.**
+   `italicize_tF.R` finds code and math with a single left-to-right alternation. That breaks
+   when a `$` sits inside a code span (`` `r tl$df` ``), which made the math matcher pair the
+   wrong delimiters and would have written `$*p* < .001$` into two finished chapters.
+   `italicize_stats.R` masks code first, then math. **Always audit a sweep's dry run hit by
+   hit, not just its total.**
+5. **Alex edits files mid-session, and his editor can overwrite your changes.** His save to
+   `_quarto.yml` reverted the CH25-B01 part rename; it was re-applied and called out in the
+   commit. **Re-read a shared file immediately before editing it, and diff before committing.**
+6. **Dropbox restores files you delete.** Six stale `unnamed-chunk-*.png` files removed from
+   `_freeze/Chapter_ChiSquare` in one commit reappeared later in the session. **Check
+   `git status` for resurrected `_freeze` files before every commit.**
+7. **`git add -A` is unsafe in this repo.** It swept in pre-existing untracked `_freeze` churn
+   that belongs to nobody. Stage explicit paths.
+8. **The em-dash floor is 1, and on a short chapter that reads high.** `Chapter_Reporting`
+   reported 1.68 with *zero* real em-dashes, purely because 595 words is a small denominator.
+   Check the raw count before treating a short chapter's density as a finding.
+
+### Correction, kept because the previous version of this file was wrong
+
+**Earlier versions of this file claimed "Nothing in `10`–`25` is outstanding."** That was false
+and it was repeated for several sessions. Chapters 22 through 26 had never been implemented,
+which was caught on 2026-08-17 by running `git log` per file rather than trusting the summary.
+
+Alex's response on being shown it: *"I forgot about those. We need to do all of them."* They are
+now done, as of the same day. **The lesson survives the fix: do not trust a status claim in this
+file that you have not checked against `git log`.** That is how a session opens: verify, then
+work. Everything below this line is the historical record, kept for the lessons rather than the
+status.
 
 ### The five chapters
 
