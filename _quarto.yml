@@ -96,7 +96,9 @@ format:
     toc: true
     toc-depth: 1
     number-sections: true
-    include-before-body: cover.tex
+    include-before-body:
+      - cover.tex
+      - copyright.tex
     fontsize: 10pt
     fig-pos: 'H'
     include-in-header:
