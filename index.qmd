@@ -10,7 +10,7 @@ This book teaches **statistics and R at the same time**---because honestly, you 
 
 A few things you should know going in:
 
-**I hate ANOVA.** It's old. It's clunky. Psychologists have been running ANOVAs since the Eisenhower administration and it needs to stop. Everything you can do with an ANOVA you can do with regression, and regression scales up to the real world in ways ANOVA never will. So we're going full regression in this book. ANOVA gets a brief appearance so you know what it is when someone inflicts it on you. That's it.
+**I hate ANOVA.** It's old. It's clunky. Psychologists have been running ANOVAs since the Eisenhower administration and it needs to stop. Everything you can do with an ANOVA you can do with regression, and regression scales up to the real world in ways ANOVA never will. So we're going full regression in this book. I have added my old ANOVA lectures as a section in the book for when someone inflicts it on you.
 
 The undergraduate chapters assume you have zero statistics background and approximately zero R experience. That's fine. We start from scratch.
 
@@ -34,5 +34,5 @@ Anyway, I have the memory of a goldfish. If I forgot to acknowledge you someplac
 
 Happy coding!
 
-**Please Note: I'll be expanding the advanced chapters to include more of my graduate-level material, but they're not ready yet.**  
+**Please Note: I'll be expanding the advanced chapters to include more of my graduate-level material.**
 
