@@ -1,0 +1,13 @@
+# Store and check out text files with LF endings on every machine (Mac, Linux, Windows).
+* text=auto eol=lf
+
+# Never touch binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.rds binary
+*.RData binary
+*.xlsx binary
+*.sav binary

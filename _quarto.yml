@@ -157,7 +157,6 @@ format:
         \definecolor{lightgray}{HTML}{F5F5F5}
     
         \setmainfont[
-          Path = C:/Users/ademos/AppData/Roaming/TinyTeX/texmf-dist/fonts/opentype/public/cm-unicode/,
           UprightFont = cmunrm.otf,
           BoldFont = cmunbx.otf,
           ItalicFont = cmunti.otf,
@@ -165,7 +164,6 @@ format:
         ]{CMU Serif}
     
         \setsansfont[
-          Path = C:/Users/ademos/AppData/Roaming/TinyTeX/texmf-dist/fonts/opentype/public/cm-unicode/,
           UprightFont = cmunss.otf,
           BoldFont = cmunsx.otf,
           ItalicFont = cmunsi.otf,
