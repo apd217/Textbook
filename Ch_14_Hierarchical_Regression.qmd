@@ -21,13 +21,6 @@ library(GGally)
 library(sjPlot)
 ```
 
-<!-- ---Alex--- Only change in this finished chapter: the simulation was include=FALSE and
-     is now echoed, per your "show them the simulation in all chapters" rule. This was the
-     ONLY hidden data-making chunk left in the whole book; everything else was already
-     visible. I gave it a lead-in line so it does not hit the reader as a bare wall of code
-     immediately before the cold open. If you would rather protect the cold open and leave
-     this one hidden, revert this hunk; it is self-contained. -->
-
 Everything in this chapter runs on one simulated dataset: 100 students, with exam scores, study hours, and test anxiety wired together at correlations I picked. Here it is, so you can run the rest of the chapter yourself.
 
 ```{r simulate data, echo=TRUE}
@@ -135,10 +128,6 @@ That question is the heart of **hierarchical regression**, and it is the focus o
 The word "hierarchical" refers to the hierarchy of models, not a hierarchy of people or importance. Each model in the sequence is more complex than the one before it, and you evaluate whether that added complexity is worth it.
 
 ::: {.callout-note title="Two Things Are Called Hierarchical, and This Is Only One of Them"}
-<!-- ---Alex--- Your edit dropped "sequential" as a synonym, which left this sentence saying
-     hierarchical regression is also called hierarchical regression. Rewritten so the callout
-     still does its job. If you want "sequential" gone from the book entirely, say so and I
-     will sweep the other uses. -->
 What we are doing here is adding predictors in theory-driven steps. It has nothing to do with **hierarchical linear models**, which are multilevel or mixed models for clustered data: students inside classrooms, trials inside participants, patients inside hospitals. Those get their own chapter, [Mixed Regression](Ch_18_Mixed_Regression.qmd).
 
 This matters because searching "hierarchical regression in R" will drop you into `lme4` and random effects, and you will conclude you need machinery you do not need. Same adjective, unrelated ideas. Blame history.
@@ -200,10 +189,6 @@ cat("Change in R-squared: Delta R-squared =", round(r2_m3 - r2_m1, 3), "\n")
 
 The $R^2$ went up when we added Test Anxiety. But $R^2$ **always** goes up when you add a predictor. Even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is meaningful.
 
-<!-- ---Alex--- "R^2" outside math renders as a literal caret, "R^2", in both HTML and PDF.
-     Pandoc needs "R^2^" or math. Switched to $R^2$, which is what Intro_to_regression and GLM
-     already use in their headings. Chapter 13 has three headings with the same bug
-     (lines 329, 389, 395); say the word and I will fix those too. -->
 ## The Change in $R^2$: What Are We Measuring?
 
 Before we run the test, let's understand what $\Delta R^2$ (read: "delta R-squared," or "change in R-squared") actually represents.

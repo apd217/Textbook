@@ -6,16 +6,6 @@ title: "Advanced: Regression Diagnostics and Influential Weirdos"
 knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.align = "center")
 ```
 
-<!-- ---Alex--- Cold open (CH19-P01 + VOICE_GUIDE 15/17), which you approved on
-2026-08-17. Two judgment calls inside it. First, the simulation is echoed with the
-participant-60 lines visible, so the reader knows the outlier is planted before the
-reveal. That follows 14b rule 1 and the Ch16 precedent (showing 5*X*Z in the
-generating model); the alternative was hiding it for surprise, which the book's
-honesty rule outranks. The drama survives because the shock is the SIZE of the
-damage, not the existence of an outlier. Second, the refit now happens twice on
-purpose: here as the hook, and again under Cook's distance as the disciplined
-version with SEs and p-values. Delete either half if that reads as repetitive. -->
-
 ## An Unusually Responsible Therapy Study
 
 We predict symptom improvement from therapy attendance and baseline symptom severity. Sixty people, two predictors, nothing exotic.

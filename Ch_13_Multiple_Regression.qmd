@@ -326,7 +326,7 @@ round(predicted, 1)
 
 This student would be predicted to score about `r round(predicted, 1)` on the exam.
 
-## How Well Does the Model Fit? R^2
+## How Well Does the Model Fit? $R^2$
 
 Let's look at how the model's explanatory power ($R^2$) changes across our three models.
 
@@ -386,13 +386,13 @@ Run this subtraction on your own data and region $c$ can come back **negative**,
 You did not. A negative $c$ means the two predictors are doing something called **suppression**, where adding one predictor makes the other's contribution *larger* rather than smaller. It is real, it is not rare, and it is the point at which the Venn diagram metaphor quietly resigns and goes home with its ball. The next chapter takes suppression apart properly. Grad readers who want the full explaination should see Cohen, Cohen, West and Aiken, chapter 3.
 :::
 
-### Adding Predictors Always Increases R^2
+### Adding Predictors Always Increases $R^2$
 
 There is an important quirk about $R^2$: it will **always increase** when you add another predictor to the model, even if that predictor is completely useless random noise. This is simply because any variable, no matter how irrelevant, will share at least a tiny sliver of variance with Y by chance in any given sample.
 
 This means if you kept piling more and more predictors into a model, $R^2$ would keep creeping upward, not because those predictors were genuinely meaningful, but just because of sampling variability.
 
-### Adjusted R^2
+### Adjusted $R^2$
 
 **Adjusted $R^2$** corrects for this problem by applying a penalty for each additional predictor:
 
