@@ -117,7 +117,7 @@ That derivative is the entire interaction in one line: the slope of $X$ changes 
 When $XZ$ is in the model, $\beta_1$ is the slope of $X$ specifically when $Z=0$. If zero is meaningless or outside the data, the coefficient answers a question nobody asked.
 :::
 
-## Does the Interaction Earn Its Place?
+## Is the Interaction Worth It?
 
 Before interpreting a product term, check that it bought you anything. Fit the model without it and compare.
 
@@ -127,7 +127,7 @@ AdditiveModel <- lm(Concentration ~ Sleep.C + Caffeine.C, data = InterData)
 anova(AdditiveModel, InteractionModel)
 ```
 
-It did. Adding the product term improves fit at $p < .001$, so the claim that caffeine's slope depends on sleep is doing real work rather than decorating the model. Had this comparison come back nonsignificant, the honest move would be to say so and report the additive model, not to hunt for a subgroup in which the interaction reappears.
+It did. Adding the product term improves fit at $p < .001$, so the claim that caffeine's slope depends on sleep is doing real work rather than decorating the model. If this comparison had come back nonsignificant you would report the additive model. You would not hunt for a subgroup where the interaction reappears.
 
 Centering places zero at the sample mean. It changes the interpretation of the intercept and lower-order slopes. It does **not** change fitted values, residuals, $R^2$, or the interaction coefficient.
 
@@ -143,7 +143,7 @@ Whatever coding you choose, use it consistently. Do not put centered variables i
 
 ### The Standardized-Beta Trap
 
-Sooner or later a reviewer will ask for standardized coefficients on your moderation model. This request is reasonable and the obvious way to satisfy it is wrong, so it is worth meeting the problem here rather than in a revision.
+Sooner or later a reviewer will ask for standardized coefficients on your moderation model. The request is reasonable. The obvious fix is wrong. Better to meet it here than in a letter from Reviewer 2.
 
 The correct procedure is to z-score $X$ and $Z$ first, and *then* multiply them. The tempting shortcut is to build the product first and z-score that. These are not the same variable, because the z-score of a product is not the product of z-scores.
 
@@ -365,7 +365,7 @@ text(.5, .32, "Check the coding before naming anything", cex = .95)
 par(old_par)
 ```
 
-## Reverse-Scoring Changes the Signs, Not the Story
+## Reverse-Scoring Flips the Signs
 
 If $Z^*=-Z$, the signs of its main effect and interactions reverse. Predictions remain identical after the coding is translated correctly. A negative interaction does not inherently mean antagonism, harm, or Reviewer 2. Its meaning depends on variable coding.
 
@@ -528,7 +528,7 @@ table(cut(
 
 That changes the write-up considerably. Both boundaries are technically inside the observed range of `r round(min(InterData$Sleep), 2)` to `r round(max(InterData$Sleep), 2)` hours, so nothing here is extrapolation in the strict sense. But the significantly-positive region contains `r sum(InterData$Sleep < JNHours[1])` participant out of `r nrow(InterData)`. The model is confident about a region where the study essentially has no data, because a confidence band is narrow near the middle of the moderator and the boundary happens to fall where the band is still narrow enough to exclude zero.
 
-So the honest report is: the upper boundary at `r round(JNHours[2], 2)` hours is well supported, with `r sum(InterData$Sleep > JNHours[2])` participants above it, and it is the finding. The lower boundary is where the data ran out, not a discovery about sleep-deprived students. **"Inside the observed range" is a weaker guarantee than it sounds, and the fix is to report the counts alongside the region.**
+So report it this way: the upper boundary at `r round(JNHours[2], 2)` hours is well supported, with `r sum(InterData$Sleep > JNHours[2])` participants above it, and it is the finding. The lower boundary is where the data ran out, not a discovery about sleep-deprived students. **"Inside the observed range" is a weaker guarantee than it sounds, and the fix is to report the counts alongside the region.**
 
 The $\pm1SD$ convention would have found none of this, and its problem here is more specific than being arbitrary. One standard deviation below the mean is `r round(mean(InterData$Sleep) - sd(InterData$Sleep), 2)` hours, which the convention would label "low sleep" in a table and which sits *inside* the not-distinguishable region. So the conventional probe reports a nonsignificant slope at "low sleep" and significant ones at average and high, in a sample whose sleep actually runs down to `r round(min(InterData$Sleep), 1)` hours. The label is doing work the number cannot support.
 
@@ -613,7 +613,7 @@ That agreement is the reason for doing it by hand first. The package is not perf
 
 The plot is worth reading closely, because it makes the shading do the work our hand-built version did with a grey rectangle: pink where the caffeine slope is not distinguishable from zero, blue-green where it is. Note also the thick black bar lying along zero. That marks the range of sleep values **actually observed**, and the plot deliberately draws the line and band past both ends of it. The package is showing you exactly the extrapolation this section just warned about, and trusting you to notice the bar.
 
-Two of its arguments are worth knowing about. `alpha` moves the significance threshold that defines the boundaries, so a stricter alpha widens the middle region where the slope cannot be distinguished from zero. And `control.fdr` switches to an interval that accounts for the fact that a Johnson-Neyman region is quietly an enormous family of simple-slope tests, one at every value of the moderator. Turning it on here pushes the boundaries outward, which is the multiple-comparisons problem from the [multiple comparisons chapter](Ch_20_Multiple_Comparisons.qmd) turning up somewhere almost nobody looks for it.
+Two of its arguments are worth knowing about. `alpha` moves the significance threshold that defines the boundaries, so a stricter alpha widens the middle region where the slope cannot be distinguished from zero. And `control.fdr` switches to an interval that accounts for the fact that a Johnson-Neyman region is secretly an enormous family of simple-slope tests, one at every value of the moderator. Turning it on here pushes the boundaries outward, which is the multiple-comparisons problem from the [multiple comparisons chapter](Ch_20_Multiple_Comparisons.qmd) turning up somewhere almost nobody looks for it.
 
 ## Centering Cannot Remove the Interaction
 

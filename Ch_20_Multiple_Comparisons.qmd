@@ -33,7 +33,7 @@ The study was deliberately absurd, but the statistical problem was real. If you 
 
 Before we control many *p*-values, however, we should establish what one *p*-value means. This seems obvious. It is not. Researchers have spent nearly a century proving that they can misunderstand a definition with remarkable consistency.
 
-## What a P-Value Actually Is
+## What a P-Value Is
 
 A *p*-value answers this conditional question:
 
@@ -59,7 +59,7 @@ $$
 
 The probability of screaming **given that** a foam-bat-wielding research assistant is chasing you is probably high. The probability that a foam-bat-wielding research assistant is chasing you **given that** you are screaming is not necessarily high. You may have seen your tuition bill.
 
-Cohen emphasized that a *p*-value gives $P(D \mid H_0)$, not the probability that the null is true after seeing the data [@cohen1994]. To calculate $P(H_0 \mid D)$, we would need additional information, including prior probabilities and an explicit alternative model. Quietly turning one conditional probability around does not make it Bayesian. It makes it wrong.
+Cohen emphasized that a *p*-value gives $P(D \mid H_0)$, not the probability that the null is true after seeing the data [@cohen1994]. To calculate $P(H_0 \mid D)$, we would need additional information, including prior probabilities and an explicit alternative model. Turning one conditional probability around does not make it Bayesian. It makes it wrong.
 
 ### A P-Value Is Not Any of These Things
 
@@ -205,7 +205,7 @@ data.frame(
 )
 ```
 
-## False Discovery Rate: Permit Some Risk Among Discoveries
+## False Discovery Rate Allows a Few Duds
 
 In large exploratory analyses, strict FWER control may erase too many real signals. The **false discovery rate** (FDR) instead controls the expected proportion of false positives among the rejected hypotheses:
 
@@ -228,7 +228,7 @@ data.frame(
 )
 ```
 
-### What FDR Is Actually For
+### What FDR Is For
 
 FDR gets described as the lenient option, which makes it sound like the correction you reach for when the real ones were inconvenient. That is not what it is. FDR is the right tool for a particular question, and the question is not "is this specific comparison real?" It is:
 
@@ -423,7 +423,7 @@ Both corrections do their job. Holm and Benjamini-Hochberg each keep `r paste(na
 
 For planned contrasts, use software that can adjust the contrast family explicitly. Always report the method, the family of tests, and whether the analyses were confirmatory or exploratory.
 
-## Where You Will Actually Meet This: emmeans
+## You Will Meet This in emmeans
 
 Everything above is theory you will use once a year. This section is the thing you will type next month.
 
@@ -468,9 +468,9 @@ pairs(drive_means)
 
 This is the single most important fact in this section, and it cuts both ways. The default is defensible, because Tukey was built for precisely this situation. But a reader who does not know it is there will report Tukey-adjusted *p*-values while describing them as ordinary ones, and a reader who wanted something else will not get it by hoping.
 
-### What Tukey Actually Is
+### Tukey Is More Than a Button
 
-Tukey's HSD is the correction psychologists meet most often and explain least often, so it is worth knowing what it does instead of treating it as the button labelled "post hoc."
+Tukey's HSD is the correction psychologists meet most and explain least. Most people treat it as the button labelled "post hoc." Here is what it does.
 
 Every other method in this chapter takes a pile of *p*-values and adjusts them, without caring where they came from. Tukey does not work that way. It asks a specific question about a specific design: **if all $k$ group means came from the same population, how far apart would the largest and smallest of them drift by chance alone?**
 
@@ -478,7 +478,7 @@ That quantity has its own distribution, the **studentized range**, usually writt
 
 That is why Tukey is not just another cautious correction. With equal group sizes and roughly equal variances it controls the familywise error rate **exactly**, rather than by being conservative and hoping. Bonferroni and Holm are valid under *any* dependence structure, which sounds like a stronger property and is really the concession: they are generic because they know nothing about your design, so they cannot take advantage of the fact that your comparisons share means.
 
-**The assumption doing all of that work is that the groups are independent.** The studentized range is derived for $k$ separate samples with one common error variance. That is a between-subjects design, and it is why the honest answer to "when should I use Tukey?" contains a design rather than a number of tests.
+**The assumption doing all of that work is that the groups are independent.** The studentized range is derived for $k$ separate samples with one common error variance. That is a between-subjects design, and it is why the right answer to "when should I use Tukey?" contains a design rather than a number of tests.
 
 Here is the same comparison with the correction turned off, and with Holm instead.
 
@@ -546,7 +546,7 @@ So the two facts point in the same direction:
 - **Between-subjects, exploring which means differ:** Tukey. It is built for exactly this and it is exact, not conservative.
 - **Within-subjects, or a handful of theory-chosen contrasts:** Holm. It stays valid when observations are correlated, and the design has usually bought you the power to pay for it.
 
-One honest footnote on magnitude. Tukey's edge over Bonferroni at the top of the list is real but modest here, about `r round(sort(as.data.frame(pairs(drive_means, adjust = "bonferroni"))$p.value)[1] / sort(as.data.frame(pairs(drive_means, adjust = "tukey"))$p.value)[1], 2)` times, because four groups do not offer much dependence to exploit. That advantage grows as groups are added, since the number of pairs grows much faster than the number of means. With eight groups you have 28 comparisons carrying only 7 degrees of freedom between them, and Tukey's willingness to notice that starts to matter a great deal.
+One footnote on magnitude. Tukey's edge over Bonferroni at the top of the list is real but modest here, about `r round(sort(as.data.frame(pairs(drive_means, adjust = "bonferroni"))$p.value)[1] / sort(as.data.frame(pairs(drive_means, adjust = "tukey"))$p.value)[1], 2)` times, because four groups do not offer much dependence to exploit. That advantage grows as groups are added, since the number of pairs grows much faster than the number of means. With eight groups you have 28 comparisons carrying only 7 degrees of freedom between them, and Tukey's willingness to notice that starts to matter a great deal.
 
 ::: {.callout-tip title="Which `adjust=` Do I Want? Answer With Your Design"}
 Pick by what the study is and what you are trying to learn, not by how many tests happen to be on the screen.
@@ -562,7 +562,7 @@ Pick by what the study is and what you are trying to learn, not by how many test
 Whatever you pick, name it and name the family. "Pairwise comparisons were Tukey-adjusted across all six condition pairs" is one clause, and it is the difference between a reader trusting your table and a reader rebuilding it.
 :::
 
-## The Point Is Not to Fear P-Values
+## P-Values Are Not Evil
 
 P-values are not evil. They are also not tiny judges who determine whether a theory is innocent or guilty. They describe how incompatible the data are with a specified null model, under a pile of assumptions that must remain attached.
 

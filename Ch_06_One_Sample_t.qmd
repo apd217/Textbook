@@ -541,7 +541,7 @@ This *t*-test value is greater than our upper value.
 
 Further from the R *t*-test function, we can see our exact *p*-value which is below $p < .05$.
 
-::: {.callout-important title="The p-Value, Actually Defined (That IOU from Chapter 1)"}
+::: {.callout-important title="The p-Value Defined at Last"}
 Back in Chapter 1 I promised you a real definition of statistical significance once you had some probability theory. Here it is, at the first moment you actually need it.
 
 **The *p*-value is the probability of getting a test statistic at least this far from the null value, *if* the null hypothesis and the model's assumptions were true.**

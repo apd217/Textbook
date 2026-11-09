@@ -67,7 +67,7 @@ What, it is not there? Weird. You have two intercepts, two slopes, four standard
 
 That missing test is what this chapter is for. The tool is called an **interaction**, and by the end of it you will have these exact two slopes back, `r round(cold_stay, 2)` and `r round(cold_go, 2)`, living inside one model that also hands you a significance test for the gap between them.
 
-## Where We Are and Where We Are Going
+## So Far Everything Was Additive
 
 So far in this book, you have learned to build regression models where each predictor has its own independent, additive effect on the outcome. Study hours helps exam scores. Test anxiety hurts them. Each predictor does its job, and we can interpret the effects one at a time.
 
@@ -652,7 +652,7 @@ This output gives us what we need:
 
 - **Go out group:** The slope of Being Nice is approximately `r b_go`, which is *significantly* positive ($p <$ .001). For students who go out, every additional point of niceness is associated with about `r round(b_go, 0)` more points of closeness.
 
-Notice that `emtrends()` has handed back the same two slopes for the third time: once from the separate regressions at the top of the chapter, once as $B_1$ and $B_1 + B_3$, and now here. The estimates never move. What the interaction model buys you is not a better slope, it is one pooled error term across all 200 students instead of two error terms estimated from 116 and 84, and the ability to put a standard error on the *gap*. That gap is the only quantity in this chapter that the separate regressions could not produce at all.
+Notice that `emtrends()` has handed back the same two slopes for the third time: once from the separate regressions at the top of the chapter, once as $B_1$ and $B_1 + B_3$, and now here. The estimates never move. The interaction model buys you two things. It pools one error term across all 200 students instead of two from 116 and 84. And it puts a standard error on the *gap*. That gap is the only quantity in this chapter that the separate regressions could not produce at all.
 
 This completes the picture. The effect of Being Nice on friendship closeness is **conditional**: it only emerges among students who are out there meeting people. For students who stay home, personality differences do not seem to matter much for friendship formation. Going out is what activates the effect of being a warm and agreeable person.
 
@@ -770,7 +770,7 @@ One simple slope being significant while the other is not does **not** prove tha
 
 If you remember six things from this chapter, make it these.
 
-- **An interaction means the slopes differ.** "The effect of X depends on Z" is not a hedge, it is the claim that X's slope is not the same at every level of Z. Non-parallel lines are the visual signature.
+- **An interaction means the slopes differ.** "The effect of X depends on Z" sounds like a hedge. It is a claim: X's slope changes across levels of Z. Non-parallel lines are the visual signature.
 - **Center the continuous predictor so that zero is a person who exists.** Centering does not change the slope, the fit, or the $R^2$. It changes what the intercept and $B_2$ are *about*, from a hypothetical zero-niceness person to the average person in your sample.
 - **$B_1$ is the reference group's slope, not an average.** It is a simple effect. In a model with an interaction, it describes exactly one group, the one coded 0.
 - **$B_2$ is the group gap at the mean of the centered predictor**, not the group gap in general. Move the centering point and this number moves with it.

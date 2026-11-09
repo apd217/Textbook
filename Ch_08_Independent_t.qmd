@@ -129,7 +129,7 @@ Already you should see separation. But eyeballing histograms is not a statistica
 Individual commoners, I mean subway riders, all have very different experiences and attitudes toward the subway and toward the new schedule. Maybe some people like the chaos of the old system, or are freaked out by clockwork timing. What are we, Switzerland?! Each person has their reasons, and we are not clinical psychologists (well, I am not, that is for sure) who need to unpack why any one of them feels that way.
 
 ::: {.callout-note title="Who Are We Doing Research to Explain?"}
-The goal of most experimental research is to understand how a treatment would affect the *average* person. Remember that average person from the distribution chapter? That is who our result is about, and it is worth stopping to ask who they actually are.
+The goal of most experimental research is to understand how a treatment would affect the *average* person. Remember that average person from the distribution chapter? That is who our result is about. So who are they?
 
 This is not easy here, cause I am randomly sampling subway riders. Does the time of day matter? What if I collected at rush hour instead of 3am on the Red Line? What if I only rode the Brown Line above the Loop, in the more affluent neighborhoods? Never forget who your sample is and who your average represents. It is what limits the scope of your results and how far they generalize.
 :::
@@ -360,7 +360,7 @@ In this simulated experiment, increasing train frequency produced a very large d
 Welch's *t*-test does not require the two population variances to be equal, so it is a sensible default for independent groups. Report the mean difference and its confidence interval, then add an effect size. The *p*-value cannot tell the reader how far apart the groups are.
 :::
 
-## Power: How Many Riders Would You Actually Need?
+## How Many Riders Must I Bother?
 
 The [power chapter](Ch_07_Power_Effect_Size.qmd) did all of this for the one-sample test. The function is the same, and exactly one argument changes: `type = "two.sample"`.
 

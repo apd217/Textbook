@@ -102,7 +102,7 @@ Those are not two answers that happen to agree. They are one answer, printed twi
 
 The degrees of freedom are worth a second look, because the two rows got to 47 by completely different routes. The *t*-test knows it has 48 differences and subtracts one. `lmer` has no idea what a difference score is; `lmerTest` works out how much independent information the 96 rows actually contain, using an approximation called **Satterthwaite's method**, and arrives at 47 anyway.
 
-### What `(1 | participant)` Actually Did
+### What `(1 | participant)` Did
 
 That term is the whole difference between the two calls. It tells R that rows sharing a participant number came from the same person, and that people arrive at a study with their own resting level of staring. Some students watch the screen. Some students watch the door.
 
@@ -142,7 +142,7 @@ Fixed effects answer the research question. Random effects are how the model ear
 
 Nothing yet, honestly. With two measurements and no other predictors, the paired *t*-test is shorter to type and gives the same answer, so keep using it. The mixed model has not earned anything.
 
-It earns its keep the moment the design acquires something a difference score cannot hold:
+It starts paying off the moment the design acquires something a difference score cannot hold:
 
 - **A between-person predictor.** Treatment group, age, baseline severity. Subtracting within a person throws the person away, and group is a property of the person.
 - **A missing row.** A student who skipped a session has no difference score at all, so the *t*-test deletes the entire student.
@@ -386,10 +386,10 @@ Notice that Control changed too, and significantly, $p$ `r ifelse(fixed_effects[
 ::: {.callout-warning title="The p-Values Are Approximations, and This Is Not Your Engine's Fault"}
 Every column in that table except the estimate itself rests on an approximation. There is no exact sampling distribution waiting for a model like this one, so the numbers in the `df` column were not counted, they were **estimated**, using Satterthwaite's method, like you saw with Welch's *t*-test. They often come out fractional.
 
-This is a property of mixed models, not of `lmer`. Change engines and the approximation changes costume rather than disappearing: `glmmTMB`, which you will meet in graduate school, fits the same model and reports Wald *z* statistics with no degrees of freedom at all. Same model, different plumbing, and the same honest uncertainty underneath.
+This is a property of mixed models, not of `lmer`. Change engines and the approximation changes costume rather than disappearing: `glmmTMB`, which you will meet in graduate school, fits the same model and reports Wald *z* statistics with no degrees of freedom at all. Same model. Different plumbing. Same uncertainty.
 :::
 
-## How Much Did the Random Intercept Actually Buy You?
+## What Did the Random Intercept Buy?
 
 The paired *t*-test chapter ran its analysis wrong on purpose to show what pairing was worth. Do the same thing here. `ordinary_model` is still sitting there, fit by `lm()`, believing it met 200 unrelated people.
 
@@ -419,7 +419,7 @@ c(
 
 Same estimate. One analysis finds nothing, the other finds a clear effect. The difference is entirely whether the model was told that the two rows belong to one human.
 
-Now look at the row the random intercept did *not* help: `groupCBT`, where the standard error is the same in both models, out to nine decimal places. That is not a coincidence and it is worth understanding, because it tells you what the random intercept is actually for. `groupCBT` compares two different sets of people at one occasion. There is no repeated measurement inside that comparison, so there is nothing to subtract out, and it has to pay full price for person-to-person variation either way. The random intercept helps *within*-person comparisons. It has nothing to offer a between-person one.
+Now look at the row the random intercept did *not* help: `groupCBT`, where the standard error is the same in both models, out to nine decimal places. That is not a coincidence. It tells you what the random intercept is for. `groupCBT` compares two different sets of people at one occasion. There is no repeated measurement inside that comparison, so there is nothing to subtract out, and it has to pay full price for person-to-person variation either way. The random intercept helps *within*-person comparisons. It has nothing to offer a between-person one.
 
 Where did the extra error come from, then? From the people. `r round(as.data.frame(VarCorr(mixed_model))$vcov[1] / sum(as.data.frame(VarCorr(mixed_model))$vcov) * 100)` percent of the variance here is participants differing from one another, and `lm()` has no mechanism for setting that aside, so it lands in the error term and makes every within-person comparison look less trustworthy than it is. The random intercept is how you get it back.
 
@@ -604,7 +604,7 @@ That is where we stop, and stopping here is a real choice rather than a complete
 ::: {.callout-warning title="This Is the Shallow End, and It Is a Very Deep Pool"}
 Mixed models are an enormous area of statistics, and their diagnostics are an active research area rather than a settled checklist. Two DHARMa plots are the minimum, not the standard.
 
-If your design is bigger than the one in this chapter, you need more than this chapter. The honest advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.
+If your design is bigger than the one in this chapter, you need more than this chapter. My advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.
 
 This is also, genuinely, hard material. First-time graduate students meet it and struggle. If it feels like a lot, that is the material, not you.
 :::
@@ -617,7 +617,7 @@ Push past it and the difficulty does not increase gently. Two within-subjects fa
 
 Here is the part I am obliged to admit. For a **balanced, complete** repeated-measures design with several within-subjects factors, old-school repeated-measures ANOVA is often *easier* than the mixed model. It was built for exactly that shape of data, it will fit without an argument, and it will not ask you to choose a random-effects structure. You know how I feel about ANOVA. It is still true.
 
-The catch is what it demands in return. Repeated-measures ANOVA wants every person to have every observation, so one missed session deletes the whole participant, and it leans on **sphericity**: the assumption that the variances of all the pairwise differences between occasions are equal. With exactly two occasions, as in this chapter, sphericity is not merely satisfied, it is vacuous, because there is only one difference and nothing for it to disagree with. From three occasions up it becomes a real constraint, and a violated one costs you.
+The catch is what it demands in return. Repeated-measures ANOVA wants every person to have every observation, so one missed session deletes the whole participant, and it leans on **sphericity**: the assumption that the variances of all the pairwise differences between occasions are equal. With two occasions sphericity cannot fail. There is only one difference and nothing for it to disagree with. From three occasions up it becomes a real constraint, and a violated one costs you.
 
 So neither tool is the grown-up choice in all situations. The mixed model handles missing rows and unbalanced designs that ANOVA cannot touch. ANOVA handles complicated balanced within-subjects designs without the fight. We did not escape assumptions by learning mixed models. We traded a rigid set for a flexible set that has to be chosen thoughtfully.
 

@@ -430,8 +430,8 @@ most_concerning_students
 ```
 :::
 
-## Final Advice
+## R Will Let You Do Anything
 
 Write code as a sequence of small, named decisions. Inspect the result after each important transformation. Make graphs before interpreting models. When something fails, read the error message from the bottom up and identify the first object or argument R says it cannot find.
 
-Most importantly, do not confuse code that runs with an analysis that makes sense. R will cheerfully calculate the mean of participant ID numbers, regress anxiety on alphabetical order, and draw a confidence interval around almost any mistake you can encode. The software is obedient. You still have to be the adult in the room, which seems unfair but is apparently how science works.
+Do not confuse code that runs with an analysis that makes sense. R will cheerfully calculate the mean of participant ID numbers, regress anxiety on alphabetical order, and draw a confidence interval around almost any mistake you can encode. The software is obedient. You still have to be the adult in the room, which seems unfair but is apparently how science works.

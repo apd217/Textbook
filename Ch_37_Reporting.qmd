@@ -76,7 +76,7 @@ knitr::kable(
 
 For mixed models, use `broom.mixed::tidy()` because fixed effects, random-effect parameters, and model components require more supervision.
 
-### The One-Line Version You Will Actually Use on a Poster
+### The Lazy One-Line Version
 
 `broom::tidy()` plus `kable()` is the version you should understand, because it shows you that a table is just a data frame you built on purpose. When you need a publication-ready table right now, `sjPlot` (already the plotting package for this course) does the whole thing in one line:
 
@@ -108,7 +108,7 @@ Standardized coefficients may supplement, not automatically replace, coefficient
 Stars can help scan a table. They do not describe magnitude, uncertainty, practical importance, or whether the model made sense. Never make the reader infer the entire conclusion from celestial punctuation.
 :::
 
-## The APA Formatting Rules Nobody Tells You
+## APA Rules You Lose Points For
 
 Every chapter in this book has shown you an APA write-up. None of them stopped to say what the typographic rules actually are, and those rules are what you get points taken off for. Here they are in one place.
 

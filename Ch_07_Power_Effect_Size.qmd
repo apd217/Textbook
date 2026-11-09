@@ -130,7 +130,7 @@ abline(v = 5, col = "red", lwd = 4)   # the TRUE sigma
 
 The red line is the truth, $\sigma = 5$. Notice the histogram is **not centered on it**. In this simulation `r round(mean(Sample.SD < 5),3)*100`% of studies reported a standard deviation *below* the true value and only `r round(mean(Sample.SD > 5),3)*100`% landed above it. The average study reported `r round(mean(Sample.SD),2)` when the truth was 5.
 
-That is not a rounding artifact, it is a known bias, and the theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of $S$ works out to `r round(sqrt(2/12)*gamma(6.5)/gamma(6)*5, 3)`. Our 5,000 simulated studies averaged `r round(mean(Sample.SD),3)`. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.
+Rounding did not do this. It is a known bias. The theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of $S$ works out to `r round(sqrt(2/12)*gamma(6.5)/gamma(6)*5, 3)`. Our 5,000 simulated studies averaged `r round(mean(Sample.SD),3)`. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.
 
 Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known $\sigma$ and started using a sample $S$ as an approximation, and it is why we have a *t*-distribution at all.
 

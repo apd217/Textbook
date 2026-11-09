@@ -33,7 +33,7 @@ MCQ.chi.2 <- chisq.test(MCQ.Study.2, correct = TRUE)
 MCQ.chi.2.plain <- chisq.test(MCQ.Study.2, correct = FALSE)
 ```
 
-## Here is a real result, and it is two numbers.
+## A Real Result in Two Numbers
 
 @best1979 watched 261 introductory psychology students take a multiple-choice exam and counted what happened every time somebody changed an answer. 27 changes went from right to wrong. 195 went from wrong to right.
 
@@ -702,7 +702,7 @@ All four values here are the same size because a $2 \times 2$ table has one degr
 ### Chi-Square Issues
 
 - Chi-square works with **counts**, not percentages, means, or the emotional intensity with which you typed the numbers.
-- The observations must be independent. One person should not quietly appear in several cells unless the design and model explicitly handle repeated observations.
+- The observations must be independent. One person should not appear in several cells unless the design and model explicitly handle repeated observations.
 - The approximation becomes unreliable when expected counts are very small. A common guideline is that no expected count should be below 1 and no more than 20% should be below 5, but this is a guideline rather than a commandment. For a small $2 \times 2$ table, use Fisher's exact test. For larger sparse tables, a simulated *p*-value may be useful.
 - Chi-square cannot be negative because every discrepancy is squared. It can equal zero when every observed count equals its expected count, an event normally witnessed immediately before the Probability Gods demand another sacrifice.
 - A cell contributes more when its observed and expected counts differ by a large amount **relative to the expected count**.

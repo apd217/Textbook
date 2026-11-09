@@ -331,7 +331,7 @@ So look at that, my error drops really close to zero pretty quickly. Past about 
 
 **So how many people would I need for this study?**
 
-In short, there are diminishing returns.
+The returns diminish.
 
 - When the sample size is small, the error is large and unstable.
 - As the sample size gets very large, the error continues to shrink---but only a little at a time.
@@ -348,7 +348,7 @@ Increasing $N$ reduces random sampling error. It does **not** repair:
 A large biased sample can estimate the wrong value with extraordinary precision.
 :::
 
-In short: A sample is just a guess about the population. How good that guess is depends on how variable the population is to begin with. If the distribution is tight, you can get away with a smaller sample. If it’s spread out, you need a lot more people to pin it down.
+A sample is just a guess about the population. How good that guess is depends on how variable the population is to begin with. If the distribution is tight, you can get away with a smaller sample. If it’s spread out, you need a lot more people to pin it down.
 
 You never actually know if your guess is right, which is why replication exists and why we all lose sleep. If you rerun the study and the first two moments (the mean and the variance) keep bouncing around, that’s your data politely telling you: get more people. This is the ball from the probability chapter, and the standard error is our estimate of how far it bounces.
 

@@ -23,7 +23,7 @@ This is that chapter.
 
 The question is genuinely strange the first time you meet it. Regression multiplies a predictor by a slope, and you cannot multiply "Texting" by 0.34. So how does a model built entirely out of arithmetic handle a variable whose values are words?
 
-The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something quietly excellent falls out: the *t*-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.
+The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something nice falls out: the *t*-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.
 
 ## Distracted Driving
 
@@ -146,7 +146,7 @@ $$
 
 So the regression coefficients directly reproduce the group means.
 
-### Important
+### R Makes the Dummies for You
 
 In R, you usually **do not need to create dummy variables yourself**.
 
@@ -277,7 +277,7 @@ The sign flip is bookkeeping: `t.test()` subtracted in the order No Distraction 
 - Its standard error **is** the pooled standard error of that difference.
 - Dividing one by the other is precisely what the *t*-test did.
 
-One condition on that equivalence, and it is worth naming. It holds because we ran the *t*-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student *t*-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
+That equivalence comes with one condition. It holds because we ran the *t*-test with `var.equal = TRUE`. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student *t*-test makes. Ask for Welch's version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.
 
 The regression equation is
 
@@ -588,7 +588,7 @@ $$
 
 This is about **14%**, much larger than the intended 5%.
 
-Regression helps here, but it is worth being precise about how, because the honest version is less magical than it sounds. Fitting one model does not delete the multiple-testing problem. What it does is organize every comparison under a single model and hand you a **gatekeeper**: one overall test of whether the group means differ at all, which you check *before* going looking for which pairs differ. That gate is the omnibus $F$, and we are about to meet it.
+Regression helps here. It is less magic than it sounds. Fitting one model does not delete the multiple-testing problem. What it does is organize every comparison under a single model and hand you a **gatekeeper**: one overall test of whether the group means differ at all, which you check *before* going looking for which pairs differ. That gate is the omnibus $F$, and we are about to meet it.
 
 
 ### Regression with Three Groups
@@ -610,7 +610,7 @@ That is the gatekeeper. It tests one null hypothesis: **all three group means ar
 
 Ours is $F(`r summary(model3)$fstatistic[2]`, `r summary(model3)$fstatistic[3]`) =$ `r round(summary(model3)$fstatistic[1], 2)`, $p < .001$, so the gate is open. Something in there differs, and we have earned the right to go find out what.
 
-Had that $F$ come back non-significant, the honest move is to stop. The means are not distinguishable, and hunting through pairs anyway is precisely the 14% problem we just calculated, now with extra steps.
+If that $F$ is not significant you stop. The means are not distinguishable, and hunting through pairs anyway is precisely the 14% problem we just calculated, now with extra steps.
 
 The model is
 
@@ -800,7 +800,7 @@ You should be suspicious of that argument, because we spent a whole section calc
 
 Because we checked the gate first. The omnibus $F$ was significant, which is what earns the right to look at individual pairs without adjusting each one. This is **Fisher's protected LSD**, and the word doing the work is *protected*: the $F$ is the protection, and it was bought before any pair was examined.
 
-The protection has a hard expiry date, and it is worth memorizing, because it is a favorite exam question:
+The protection has a hard expiry date. Memorize it. It is a favorite exam question:
 
 ::: {.callout-important title="The Protection Expires at Three Groups"}
 With exactly **three** groups, a significant omnibus $F$ followed by unadjusted pairwise tests keeps the familywise error rate at $\alpha$. This is a genuine mathematical result, not a convention.

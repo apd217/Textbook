@@ -91,7 +91,7 @@ paired_long$condition <- factor(
 )
 ```
 
-Those last few lines built the same data twice, in two different shapes. This confuses more students than any actual statistics in this chapter, so it is worth slowing down for.
+Those last few lines built the same data twice, in two different shapes. This confuses more students than the statistics do. Slow down here.
 
 **Wide** data give each person one row, with a separate column for each condition:
 
@@ -251,7 +251,7 @@ Notice what happens at the extremes. If $r = 0$, the two scores know nothing abo
 
 This often gives a smaller standard error than an independent-samples analysis. Pairing does not guarantee more power, however. If the repeated scores barely correlate, little stable variation is removed. Pairing also cannot repair a terrible measure. Measuring attention by counting how often someone blinks at the ceiling remains a terrible plan in both conditions.
 
-### How Much Does Pairing Actually Buy You?
+### What Does Pairing Buy You?
 
 We have the data, so we do not have to speculate. First, how correlated are the two measurements? Then we run the analysis **incorrectly on purpose**, treating our 96 scores as if they came from 96 different students who happened to wander in:
 
@@ -275,7 +275,7 @@ Where did the extra error come from? From the students. Some people simply stare
 
 That is the whole argument for within-subjects designs, and it is why the design chapter of every methods book keeps yelling about them. It is also, in this case, a correlation of only `r round(cor(paired_wide$chocolate, paired_wide$no_chocolate), 2)`. A stronger correlation would have bought even more.
 
-## Assumptions That Actually Matter
+## Assumptions You Cannot Skip
 
 For the paired-samples *t*-test:
 

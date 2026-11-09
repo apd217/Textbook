@@ -300,7 +300,7 @@ Why care? Ordinary regression calculates standard errors under the assumption th
 
 But changing variance can also reveal something psychologically interesting. Perhaps ice cream affects people similarly at low doses but produces wildly different reactions after the fourth scoop. Some people achieve joy. Others remember lactose intolerance.
 
-::: {.callout-warning title="Heterogeneity May Be a Clue, Not Merely a Violation"}
+::: {.callout-warning title="Uneven Residuals Can Be a Clue"}
 Changing residual spread can mean that uncertainty differs across people, conditions, or levels of the outcome. Do not immediately transform the outcome until the graph stops complaining. First ask what process could create the pattern.
 :::
 
@@ -438,7 +438,7 @@ A few things to notice, because this paragraph is the template for every regress
 - That $\beta$ of `r apa.dec(beta)` should look familiar. It is the correlation from the top of this chapter, which is the payoff we proved a section ago. In simple regression you can report either (or both), but never present them as two separate findings.
 - The plain-English sentence is not optional decoration. Being able to say what your slope means in the units your grandmother would understand is a graded skill, in this course and in every paper you will ever write.
 
-::: {.callout-warning title="p < .001 Is a Claim, Not a Default"}
+::: {.callout-warning title="Do Not Copy p < .001"}
 The write-up above says $p < .001$ because this model's *p*-value genuinely is `r format(m$coefficients["Scoops", "Pr(>|t|)"], digits = 3)`. Report the exact value to two or three decimals whenever it is larger than .001, and never copy `p < .001` out of an example because it looked authoritative.
 :::
 

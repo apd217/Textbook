@@ -381,7 +381,7 @@ $$r_{xy}=\frac{\sum{xy}}{\sqrt{\sum{x^2}\sum{y^2}}}$$
 
 Time for a running example, and something less alarming than pirates.
 
-Suppose we ask 100 people two questions: how much ice cream they eat, and how happy they are. We expect the two to go together, because ice cream is delicious and happiness is what happens to people who eat delicious things. This example follows us for the rest of the chapter, so it is worth noticing now that it has the identical structure to the pirate graph. Two variables, one span of observations, no control group, and no idea which way any arrow points.
+Suppose we ask 100 people two questions: how much ice cream they eat, and how happy they are. We expect the two to go together, because ice cream is delicious and happiness is what happens to people who eat delicious things. This example follows us for the rest of the chapter. It has the same structure as the pirate graph. Two variables, one span of observations, no control group, and no idea which way any arrow points.
 
 Hold onto that. We will come back for it once we have a number.
 
@@ -448,7 +448,7 @@ The statistic is built from $r$ and the sample size, and nothing else:
 
 $$t = \frac{r\sqrt{N-2}}{\sqrt{1-r^2}}$$
 
-That $N-2$ is the degrees of freedom, and it is worth knowing where the 2 went.
+That $N-2$ is the degrees of freedom. Here is where the 2 went.
 
 Before you can compute a single deviation score, you have to know where the middle is. So you estimate $M_X$ from your own data, and that costs one degree of freedom. Then you estimate $M_Y$, and that costs another. One mean per variable, two variables, so $N-2$ are left. This is the same tax that makes each variance divide by $n-1$ rather than $n$: you pay once, per variable, for having to find its center first.
 

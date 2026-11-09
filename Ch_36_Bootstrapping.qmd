@@ -14,7 +14,7 @@ The resampling solution is wonderfully rude: make the computer imitate repeated 
 
 This idea sounds obvious now because your laptop can perform thousands of resamples before you finish complaining about the assignment. It was less obvious when a computer occupied a room, demanded punch cards, and had less memory than a suspicious toaster.
 
-::: {.callout-warning title="Advanced Does Not Mean Assumption-Free"}
+::: {.callout-warning title="Resampling Still Has Assumptions"}
 Resampling replaces some mathematical work with computation. It does not remove the need to understand the design, the estimator, or the assumptions. If you resample the wrong unit 10,000 times, you obtain a very stable estimate of the wrong uncertainty.
 :::
 
@@ -483,7 +483,7 @@ A few hundred replications may be enough to teach the idea or debug code. Standa
 
 The number of bootstrap replications $B$ controls **Monte Carlo error** in the calculation. It does not increase the original sample size. More replications do not repair a biased sample, weak measurement, or a resampling scheme that ignores the design. Ten thousand wrong resamples are wrong with excellent numerical stability.
 
-## What the Bootstrap Can and Cannot Do
+## The Bootstrap Is Not Magic
 
 The bootstrap is useful when:
 

@@ -51,7 +51,7 @@ The baseline coefficient **changed sign**. With everyone in, higher baseline sev
 
 The intercept stopped being significant, going from $p =$ `r round(coef(summary(TherapyModel))[1, 4], 3)` to $p =$ `r round(coef(summary(TherapyModel.60))[1, 4], 3)`. If you had a hypothesis about the intercept, you no longer have a result.
 
-And $R^2$ went **up**, from `r round(summary(TherapyModel)$r.squared, 3)` to `r round(summary(TherapyModel.60)$r.squared, 3)`. This surprises people, so it is worth saying plainly: deleting participant 60 took proportionally more out of the unexplained pile than out of the total. The residual standard error fell from `r round(summary(TherapyModel)$sigma, 2)` to `r round(summary(TherapyModel.60)$sigma, 2)`. The model did not get better. It got easier.
+And $R^2$ went **up**, from `r round(summary(TherapyModel)$r.squared, 3)` to `r round(summary(TherapyModel.60)$r.squared, 3)`. This surprises people. Deleting participant 60 took proportionally more out of the unexplained pile than out of the total. The residual standard error fell from `r round(summary(TherapyModel)$sigma, 2)` to `r round(summary(TherapyModel.60)$sigma, 2)`. The model did not get better. It got easier.
 
 Notice what did *not* warn you. Nothing errored. Nothing printed a message. The first model is not missing a step, and no amount of rereading its output would have told you that one row was steering it. R fit exactly what you asked for, with the serene indifference of a vending machine.
 
@@ -197,7 +197,7 @@ Read it one row at a time.
 
 **Sessions** is the conclusion of the study, and it survives. The slope drops from `r round(coef(TherapyModel)["Sessions"], 2)` to `r round(coef(TherapyModel.60)["Sessions"], 2)`, about a `r round(100 * (coef(TherapyModel)["Sessions"] - coef(TherapyModel.60)["Sessions"]) / coef(TherapyModel)["Sessions"])`% reduction, and stays overwhelmingly significant either way. That is what a robust result looks like: the number moves, because every number moves, and the claim does not.
 
-**Baseline** does not survive, and it never had anything to survive with. Its sign depends entirely on participant 60, and it is nowhere near significant in either model. This is the honest version of a null result: not "baseline severity does not predict improvement," but "this study could not tell you, and one person was setting the direction."
+**Baseline** does not survive, and it never had anything to survive with. Its sign depends entirely on participant 60, and it is nowhere near significant in either model. This is how to state a null result: not "baseline severity does not predict improvement," but "this study could not tell you, and one person was setting the direction."
 
 The rule that follows is short, and it is the whole reason the comparison exists. **Report both.** Put the sensitivity refit in the paper, or in the supplement, and say what changed. Do not run this comparison, notice that one version is friendlier to your hypothesis, and report only that one. That is not a sensitivity analysis. That is shopping with extra steps.
 
@@ -246,7 +246,7 @@ library(car)
 vif(TherapyModel)
 ```
 
-Both come back at `r round(car::vif(TherapyModel)[1], 2)`, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at $r =$ `r round(cor(TherapyData$Sessions, TherapyData$Baseline), 2)`. This is what fine looks like, and it is worth seeing once so that trouble is recognizable by contrast.
+Both come back at `r round(car::vif(TherapyModel)[1], 2)`, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at $r =$ `r round(cor(TherapyData$Sessions, TherapyData$Baseline), 2)`. This is what fine looks like. Trouble is easier to spot once you have seen fine.
 
 ### Doing It By Hand, Because It Is Two Regressions
 
@@ -312,7 +312,7 @@ alias(BothModel)
 
 Read that as an equation: `PaidLunch` equals 1 minus `FreeLunch`. It has reconstructed the definition we used to build the variable.
 
-VIF cannot help here either, and it is honest about why:
+VIF cannot help here either. It tells you why:
 
 ```{r perfect-collinearity-vif}
 #| error: true
@@ -376,7 +376,7 @@ Nothing errored. Nothing was set to `NA`. No message appeared above the table. A
 
 A student who ran only this model would conclude that school poverty does not predict achievement. The real effect they missed is about `r round(abs(coef(FreeOnly)["FreeLunch"]))` achievement points between a school where nobody qualifies for free lunch and one where everybody does.
 
-### What Trouble Actually Looks Like Across the Range
+### Collinearity From Fine to Hair-on-Fire
 
 The two cases above are the ends of a continuum. Here is the middle, using the same true effect measured four times. `X1` and `Y` are identical in every row; the only thing that changes is how strongly the *other* predictor correlates with `X1`.
 
@@ -558,7 +558,7 @@ sapply(c("const", "HC0", "HC1", "HC2", "HC3"), function(type) {
 
 `const` is the classical assumption, and it is the smallest in every row. The four HC variants increase in the order the table above predicts, because each one leans a little harder on the leverage correction.
 
-::: {.callout-note title="Be Honest About What the Sandwich Is Reacting To"}
+::: {.callout-note title="Know What the Sandwich Is Reacting To"}
 This dataset is not actually heteroscedastic. So why did the standard errors grow? Participant 60, and now you have the formula to see exactly how.
 
 The HC3 filling weights each observation by $e_i^2/(1-h_{ii})^2$. Participant 60 has a residual of about `r round(residuals(TherapyModel)[60], 1)` and a leverage of `r round(hatvalues(TherapyModel)[60], 3)`, against an average leverage of `r round(mean(hatvalues(TherapyModel)), 3)`. Squaring a residual that large is most of it; the leverage correction then multiplies that by a further `r round(1 / (1 - hatvalues(TherapyModel)[60])^2, 2)`.
@@ -584,7 +584,7 @@ The hand-built versions still teach better, for the reason this whole chapter ex
 
 ## The Four Packages, and Where the Real Derivations Live
 
-This chapter used four packages, and it is worth knowing what each is for, because they are not interchangeable and their names do not tell you much.
+This chapter used four packages. They are not interchangeable. Here is what each one is for.
 
 | Package | What it does here | Where it came from |
 |---|---|---|

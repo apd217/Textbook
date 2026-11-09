@@ -187,7 +187,7 @@ cat("Model 3 (Both predictors):  R-squared =", round(r2_m3, 3), "\n")
 cat("Change in R-squared: Delta R-squared =", round(r2_m3 - r2_m1, 3), "\n")
 ```
 
-The $R^2$ went up when we added Test Anxiety. But $R^2$ **always** goes up when you add a predictor. Even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is meaningful.
+The $R^2$ went up when we added Test Anxiety. But $R^2$ **always** goes up when you add a predictor. Even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is more than chance.
 
 ## The Change in $R^2$: What Are We Measuring?
 
@@ -251,7 +251,7 @@ Hold on to that number. We come back for it shortly.
 Simulating five thousand models every time you want to check one predictor would make for long afternoons. The **F-test for model comparison** gets you the same answer from arithmetic. It tests the null hypothesis that the added predictor(s) explain *zero additional variance in the population*, meaning the improvement in $R^2$ is nothing more than noise.
 
 $$H_0: \Delta R^2 = 0 \text{ (Test Anxiety adds nothing beyond Study Hours)}$$
-$$H_1: \Delta R^2 > 0 \text{ (Test Anxiety adds meaningful predictive power)}$$
+$$H_1: \Delta R^2 > 0 \text{ (Test Anxiety adds predictive power)}$$
 
 The *F*-statistic for this test is computed as:
 
@@ -399,11 +399,9 @@ ggplot(variance_df, aes(x = "", y = Proportion, fill = Component)) +
 
 The orange segment is Test Anxiety's unique contribution ($\Delta R^2 =$ `r round(r2_unique_anx, 3)`), and it is what the *F*-test just confirmed is statistically significant. It represents the additional explanatory power Test Anxiety brings to a model that already contains Study Hours. Adding it was worth it.
 
-## The Logic in Plain Language
+## The Logic for Grandma
 
-Let's step back from the numbers and make sure the core logic is clear.
-
-Hierarchical regression is built on a simple and intuitive idea: **if a predictor truly matters, it should explain variance in the outcome that no other predictor in the model can already account for.** If it does not, it is just explaining the same territory as something already in the model, and we should not clutter up our model with redundant predictors.
+Hierarchical regression is built on a simple idea: **if a predictor matters, it should explain variance in the outcome that no other predictor in the model can already account for.** If it does not, it is just explaining the same territory as something already in the model, and we should not clutter up our model with redundant predictors.
 
 Here is the sequence of reasoning:
 
@@ -413,7 +411,7 @@ Here is the sequence of reasoning:
 
 3. **Test whether the gain is real.** The *F*-test evaluates whether that $\Delta R^2$ could plausibly have arisen by chance. A significant F tells us: no, the improvement is larger than chance fluctuations in $R^2$ would predict.
 
-4. **Interpret the final model.** If the gain is significant, include the new predictor and interpret its slope. If the gain is not significant, you have evidence that the new predictor does not earn its place in the model (at least, not above and beyond what is already there).
+4. **Interpret the final model.** If the gain is significant, include the new predictor and interpret its slope. If the gain is not significant, you have evidence that the new predictor adds nothing to the model (at least, not above and beyond what is already there).
 
 This four-step logic applies no matter how many predictors you are adding. You could be testing whether a single predictor improves fit, or whether a whole *block* of predictors (say, all demographic variables, or all anxiety-related measures) improves fit over a baseline model. The mechanics are the same.
 

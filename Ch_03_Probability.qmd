@@ -113,7 +113,7 @@ This answer depends on the rules: Monty knows where the car is, always opens a g
 
 The Monty Hall problem feels wrong because people often treat all visible options as equally likely. They are not. Two possible outcomes do not automatically mean 50/50 [@ang2014]. A hypothesis test can also end with two possible decisions. That does not mean each decision had a 50% probability.
 
-## What Probability Means, and What It Will Never Promise You
+## What Probability Means
 
 A probability is a number from 0 to 1 describing how likely an event is under stated assumptions.
 

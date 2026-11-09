@@ -1,5 +1,5 @@
 ---
-title: "Statistical Control: What Are We Actually Removing?"
+title: "Statistical Control: What Are We Removing?"
 ---
 
 ```{r setup, include=FALSE}

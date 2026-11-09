@@ -25,7 +25,7 @@ These are the Quarto (`.qmd`) files currently included in the book. Select a cha
 - [Chapter 12: Linear Regression with Categorical Variables](Ch_12_Categorical_Regression.qmd)
 - [Chapter 13: Multiple Regression—Statistical Control](Ch_13_Multiple_Regression.qmd)
 - [Chapter 14: Hierarchical Regression—Testing Whether Your Model Improves](Ch_14_Hierarchical_Regression.qmd)
-- [Chapter 15: Statistical Control—What Are We Actually Removing?](Ch_15_Statistical_Control.qmd)
+- [Chapter 15: Statistical Control—What Are We Removing?](Ch_15_Statistical_Control.qmd)
 - [Chapter 16: Continuous-by-Categorical Interactions](Ch_16_Continuous_Categorical_Interaction.qmd)
 - [Chapter 17: Categorical-by-Categorical Interactions](Ch_17_Categorical_Interaction.qmd)
 - [Chapter 18: Mixed Regression—Between People and Within People](Ch_18_Mixed_Regression.qmd)
