@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -525,8 +525,8 @@ window.Quarto = {
 </header>
 
 
-<section id="here-is-a-real-result-and-it-is-two-numbers." class="level2" data-number="34.1">
-<h2 data-number="34.1" class="anchored" data-anchor-id="here-is-a-real-result-and-it-is-two-numbers."><span class="header-section-number">34.1</span> Here is a real result, and it is two numbers.</h2>
+<section id="a-real-result-in-two-numbers" class="level2" data-number="34.1">
+<h2 data-number="34.1" class="anchored" data-anchor-id="a-real-result-in-two-numbers"><span class="header-section-number">34.1</span> A Real Result in Two Numbers</h2>
 <p><span class="citation" data-cites="best1979">Best (<a href="#ref-best1979" role="doc-biblioref">1979</a>)</span> watched 261 introductory psychology students take a multiple-choice exam and counted what happened every time somebody changed an answer. 27 changes went from right to wrong. 195 went from wrong to right.</p>
 <blockquote class="blockquote">
 <p>Do the observed counts differ from the counts we would expect by chance?</p>
@@ -1218,7 +1218,7 @@ Difficulty      RtoW      WtoR
 <h3 data-number="34.4.20" class="anchored" data-anchor-id="chi-square-issues"><span class="header-section-number">34.4.20</span> Chi-Square Issues</h3>
 <ul>
 <li>Chi-square works with <strong>counts</strong>, not percentages, means, or the emotional intensity with which you typed the numbers.</li>
-<li>The observations must be independent. One person should not quietly appear in several cells unless the design and model explicitly handle repeated observations.</li>
+<li>The observations must be independent. One person should not appear in several cells unless the design and model explicitly handle repeated observations.</li>
 <li>The approximation becomes unreliable when expected counts are very small. A common guideline is that no expected count should be below 1 and no more than 20% should be below 5, but this is a guideline rather than a commandment. For a small <span class="math inline">\(2 \times 2\)</span> table, use Fisher’s exact test. For larger sparse tables, a simulated <em>p</em>-value may be useful.</li>
 <li>Chi-square cannot be negative because every discrepancy is squared. It can equal zero when every observed count equals its expected count, an event normally witnessed immediately before the Probability Gods demand another sacrifice.</li>
 <li>A cell contributes more when its observed and expected counts differ by a large amount <strong>relative to the expected count</strong>.</li>

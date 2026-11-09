@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -649,8 +649,8 @@ condtnChclt -0.524</code></pre>
 </div>
 <p>Those are not two answers that happen to agree. They are one answer, printed twice.</p>
 <p>The degrees of freedom are worth a second look, because the two rows got to 47 by completely different routes. The <em>t</em>-test knows it has 48 differences and subtracts one. <code>lmer</code> has no idea what a difference score is; <code>lmerTest</code> works out how much independent information the 96 rows actually contain, using an approximation called <strong>Satterthwaite’s method</strong>, and arrives at 47 anyway.</p>
-<section id="what-1-participant-actually-did" class="level3" data-number="18.1.1">
-<h3 data-number="18.1.1" class="anchored" data-anchor-id="what-1-participant-actually-did"><span class="header-section-number">18.1.1</span> What <code>(1 | participant)</code> Actually Did</h3>
+<section id="what-1-participant-did" class="level3" data-number="18.1.1">
+<h3 data-number="18.1.1" class="anchored" data-anchor-id="what-1-participant-did"><span class="header-section-number">18.1.1</span> What <code>(1 | participant)</code> Did</h3>
 <p>That term is the whole difference between the two calls. It tells R that rows sharing a participant number came from the same person, and that people arrive at a study with their own resting level of staring. Some students watch the screen. Some students watch the door.</p>
 <p>It handles this without estimating 48 separate student coefficients. It estimates the <em>spread</em> of the students, a single number, and treats each person’s own level as a draw from it:</p>
 <div class="cell" data-layout-align="center">
@@ -688,7 +688,7 @@ condtnChclt -0.524</code></pre>
 <section id="so-what-was-the-point-of-all-that" class="level3" data-number="18.1.3">
 <h3 data-number="18.1.3" class="anchored" data-anchor-id="so-what-was-the-point-of-all-that"><span class="header-section-number">18.1.3</span> So What Was the Point of All That?</h3>
 <p>Nothing yet, honestly. With two measurements and no other predictors, the paired <em>t</em>-test is shorter to type and gives the same answer, so keep using it. The mixed model has not earned anything.</p>
-<p>It earns its keep the moment the design acquires something a difference score cannot hold:</p>
+<p>It starts paying off the moment the design acquires something a difference score cannot hold:</p>
 <ul>
 <li><strong>A between-person predictor.</strong> Treatment group, age, baseline severity. Subtracting within a person throws the person away, and group is a property of the person.</li>
 <li><strong>A missing row.</strong> A student who skipped a session has no difference score at all, so the <em>t</em>-test deletes the entire student.</li>
@@ -1054,12 +1054,12 @@ occasionWeek 6:groupCBT   -5.752      0.689  98.000  -8.354    0.000</code></pre
 </div>
 <div class="callout-body-container callout-body">
 <p>Every column in that table except the estimate itself rests on an approximation. There is no exact sampling distribution waiting for a model like this one, so the numbers in the <code>df</code> column were not counted, they were <strong>estimated</strong>, using Satterthwaite’s method, like you saw with Welch’s <em>t</em>-test. They often come out fractional.</p>
-<p>This is a property of mixed models, not of <code>lmer</code>. Change engines and the approximation changes costume rather than disappearing: <code>glmmTMB</code>, which you will meet in graduate school, fits the same model and reports Wald <em>z</em> statistics with no degrees of freedom at all. Same model, different plumbing, and the same honest uncertainty underneath.</p>
+<p>This is a property of mixed models, not of <code>lmer</code>. Change engines and the approximation changes costume rather than disappearing: <code>glmmTMB</code>, which you will meet in graduate school, fits the same model and reports Wald <em>z</em> statistics with no degrees of freedom at all. Same model. Different plumbing. Same uncertainty.</p>
 </div>
 </div>
 </section>
-<section id="how-much-did-the-random-intercept-actually-buy-you" class="level2" data-number="18.7">
-<h2 data-number="18.7" class="anchored" data-anchor-id="how-much-did-the-random-intercept-actually-buy-you"><span class="header-section-number">18.7</span> How Much Did the Random Intercept Actually Buy You?</h2>
+<section id="what-did-the-random-intercept-buy" class="level2" data-number="18.7">
+<h2 data-number="18.7" class="anchored" data-anchor-id="what-did-the-random-intercept-buy"><span class="header-section-number">18.7</span> What Did the Random Intercept Buy?</h2>
 <p>The paired <em>t</em>-test chapter ran its analysis wrong on purpose to show what pairing was worth. Do the same thing here. <code>ordinary_model</code> is still sitting there, fit by <code>lm()</code>, believing it met 200 unrelated people.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lm_fixed <span class="ot">&lt;-</span> <span class="fu">summary</span>(ordinary_model)<span class="sc">$</span>coefficients</span>
@@ -1093,7 +1093,7 @@ occasionWeek 6:groupCBT   -5.752      0.689  98.000  -8.354    0.000</code></pre
 </div>
 </div>
 <p>Same estimate. One analysis finds nothing, the other finds a clear effect. The difference is entirely whether the model was told that the two rows belong to one human.</p>
-<p>Now look at the row the random intercept did <em>not</em> help: <code>groupCBT</code>, where the standard error is the same in both models, out to nine decimal places. That is not a coincidence and it is worth understanding, because it tells you what the random intercept is actually for. <code>groupCBT</code> compares two different sets of people at one occasion. There is no repeated measurement inside that comparison, so there is nothing to subtract out, and it has to pay full price for person-to-person variation either way. The random intercept helps <em>within</em>-person comparisons. It has nothing to offer a between-person one.</p>
+<p>Now look at the row the random intercept did <em>not</em> help: <code>groupCBT</code>, where the standard error is the same in both models, out to nine decimal places. That is not a coincidence. It tells you what the random intercept is for. <code>groupCBT</code> compares two different sets of people at one occasion. There is no repeated measurement inside that comparison, so there is nothing to subtract out, and it has to pay full price for person-to-person variation either way. The random intercept helps <em>within</em>-person comparisons. It has nothing to offer a between-person one.</p>
 <p>Where did the extra error come from, then? From the people. 85 percent of the variance here is participants differing from one another, and <code>lm()</code> has no mechanism for setting that aside, so it lands in the error term and makes every within-person comparison look less trustworthy than it is. The random intercept is how you get it back.</p>
 </section>
 <section id="the-interaction-is-also-a-t-test-on-change-scores" class="level2" data-number="18.8">
@@ -1338,7 +1338,7 @@ Confidence level used: 0.95 </code></pre>
 </div>
 <div class="callout-body-container callout-body">
 <p>Mixed models are an enormous area of statistics, and their diagnostics are an active research area rather than a settled checklist. Two DHARMa plots are the minimum, not the standard.</p>
-<p>If your design is bigger than the one in this chapter, you need more than this chapter. The honest advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.</p>
+<p>If your design is bigger than the one in this chapter, you need more than this chapter. My advice is a graduate mixed-models course, and the advanced sections of this book, not a longer checklist from me.</p>
 <p>This is also, genuinely, hard material. First-time graduate students meet it and struggle. If it feels like a lot, that is the material, not you.</p>
 </div>
 </div>
@@ -1348,7 +1348,7 @@ Confidence level used: 0.95 </code></pre>
 <p>Everything here rested on the simplest possible repeated-measures design: each person measured twice, on one within-subjects factor, crossed with one between-subjects factor. For that design, what this chapter showed you works, and it works well.</p>
 <p>Push past it and the difficulty does not increase gently. Two within-subjects factors, or measurements at four or six occasions over time, and you are immediately making decisions this chapter never had to make. Which random effects should the model include? What happens when the maximal model refuses to converge, or converges to a variance of exactly zero? Should occasions close together be allowed to resemble each other more than occasions far apart? Those are real questions with contested answers, and getting them wrong changes your results rather than merely annoying you.</p>
 <p>Here is the part I am obliged to admit. For a <strong>balanced, complete</strong> repeated-measures design with several within-subjects factors, old-school repeated-measures ANOVA is often <em>easier</em> than the mixed model. It was built for exactly that shape of data, it will fit without an argument, and it will not ask you to choose a random-effects structure. You know how I feel about ANOVA. It is still true.</p>
-<p>The catch is what it demands in return. Repeated-measures ANOVA wants every person to have every observation, so one missed session deletes the whole participant, and it leans on <strong>sphericity</strong>: the assumption that the variances of all the pairwise differences between occasions are equal. With exactly two occasions, as in this chapter, sphericity is not merely satisfied, it is vacuous, because there is only one difference and nothing for it to disagree with. From three occasions up it becomes a real constraint, and a violated one costs you.</p>
+<p>The catch is what it demands in return. Repeated-measures ANOVA wants every person to have every observation, so one missed session deletes the whole participant, and it leans on <strong>sphericity</strong>: the assumption that the variances of all the pairwise differences between occasions are equal. With two occasions sphericity cannot fail. There is only one difference and nothing for it to disagree with. From three occasions up it becomes a real constraint, and a violated one costs you.</p>
 <p>So neither tool is the grown-up choice in all situations. The mixed model handles missing rows and unbalanced designs that ANOVA cannot touch. ANOVA handles complicated balanced within-subjects designs without the fight. We did not escape assumptions by learning mixed models. We traded a rigid set for a flexible set that has to be chosen thoughtfully.</p>
 <p>If a repeated-measures ANOVA is the right tool for your design, there is a review of it in the advanced sections of this book. Use whichever tool the design actually calls for, and say in your write-up which one you used and why.</p>
 </section>

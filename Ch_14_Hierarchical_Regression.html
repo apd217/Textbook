@@ -295,7 +295,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -649,7 +649,7 @@ window.Quarto = {
 <pre><code>Change in R-squared: Delta R-squared = 0.067 </code></pre>
 </div>
 </div>
-<p>The <span class="math inline">\(R^2\)</span> went up when we added Test Anxiety. But <span class="math inline">\(R^2\)</span> <strong>always</strong> goes up when you add a predictor. Even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is meaningful.</p>
+<p>The <span class="math inline">\(R^2\)</span> went up when we added Test Anxiety. But <span class="math inline">\(R^2\)</span> <strong>always</strong> goes up when you add a predictor. Even a useless one will explain a tiny sliver of variance just by chance. So we need a formal test to decide whether this improvement is more than chance.</p>
 </section>
 <section id="the-change-in-r2-what-are-we-measuring" class="level2" data-number="14.6">
 <h2 data-number="14.6" class="anchored" data-anchor-id="the-change-in-r2-what-are-we-measuring"><span class="header-section-number">14.6</span> The Change in <span class="math inline">\(R^2\)</span>: What Are We Measuring?</h2>
@@ -692,7 +692,7 @@ window.Quarto = {
 <section id="the-test-that-skips-the-five-thousand-models" class="level3" data-number="14.7.2">
 <h3 data-number="14.7.2" class="anchored" data-anchor-id="the-test-that-skips-the-five-thousand-models"><span class="header-section-number">14.7.2</span> The Test That Skips the Five Thousand Models</h3>
 <p>Simulating five thousand models every time you want to check one predictor would make for long afternoons. The <strong>F-test for model comparison</strong> gets you the same answer from arithmetic. It tests the null hypothesis that the added predictor(s) explain <em>zero additional variance in the population</em>, meaning the improvement in <span class="math inline">\(R^2\)</span> is nothing more than noise.</p>
-<p><span class="math display">\[H_0: \Delta R^2 = 0 \text{ (Test Anxiety adds nothing beyond Study Hours)}\]</span> <span class="math display">\[H_1: \Delta R^2 &gt; 0 \text{ (Test Anxiety adds meaningful predictive power)}\]</span></p>
+<p><span class="math display">\[H_0: \Delta R^2 = 0 \text{ (Test Anxiety adds nothing beyond Study Hours)}\]</span> <span class="math display">\[H_1: \Delta R^2 &gt; 0 \text{ (Test Anxiety adds predictive power)}\]</span></p>
 <p>The <em>F</em>-statistic for this test is computed as:</p>
 <p><span class="math display">\[F = \frac{\Delta R^2 / \Delta df_{\text{model}}}{(1 - R^2_{\text{full}}) / df_{\text{residual, full}}}\]</span></p>
 <p>Where:</p>
@@ -835,16 +835,15 @@ F-statistic: 17.94 on 2 and 97 DF,  p-value: 2.351e-07</code></pre>
 </div>
 <p>The orange segment is Test Anxiety’s unique contribution (<span class="math inline">\(\Delta R^2 =\)</span> 0.067), and it is what the <em>F</em>-test just confirmed is statistically significant. It represents the additional explanatory power Test Anxiety brings to a model that already contains Study Hours. Adding it was worth it.</p>
 </section>
-<section id="the-logic-in-plain-language" class="level2" data-number="14.10">
-<h2 data-number="14.10" class="anchored" data-anchor-id="the-logic-in-plain-language"><span class="header-section-number">14.10</span> The Logic in Plain Language</h2>
-<p>Let’s step back from the numbers and make sure the core logic is clear.</p>
-<p>Hierarchical regression is built on a simple and intuitive idea: <strong>if a predictor truly matters, it should explain variance in the outcome that no other predictor in the model can already account for.</strong> If it does not, it is just explaining the same territory as something already in the model, and we should not clutter up our model with redundant predictors.</p>
+<section id="the-logic-for-grandma" class="level2" data-number="14.10">
+<h2 data-number="14.10" class="anchored" data-anchor-id="the-logic-for-grandma"><span class="header-section-number">14.10</span> The Logic for Grandma</h2>
+<p>Hierarchical regression is built on a simple idea: <strong>if a predictor matters, it should explain variance in the outcome that no other predictor in the model can already account for.</strong> If it does not, it is just explaining the same territory as something already in the model, and we should not clutter up our model with redundant predictors.</p>
 <p>Here is the sequence of reasoning:</p>
 <ol type="1">
 <li><p><strong>Start with what you already know.</strong> We know Study Hours predicts exam scores. Build a model with it first.</p></li>
 <li><p><strong>Ask: does the new predictor add something?</strong> We want to know if Test Anxiety explains variance in exam scores <em>above and beyond</em> Study Hours. The <span class="math inline">\(\Delta R^2\)</span> tells us the size of the gain.</p></li>
 <li><p><strong>Test whether the gain is real.</strong> The <em>F</em>-test evaluates whether that <span class="math inline">\(\Delta R^2\)</span> could plausibly have arisen by chance. A significant F tells us: no, the improvement is larger than chance fluctuations in <span class="math inline">\(R^2\)</span> would predict.</p></li>
-<li><p><strong>Interpret the final model.</strong> If the gain is significant, include the new predictor and interpret its slope. If the gain is not significant, you have evidence that the new predictor does not earn its place in the model (at least, not above and beyond what is already there).</p></li>
+<li><p><strong>Interpret the final model.</strong> If the gain is significant, include the new predictor and interpret its slope. If the gain is not significant, you have evidence that the new predictor adds nothing to the model (at least, not above and beyond what is already there).</p></li>
 </ol>
 <p>This four-step logic applies no matter how many predictors you are adding. You could be testing whether a single predictor improves fit, or whether a whole <em>block</em> of predictors (say, all demographic variables, or all anxiety-related measures) improves fit over a baseline model. The mechanics are the same.</p>
 </section>
@@ -1414,8 +1413,8 @@ Model 2: Exam ~ StudyHours + Noise1 + Noise2 + Noise3 + Noise4 + Noise5 +
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./Ch_15_Statistical_Control.html" class="pagination-link" aria-label="Statistical Control: What Are We Actually Removing?">
-        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./Ch_15_Statistical_Control.html" class="pagination-link" aria-label="Statistical Control: What Are We Removing?">
+        <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -2,166 +2,166 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://apd217.github.io/Textbook/index.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.139Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_01_Introduction.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.034Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_02_R_Basics.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.035Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_03_Probability.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.633Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_04_Distributions.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.038Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_05_Standard_Error.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.640Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_06_One_Sample_t.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.627Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_07_Power_Effect_Size.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.639Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_08_Independent_t.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.625Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_09_Paired_t.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.621Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_10_Covariance_Correlation.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.638Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_11_Intro_Regression.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.637Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_12_Categorical_Regression.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.635Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_13_Multiple_Regression.html</loc>
-    <lastmod>2026-11-08T17:46:03.607Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.629Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_14_Hierarchical_Regression.html</loc>
-    <lastmod>2026-11-08T17:42:28.262Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.632Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_15_Statistical_Control.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.628Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_16_Continuous_Categorical_Interaction.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.630Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_17_Categorical_Interaction.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.631Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_18_Mixed_Regression.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.622Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_19_Regression_Diagnostics.html</loc>
-    <lastmod>2026-11-08T17:42:28.268Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.624Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_20_Multiple_Comparisons.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.624Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_21_Advanced_Interactions.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.636Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_22_GLM.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.063Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_23_Mediation.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.065Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_24_Moderated_Mediation.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.066Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_25_ANOVA_Introduction.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.067Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_26_One_Way_ANOVA.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.069Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_27_One_Way_Follow_Ups.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.070Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_28_Two_Way_Between_ANOVA.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.071Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_29_Two_Way_Between_Follow_Ups.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.073Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_30_One_Way_Within_ANOVA.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.074Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_31_Two_Way_Within_ANOVA.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.075Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_32_Two_Way_Within_Follow_Ups.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.076Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_33_Mixed_ANOVA.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.088Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_34_Chi_Square.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.636Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_35_Nonparametric_Tests.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.093Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_36_Bootstrapping.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.633Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_37_Reporting.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.626Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Ch_38_Tidyverse_Review.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-09T00:10:21.634Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/references.html</loc>
-    <lastmod>2026-08-18T04:53:56.000Z</lastmod>
+    <lastmod>2026-11-08T19:05:02.142Z</lastmod>
   </url>
   <url>
     <loc>https://apd217.github.io/Textbook/Psychological_Statistics_with_R.pdf</loc>
-    <lastmod>2026-11-08T18:13:33.608Z</lastmod>
+    <lastmod>2026-11-09T00:23:43.458Z</lastmod>
   </url>
 </urlset>

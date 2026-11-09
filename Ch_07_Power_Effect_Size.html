@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -621,7 +621,7 @@ window.Quarto = {
 </div>
 </div>
 <p>The red line is the truth, <span class="math inline">\(\sigma = 5\)</span>. Notice the histogram is <strong>not centered on it</strong>. In this simulation 55.6% of studies reported a standard deviation <em>below</em> the true value and only 44.4% landed above it. The average study reported 4.89 when the truth was 5.</p>
-<p>That is not a rounding artifact, it is a known bias, and the theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of <span class="math inline">\(S\)</span> works out to 4.897. Our 5,000 simulated studies averaged 4.893. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.</p>
+<p>Rounding did not do this. It is a known bias. The theory predicts it almost exactly. For samples of 13 from a normal population, the expected value of <span class="math inline">\(S\)</span> works out to 4.897. Our 5,000 simulated studies averaged 4.893. The math and the brute force agree to three decimal places, which is the kind of thing that should make you trust both.</p>
 <p>Small samples systematically underestimate variability. This is the problem Gosset walked into when he stopped using a known <span class="math inline">\(\sigma\)</span> and started using a sample <span class="math inline">\(S\)</span> as an approximation, and it is why we have a <em>t</em>-distribution at all.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">

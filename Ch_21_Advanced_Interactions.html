@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -589,7 +589,7 @@ Sleep.C:Caffeine.C -0.01226    0.00293  -4.19148  0.00004</code></pre>
 <pre><code>     Interaction.raw Interaction.centered               R2.raw 
        -1.226242e-02        -1.226242e-02         2.070618e-01 
          R2.centered  Largest.fitted.diff 
-        2.070618e-01         1.563194e-13 </code></pre>
+        2.070618e-01         2.415845e-13 </code></pre>
 </div>
 </div>
 <p>The interaction coefficient is identical. <span class="math inline">\(R^2\)</span> is identical. Across all 240 predicted values, the largest disagreement between the two models shows up in the 12th decimal place, which is not a small difference but a zero that has been through floating-point arithmetic. These are not two models. This is one model, wearing two sets of labels.</p>
@@ -642,8 +642,8 @@ Y=\beta_0+\beta_1X+\beta_2Z+\beta_3XZ+\epsilon.
 </div>
 </div>
 </section>
-<section id="does-the-interaction-earn-its-place" class="level2" data-number="21.4">
-<h2 data-number="21.4" class="anchored" data-anchor-id="does-the-interaction-earn-its-place"><span class="header-section-number">21.4</span> Does the Interaction Earn Its Place?</h2>
+<section id="is-the-interaction-worth-it" class="level2" data-number="21.4">
+<h2 data-number="21.4" class="anchored" data-anchor-id="is-the-interaction-worth-it"><span class="header-section-number">21.4</span> Is the Interaction Worth It?</h2>
 <p>Before interpreting a product term, check that it bought you anything. Fit the model without it and compare.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>AdditiveModel <span class="ot">&lt;-</span> <span class="fu">lm</span>(Concentration <span class="sc">~</span> Sleep.C <span class="sc">+</span> Caffeine.C, <span class="at">data =</span> InterData)</span>
@@ -661,7 +661,7 @@ Model 2: Concentration ~ Sleep.C * Caffeine.C
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
-<p>It did. Adding the product term improves fit at <span class="math inline">\(p &lt; .001\)</span>, so the claim that caffeine’s slope depends on sleep is doing real work rather than decorating the model. Had this comparison come back nonsignificant, the honest move would be to say so and report the additive model, not to hunt for a subgroup in which the interaction reappears.</p>
+<p>It did. Adding the product term improves fit at <span class="math inline">\(p &lt; .001\)</span>, so the claim that caffeine’s slope depends on sleep is doing real work rather than decorating the model. If this comparison had come back nonsignificant you would report the additive model. You would not hunt for a subgroup where the interaction reappears.</p>
 <p>Centering places zero at the sample mean. It changes the interpretation of the intercept and lower-order slopes. It does <strong>not</strong> change fitted values, residuals, <span class="math inline">\(R^2\)</span>, or the interaction coefficient.</p>
 <p>Centering is usually helpful for three reasons:</p>
 <ol type="1">
@@ -673,7 +673,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p>Whatever coding you choose, use it consistently. Do not put centered variables in the product while leaving uncentered versions as the lower-order terms. You would be fitting a mathematical casserole that no longer represents the intended model.</p>
 <section id="the-standardized-beta-trap" class="level3" data-number="21.4.1">
 <h3 data-number="21.4.1" class="anchored" data-anchor-id="the-standardized-beta-trap"><span class="header-section-number">21.4.1</span> The Standardized-Beta Trap</h3>
-<p>Sooner or later a reviewer will ask for standardized coefficients on your moderation model. This request is reasonable and the obvious way to satisfy it is wrong, so it is worth meeting the problem here rather than in a revision.</p>
+<p>Sooner or later a reviewer will ask for standardized coefficients on your moderation model. The request is reasonable. The obvious fix is wrong. Better to meet it here than in a letter from Reviewer 2.</p>
 <p>The correct procedure is to z-score <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> first, and <em>then</em> multiply them. The tempting shortcut is to build the product first and z-score that. These are not the same variable, because the z-score of a product is not the product of z-scores.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>InterData<span class="sc">$</span>Sleep.Z    <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">scale</span>(InterData<span class="sc">$</span>Sleep))</span>
@@ -918,8 +918,8 @@ HighSleep -0.033241507 0.004617131 -7.1996017 8.019402e-12</code></pre>
 </div>
 </section>
 </section>
-<section id="reverse-scoring-changes-the-signs-not-the-story" class="level2" data-number="21.9">
-<h2 data-number="21.9" class="anchored" data-anchor-id="reverse-scoring-changes-the-signs-not-the-story"><span class="header-section-number">21.9</span> Reverse-Scoring Changes the Signs, Not the Story</h2>
+<section id="reverse-scoring-flips-the-signs" class="level2" data-number="21.9">
+<h2 data-number="21.9" class="anchored" data-anchor-id="reverse-scoring-flips-the-signs"><span class="header-section-number">21.9</span> Reverse-Scoring Flips the Signs</h2>
 <p>If <span class="math inline">\(Z^*=-Z\)</span>, the signs of its main effect and interactions reverse. Predictions remain identical after the coding is translated correctly. A negative interaction does not inherently mean antagonism, harm, or Reviewer 2. Its meaning depends on variable coding.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1139,7 +1139,7 @@ Hours      3.353304  5.7655371</code></pre>
 </div>
 </div>
 <p>That changes the write-up considerably. Both boundaries are technically inside the observed range of 2.54 to 9.64 hours, so nothing here is extrapolation in the strict sense. But the significantly-positive region contains 1 participant out of 240. The model is confident about a region where the study essentially has no data, because a confidence band is narrow near the middle of the moderator and the boundary happens to fall where the band is still narrow enough to exclude zero.</p>
-<p>So the honest report is: the upper boundary at 5.77 hours is well supported, with 186 participants above it, and it is the finding. The lower boundary is where the data ran out, not a discovery about sleep-deprived students. <strong>“Inside the observed range” is a weaker guarantee than it sounds, and the fix is to report the counts alongside the region.</strong></p>
+<p>So report it this way: the upper boundary at 5.77 hours is well supported, with 186 participants above it, and it is the finding. The lower boundary is where the data ran out, not a discovery about sleep-deprived students. <strong>“Inside the observed range” is a weaker guarantee than it sounds, and the fix is to report the counts alongside the region.</strong></p>
 <p>The <span class="math inline">\(\pm1SD\)</span> convention would have found none of this, and its problem here is more specific than being arbitrary. One standard deviation below the mean is 5.39 hours, which the convention would label “low sleep” in a table and which sits <em>inside</em> the not-distinguishable region. So the conventional probe reports a nonsignificant slope at “low sleep” and significant ones at average and high, in a sample whose sleep actually runs down to 2.5 hours. The label is doing work the number cannot support.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>SleepGrid   <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(InterData<span class="sc">$</span>Sleep.C), <span class="fu">max</span>(InterData<span class="sc">$</span>Sleep.C), <span class="at">length.out =</span> <span class="dv">200</span>)</span>
@@ -1230,7 +1230,7 @@ Note: The range of observed values of Sleep.C is [-4.03, 3.07]</code></pre>
 </div>
 <p>That agreement is the reason for doing it by hand first. The package is not performing a technique you have not already performed with <code>vcov()</code> and the quadratic formula. It is doing the same arithmetic faster and drawing a better plot. Use it, now that you could check it.</p>
 <p>The plot is worth reading closely, because it makes the shading do the work our hand-built version did with a grey rectangle: pink where the caffeine slope is not distinguishable from zero, blue-green where it is. Note also the thick black bar lying along zero. That marks the range of sleep values <strong>actually observed</strong>, and the plot deliberately draws the line and band past both ends of it. The package is showing you exactly the extrapolation this section just warned about, and trusting you to notice the bar.</p>
-<p>Two of its arguments are worth knowing about. <code>alpha</code> moves the significance threshold that defines the boundaries, so a stricter alpha widens the middle region where the slope cannot be distinguished from zero. And <code>control.fdr</code> switches to an interval that accounts for the fact that a Johnson-Neyman region is quietly an enormous family of simple-slope tests, one at every value of the moderator. Turning it on here pushes the boundaries outward, which is the multiple-comparisons problem from the <a href="./Ch_20_Multiple_Comparisons.html">multiple comparisons chapter</a> turning up somewhere almost nobody looks for it.</p>
+<p>Two of its arguments are worth knowing about. <code>alpha</code> moves the significance threshold that defines the boundaries, so a stricter alpha widens the middle region where the slope cannot be distinguished from zero. And <code>control.fdr</code> switches to an interval that accounts for the fact that a Johnson-Neyman region is secretly an enormous family of simple-slope tests, one at every value of the moderator. Turning it on here pushes the boundaries outward, which is the multiple-comparisons problem from the <a href="./Ch_20_Multiple_Comparisons.html">multiple comparisons chapter</a> turning up somewhere almost nobody looks for it.</p>
 </section>
 </section>
 <section id="centering-cannot-remove-the-interaction" class="level2" data-number="21.12">

@@ -295,7 +295,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -511,7 +511,7 @@ window.Quarto = {
 <p>The last chapter said the outcome has to be quantitative but the predictors are far less picky, and that we would start feeding regression categorical variables on purpose.</p>
 <p>This is that chapter.</p>
 <p>The question is genuinely strange the first time you meet it. Regression multiplies a predictor by a slope, and you cannot multiply “Texting” by 0.34. So how does a model built entirely out of arithmetic handle a variable whose values are words?</p>
-<p>The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something quietly excellent falls out: the <em>t</em>-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.</p>
+<p>The answer is that we translate the words into numbers, in a way specific enough that the slopes still mean something afterward. Do that and something nice falls out: the <em>t</em>-test you learned in Part 1 turns out to have been a regression the whole time, wearing a disguise.</p>
 </section>
 <section id="distracted-driving" class="level2" data-number="12.2">
 <h2 data-number="12.2" class="anchored" data-anchor-id="distracted-driving"><span class="header-section-number">12.2</span> Distracted Driving</h2>
@@ -620,8 +620,8 @@ RT = b_0 + b_1
 </ul>
 <p>So the regression coefficients directly reproduce the group means.</p>
 </section>
-<section id="important" class="level3" data-number="12.3.3">
-<h3 data-number="12.3.3" class="anchored" data-anchor-id="important"><span class="header-section-number">12.3.3</span> Important</h3>
+<section id="r-makes-the-dummies-for-you" class="level3" data-number="12.3.3">
+<h3 data-number="12.3.3" class="anchored" data-anchor-id="r-makes-the-dummies-for-you"><span class="header-section-number">12.3.3</span> R Makes the Dummies for You</h3>
 <p>In R, you usually <strong>do not need to create dummy variables yourself</strong>.</p>
 <p>When a predictor is stored as a <strong>factor</strong>, R automatically creates the dummy-coded variables internally when fitting the model.</p>
 <p>The <strong>first level of the factor becomes the reference group</strong>.</p>
@@ -663,7 +663,7 @@ RT = b_0 + b_1
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD =</span> <span class="fu">sd</span>(RT)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 3
+<pre><code># A tibble: 2 × 3
   Condition          M    SD
   &lt;fct&gt;          &lt;dbl&gt; &lt;dbl&gt;
 1 No Distraction 0.664 0.137
@@ -758,7 +758,7 @@ F-statistic: 104.3 on 1 and 58 DF,  p-value: 1.412e-14</code></pre>
 <li>Its standard error <strong>is</strong> the pooled standard error of that difference.</li>
 <li>Dividing one by the other is precisely what the <em>t</em>-test did.</li>
 </ul>
-<p>One condition on that equivalence, and it is worth naming. It holds because we ran the <em>t</em>-test with <code>var.equal = TRUE</code>. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student <em>t</em>-test makes. Ask for Welch’s version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.</p>
+<p>That equivalence comes with one condition. It holds because we ran the <em>t</em>-test with <code>var.equal = TRUE</code>. Ordinary regression assumes one common residual variance across groups, which is the same assumption the pooled Student <em>t</em>-test makes. Ask for Welch’s version instead, which does not assume that, and the match breaks. This is the other side of the Welch discussion from the independent-samples chapter.</p>
 <p>The regression equation is</p>
 <p><span class="math display">\[
 RT = b_0 + b_1X
@@ -1078,7 +1078,7 @@ Confidence level used: 0.95 </code></pre>
 </div>
 </div>
 <p>This is about <strong>14%</strong>, much larger than the intended 5%.</p>
-<p>Regression helps here, but it is worth being precise about how, because the honest version is less magical than it sounds. Fitting one model does not delete the multiple-testing problem. What it does is organize every comparison under a single model and hand you a <strong>gatekeeper</strong>: one overall test of whether the group means differ at all, which you check <em>before</em> going looking for which pairs differ. That gate is the omnibus <span class="math inline">\(F\)</span>, and we are about to meet it.</p>
+<p>Regression helps here. It is less magic than it sounds. Fitting one model does not delete the multiple-testing problem. What it does is organize every comparison under a single model and hand you a <strong>gatekeeper</strong>: one overall test of whether the group means differ at all, which you check <em>before</em> going looking for which pairs differ. That gate is the omnibus <span class="math inline">\(F\)</span>, and we are about to meet it.</p>
 </section>
 <section id="regression-with-three-groups" class="level3" data-number="12.4.3">
 <h3 data-number="12.4.3" class="anchored" data-anchor-id="regression-with-three-groups"><span class="header-section-number">12.4.3</span> Regression with Three Groups</h3>
@@ -1115,7 +1115,7 @@ F-statistic: 51.66 on 2 and 87 DF,  p-value: 1.63e-15</code></pre>
 <p><code>F-statistic: 51.66 on 2 and 87 DF</code></p>
 <p>That is the gatekeeper. It tests one null hypothesis: <strong>all three group means are equal</strong>. Not “texting differs from no distraction,” not any particular pair, just whether there is any difference anywhere in the set.</p>
 <p>Ours is <span class="math inline">\(F(2, 87) =\)</span> 51.66, <span class="math inline">\(p &lt; .001\)</span>, so the gate is open. Something in there differs, and we have earned the right to go find out what.</p>
-<p>Had that <span class="math inline">\(F\)</span> come back non-significant, the honest move is to stop. The means are not distinguishable, and hunting through pairs anyway is precisely the 14% problem we just calculated, now with extra steps.</p>
+<p>If that <span class="math inline">\(F\)</span> is not significant you stop. The means are not distinguishable, and hunting through pairs anyway is precisely the 14% problem we just calculated, now with extra steps.</p>
 <p>The model is</p>
 <p><span class="math display">\[
 RT = b_0 + b_1(\text{Texting}) + b_2(\text{Lecture})
@@ -1320,7 +1320,7 @@ Confidence level used: 0.95 </code></pre>
 <h3 data-number="12.4.14" class="anchored" data-anchor-id="about-that-adjustnone"><span class="header-section-number">12.4.14</span> About That <code>adjust="none"</code></h3>
 <p>You should be suspicious of that argument, because we spent a whole section calculating that three unadjusted tests inflate the error rate to 14%. So why are we allowed to run three unadjusted tests?</p>
 <p>Because we checked the gate first. The omnibus <span class="math inline">\(F\)</span> was significant, which is what earns the right to look at individual pairs without adjusting each one. This is <strong>Fisher’s protected LSD</strong>, and the word doing the work is <em>protected</em>: the <span class="math inline">\(F\)</span> is the protection, and it was bought before any pair was examined.</p>
-<p>The protection has a hard expiry date, and it is worth memorizing, because it is a favorite exam question:</p>
+<p>The protection has a hard expiry date. Memorize it. It is a favorite exam question:</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

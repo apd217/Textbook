@@ -295,7 +295,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -694,7 +694,7 @@ e_i=Y_i-\widehat{Y}_i.
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(dat<span class="sc">$</span>Residual)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.283102e-17</code></pre>
+<pre><code>[1] -1.061651e-16</code></pre>
 </div>
 </div>
 <p>The residuals have a mean of approximately zero because ordinary least squares (i.e., math that finds the best line) tries to balance the line through the data such that the positive and negative mistakes cancel out.</p>
@@ -808,7 +808,7 @@ e_i=Y_i-\widehat{Y}_i.
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Heterogeneity May Be a Clue, Not Merely a Violation
+<span class="screen-reader-only">Warning</span>Uneven Residuals Can Be a Clue
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -895,7 +895,7 @@ Residuals:
 
 Coefficients:
               Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept) -2.037e-16  8.976e-02   0.000        1    
+(Intercept) -7.487e-17  8.976e-02   0.000        1    
 Scoops.z     6.030e-01  9.033e-02   6.675 3.25e-09 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -926,7 +926,7 @@ Residuals:
 
 Coefficients:
                 Estimate   Std. Error t value   Pr(&gt;|t|)    
-(Intercept) -2.03715e-16  8.97626e-02 0.00000          1    
+(Intercept) -7.48683e-17  8.97626e-02 0.00000          1    
 Scoops.z     6.02970e-01  9.03290e-02 6.67527 3.2461e-09 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1004,7 +1004,7 @@ sample estimates:
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>p &lt; .001 Is a Claim, Not a Default
+<span class="screen-reader-only">Warning</span>Do Not Copy p &lt; .001
 </div>
 </div>
 <div class="callout-body-container callout-body">

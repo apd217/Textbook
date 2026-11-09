@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -588,7 +588,7 @@ Without60      7.4684   1.7110   0.0631 0.6245</code></pre>
 <p>Three things moved, and none of them is the thing you were watching.</p>
 <p>The baseline coefficient <strong>changed sign</strong>. With everyone in, higher baseline severity predicts slightly less improvement. With one person out, it predicts slightly more. Neither version is significant, which is its own kind of embarrassing: the direction of that effect was never being decided by the other fifty-nine people.</p>
 <p>The intercept stopped being significant, going from <span class="math inline">\(p =\)</span> 0.043 to <span class="math inline">\(p =\)</span> 0.106. If you had a hypothesis about the intercept, you no longer have a result.</p>
-<p>And <span class="math inline">\(R^2\)</span> went <strong>up</strong>, from 0.583 to 0.625. This surprises people, so it is worth saying plainly: deleting participant 60 took proportionally more out of the unexplained pile than out of the total. The residual standard error fell from 5.86 to 4.63. The model did not get better. It got easier.</p>
+<p>And <span class="math inline">\(R^2\)</span> went <strong>up</strong>, from 0.583 to 0.625. This surprises people. Deleting participant 60 took proportionally more out of the unexplained pile than out of the total. The residual standard error fell from 5.86 to 4.63. The model did not get better. It got easier.</p>
 <p>Notice what did <em>not</em> warn you. Nothing errored. Nothing printed a message. The first model is not missing a step, and no amount of rereading its output would have told you that one row was steering it. R fit exactly what you asked for, with the serene indifference of a vending machine.</p>
 <p><em>A model cannot tell you that one person wrote its conclusion. That is the job you are about to learn.</em></p>
 </section>
@@ -751,7 +751,7 @@ Baseline    -0.0233 0.0902 0.7968 0.0631  0.0727 0.3888</code></pre>
 </div>
 <p>Read it one row at a time.</p>
 <p><strong>Sessions</strong> is the conclusion of the study, and it survives. The slope drops from 1.94 to 1.71, about a 12% reduction, and stays overwhelmingly significant either way. That is what a robust result looks like: the number moves, because every number moves, and the claim does not.</p>
-<p><strong>Baseline</strong> does not survive, and it never had anything to survive with. Its sign depends entirely on participant 60, and it is nowhere near significant in either model. This is the honest version of a null result: not “baseline severity does not predict improvement,” but “this study could not tell you, and one person was setting the direction.”</p>
+<p><strong>Baseline</strong> does not survive, and it never had anything to survive with. Its sign depends entirely on participant 60, and it is nowhere near significant in either model. This is how to state a null result: not “baseline severity does not predict improvement,” but “this study could not tell you, and one person was setting the direction.”</p>
 <p>The rule that follows is short, and it is the whole reason the comparison exists. <strong>Report both.</strong> Put the sensitivity refit in the paper, or in the supplement, and say what changed. Do not run this comparison, notice that one version is friendlier to your hypothesis, and report only that one. That is not a sensitivity analysis. That is shopping with extra steps.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -800,7 +800,7 @@ SE(b_j)=
 1.013679 1.013679 </code></pre>
 </div>
 </div>
-<p>Both come back at 1.01, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at <span class="math inline">\(r =\)</span> -0.12. This is what fine looks like, and it is worth seeing once so that trouble is recognizable by contrast.</p>
+<p>Both come back at 1.01, which is a polite way of saying nothing is wrong here. Sessions and Baseline correlate at <span class="math inline">\(r =\)</span> -0.12. This is what fine looks like. Trouble is easier to spot once you have seen fine.</p>
 <section id="doing-it-by-hand-because-it-is-two-regressions" class="level3" data-number="19.8.1">
 <h3 data-number="19.8.1" class="anchored" data-anchor-id="doing-it-by-hand-because-it-is-two-regressions"><span class="header-section-number">19.8.1</span> Doing It By Hand, Because It Is Two Regressions</h3>
 <p><code>vif()</code> is not consulting an oracle. It is running the auxiliary regression named in the definition, taking the <span class="math inline">\(R^2\)</span>, and dividing. Here is the whole thing, plus a check that the standard-error formula above is not decoration.</p>
@@ -893,7 +893,7 @@ PaidLunch  1          -1       </code></pre>
 </div>
 </div>
 <p>Read that as an equation: <code>PaidLunch</code> equals 1 minus <code>FreeLunch</code>. It has reconstructed the definition we used to build the variable.</p>
-<p>VIF cannot help here either, and it is honest about why:</p>
+<p>VIF cannot help here either. It tells you why:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vif</span>(BothModel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
@@ -967,8 +967,8 @@ PaidLunch.Measured -71.0554    55.4028 -1.2825   0.2022</code></pre>
 <p><strong>This is what “they will eat each other” looks like in a coefficient table.</strong> Two predictors carrying the same information cannot both be credited for it, so each is left holding whatever the other did not explain, which is nearly nothing. The variance is still there. The model simply cannot say whose it is.</p>
 <p>A student who ran only this model would conclude that school poverty does not predict achievement. The real effect they missed is about 24 achievement points between a school where nobody qualifies for free lunch and one where everybody does.</p>
 </section>
-<section id="what-trouble-actually-looks-like-across-the-range" class="level3" data-number="19.8.5">
-<h3 data-number="19.8.5" class="anchored" data-anchor-id="what-trouble-actually-looks-like-across-the-range"><span class="header-section-number">19.8.5</span> What Trouble Actually Looks Like Across the Range</h3>
+<section id="collinearity-from-fine-to-hair-on-fire" class="level3" data-number="19.8.5">
+<h3 data-number="19.8.5" class="anchored" data-anchor-id="collinearity-from-fine-to-hair-on-fire"><span class="header-section-number">19.8.5</span> Collinearity From Fine to Hair-on-Fire</h3>
 <p>The two cases above are the ends of a continuum. Here is the middle, using the same true effect measured four times. <code>X1</code> and <code>Y</code> are identical in every row; the only thing that changes is how strongly the <em>other</em> predictor correlates with <code>X1</code>.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>CollinearDemo <span class="ot">&lt;-</span> <span class="cf">function</span>(r) {</span>
@@ -1195,7 +1195,7 @@ Baseline    0.0902 0.1177 0.1207 0.1240 0.1306</code></pre>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Be Honest About What the Sandwich Is Reacting To
+<span class="screen-reader-only">Note</span>Know What the Sandwich Is Reacting To
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1224,7 +1224,7 @@ Baseline    0.0902 0.1177 0.1207 0.1240 0.1306</code></pre>
 </section>
 <section id="the-four-packages-and-where-the-real-derivations-live" class="level2" data-number="19.13">
 <h2 data-number="19.13" class="anchored" data-anchor-id="the-four-packages-and-where-the-real-derivations-live"><span class="header-section-number">19.13</span> The Four Packages, and Where the Real Derivations Live</h2>
-<p>This chapter used four packages, and it is worth knowing what each is for, because they are not interchangeable and their names do not tell you much.</p>
+<p>This chapter used four packages. They are not interchangeable. Here is what each one is for.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">

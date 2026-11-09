@@ -295,7 +295,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -506,8 +506,8 @@ window.Quarto = {
 </header>
 
 
-<section id="introduction-why-one-predictor-is-never-enough" class="level2" data-number="13.1">
-<h2 data-number="13.1" class="anchored" data-anchor-id="introduction-why-one-predictor-is-never-enough"><span class="header-section-number">13.1</span> Introduction: Why One Predictor Is Never Enough</h2>
+<section id="why-one-predictor-is-never-enough" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="why-one-predictor-is-never-enough"><span class="header-section-number">13.1</span> Why One Predictor Is Never Enough</h2>
 <p>People are complicated. When a student does well on an exam, is it because they studied? Because they weren’t anxious? Because they found the material interesting? It’s all of the above and more.</p>
 <p>So far we’ve used <strong>simple linear regression</strong> (1 DV, 1 IV). But real prediction involves multiple factors at once. <strong>Multiple regression</strong> lets us predict an outcome from two or more predictors simultaneously.</p>
 <p>The key concept: <strong>statistical control</strong>: estimating the association between X and Y while <em>holding other measured variables constant</em>. This lets us ask not just “does studying predict performance?” but “does studying predict performance <strong>above and beyond</strong> what anxiety alone explains?”</p>
@@ -934,7 +934,7 @@ F-statistic: 17.94 on 2 and 97 DF,  p-value: 2.351e-07</code></pre>
 <section id="adding-predictors-always-increases-r2" class="level3" data-number="13.7.2">
 <h3 data-number="13.7.2" class="anchored" data-anchor-id="adding-predictors-always-increases-r2"><span class="header-section-number">13.7.2</span> Adding Predictors Always Increases <span class="math inline">\(R^2\)</span></h3>
 <p>There is an important quirk about <span class="math inline">\(R^2\)</span>: it will <strong>always increase</strong> when you add another predictor to the model, even if that predictor is completely useless random noise. This is simply because any variable, no matter how irrelevant, will share at least a tiny sliver of variance with Y by chance in any given sample.</p>
-<p>This means if you kept piling more and more predictors into a model, <span class="math inline">\(R^2\)</span> would keep creeping upward, not because those predictors were genuinely meaningful, but just because of sampling variability.</p>
+<p>This means if you kept piling more and more predictors into a model, <span class="math inline">\(R^2\)</span> would keep creeping upward from sampling variability alone.</p>
 </section>
 <section id="adjusted-r2" class="level3" data-number="13.7.3">
 <h3 data-number="13.7.3" class="anchored" data-anchor-id="adjusted-r2"><span class="header-section-number">13.7.3</span> Adjusted <span class="math inline">\(R^2\)</span></h3>
@@ -965,7 +965,7 @@ F-statistic: 17.94 on 2 and 97 DF,  p-value: 2.351e-07</code></pre>
 <section id="the-study-hours-slope-before-and-after-controlling" class="level3" data-number="13.8.1">
 <h3 data-number="13.8.1" class="anchored" data-anchor-id="the-study-hours-slope-before-and-after-controlling"><span class="header-section-number">13.8.1</span> The Study Hours Slope Before and After Controlling</h3>
 <p>This first pair of plots shows the predicted relationship between Study Hours and Exam Score in the two models. The key question is: how does the slope change when we control for Anxiety?</p>
-<p>We draw these with <code>plot_model()</code> from the <strong>sjPlot</strong> package, which is also the tool your homework asks for, so it is worth reading the code rather than just the picture. It takes predictions straight out of a fitted model: <code>type = "pred"</code> means “show me predicted values,” and <code>terms</code> picks which predictor goes on the x-axis. Both panels are locked to the same y-axis with <code>coord_cartesian()</code>, because a slope comparison across two differently scaled plots is not a comparison at all.</p>
+<p>We draw these with <code>plot_model()</code> from <strong>sjPlot</strong>. Your homework uses it too. Read the code and not just the picture. It takes predictions straight out of a fitted model: <code>type = "pred"</code> means “show me predicted values,” and <code>terms</code> picks which predictor goes on the x-axis. Both panels are locked to the same y-axis with <code>coord_cartesian()</code>, because a slope comparison across two differently scaled plots is not a comparison at all.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1098,7 +1098,7 @@ F-statistic: 17.94 on 2 and 97 DF,  p-value: 2.351e-07</code></pre>
 <section id="the-short-story" class="level2" data-number="13.11">
 <h2 data-number="13.11" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">13.11</span> The Short Story</h2>
 <ul>
-<li>One predictor is never enough, because predictors are correlated with each other. That is not a nuisance, it is the normal condition of psychological data.</li>
+<li>One predictor is never enough, because predictors are correlated with each other. That is the normal condition of psychological data.</li>
 <li>A slope in multiple regression is a <strong>unique</strong> association: what this predictor is worth while holding the other predictors constant. Every such slope carries an invisible “holding the others constant” clause, and you should read it aloud every time.</li>
 <li>Slopes can shrink, grow, disappear, or flip sign when a control enters. None of those outcomes is the “true” one. Each model answers a different question, and you have to know which question you asked.</li>
 <li><span class="math inline">\(R^2\)</span> values do not add up across models, because the variance the predictors share (region <span class="math inline">\(c\)</span>) only gets counted once.</li>
@@ -1115,7 +1115,7 @@ F-statistic: 17.94 on 2 and 97 DF,  p-value: 2.351e-07</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The next chapter, <a href="./Ch_14_Hierarchical_Regression.html">Hierarchical Regression</a>, picks up Models 1 and 3 where we just left them and asks whether adding Test Anxiety improved the model by more than chance. After that, <a href="./Ch_15_Statistical_Control.html">Statistical Control: What Are We Actually Removing?</a> uses these same students to show exactly how residuals, semi-partial correlation, partial correlation, standardized beta, and change in <span class="math inline">\(R^2\)</span> fit together. No new imaginary undergraduates will be recruited until the current ones have finished the exam.</p>
+<p>The next chapter, <a href="./Ch_14_Hierarchical_Regression.html">Hierarchical Regression</a>, picks up Models 1 and 3 where we just left them and asks whether adding Test Anxiety improved the model by more than chance. After that, <a href="./Ch_15_Statistical_Control.html">Statistical Control: What Are We Removing?</a> uses these same students to show exactly how residuals, semi-partial correlation, partial correlation, standardized beta, and change in <span class="math inline">\(R^2\)</span> fit together. No new imaginary undergraduates will be recruited until the current ones have finished the exam.</p>
 </div>
 </div>
 

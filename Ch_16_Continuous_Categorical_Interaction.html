@@ -295,7 +295,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -548,8 +548,8 @@ BeingNice    4.904171   0.252405 19.429767 1.983002e-32</code></pre>
 <p>What, it is not there? Weird. You have two intercepts, two slopes, four standard errors and four <em>p</em>-values, and every single one of them is a statement about one group considered entirely on its own. You drew an inference based on two separate tables that have nothing to do with each other. You inferred, because the stay-in slope was smaller than the go-out slope, that being nice clearly does more for the people who go out. The comparison the whole study was built to make was never performed, and no amount of staring at <code>p = .35</code> and <code>p &lt; .001</code> will conjure it, because a small <em>p</em>-value next to a large one is not a test of the difference between them. <em>You cannot test a difference with two analyses that have never met.</em></p>
 <p>That missing test is what this chapter is for. The tool is called an <strong>interaction</strong>, and by the end of it you will have these exact two slopes back, 0.2 and 4.9, living inside one model that also hands you a significance test for the gap between them.</p>
 </section>
-<section id="where-we-are-and-where-we-are-going" class="level2" data-number="16.2">
-<h2 data-number="16.2" class="anchored" data-anchor-id="where-we-are-and-where-we-are-going"><span class="header-section-number">16.2</span> Where We Are and Where We Are Going</h2>
+<section id="so-far-everything-was-additive" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="so-far-everything-was-additive"><span class="header-section-number">16.2</span> So Far Everything Was Additive</h2>
 <p>So far in this book, you have learned to build regression models where each predictor has its own independent, additive effect on the outcome. Study hours helps exam scores. Test anxiety hurts them. Each predictor does its job, and we can interpret the effects one at a time.</p>
 <p>But human behavior is rarely that tidy. In the real world, the effect of one variable often <em>changes</em> depending on the value of another variable. A new medication might be effective for women but not men. Praise for effort might motivate some students while leaving others cold. Practice might matter enormously for novices but very little for experts.</p>
 <p>These situations, where the effect of one predictor <strong>depends on</strong> another predictor, are called <strong>interactions</strong>, or equivalently, <strong>moderation effects</strong>. In this chapter, you will learn to detect, estimate, visualize, and interpret an interaction between a continuous variable and a categorical one.</p>
@@ -682,7 +682,7 @@ BeingNice    4.904171   0.252405 19.429767 1.983002e-32</code></pre>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">SD_Close  =</span> <span class="fu">round</span>(<span class="fu">sd</span>(Closeness), <span class="dv">2</span>)</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 5
+<pre><code># A tibble: 2 × 5
   GoingOut_     n M_Nice M_Close SD_Close
   &lt;fct&gt;     &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
 1 Stay in     116   5.07    15.7     6.65
@@ -708,7 +708,7 @@ BeingNice    4.904171   0.252405 19.429767 1.983002e-32</code></pre>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Always check it worked: a centered variable has a mean of (essentially) zero</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(Friend.Data<span class="sc">$</span>BeingNice.C)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1.779328e-16</code></pre>
+<pre><code>[1] -7.105427e-17</code></pre>
 </div>
 </div>
 <p>That is zero with a rounding error’s worth of dust on it, which is exactly what centering is supposed to produce. R prints it in scientific notation to be annoying; <code>1.78e-16</code> is a decimal point followed by fifteen zeros and then a rounding error. A centered value of 0 now corresponds to a person who scored approximately 5.22 on the original 0–10 scale.</p>
@@ -1082,7 +1082,7 @@ Confidence level used: 0.95 </code></pre>
 <li><p><strong>Stay in group:</strong> The slope of Being Nice is approximately 0.2, which is <em>not</em> significantly different from zero (<span class="math inline">\(p =\)</span> 0.344). For students who stay in, being nicer does not predict how close a friendship they form.</p></li>
 <li><p><strong>Go out group:</strong> The slope of Being Nice is approximately 4.9, which is <em>significantly</em> positive (<span class="math inline">\(p &lt;\)</span> .001). For students who go out, every additional point of niceness is associated with about 5 more points of closeness.</p></li>
 </ul>
-<p>Notice that <code>emtrends()</code> has handed back the same two slopes for the third time: once from the separate regressions at the top of the chapter, once as <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_1 + B_3\)</span>, and now here. The estimates never move. What the interaction model buys you is not a better slope, it is one pooled error term across all 200 students instead of two error terms estimated from 116 and 84, and the ability to put a standard error on the <em>gap</em>. That gap is the only quantity in this chapter that the separate regressions could not produce at all.</p>
+<p>Notice that <code>emtrends()</code> has handed back the same two slopes for the third time: once from the separate regressions at the top of the chapter, once as <span class="math inline">\(B_1\)</span> and <span class="math inline">\(B_1 + B_3\)</span>, and now here. The estimates never move. The interaction model buys you two things. It pools one error term across all 200 students instead of two from 116 and 84. And it puts a standard error on the <em>gap</em>. That gap is the only quantity in this chapter that the separate regressions could not produce at all.</p>
 <p>This completes the picture. The effect of Being Nice on friendship closeness is <strong>conditional</strong>: it only emerges among students who are out there meeting people. For students who stay home, personality differences do not seem to matter much for friendship formation. Going out is what activates the effect of being a warm and agreeable person.</p>
 </section>
 <section id="apa-write-up" class="level2" data-number="16.11">
@@ -1174,7 +1174,7 @@ Confidence level used: 0.95 </code></pre>
 <h2 data-number="16.13" class="anchored" data-anchor-id="the-short-story"><span class="header-section-number">16.13</span> The Short Story</h2>
 <p>If you remember six things from this chapter, make it these.</p>
 <ul>
-<li><strong>An interaction means the slopes differ.</strong> “The effect of X depends on Z” is not a hedge, it is the claim that X’s slope is not the same at every level of Z. Non-parallel lines are the visual signature.</li>
+<li><strong>An interaction means the slopes differ.</strong> “The effect of X depends on Z” sounds like a hedge. It is a claim: X’s slope changes across levels of Z. Non-parallel lines are the visual signature.</li>
 <li><strong>Center the continuous predictor so that zero is a person who exists.</strong> Centering does not change the slope, the fit, or the <span class="math inline">\(R^2\)</span>. It changes what the intercept and <span class="math inline">\(B_2\)</span> are <em>about</em>, from a hypothetical zero-niceness person to the average person in your sample.</li>
 <li><strong><span class="math inline">\(B_1\)</span> is the reference group’s slope, not an average.</strong> It is a simple effect. In a model with an interaction, it describes exactly one group, the one coded 0.</li>
 <li><strong><span class="math inline">\(B_2\)</span> is the group gap at the mean of the centered predictor</strong>, not the group gap in general. Move the centering point and this number moves with it.</li>
@@ -1665,8 +1665,8 @@ Confidence level used: 0.95 </code></pre>
   </script>
 <nav class="page-navigation" aria-label="Page">
   <div class="nav-page nav-page-previous">
-      <a href="./Ch_15_Statistical_Control.html" class="pagination-link" aria-label="Statistical Control: What Are We Actually Removing?">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span>
+      <a href="./Ch_15_Statistical_Control.html" class="pagination-link" aria-label="Statistical Control: What Are We Removing?">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

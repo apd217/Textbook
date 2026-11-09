@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -546,8 +546,8 @@ window.Quarto = {
 <p>The study was deliberately absurd, but the statistical problem was real. If you conduct enough tests, fickle chance receives enough opportunities to manufacture something exciting. A tiny <em>p</em>-value attached to one selected result does not tell us how many other tests were run before that result crawled out of the computer wearing a crown.</p>
 <p>Before we control many <em>p</em>-values, however, we should establish what one <em>p</em>-value means. This seems obvious. It is not. Researchers have spent nearly a century proving that they can misunderstand a definition with remarkable consistency.</p>
 </section>
-<section id="what-a-p-value-actually-is" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="what-a-p-value-actually-is"><span class="header-section-number">20.2</span> What a P-Value Actually Is</h2>
+<section id="what-a-p-value-is" class="level2" data-number="20.2">
+<h2 data-number="20.2" class="anchored" data-anchor-id="what-a-p-value-is"><span class="header-section-number">20.2</span> What a P-Value Is</h2>
 <p>A <em>p</em>-value answers this conditional question:</p>
 <blockquote class="blockquote">
 <p><strong>Assuming the null hypothesis and the statistical model are correct, how probable are results at least as incompatible with the null hypothesis as the result we observed?</strong></p>
@@ -565,7 +565,7 @@ p = P(\text{data this extreme or more extreme} \mid H_0, \text{model})
 P(D \mid H_0) \neq P(H_0 \mid D)
 \]</span></p>
 <p>The probability of screaming <strong>given that</strong> a foam-bat-wielding research assistant is chasing you is probably high. The probability that a foam-bat-wielding research assistant is chasing you <strong>given that</strong> you are screaming is not necessarily high. You may have seen your tuition bill.</p>
-<p>Cohen emphasized that a <em>p</em>-value gives <span class="math inline">\(P(D \mid H_0)\)</span>, not the probability that the null is true after seeing the data <span class="citation" data-cites="cohen1994">(<a href="#ref-cohen1994" role="doc-biblioref">Cohen 1994</a>)</span>. To calculate <span class="math inline">\(P(H_0 \mid D)\)</span>, we would need additional information, including prior probabilities and an explicit alternative model. Quietly turning one conditional probability around does not make it Bayesian. It makes it wrong.</p>
+<p>Cohen emphasized that a <em>p</em>-value gives <span class="math inline">\(P(D \mid H_0)\)</span>, not the probability that the null is true after seeing the data <span class="citation" data-cites="cohen1994">(<a href="#ref-cohen1994" role="doc-biblioref">Cohen 1994</a>)</span>. To calculate <span class="math inline">\(P(H_0 \mid D)\)</span>, we would need additional information, including prior probabilities and an explicit alternative model. Turning one conditional probability around does not make it Bayesian. It makes it wrong.</p>
 </section>
 <section id="a-p-value-is-not-any-of-these-things" class="level3" data-number="20.2.2">
 <h3 data-number="20.2.2" class="anchored" data-anchor-id="a-p-value-is-not-any-of-these-things"><span class="header-section-number">20.2.2</span> A P-Value Is Not Any of These Things</h3>
@@ -712,8 +712,8 @@ p_{Bonferroni} = \min(jp, 1)
 </div>
 </section>
 </section>
-<section id="false-discovery-rate-permit-some-risk-among-discoveries" class="level2" data-number="20.7">
-<h2 data-number="20.7" class="anchored" data-anchor-id="false-discovery-rate-permit-some-risk-among-discoveries"><span class="header-section-number">20.7</span> False Discovery Rate: Permit Some Risk Among Discoveries</h2>
+<section id="false-discovery-rate-allows-a-few-duds" class="level2" data-number="20.7">
+<h2 data-number="20.7" class="anchored" data-anchor-id="false-discovery-rate-allows-a-few-duds"><span class="header-section-number">20.7</span> False Discovery Rate Allows a Few Duds</h2>
 <p>In large exploratory analyses, strict FWER control may erase too many real signals. The <strong>false discovery rate</strong> (FDR) instead controls the expected proportion of false positives among the rejected hypotheses:</p>
 <p><span class="math display">\[
 FDR = E\left(\frac{V}{\max(R,1)}\right)
@@ -738,8 +738,8 @@ FDR = E\left(\frac{V}{\max(R,1)}\right)
 6 Hypothesis 6 0.730     0.730  0.730</code></pre>
 </div>
 </div>
-<section id="what-fdr-is-actually-for" class="level3" data-number="20.7.1">
-<h3 data-number="20.7.1" class="anchored" data-anchor-id="what-fdr-is-actually-for"><span class="header-section-number">20.7.1</span> What FDR Is Actually For</h3>
+<section id="what-fdr-is-for" class="level3" data-number="20.7.1">
+<h3 data-number="20.7.1" class="anchored" data-anchor-id="what-fdr-is-for"><span class="header-section-number">20.7.1</span> What FDR Is For</h3>
 <p>FDR gets described as the lenient option, which makes it sound like the correction you reach for when the real ones were inconvenient. That is not what it is. FDR is the right tool for a particular question, and the question is not “is this specific comparison real?” It is:</p>
 <blockquote class="blockquote">
 <p><strong>Is anything happening here at all, and if so, where should I look next?</strong></p>
@@ -974,8 +974,8 @@ V12 0.7555 1.0000 0.8242</code></pre>
 <p>Both corrections do their job. Holm and Benjamini-Hochberg each keep V1 and V2, the two real effects, and both kill the impostor. Notice also that BH is gentler than Holm on the survivors, which is the trade the previous section measured: it is buying power by promising less.</p>
 <p>For planned contrasts, use software that can adjust the contrast family explicitly. Always report the method, the family of tests, and whether the analyses were confirmatory or exploratory.</p>
 </section>
-<section id="where-you-will-actually-meet-this-emmeans" class="level2" data-number="20.10">
-<h2 data-number="20.10" class="anchored" data-anchor-id="where-you-will-actually-meet-this-emmeans"><span class="header-section-number">20.10</span> Where You Will Actually Meet This: emmeans</h2>
+<section id="you-will-meet-this-in-emmeans" class="level2" data-number="20.10">
+<h2 data-number="20.10" class="anchored" data-anchor-id="you-will-meet-this-in-emmeans"><span class="header-section-number">20.10</span> You Will Meet This in emmeans</h2>
 <p>Everything above is theory you will use once a year. This section is the thing you will type next month.</p>
 <p>In this book’s pipeline, multiplicity arrives in exactly one place: <code>pairs(emmeans(...))</code> after a model with a categorical predictor. The <a href="./Ch_12_Categorical_Regression.html">categorical predictors chapter</a> left a promise here. It ran three unadjusted comparisons behind a significant omnibus <em>F</em>, which is Fisher’s protected LSD, and it warned that the protection expires at exactly three groups. So let us arrive with four.</p>
 <p>The study is the same distracted-driving design, with one more condition added and a deliberately modest sample, because a correction that never changes anything teaches nothing.</p>
@@ -1030,13 +1030,13 @@ P value adjustment: tukey method for comparing a family of 4 estimates </code></
 </div>
 <p><strong>Read the last line of that output.</strong> It says <code>P value adjustment: tukey method for comparing a family of 4 estimates</code>. You did not ask for that. <code>emmeans</code> decided that six all-pairwise comparisons constitute a family, applied Tukey, and mentioned it in a footnote below the table you were reading.</p>
 <p>This is the single most important fact in this section, and it cuts both ways. The default is defensible, because Tukey was built for precisely this situation. But a reader who does not know it is there will report Tukey-adjusted <em>p</em>-values while describing them as ordinary ones, and a reader who wanted something else will not get it by hoping.</p>
-<section id="what-tukey-actually-is" class="level3" data-number="20.10.1">
-<h3 data-number="20.10.1" class="anchored" data-anchor-id="what-tukey-actually-is"><span class="header-section-number">20.10.1</span> What Tukey Actually Is</h3>
-<p>Tukey’s HSD is the correction psychologists meet most often and explain least often, so it is worth knowing what it does instead of treating it as the button labelled “post hoc.”</p>
+<section id="tukey-is-more-than-a-button" class="level3" data-number="20.10.1">
+<h3 data-number="20.10.1" class="anchored" data-anchor-id="tukey-is-more-than-a-button"><span class="header-section-number">20.10.1</span> Tukey Is More Than a Button</h3>
+<p>Tukey’s HSD is the correction psychologists meet most and explain least. Most people treat it as the button labelled “post hoc.” Here is what it does.</p>
 <p>Every other method in this chapter takes a pile of <em>p</em>-values and adjusts them, without caring where they came from. Tukey does not work that way. It asks a specific question about a specific design: <strong>if all <span class="math inline">\(k\)</span> group means came from the same population, how far apart would the largest and smallest of them drift by chance alone?</strong></p>
 <p>That quantity has its own distribution, the <strong>studentized range</strong>, usually written <span class="math inline">\(q\)</span>. Tukey compares every pair against it. The logic is worth sitting with for a moment, because it is genuinely clever: if you protect the <em>biggest</em> gap in the set, every smaller gap is protected automatically. You do not have to buy six comparisons separately, because six comparisons among four means are not six independent questions. They are six views of four numbers.</p>
 <p>That is why Tukey is not just another cautious correction. With equal group sizes and roughly equal variances it controls the familywise error rate <strong>exactly</strong>, rather than by being conservative and hoping. Bonferroni and Holm are valid under <em>any</em> dependence structure, which sounds like a stronger property and is really the concession: they are generic because they know nothing about your design, so they cannot take advantage of the fact that your comparisons share means.</p>
-<p><strong>The assumption doing all of that work is that the groups are independent.</strong> The studentized range is derived for <span class="math inline">\(k\)</span> separate samples with one common error variance. That is a between-subjects design, and it is why the honest answer to “when should I use Tukey?” contains a design rather than a number of tests.</p>
+<p><strong>The assumption doing all of that work is that the groups are independent.</strong> The studentized range is derived for <span class="math inline">\(k\)</span> separate samples with one common error variance. That is a between-subjects design, and it is why the right answer to “when should I use Tukey?” contains a design rather than a number of tests.</p>
 <p>Here is the same comparison with the correction turned off, and with Holm instead.</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(drive_means, <span class="at">adjust =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1120,7 +1120,7 @@ P value adjustment: holm method for 6 tests </code></pre>
 <li><strong>Between-subjects, exploring which means differ:</strong> Tukey. It is built for exactly this and it is exact, not conservative.</li>
 <li><strong>Within-subjects, or a handful of theory-chosen contrasts:</strong> Holm. It stays valid when observations are correlated, and the design has usually bought you the power to pay for it.</li>
 </ul>
-<p>One honest footnote on magnitude. Tukey’s edge over Bonferroni at the top of the list is real but modest here, about 1.03 times, because four groups do not offer much dependence to exploit. That advantage grows as groups are added, since the number of pairs grows much faster than the number of means. With eight groups you have 28 comparisons carrying only 7 degrees of freedom between them, and Tukey’s willingness to notice that starts to matter a great deal.</p>
+<p>One footnote on magnitude. Tukey’s edge over Bonferroni at the top of the list is real but modest here, about 1.03 times, because four groups do not offer much dependence to exploit. That advantage grows as groups are added, since the number of pairs grows much faster than the number of means. With eight groups you have 28 comparisons carrying only 7 degrees of freedom between them, and Tukey’s willingness to notice that starts to matter a great deal.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1145,8 +1145,8 @@ P value adjustment: holm method for 6 tests </code></pre>
 </div>
 </section>
 </section>
-<section id="the-point-is-not-to-fear-p-values" class="level2" data-number="20.11">
-<h2 data-number="20.11" class="anchored" data-anchor-id="the-point-is-not-to-fear-p-values"><span class="header-section-number">20.11</span> The Point Is Not to Fear P-Values</h2>
+<section id="p-values-are-not-evil" class="level2" data-number="20.11">
+<h2 data-number="20.11" class="anchored" data-anchor-id="p-values-are-not-evil"><span class="header-section-number">20.11</span> P-Values Are Not Evil</h2>
 <p>P-values are not evil. They are also not tiny judges who determine whether a theory is innocent or guilty. They describe how incompatible the data are with a specified null model, under a pile of assumptions that must remain attached.</p>
 <p>A defensible statistical argument uses:</p>
 <ul>

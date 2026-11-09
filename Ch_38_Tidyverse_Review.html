@@ -266,7 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -780,7 +780,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>caffeine_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 6
+<pre><code># A tibble: 4 × 6
   caffeine_mg     n mean_anxiety sd_anxiety mean_sleep proportion_hearing_colors
         &lt;dbl&gt; &lt;int&gt;        &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;                     &lt;dbl&gt;
 1           0    36         2.48       1.45       6.23                    0.0278
@@ -818,14 +818,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
 <span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 7
+<pre><code># A tibble: 4 × 7
   caffeine_mg sleep_hours_mean sleep_hours_sd anxiety_mean anxiety_sd
         &lt;dbl&gt;            &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;
 1           0             6.23           1.57         2.48       1.45
 2         100             6.16           1.13         4.01       1.33
 3         200             6.47           1.29         4.18       1.36
 4         400             6.66           1.26         6.22       1.28
-# i 2 more variables: group_project_hatred_mean &lt;dbl&gt;,
+# ℹ 2 more variables: group_project_hatred_mean &lt;dbl&gt;,
 #   group_project_hatred_sd &lt;dbl&gt;</code></pre>
 </div>
 </div>
@@ -953,7 +953,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>analysis_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 4
+<pre><code># A tibble: 4 × 4
   caffeine_group     n  mean    sd
   &lt;fct&gt;          &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
 1 0                 36  2.48  1.45
@@ -1025,7 +1025,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>practice_summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 5
+<pre><code># A tibble: 4 × 5
   caffeine_mg     n median_anxiety iqr_anxiety proportion_hearing_colors
         &lt;dbl&gt; &lt;int&gt;          &lt;dbl&gt;       &lt;dbl&gt;                     &lt;dbl&gt;
 1           0    36            2.5        1.82                    0.0278
@@ -1052,10 +1052,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="final-advice" class="level2" data-number="38.11">
-<h2 data-number="38.11" class="anchored" data-anchor-id="final-advice"><span class="header-section-number">38.11</span> Final Advice</h2>
+<section id="r-will-let-you-do-anything" class="level2" data-number="38.11">
+<h2 data-number="38.11" class="anchored" data-anchor-id="r-will-let-you-do-anything"><span class="header-section-number">38.11</span> R Will Let You Do Anything</h2>
 <p>Write code as a sequence of small, named decisions. Inspect the result after each important transformation. Make graphs before interpreting models. When something fails, read the error message from the bottom up and identify the first object or argument R says it cannot find.</p>
-<p>Most importantly, do not confuse code that runs with an analysis that makes sense. R will cheerfully calculate the mean of participant ID numbers, regress anxiety on alphabetical order, and draw a confidence interval around almost any mistake you can encode. The software is obedient. You still have to be the adult in the room, which seems unfair but is apparently how science works.</p>
+<p>Do not confuse code that runs with an analysis that makes sense. R will cheerfully calculate the mean of participant ID numbers, regress anxiety on alphabetical order, and draw a confidence interval around almost any mistake you can encode. The software is obedient. You still have to be the adult in the room, which seems unfair but is apparently how science works.</p>
 
 
 </section>

@@ -295,7 +295,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -592,7 +592,7 @@ window.Quarto = {
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"No chocolate"</span>, <span class="st">"Chocolate"</span>)</span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Those last few lines built the same data twice, in two different shapes. This confuses more students than any actual statistics in this chapter, so it is worth slowing down for.</p>
+<p>Those last few lines built the same data twice, in two different shapes. This confuses more students than the statistics do. Slow down here.</p>
 <p><strong>Wide</strong> data give each person one row, with a separate column for each condition:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(paired_wide[, <span class="fu">c</span>(<span class="st">"participant"</span>, <span class="st">"no_chocolate"</span>, <span class="st">"chocolate"</span>)], <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -608,7 +608,7 @@ window.Quarto = {
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(paired_long[, <span class="fu">c</span>(<span class="st">"participant"</span>, <span class="st">"condition"</span>, <span class="st">"fixation"</span>)], <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 x 3
+<pre><code># A tibble: 6 × 3
   participant condition    fixation
   &lt;fct&gt;       &lt;fct&gt;           &lt;dbl&gt;
 1 1           No chocolate     3.22
@@ -790,8 +790,8 @@ S_D^2=S_1^2+S_2^2-2rS_1S_2
 <p>That <span class="math inline">\(r\)</span> is the correlation between a person’s two scores, and it is the shoes-and-height idea in symbolic form. When the two measurements are positively correlated, the last term subtracts variability. Stable person differences cancel: the consistently attentive student is compared with themself, and the student planning an elaborate escape is also compared with themself.</p>
 <p>Notice what happens at the extremes. If <span class="math inline">\(r = 0\)</span>, the two scores know nothing about each other, that last term is zero, and the variance of the difference is just <span class="math inline">\(S_1^2 + S_2^2\)</span>. You paired the data and got nothing for it. The closer <span class="math inline">\(r\)</span> climbs toward 1, the more the last term eats, and the smaller the difference scores’ variance becomes.</p>
 <p>This often gives a smaller standard error than an independent-samples analysis. Pairing does not guarantee more power, however. If the repeated scores barely correlate, little stable variation is removed. Pairing also cannot repair a terrible measure. Measuring attention by counting how often someone blinks at the ceiling remains a terrible plan in both conditions.</p>
-<section id="how-much-does-pairing-actually-buy-you" class="level3" data-number="9.7.1">
-<h3 data-number="9.7.1" class="anchored" data-anchor-id="how-much-does-pairing-actually-buy-you"><span class="header-section-number">9.7.1</span> How Much Does Pairing Actually Buy You?</h3>
+<section id="what-does-pairing-buy-you" class="level3" data-number="9.7.1">
+<h3 data-number="9.7.1" class="anchored" data-anchor-id="what-does-pairing-buy-you"><span class="header-section-number">9.7.1</span> What Does Pairing Buy You?</h3>
 <p>We have the data, so we do not have to speculate. First, how correlated are the two measurements? Then we run the analysis <strong>incorrectly on purpose</strong>, treating our 96 scores as if they came from 96 different students who happened to wander in:</p>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How much do a person's two scores agree with each other?</span></span>
@@ -823,8 +823,8 @@ mean of x mean of y
 <p>That is the whole argument for within-subjects designs, and it is why the design chapter of every methods book keeps yelling about them. It is also, in this case, a correlation of only 0.46. A stronger correlation would have bought even more.</p>
 </section>
 </section>
-<section id="assumptions-that-actually-matter" class="level2" data-number="9.8">
-<h2 data-number="9.8" class="anchored" data-anchor-id="assumptions-that-actually-matter"><span class="header-section-number">9.8</span> Assumptions That Actually Matter</h2>
+<section id="assumptions-you-cannot-skip" class="level2" data-number="9.8">
+<h2 data-number="9.8" class="anchored" data-anchor-id="assumptions-you-cannot-skip"><span class="header-section-number">9.8</span> Assumptions You Cannot Skip</h2>
 <p>For the paired-samples <em>t</em>-test:</p>
 <ul>
 <li>the observations form genuine pairs;</li>

@@ -314,7 +314,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./Ch_15_Statistical_Control.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Actually Removing?</span></span></a>
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Statistical Control: What Are We Removing?</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -536,7 +536,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Advanced Does Not Mean Assumption-Free
+<span class="screen-reader-only">Warning</span>Resampling Still Has Assumptions
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1063,8 +1063,8 @@ Y_i^*\sim N(\widehat Y_i,\widehat\sigma^2)
 <p>A few hundred replications may be enough to teach the idea or debug code. Standard errors commonly need at least a few thousand. Confidence-interval endpoints depend on tail quantiles and often need more. Run enough replications that repeating the analysis with a different seed does not change the reported conclusion or the meaningful digits.</p>
 <p>The number of bootstrap replications <span class="math inline">\(B\)</span> controls <strong>Monte Carlo error</strong> in the calculation. It does not increase the original sample size. More replications do not repair a biased sample, weak measurement, or a resampling scheme that ignores the design. Ten thousand wrong resamples are wrong with excellent numerical stability.</p>
 </section>
-<section id="what-the-bootstrap-can-and-cannot-do" class="level2" data-number="36.11">
-<h2 data-number="36.11" class="anchored" data-anchor-id="what-the-bootstrap-can-and-cannot-do"><span class="header-section-number">36.11</span> What the Bootstrap Can and Cannot Do</h2>
+<section id="the-bootstrap-is-not-magic" class="level2" data-number="36.11">
+<h2 data-number="36.11" class="anchored" data-anchor-id="the-bootstrap-is-not-magic"><span class="header-section-number">36.11</span> The Bootstrap Is Not Magic</h2>
 <p>The bootstrap is useful when:</p>
 <ul>
 <li>A theoretical sampling distribution is hard to derive.</li>
