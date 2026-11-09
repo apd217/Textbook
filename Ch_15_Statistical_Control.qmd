@@ -517,7 +517,9 @@ Now we have several numbers describing the Study Hours relationship. This is whe
 dat_z <- as.data.frame(scale(dat[c("Exam", "StudyHours", "Anxiety")]))
 standardized_model <- lm(Exam ~ StudyHours + Anxiety, data = dat_z)
 beta_study <- coef(standardized_model)["StudyHours"]
+```
 
+```{r beta-table, echo=FALSE}
 comparison <- data.frame(
   Quantity = c(
     "Zero-order correlation (r)",
@@ -547,6 +549,7 @@ comparison <- data.frame(
 
 knitr::kable(comparison)
 ```
+
 
 The standardized beta is $\beta=`r round(beta_study, 3)`$. It tells us how many standard deviations Exam Score changes for a one-standard-deviation increase in Study Hours while Anxiety is held constant.
 
